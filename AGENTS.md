@@ -29,11 +29,32 @@
 - Skills are not used directly. The equivalent is **workflows** (process guidance) + **templates** (code examples/end state).
 - Per-agent skills may serve as thin shortcuts to existing workflows, but never as substitutes.
 - **Plans** are a separate category for exploratory, multi-phase work — not a skill or workflow.
+- Keep durable project-specific patterns in the project's local docs. Only promote cross-project
+  process habits to global rules or memory.
+
+## Branch Continuation
+
+- When resuming ongoing branch work, inspect the repository state instead of relying on chat memory
+  alone.
+- Separate completed commits, staged changes, unstaged changes, and untracked files when summarizing
+  current work.
+- Treat staged files as intentionally selected work unless the user says otherwise.
+- Preserve unrelated unstaged and untracked files. Plan files and exploratory notes are context, not
+  commit candidates, unless the user explicitly asks to include them.
+- Compare any existing plan or handoff note against current code and commits before using it as a
+  checklist.
+
+## Cloud Infrastructure Safety
+
+- Do not run write, edit, deploy, or restart commands against production cloud infrastructure. Use read-only inspection only, and provide proposed commands for the user to run.
+- Only run write, edit, deploy, or restart commands against non-production cloud infrastructure when the user explicitly asks for that exact action in the current conversation.
 
 ## Shell
 
 - Use `rtk` as a CLI proxy for supported Bash commands when compact, token-optimized output is useful. It filters command output before it reaches the LLM; do not use it when raw output or normal command behavior is needed.
+- When a project provides a dev wrapper, use it for development and testing Docker Compose commands. The wrapper selects the correct compose files, profiles, environment, and service wiring. Only use raw Docker Compose for explicitly local production-build validation or when no project wrapper exists.
 
 ## Browser Automation
 
 - Do not use Playwright unless the user explicitly asks for Playwright, browser automation, or UI interaction.
+- When asked for PR QA, browser QA, or testing instructions, first check for a repo-local testing or QA workflow and follow it before inventing steps. If the repo has no workflow, still verify UI labels and routes from source or browser state before writing instructions.
