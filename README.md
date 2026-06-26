@@ -4,12 +4,13 @@ Version-controlled global agent instructions for local agent config files.
 
 ## Use
 
-Link each tool's global rules file to this repo:
+Link each tool's global rules file, plus the home-level fallback, to this repo:
 
 ```bash
 ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/.codex/AGENTS.md
 ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/.config/opencode/AGENTS.md
 ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/.omp/agent/AGENTS.md
+ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/AGENTS.md
 ```
 
 Restart the agent after changing this file. Global instructions load at startup.

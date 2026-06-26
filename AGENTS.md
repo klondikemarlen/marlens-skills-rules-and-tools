@@ -7,7 +7,15 @@
 - Only stage files when the user explicitly says to stage files.
 - **Pre-commit gate:** Before running `git commit`, pause and check whether the user's last message contained the word "commit" or "stage". If not, do not commit — stage the changes and ask for confirmation. Do not infer intent from context ("continue", "go ahead", "fix it").
 - If uncertain, ask before any git operation.
-- Assume multiple agents or the user may be working in the same repo; never overwrite or revert unrelated changes.
+- Assume multiple agents or the user may be working in the same repo; never overwrite or revert
+  unrelated changes.
+- If `git status` shows staged changes you did not create, assume another agent owns them. Poll
+  or wait for completion before editing, overwriting, unstaging, committing, or otherwise changing
+  those files.
+- If a file has uncommitted changes you did not create, preserve them and coordinate before touching
+  the same file.
+- If the directory is not a git repo, treat unexpected modified files the same way: assume another
+  agent or the user owns them until proven otherwise.
 - Do not add Co-Authored-By trailers to commits.
 
 ## Edits
@@ -29,8 +37,8 @@
 - Skills are not used directly. The equivalent is **workflows** (process guidance) + **templates** (code examples/end state).
 - Per-agent skills may serve as thin shortcuts to existing workflows, but never as substitutes.
 - **Plans** are a separate category for exploratory, multi-phase work — not a skill or workflow.
-- Keep durable project-specific patterns in the project's local docs. Only promote cross-project
-  process habits to global rules or memory.
+- Keep global rules lean: only promote cross-project process habits here. Put codebase-specific
+  architecture, schema, framework, and naming rules in the nearest project `AGENTS.md` or `README.md`.
 
 ## Branch Continuation
 
