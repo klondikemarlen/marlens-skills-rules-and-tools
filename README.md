@@ -23,7 +23,7 @@ This installs these OMP skills:
 - `release-notes`
 - `testing-instructions`
 
-It also adds `/marlens-rules-and-skills [task]`, a prompting shortcut that asks the agent to use the installed rules/workflows.
+It also adds `/marlens-rules-and-skills [task]`, a prompting shortcut that asks the agent to use the installed rules/workflows, and the `git-edit-commit` helper for editing older commits during a rebase.
 
 For local plugin development, link the package root so OMP uses the same plugin path:
 

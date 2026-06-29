@@ -8,6 +8,9 @@
     "type": "git",
     "url": "git+https://github.com/klondikemarlen/marlens-rules-and-skills.git"
   },
+  "bin": {
+    "git-edit-commit": "./bin/git-edit-commit.js"
+  },
   "files": [
     "AGENTS.md",
     "AGENT_RULES.md",
@@ -15,6 +18,7 @@
     "agents/",
     "skills/",
     "omp-plugin/",
+    "bin/",
     ".omp-plugin/"
   ],
   "omp": {
