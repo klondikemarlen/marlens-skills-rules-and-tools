@@ -23,6 +23,8 @@ This installs these OMP skills:
 - `release-notes`
 - `testing-instructions`
 
+These are skill prompts only; this package does not install Playwright or project test dependencies.
+
 It also adds `/marlens-rules-and-skills [task]`, a prompting shortcut that asks the agent to use the installed rules/workflows, and the `git-edit-commit` helper with `--message-only` and `--edit` modes for fixing older commits during a rebase.
 
 For local plugin development, link the package root so OMP uses the same plugin path:
