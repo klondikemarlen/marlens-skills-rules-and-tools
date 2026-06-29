@@ -42,14 +42,14 @@ Installed OMP skills:
 Install from the marketplace:
 
 ```bash
-omp plugin marketplace add klondikemarlen/agent-global-rules
+omp plugin marketplace add klondikemarlen/marlens-rules-and-skills
 omp plugin install marlens-rules-and-skills@marlens-rules-and-skills
 ```
 
 Interactive equivalent:
 
 ```text
-/marketplace add klondikemarlen/agent-global-rules
+/marketplace add klondikemarlen/marlens-rules-and-skills
 /marketplace install marlens-rules-and-skills@marlens-rules-and-skills
 ```
 
@@ -65,7 +65,7 @@ Only OMP has a plugin adapter today. Add future agent-specific adapters beside i
 
 ## Name
 
-Use `marlens-rules-and-skills` as the package/plugin slug and "Marlen's Rules and Skills" as the display name. The GitHub repo can stay `klondikemarlen/agent-global-rules` until you intentionally rename it; if you do, run `gh repo edit klondikemarlen/agent-global-rules --name marlens-rules-and-skills`.
+Use `marlens-rules-and-skills` as the package/plugin slug, GitHub repo name, and OMP marketplace name. Use "Marlen's Rules and Skills" as the display name.
 
 ## Files
 

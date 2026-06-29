@@ -12,12 +12,12 @@
       "description": "Generic global agent rules and skill shims packaged for OMP.",
       "source": {
         "source": "github",
-        "repo": "klondikemarlen/agent-global-rules",
+        "repo": "klondikemarlen/marlens-rules-and-skills",
         "ref": "main"
       },
       "category": "development",
       "tags": ["agents", "rules", "skills"],
-      "repository": "https://github.com/klondikemarlen/agent-global-rules"
+      "repository": "https://github.com/klondikemarlen/marlens-rules-and-skills"
     }
   ]
 }

@@ -6,7 +6,7 @@
   "keywords": ["omp-plugin", "agent-rules", "skills"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/klondikemarlen/agent-global-rules.git"
+    "url": "git+https://github.com/klondikemarlen/marlens-rules-and-skills.git"
   },
   "files": [
     "AGENTS.md",
