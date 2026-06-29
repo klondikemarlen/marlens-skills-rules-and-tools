@@ -12,7 +12,7 @@ This directory only contains OMP-specific runtime code. Keep shared procedures o
 
 Runtime behavior:
 
-- Registers `/agent-global-rules [task]`, a prompting shortcut that asks the agent to use the installed global-rules skills and workflows.
+- Registers `/marlens-rules-and-skills [task]`, a prompting shortcut that asks the agent to use Marlen's installed rules and skills.
 
 ## Local development
 

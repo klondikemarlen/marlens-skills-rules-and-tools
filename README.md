@@ -1,4 +1,4 @@
-# Agent Global Rules
+# Marlen's Rules and Skills
 
 Generic agent rules plus a thin OMP plugin adapter.
 
@@ -7,7 +7,7 @@ Generic agent rules plus a thin OMP plugin adapter.
 Clone this repo anywhere, then link each tool's global rules file plus the home-level fallback to that checkout:
 
 ```bash
-REPO=/path/to/agent-global-rules
+REPO=/path/to/rules-and-skills-checkout
 mkdir -p "$HOME/.codex" "$HOME/.config/opencode" "$HOME/.omp/agent"
 ln -sf "$REPO/AGENTS.md" "$HOME/.codex/AGENTS.md"
 ln -sf "$REPO/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
@@ -24,7 +24,7 @@ This repo also ships an OMP package adapter:
 - `package.json` declares `omp.extensions`.
 - `omp-plugin/index.ts` is the tiny runtime adapter.
 - `.omp-plugin/marketplace.json` exposes the package to the OMP marketplace.
-- `/agent-global-rules` is a prompting shortcut that asks the agent to use the installed rules/workflows.
+- `/marlens-rules-and-skills` is a prompting shortcut that asks the agent to use the installed rules/workflows.
 
 Installed OMP skills:
 
@@ -39,25 +39,25 @@ Install from the marketplace:
 
 ```bash
 omp plugin marketplace add klondikemarlen/agent-global-rules
-omp plugin install agent-global-rules@agent-global-rules
+omp plugin install marlens-rules-and-skills@marlens-rules-and-skills
 ```
 
 Interactive equivalent:
 
 ```text
 /marketplace add klondikemarlen/agent-global-rules
-/marketplace install agent-global-rules@agent-global-rules
+/marketplace install marlens-rules-and-skills@marlens-rules-and-skills
 ```
 
 For local development, load the package root so OMP also discovers sibling `skills/`:
 
 ```bash
-omp --extension /path/to/agent-global-rules
+omp --extension /path/to/rules-and-skills-checkout
 ```
 
 ## Name
 
-Keep `agent-global-rules` for now. It preserves existing install paths and still describes the root contract. If this becomes a public package beyond personal/global rules, `agent-rules-and-skills` is the clearer rename.
+Use `marlens-rules-and-skills` as the package/plugin slug and "Marlen's Rules and Skills" as the display name. The GitHub repo can stay `klondikemarlen/agent-global-rules` until you intentionally rename it; if you do, run `gh repo edit klondikemarlen/agent-global-rules --name marlens-rules-and-skills`.
 
 ## Files
 

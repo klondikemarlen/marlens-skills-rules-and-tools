@@ -1,14 +1,14 @@
 {
-  "name": "agent-global-rules",
+  "name": "marlens-rules-and-skills",
   "owner": {
     "name": "klondikemarlen"
   },
   "metadata": {
-    "description": "OMP catalog for the generic agent-global-rules core."
+    "description": "OMP catalog for Marlen's rules and skills."
   },
   "plugins": [
     {
-      "name": "agent-global-rules",
+      "name": "marlens-rules-and-skills",
       "description": "Generic global agent rules and skill shims packaged for OMP.",
       "source": {
         "source": "github",
