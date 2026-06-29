@@ -4,13 +4,15 @@ Generic agent rules plus a thin OMP plugin adapter.
 
 ## Generic use
 
-Link each tool's global rules file, plus the home-level fallback, to the generic root files:
+Clone this repo anywhere, then link each tool's global rules file plus the home-level fallback to that checkout:
 
 ```bash
-ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/.codex/AGENTS.md
-ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/.config/opencode/AGENTS.md
-ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/.omp/agent/AGENTS.md
-ln -sf /home/marlen/code/klondikemarlen/agent-global-rules/AGENTS.md /home/marlen/AGENTS.md
+REPO=/path/to/agent-global-rules
+mkdir -p "$HOME/.codex" "$HOME/.config/opencode" "$HOME/.omp/agent"
+ln -sf "$REPO/AGENTS.md" "$HOME/.codex/AGENTS.md"
+ln -sf "$REPO/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
+ln -sf "$REPO/AGENTS.md" "$HOME/.omp/agent/AGENTS.md"
+ln -sf "$REPO/AGENTS.md" "$HOME/AGENTS.md"
 ```
 
 Restart the agent after changing this file. Global instructions load at startup.
@@ -24,18 +26,38 @@ This repo also ships an OMP package adapter:
 - `.omp-plugin/marketplace.json` exposes the package to the OMP marketplace.
 - `/agent-global-rules` is a prompting shortcut that asks the agent to use the installed rules/workflows.
 
-Install from the marketplace after this repo is pushed:
+Installed OMP skills:
+
+- `commit`
+- `learn`
+- `playwright-qa`
+- `pull-request-management`
+- `release-notes`
+- `testing-instructions`
+
+Install from the marketplace:
 
 ```bash
 omp plugin marketplace add klondikemarlen/agent-global-rules
 omp plugin install agent-global-rules@agent-global-rules
 ```
 
+Interactive equivalent:
+
+```text
+/marketplace add klondikemarlen/agent-global-rules
+/marketplace install agent-global-rules@agent-global-rules
+```
+
 For local development, load the package root so OMP also discovers sibling `skills/`:
 
 ```bash
-omp --extension /home/marlen/code/klondikemarlen/agent-global-rules
+omp --extension /path/to/agent-global-rules
 ```
+
+## Name
+
+Keep `agent-global-rules` for now. It preserves existing install paths and still describes the root contract. If this becomes a public package beyond personal/global rules, `agent-rules-and-skills` is the clearer rename.
 
 ## Files
 

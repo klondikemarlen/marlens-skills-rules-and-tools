@@ -1,8 +1,7 @@
 {
   "name": "agent-global-rules",
   "version": "0.1.0",
-  "description": "Generic agent rules and workflow skills packaged for OMP.",
-  "private": true,
+  "description": "Generic agent rules, workflow skills, and OMP plugin adapter.",
   "type": "module",
   "keywords": ["omp-plugin", "agent-rules", "skills"],
   "repository": {
@@ -15,7 +14,8 @@
     "COMMITTING.md",
     "agents/",
     "skills/",
-    "omp-plugin/"
+    "omp-plugin/",
+    ".omp-plugin/"
   ],
   "omp": {
     "extensions": ["./omp-plugin/index.ts"]
