@@ -28,6 +28,7 @@ Use `verb-noun-workflow.md` or `task-domain-workflow.md`.
 
 Examples:
 
+- `code-review-workflow.md`
 - `commit-workflow.md`
 - `learn-workflow.md`
 - `pull-request-management-workflow.md`

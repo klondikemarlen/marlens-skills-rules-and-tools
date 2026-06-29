@@ -13,6 +13,7 @@ omp plugin install marlens-rules-and-skills@marlens-rules-and-skills
 
 This installs these OMP skills:
 
+- `code-review`
 - `commit`
 - `learn`
 - `playwright-qa`

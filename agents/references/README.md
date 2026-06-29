@@ -12,3 +12,5 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Cross-workflow conventions.
 
 Keep task procedures in `../workflows/`, implementation plans in `../plans/`, and copyable examples in `../templates/`.
+
+Delete stale references when the underlying model or local project docs no longer need the hint. References should stay durable and hard to rediscover, not become a second README.
