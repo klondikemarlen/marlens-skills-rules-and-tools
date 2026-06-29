@@ -8,6 +8,22 @@ Directory READMEs under `agents/` are discovery documents. Use them to find rele
 
 Top-level `skills/` are compatibility entry points. Keep real procedures in `workflows/`, copyable examples in `templates/`, and durable background in `references/`; skills should only point to the authoritative file.
 
+## Customization and Precedence
+
+This package is the fallback base layer. Project-local instructions win.
+
+Before applying a workflow from this package, read the target project's local rules and docs when they exist:
+
+- `AGENTS.md`
+- `README.md`
+- `COMMITTING.md`
+- `bin/README.md`
+- project-local `agents/` docs
+- project-local skill files
+
+Keep project-specific commands, services, routes, domain terms, and deployment details in the target project. Do not bake those details into this shared pack.
+
+
 ## Directory Structure
 
 ```text

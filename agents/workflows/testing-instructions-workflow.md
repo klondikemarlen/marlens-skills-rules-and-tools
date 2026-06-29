@@ -5,11 +5,12 @@ Use when writing or updating pull request testing instructions.
 ## Process
 
 1. Read the PR body, diff, and any existing testing section.
-2. Identify behavior a reviewer can actually verify.
-3. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
-4. Write steps in the order a reviewer should perform them.
-5. Include expected outcomes for each scenario.
-6. Separate independent scenarios with numbered test cases when the flow is complex.
+2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs.
+3. Identify behavior a reviewer can actually verify.
+4. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
+5. Write steps in the order a reviewer should perform them.
+6. Include expected outcomes for each scenario.
+7. Separate independent scenarios with numbered test cases when the flow is complex.
 
 ## Rules
 

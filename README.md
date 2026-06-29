@@ -45,6 +45,20 @@ If an agent cannot load plugins or skills, keep the checkout nearby and point it
 
 Restart the agent after changing this file. Global instructions load at startup.
 
+## Local customization
+
+Treat this pack as the base layer. Project-local instructions win.
+
+For each project, keep project-specific commands and conventions in that repo, not in this shared pack:
+
+- `AGENTS.md` for project rules.
+- `README.md` or `bin/README.md` for setup and dev-wrapper commands.
+- `COMMITTING.md` for commit-message style.
+- `agents/` for project workflows, templates, references, and plans.
+- local skills for project-only shortcuts.
+
+This keeps the shared skills usable across different stacks while letting Icefog-style repos define their own wrappers, test commands, Docker services, UI labels, and domain language.
+
 ## Future adapters
 
 Only OMP has a plugin adapter today. Add future agent-specific adapters beside it, for example `claude-plugin/` or another requested agent adapter, and have them consume the root `AGENTS.md`, `agents/`, and `skills/` content instead of copying workflows.

@@ -17,6 +17,10 @@ and output contracts.
   project-specific, put it under a project-named subtree or name that scope explicitly.
 - **Skill shims:** Keep substantive procedures here. Top-level `skills/` files should be thin aliases
   that point to the authoritative workflow or template.
+- **Local precedence:** Project-local rules, docs, workflows, templates, and skills override this
+  package. Use this package only as the base layer when the target project does not say otherwise.
+- **Command discovery:** Read project-local setup docs and wrappers before choosing commands. For
+  example, prefer a repo's `bin/dev` or documented Docker wrapper over raw commands.
 
 ## Naming
 
