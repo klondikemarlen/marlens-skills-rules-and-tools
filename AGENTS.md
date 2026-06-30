@@ -70,10 +70,6 @@
 - Use `rtk` as a CLI proxy for supported Bash commands when compact, token-optimized output is useful. It filters command output before it reaches the LLM; do not use it when raw output or normal command behavior is needed.
 - When a project provides a dev wrapper, use it for development and testing Docker Compose commands. The wrapper selects the correct compose files, profiles, environment, and service wiring. Only use raw Docker Compose for explicitly local production-build validation or when no project wrapper exists.
 
-## Learn
-
-- When Marlen says `learn`, store the durable lesson in memory, externalize it into this repo, and commit the repo update when commits are authorized.
-
 ## Browser Automation
 
 - Do not use browser automation unless the user explicitly asks for browser QA, UI interaction, or another browser-visible validation.

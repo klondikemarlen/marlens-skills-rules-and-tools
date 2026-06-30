@@ -11,9 +11,10 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 **Decision Rules:**
 
 - `learn` means durable persistence beyond the current conversation.
-- Use memory for personal preferences; use repo docs for patterns future contributors and agents need.
+- Store durable lessons in memory and externalize them into repo docs when they affect shared rules, workflows, or project conventions.
 - Keep `AGENTS.md` as a short cross-cutting index; shard detailed guidance near the code or in `agents/`.
 - Update workflows only for reusable decision rules, not one-off fixes.
+- When externalization changes repository guidance and commits are authorized, commit the repo update after verification.
 - Ask when a correction has multiple plausible meanings.
 
 ## Process
