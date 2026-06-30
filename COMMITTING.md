@@ -151,7 +151,7 @@ git edit-commit --message-only <commit> "new message"
 If `git edit-commit` is not on `PATH`, use:
 
 ```bash
-node /path/to/marlens-rules-and-skills/bin/git-edit-commit.js --message-only <commit> "new message"
+node /path/to/marlens-skills-rules-and-tools/bin/git-edit-commit.js --message-only <commit> "new message"
 ```
 
 **Amend code into an older commit with a clean worktree:**
@@ -166,7 +166,7 @@ git rebase --continue
 If `git edit-commit` is not on `PATH`, use:
 
 ```bash
-node /path/to/marlens-rules-and-skills/bin/git-edit-commit.js --edit <commit>
+node /path/to/marlens-skills-rules-and-tools/bin/git-edit-commit.js --edit <commit>
 ```
 
 **Fallback for already-working tree changes that span older commits:**

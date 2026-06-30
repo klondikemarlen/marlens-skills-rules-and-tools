@@ -1,19 +1,19 @@
 {
-  "name": "marlens-rules-and-skills",
+  "name": "marlens-skills-rules-and-tools",
   "owner": {
     "name": "klondikemarlen"
   },
   "metadata": {
-    "description": "OMP catalog for Marlen's rules and skills."
+    "description": "OMP catalog for Marlen's skills, rules, and tools."
   },
   "plugins": [
     {
-      "name": "marlens-rules-and-skills",
-      "description": "Generic global agent rules and skill shims packaged for OMP.",
+      "name": "marlens-skills-rules-and-tools",
+      "description": "Generic global agent skills, rules, and tool helpers packaged for OMP.",
       "source": "./",
       "category": "development",
       "tags": ["agents", "rules", "skills"],
-      "repository": "https://github.com/klondikemarlen/marlens-rules-and-skills"
+      "repository": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools"
     }
   ]
 }

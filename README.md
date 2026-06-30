@@ -1,13 +1,13 @@
-# Marlen's Rules and Skills
+# Marlen's Skills, Rules, and Tools
 
-Reusable agent rules and skills, plus a thin OMP plugin adapter.
+Reusable agent skills, rules, and tool helpers, plus a thin OMP plugin adapter.
 
 ## OMP plugin install
 
 Recommended direct install:
 
 ```bash
-omp plugin install github:klondikemarlen/marlens-rules-and-skills
+omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 ```
 
 Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
@@ -16,12 +16,12 @@ This installs OMP skill prompts for browser QA, code review, commits, rebases, l
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
-It also adds `/marlens-rules-and-skills [task]`, a prompting shortcut that asks the agent to use the installed rules/workflows, and the `git-edit-commit` helper with `--message-only` and `--edit` modes for fixing older commits during a rebase.
+It also adds `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, and the `git-edit-commit` helper with `--message-only` and `--edit` modes for fixing older commits during a rebase.
 
 For local plugin development, link the package root so OMP uses the same plugin path:
 
 ```bash
-omp plugin link /path/to/rules-and-skills-checkout
+omp plugin link /path/to/marlens-skills-rules-and-tools
 ```
 
 After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
@@ -33,7 +33,7 @@ Use this path for agents without a plugin system.
 Clone this repo anywhere, then link or copy the shared rules file into the locations your agents read:
 
 ```bash
-REPO=/path/to/rules-and-skills-checkout
+REPO=/path/to/marlens-skills-rules-and-tools
 mkdir -p "$HOME/.omp/agent"
 ln -sf "$REPO/AGENTS.md" "$HOME/.omp/agent/AGENTS.md"
 ln -sf "$REPO/AGENTS.md" "$HOME/AGENTS.md"
@@ -63,7 +63,7 @@ Only OMP has a plugin adapter today. Add future agent-specific adapters beside i
 
 ## Name
 
-Use `marlens-rules-and-skills` as the package/plugin slug, GitHub repo name, and OMP marketplace name. Use "Marlen's Rules and Skills" as the display name.
+Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo name, and OMP marketplace name. Use "Marlen's Skills, Rules, and Tools" as the display name.
 
 ## Files
 

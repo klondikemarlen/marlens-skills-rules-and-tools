@@ -49,7 +49,7 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
    If the helper is not on `PATH`, call this package's binary directly:
 
    ```bash
-   node /path/to/marlens-rules-and-skills/bin/git-edit-commit.js --message-only <target-commit> "New commit message."
+   node /path/to/marlens-skills-rules-and-tools/bin/git-edit-commit.js --message-only <target-commit> "New commit message."
    ```
 
    The helper marks exactly the target commit as `reword`, writes the supplied message non-interactively, and replays later commits.
@@ -64,7 +64,7 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
    If the helper is not on `PATH`, call this package's binary directly:
 
    ```bash
-   node /path/to/marlens-rules-and-skills/bin/git-edit-commit.js --edit <target-commit>
+   node /path/to/marlens-skills-rules-and-tools/bin/git-edit-commit.js --edit <target-commit>
    ```
 
    The helper marks exactly the target commit as `edit`, optionally amends its message, then stops. Make code or message edits, stage them, amend the stopped commit, and continue:
