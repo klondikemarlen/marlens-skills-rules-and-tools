@@ -1,6 +1,6 @@
 {
   "name": "marlens-rules-and-skills",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Generic agent rules, workflow skills, and OMP plugin adapter.",
   "type": "module",
   "keywords": ["omp-plugin", "agent-rules", "skills"],

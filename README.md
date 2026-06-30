@@ -24,6 +24,8 @@ For local plugin development, link the package root so OMP uses the same plugin 
 omp plugin link /path/to/rules-and-skills-checkout
 ```
 
+After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
+
 ## Manual install
 
 Use this path for agents without a plugin system.
