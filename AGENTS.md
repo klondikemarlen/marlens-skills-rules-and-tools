@@ -72,5 +72,5 @@
 
 ## Browser Automation
 
-- Do not use Playwright unless the user explicitly asks for Playwright, browser automation, or UI interaction.
+- Do not use browser automation unless the user explicitly asks for browser QA, UI interaction, or another browser-visible validation.
 - When asked for PR QA, browser QA, or testing instructions, first check for a repo-local testing or QA workflow and follow it before inventing steps. If the repo has no workflow, still verify UI labels and routes from source or browser state before writing instructions.

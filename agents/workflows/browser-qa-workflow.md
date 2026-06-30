@@ -13,7 +13,7 @@ Use when validating user-visible behavior in a browser.
 ## Rules
 
 - Do not print credentials or secrets.
-- This package does not install Playwright. Use OMP's browser tool or the target project's documented Playwright setup; do not add Playwright solely for QA unless requested.
+- This package does not install browser automation dependencies. Use OMP's browser tool or the target project's documented browser QA setup; do not add browser automation solely for QA unless requested.
 - Do not rely on logs or database state as proof of UI behavior.
 - Keep screenshots out of the repository unless explicitly requested.
 - If authentication or an external service blocks automation, state the blocker and what remains unverified.

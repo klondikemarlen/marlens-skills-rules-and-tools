@@ -12,19 +12,9 @@ omp plugin install github:klondikemarlen/marlens-rules-and-skills
 
 Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
 
-This installs these OMP skills:
+This installs OMP skill prompts for browser QA, code review, commits, rebases, learning, pull request management, release notes, and testing instructions.
 
-- `browser-qa`
-- `code-review`
-- `commit`
-- `git-rebase`
-- `learn`
-- `playwright-qa` (backward-compatible alias for `browser-qa`)
-- `pull-request-management`
-- `release-notes`
-- `testing-instructions`
-
-These are skill prompts only; this package does not install Playwright or project test dependencies.
+These are skill prompts only; this package does not install browser automation or project test dependencies.
 
 It also adds `/marlens-rules-and-skills [task]`, a prompting shortcut that asks the agent to use the installed rules/workflows, and the `git-edit-commit` helper with `--message-only` and `--edit` modes for fixing older commits during a rebase.
 

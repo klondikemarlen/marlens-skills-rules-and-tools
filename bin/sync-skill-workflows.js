@@ -12,7 +12,6 @@ const mirrors = {
   commit: ["commit-workflow.md"],
   "git-rebase": ["git-rebase-workflow.md"],
   learn: ["learn-workflow.md"],
-  "playwright-qa": ["browser-qa-workflow.md", "testing-instructions-workflow.md"],
   "pull-request-management": ["pull-request-management-workflow.md"],
   "release-notes": ["release-notes-workflow.md"],
   "testing-instructions": ["testing-instructions-workflow.md"],
