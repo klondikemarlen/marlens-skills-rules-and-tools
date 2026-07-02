@@ -40,6 +40,18 @@ durable prefix patterns over one-off command strings.
 - When a branch contains multiple meaningful slices, explain the current slice clearly in the PR
   context instead of treating the whole branch as one undifferentiated change.
 
+### API Surface Ordering
+
+When editing barrel files, index files, or grouped API namespace surfaces, preserve the existing
+grouping shape and alphabetize entries within each group:
+
+- namespace imports, such as `import * as Foo from "./foo"`
+- named exports, such as `export { Foo } from "./foo"`
+- default export object keys, such as `export default { Foo, Bar }`
+
+Do not collapse intentional grouping comments unless the project asks for that cleanup. Apply this
+only to API surface files, not ordinary import blocks in every source file.
+
 ### Documentation Placement
 
 - Put shared, cross-agent rules here.
