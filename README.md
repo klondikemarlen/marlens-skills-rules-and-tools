@@ -34,10 +34,11 @@ In this repo only, an explicit request to fix a GitHub-tracked issue authorizes 
 
 1. Branch from current `main` before editing.
 2. Make the smallest fix that resolves the issue, including any docs or workflow mirrors that must stay synced.
-3. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
-4. Merge through the PR when possible so GitHub records the review/merge path.
-5. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
-6. After merge, deploy a new plugin version, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
+3. Bump `package.json` for every change; the current release mechanism is the merge to `main` on GitHub.
+4. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
+5. Merge through the PR so GitHub records the review/merge path; in this repo that merge to `main` is the release.
+6. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
+7. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
 
 ## Manual install
 
