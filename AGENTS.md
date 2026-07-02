@@ -61,6 +61,12 @@
 - Compare any existing plan or handoff note against current code and commits before using it as a
   checklist.
 
+## Repo Release Rules
+
+- In `klondikemarlen/marlens-skills-rules-and-tools`, bump `package.json` for every change.
+- The current release mechanism is the merge to `main` on GitHub; do not claim a separate npm or marketplace publish unless a future repo-specific workflow documents it.
+- After merge, reinstall with `omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools --force`, then tell the user to reload the plugin if supported or restart OMP.
+
 ## Cloud Infrastructure Safety
 
 - Do not run write, edit, deploy, or restart commands against production cloud infrastructure. Use read-only inspection only, and provide proposed commands for the user to run.
