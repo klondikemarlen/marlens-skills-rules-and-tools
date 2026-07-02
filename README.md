@@ -26,6 +26,16 @@ omp plugin link /path/to/marlens-skills-rules-and-tools
 
 After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
 
+## Fixing GitHub-tracked issues
+
+Preferred flow for repo issues:
+
+1. Branch from current `main` before editing.
+2. Make the smallest fix that resolves the issue, including any docs or workflow mirrors that must stay synced.
+3. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
+4. Merge through the PR when possible so GitHub records the review/merge path.
+5. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
+
 ## Manual install
 
 Use this path for agents without a plugin system.
