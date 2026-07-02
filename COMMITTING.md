@@ -133,7 +133,12 @@ Avoid: in-progress reasoning, implementation mechanics, and code symbols in pros
 
 ## Rewriting past commits
 
-Prefer the `git-rebase` skill and this package's `bin/git-edit-commit.js` helper.
+Prefer the `git-rebase` skill. Use this package's `git-edit-commit` helper only after confirming it is on `PATH`:
+
+```bash
+command -v git-edit-commit
+```
+
 Do not hand-roll detached-HEAD rebases unless the helper is unavailable or the worktree already contains edits that must be split across multiple older commits.
 
 **Reword HEAD:**
@@ -142,19 +147,13 @@ Do not hand-roll detached-HEAD rebases unless the helper is unavailable or the w
 git commit --amend -m "new message"
 ```
 
-**Reword an older commit:**
+**Reword an older commit with the helper available:**
 
 ```bash
 git edit-commit --message-only <commit> "new message"
 ```
 
-If `git edit-commit` is not on `PATH`, use:
-
-```bash
-node /path/to/marlens-skills-rules-and-tools/bin/git-edit-commit.js --message-only <commit> "new message"
-```
-
-**Amend code into an older commit with a clean worktree:**
+**Amend code into an older commit with a clean worktree and the helper available:**
 
 ```bash
 git edit-commit --edit <commit>
@@ -163,15 +162,52 @@ git commit --amend --no-edit
 git rebase --continue
 ```
 
-If `git edit-commit` is not on `PATH`, use:
+If `command -v git-edit-commit` fails, do not guess a `node /path/to/.../bin/git-edit-commit.js` path.
+
+**Fallback for code changes that are not applied yet:**
+
+Use a temporary non-interactive sequence editor to stop at the older commit:
 
 ```bash
-node /path/to/marlens-skills-rules-and-tools/bin/git-edit-commit.js --edit <commit>
+target=$(git rev-parse <target-commit>)
+short_target=$(git rev-parse --short <target-commit>)
+editor=$(mktemp)
+printf '%s\n' \
+  '#!/usr/bin/env node' \
+  'import { readFileSync, writeFileSync } from "node:fs";' \
+  'const todoPath = process.argv[2];' \
+  'const target = process.env.TARGET_COMMIT;' \
+  'const shortTarget = process.env.TARGET_COMMIT_SHORT;' \
+  'let changed = false;' \
+  'const lines = readFileSync(todoPath, "utf8").split("\n").map((line) => {' \
+  '  const match = line.match(/^(pick|reword|edit|squash|fixup)\s+([0-9a-f]+)/);' \
+  '  if (!match) return line;' \
+  '  const hash = match[2];' \
+  '  if (!changed && (target.startsWith(hash) || hash.startsWith(shortTarget))) {' \
+  '    changed = true;' \
+  '    return line.replace(/^\w+/, "edit");' \
+  '  }' \
+  '  return line;' \
+  '});' \
+  'if (!changed) throw new Error(`Could not find commit ${shortTarget} in rebase todo.`);' \
+  'writeFileSync(todoPath, lines.join("\n"));' > "$editor"
+chmod +x "$editor"
+TARGET_COMMIT="$target" TARGET_COMMIT_SHORT="$short_target" GIT_SEQUENCE_EDITOR="$editor" git rebase -i <target-commit>^
 ```
+
+Make the edit, then continue:
+
+```bash
+git add <paths>
+git commit --amend --no-edit
+git rebase --continue
+```
+
+For the root commit, use `TARGET_COMMIT="$target" TARGET_COMMIT_SHORT="$short_target" GIT_SEQUENCE_EDITOR="$editor" git rebase -i --root`.
 
 **Fallback for already-working tree changes that span older commits:**
 
-Use this only when the helper cannot apply cleanly because the desired edits already exist in the worktree or must be split across multiple targets. Split the diff by concern, create scoped fixups, then autosquash from the oldest target:
+Use this when the desired edits already exist in the worktree or must be split across multiple targets. Split the diff by concern, create scoped fixups, then autosquash from the oldest target:
 
 ```bash
 git add <paths-for-first-concern>
