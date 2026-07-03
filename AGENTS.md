@@ -6,7 +6,7 @@
 - If the user says "commit staged fix", commit staged files only; if none are staged, ask the user to stage them first.
 - Only stage files when the user explicitly says to stage files.
 - **Pre-commit gate:** Before running `git commit`, pause and check whether the user's last message contained the word "commit" or "stage". If not, do not commit — stage the changes and ask for confirmation. Do not infer intent from context ("continue", "go ahead", "fix it").
-- Repo-specific exception: when the current repository is `klondikemarlen/marlens-skills-rules-and-tools`, an explicit request to fix a GitHub-tracked issue authorizes staging and committing only the scoped files needed for that issue flow. Keep this exception out of other repositories.
+- Repo-specific exception: when the current repository is `klondikemarlen/marlens-skills-rules-and-tools`, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing only the scoped files needed for that workflow. Keep this exception out of other repositories.
 - If uncertain, ask before any git operation.
 - Assume multiple agents or the user may be working in the same repo; never overwrite or revert
   unrelated changes.

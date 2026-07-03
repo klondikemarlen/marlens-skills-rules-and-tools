@@ -12,9 +12,9 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 
 **Decision Rules:**
 
-- Never commit without an explicit current-turn request containing `commit` or `stage`.
-- Treat `commit staged` as index-only. If nothing is staged, ask the user to stage the files.
-- Stage files only when the user explicitly asks to stage files or asks to commit a named/relevant set.
+- Never commit without an explicit current-turn request containing `commit` or `stage`, unless repo-local docs define a narrower allowlisted workflow such as a GitHub issue or feature request flow.
+- Treat `commit staged` as index-only. If nothing is staged, ask the user to stage them first.
+- Stage files only when the user explicitly asks to stage files, asks to commit a named/relevant set, or repo-local docs authorize staging scoped files for the active workflow.
 - Never include unrelated user changes to make the tree clean.
 - Prefer one logical change per commit.
 
