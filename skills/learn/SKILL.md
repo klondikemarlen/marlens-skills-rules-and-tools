@@ -5,6 +5,9 @@ description: Use when capturing durable lessons from user corrections or recent 
 
 # Learn
 
-Read and follow `agents/workflows/learn-workflow.md` before capturing durable lessons.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/learn-workflow.md`
+2. Packaged fallback: `skill://learn/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.

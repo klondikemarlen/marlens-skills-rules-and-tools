@@ -5,6 +5,9 @@ description: Use when creating or editing pull requests; delegates to the local 
 
 # Pull Request Management
 
-Read and follow `agents/workflows/pull-request-management-workflow.md` before creating or editing a pull request.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/pull-request-management-workflow.md`
+2. Packaged fallback: `skill://pull-request-management/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.
