@@ -5,6 +5,6 @@ description: Use when reviewing a branch, pull request, or local diff for correc
 
 # Code Review
 
-Read and follow `skill://code-review/agents/workflows/code-review-workflow.md` before reviewing code.
+Read and follow `agents/workflows/code-review-workflow.md` before reviewing code.
 
-This skill is an alias. The workflow file is authoritative.
+This skill is a thin alias. The workflow file is authoritative.

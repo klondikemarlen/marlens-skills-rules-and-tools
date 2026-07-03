@@ -8,7 +8,7 @@ Use this workflow name when a prompt or installed skill still points at `node-ex
 
 ## Process
 
-1. Read `express-light-rail-backend-workflow.md` from the same workflow directory. When invoked through `skill://node-express-api`, read `skill://node-express-api/agents/workflows/express-light-rail-backend-workflow.md`.
+1. Read `agents/workflows/express-light-rail-backend-workflow.md`.
 2. Read `agents/templates/backend/express-light-rail/README.md`.
 3. Use only the focused templates needed for the current backend slice.
 4. Prefer project-local live code and templates when they are more specific.

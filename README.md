@@ -34,7 +34,7 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 
 1. Create or identify the GitHub issue with the user story and acceptance criteria.
 2. Branch from current `main` using the issue number and short slug before editing when possible; if the scoped work already exists locally, create the issue-named branch before committing.
-3. Make the smallest change that resolves the request, including any docs or workflow mirrors that must stay synced.
+3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
 4. Bump `package.json` for every change; the current release mechanism is the merge to `main` on GitHub.
 5. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
 6. Merge through the PR so GitHub records the review/merge path; in this repo that merge to `main` is the release.
@@ -86,7 +86,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `AGENT_RULES.md` - agent-agnostic shared decision rules
 - `COMMITTING.md` - reusable commit-message guidance
 - `agents/` - authoritative generic workflow, template, reference, and plan discovery docs
-- `skills/` - thin skill aliases plus packaged workflow mirrors for `skill://` sandboxed reads
+- `skills/` - thin skill aliases that point at authoritative workflows under `agents/workflows/`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
 - `.omp-plugin/` - OMP marketplace catalog

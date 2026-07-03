@@ -5,8 +5,6 @@ description: Use when writing or updating pull request testing instructions.
 
 # Testing Instructions
 
-Read and follow `skill://testing-instructions/agents/workflows/testing-instructions-workflow.md` before writing PR testing instructions.
+Read and follow `agents/workflows/testing-instructions-workflow.md` before writing or updating testing instructions.
 
-Verify exact UI labels, routes, setup commands, and expected outcomes from source or runtime state. Do not guess.
-
-This skill is an alias. The workflow file is authoritative.
+This skill is a thin alias. The workflow file is authoritative.

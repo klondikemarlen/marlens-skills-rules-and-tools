@@ -5,6 +5,6 @@ description: Compatibility alias for Node.js + Express API work; delegates to th
 
 # Node Express API
 
-Read and follow `skill://node-express-api/agents/workflows/node-express-api-workflow.md` before changing Node.js + Express API behavior.
+Read and follow `agents/workflows/node-express-api-workflow.md` before changing Node.js + Express API behavior.
 
-This skill is an alias. The workflow file is authoritative.
+This skill is a thin alias. The workflow file is authoritative.
