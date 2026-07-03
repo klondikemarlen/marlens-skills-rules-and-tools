@@ -13,8 +13,14 @@ A useful template includes:
 3. The copyable template body.
 4. A short verification checklist.
 
-## Naming
+## Naming and Structure
 
-Use `noun-template.md` or `domain-noun-template.md`.
+Use `noun-template.md` or `domain-noun-template.md` for standalone templates. Use a named subdirectory when a stack or pattern needs a family of related templates.
+
+Examples:
+
+- `backend/express-light-rail/`
+
+Template families should include their own `README.md` that lists the focused templates and when to use the family.
 
 Keep project-specific names out of generic templates unless the file is intentionally scoped to that project.

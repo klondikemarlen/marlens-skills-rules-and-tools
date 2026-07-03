@@ -5,6 +5,6 @@ description: Use when drafting release notes, changelog entries, release emails,
 
 # Release Notes
 
-Read and follow `skill://release-notes/agents/workflows/release-notes-workflow.md` before drafting release notes.
+Read and follow `agents/workflows/release-notes-workflow.md` before drafting release notes.
 
-This skill is an alias. The workflow file is authoritative.
+This skill is a thin alias. The workflow file is authoritative.

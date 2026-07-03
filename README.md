@@ -12,7 +12,7 @@ omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 
 Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
 
-This installs OMP skill prompts for browser QA, code review, commits, rebases, learning, pull request management, release notes, and testing instructions.
+This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, Node Express API compatibility, rebases, learning, pull request management, release notes, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
@@ -26,19 +26,20 @@ omp plugin link /path/to/marlens-skills-rules-and-tools
 
 After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
 
-## Fixing GitHub-tracked issues
+## Feature and issue workflow
 
-Preferred flow for repo issues:
+Preferred flow for repo issues and feature requests:
 
-In this repo only, an explicit request to fix a GitHub-tracked issue authorizes staging and committing the scoped files for that issue flow. Keep the broader global git safety block in place for other repositories.
+In this repo only, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing the scoped files for that workflow. Keep the broader global git safety block in place for other repositories.
 
-1. Branch from current `main` before editing.
-2. Make the smallest fix that resolves the issue, including any docs or workflow mirrors that must stay synced.
-3. Bump `package.json` for every change; the current release mechanism is the merge to `main` on GitHub.
-4. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
-5. Merge through the PR so GitHub records the review/merge path; in this repo that merge to `main` is the release.
-6. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
-7. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
+1. Create or identify the GitHub issue with the user story and acceptance criteria.
+2. Branch from current `main` using the issue number and short slug before editing when possible; if the scoped work already exists locally, create the issue-named branch before committing.
+3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
+4. Bump `package.json` for every change; the current release mechanism is the merge to `main` on GitHub.
+5. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
+6. Merge through the PR so GitHub records the review/merge path; in this repo that merge to `main` is the release.
+7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
+8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
 
 ## Manual install
 
@@ -85,7 +86,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `AGENT_RULES.md` - agent-agnostic shared decision rules
 - `COMMITTING.md` - reusable commit-message guidance
 - `agents/` - authoritative generic workflow, template, reference, and plan discovery docs
-- `skills/` - thin skill aliases plus packaged workflow mirrors for `skill://` sandboxed reads
+- `skills/` - thin skill aliases that point at authoritative workflows under `agents/workflows/`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
 - `.omp-plugin/` - OMP marketplace catalog

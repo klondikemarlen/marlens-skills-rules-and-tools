@@ -5,6 +5,6 @@ description: Create intentional git commits from staged or relevant local change
 
 # Commit
 
-Read and follow `skill://commit/agents/workflows/commit-workflow.md` before committing.
+Read and follow `agents/workflows/commit-workflow.md` before committing.
 
-This skill is an alias. The workflow file is authoritative.
+This skill is a thin alias. The workflow file is authoritative.

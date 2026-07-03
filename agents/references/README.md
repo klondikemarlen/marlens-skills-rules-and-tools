@@ -9,6 +9,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Browser QA tactics.
 - Commit or PR wording principles.
 - Tool-specific caveats.
+- Express Light Rail backend concepts.
 - Cross-workflow conventions.
 
 Keep task procedures in `../workflows/`, implementation plans in `../plans/`, and copyable examples in `../templates/`.
