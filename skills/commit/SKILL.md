@@ -5,6 +5,9 @@ description: Create intentional git commits from staged or relevant local change
 
 # Commit
 
-Read and follow `agents/workflows/commit-workflow.md` before committing.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/commit-workflow.md`
+2. Packaged fallback: `skill://commit/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.

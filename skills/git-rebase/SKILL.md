@@ -5,6 +5,9 @@ description: Use when fixing up, amending, rewording, squashing, or reordering o
 
 # Git Rebase
 
-Read and follow `agents/workflows/git-rebase-workflow.md` before rebasing.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/git-rebase-workflow.md`
+2. Packaged fallback: `skill://git-rebase/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.

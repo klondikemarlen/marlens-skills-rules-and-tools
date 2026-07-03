@@ -5,6 +5,9 @@ description: Use for user-facing feature work that should flow through an issue,
 
 # Feature Workflow
 
-Read and follow `agents/workflows/feature-workflow.md` before doing user-facing feature work.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/feature-workflow.md`
+2. Packaged fallback: `skill://feature/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.

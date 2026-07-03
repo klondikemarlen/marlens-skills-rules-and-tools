@@ -5,6 +5,9 @@ description: Use when writing or updating pull request testing instructions.
 
 # Testing Instructions
 
-Read and follow `agents/workflows/testing-instructions-workflow.md` before writing or updating testing instructions.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/testing-instructions-workflow.md`
+2. Packaged fallback: `skill://testing-instructions/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.

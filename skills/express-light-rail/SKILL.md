@@ -5,6 +5,9 @@ description: Use when adding backend features in Node.js + Express + TypeScript 
 
 # Express Light Rail Backend
 
-Read and follow `agents/workflows/express-light-rail-backend-workflow.md` before changing a backend slice that uses the Express light-rail pattern.
+Read the first available workflow:
 
-This skill is a thin alias. The workflow file is authoritative.
+1. Local project: `agents/workflows/express-light-rail-backend-workflow.md`
+2. Packaged fallback: `skill://express-light-rail/workflow.md`
+
+Local project workflows win. This skill is a thin alias; the workflow file is authoritative.
