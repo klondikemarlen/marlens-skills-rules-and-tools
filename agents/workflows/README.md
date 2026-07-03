@@ -30,8 +30,11 @@ Examples:
 
 - `code-review-workflow.md`
 - `commit-workflow.md`
+- `express-light-rail-backend-workflow.md`
+- `feature-workflow.md`
 - `git-rebase-workflow.md`
 - `learn-workflow.md`
+- `node-express-api-workflow.md`
 - `pull-request-management-workflow.md`
 - `testing-instructions-workflow.md`
 - `release-notes-workflow.md`

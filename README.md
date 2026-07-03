@@ -12,7 +12,7 @@ omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 
 Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
 
-This installs OMP skill prompts for browser QA, code review, commits, rebases, learning, pull request management, release notes, and testing instructions.
+This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, Node Express API compatibility, rebases, learning, pull request management, release notes, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
