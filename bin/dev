@@ -3,32 +3,113 @@
 
 require "shellwords"
 
-class DevHelper
-  DEFAULT_CONFIG = {
-    compose: ["docker", "compose"],
-    services: {
-      api: "api",
-      web: "web",
-      db: "db"
-    },
-    commands: {
-      api_shell: ["sh"],
-      web_shell: ["sh"],
-      api_test: ["npm", "run", "test"],
-      web_test: ["npm", "run", "test"],
-      api_check_types: ["npm", "run", "check-types"],
-      web_check_types: ["npm", "run", "check-types"]
-    }
+class DevConfig
+  DEFAULT_COMPOSE_COMMAND = ["docker", "compose"].freeze
+  DEFAULT_SERVICES = {
+    api: "api",
+    web: "web",
+    db: "db"
+  }.freeze
+  DEFAULT_COMMANDS = {
+    api_shell: ["sh"],
+    api_test: ["npm", "run", "test"],
+    web_test: ["npm", "run", "test"],
+    api_check_types: ["npm", "run", "check-types"],
+    web_check_types: ["npm", "run", "check-types"]
   }.freeze
 
+  def initialize(overrides = {})
+    @overrides = overrides
+  end
+
+  def compose_command
+    command = overrides.fetch(:compose, DEFAULT_COMPOSE_COMMAND)
+    Array(command)
+  end
+
+  def service_name(name)
+    services.fetch(name) { DEFAULT_SERVICES.fetch(name) }
+  end
+
+  def command_args(name)
+    commands.fetch(name) { DEFAULT_COMMANDS.fetch(name) }
+  end
+
+  private
+
+  attr_reader :overrides
+
+  def services
+    overrides.fetch(:services, {})
+  end
+
+  def commands
+    overrides.fetch(:commands, {})
+  end
+end
+
+class ConfigArgument
+  FLAG = "--config"
+  DEFAULT_CONFIG_PATH = "dev.config.rb"
+
+  def self.parse(args)
+    new(args).parse
+  end
+
+  def initialize(args)
+    @args = args
+  end
+
+  def parse
+    return [DEFAULT_CONFIG_PATH, args] unless args.first == FLAG
+
+    config_path = args[1]
+    raise ArgumentError, "#{FLAG} requires a path" if config_path.nil? || config_path.empty?
+
+    [config_path, args.drop(2)]
+  end
+
+  private
+
+  attr_reader :args
+end
+
+class ConfigLoader
+  def self.load(config_path)
+    new(config_path).load
+  end
+
+  def initialize(config_path)
+    @config_path = config_path
+  end
+
+  def load
+    DevConfig.new(config_overrides)
+  end
+
+  private
+
+  attr_reader :config_path
+
+  def config_overrides
+    return {} unless File.exist?(config_path)
+
+    overrides = eval(File.read(config_path), binding, config_path) # rubocop:disable Security/Eval
+    return overrides if overrides.is_a?(Hash)
+
+    raise TypeError, "#{config_path} must return a Hash"
+  end
+end
+
+class DevHelper
   COMMAND_TO_METHOD = {
     "up" => :up,
     "down" => :down,
     "logs" => :logs,
     "ps" => :ps,
     "build" => :build,
-    "run" => :run_compose,
-    "exec" => :exec_compose,
+    "run" => :compose_run,
+    "exec" => :compose_exec,
     "sh" => :sh,
     "api" => :api,
     "web" => :web,
@@ -36,24 +117,24 @@ class DevHelper
     "test" => :test,
     "check-types" => :check_types
   }.freeze
-
   HELP_COMMANDS = [nil, "help", "--help", "-h"].freeze
 
   def self.call(*args)
-    new.call(*args)
+    config_path, command_args = ConfigArgument.parse(args)
+    new(config: ConfigLoader.load(config_path)).call(*command_args)
   end
 
-  def initialize(config_path: ENV.fetch("MARLENS_DEV_CONFIG", "dev.config.rb"))
-    @config = deep_merge(DEFAULT_CONFIG, load_config(config_path))
+  def initialize(config:)
+    @config = config
   end
 
-  def call(command = nil, *args)
-    return help if HELP_COMMANDS.include?(command)
+  def call(command_name = nil, *args)
+    return help if HELP_COMMANDS.include?(command_name)
 
-    method = COMMAND_TO_METHOD.fetch(command, nil)
-    return public_send(method, *args) if method
+    command_method = COMMAND_TO_METHOD[command_name]
+    return compose(command_name, *args) if command_method.nil?
 
-    compose(command, *args)
+    public_send(command_method, *args)
   end
 
   def up(*args)
@@ -76,51 +157,47 @@ class DevHelper
     compose("build", *args)
   end
 
-  def run_compose(*args)
+  def compose_run(*args)
     compose("run", "--rm", *args)
   end
 
-  def exec_compose(*args)
+  def compose_exec(*args)
     compose("exec", *args)
   end
 
   def sh(*args)
-    run_service(service(:api), command(:api_shell), args)
+    run_service(:api, [*config.command_args(:api_shell), *args])
   end
 
   def api(*args)
-    run_service(service(:api), args)
+    run_service(:api, args)
   end
 
   def web(*args)
-    run_service(service(:web), args, ["--no-deps"])
+    run_service(:web, args, ["--no-deps"])
   end
 
   def npm(*args)
-    run_service(service(:api), ["npm", *args])
+    run_service(:api, ["npm", *args])
   end
 
-  def test(service_name = nil, *args)
-    case service_name
-    when "web"
-      run_service(service(:web), [*command(:web_test), *args], ["--no-deps"])
-    when "api"
-      run_service(service(:api), [*command(:api_test), *args])
-    else
-      run_service(service(:api), [*command(:api_test), service_name, *args].compact)
-    end
+  def test(service = nil, *args)
+    return test_web(*args) if service == "web"
+    return test_api(*args) if service == "api"
+
+    test_api(*[service, *args].compact)
   end
 
   def check_types(*args)
-    system_or_exit(*config.fetch(:compose), "run", "--rm", service(:api), *command(:api_check_types), *args)
-    run_service(service(:web), [*command(:web_check_types), *args], ["--no-deps"])
+    wait_for(*compose_run_command(:api, [*config.command_args(:api_check_types), *args]))
+    run_service(:web, [*config.command_args(:web_check_types), *args], ["--no-deps"])
   end
 
   def help
     puts <<~HELP
-      Usage: marlens-dev <command> [args]
+      Usage: dev <command> [args]
 
-      Generic Docker Compose development wrapper. Copy or configure with dev.config.rb for project-local service names and commands.
+      Generic Docker Compose development wrapper. Configure with dev.config.rb for project-local service names and commands.
 
       Commands:
         up [services...]          docker compose up --remove-orphans
@@ -149,6 +226,9 @@ class DevHelper
             web_check_types: ["npm", "run", "check-types"]
           }
         }
+
+      Optional config path:
+        dev --config /path/to/dev.config.rb help
     HELP
   end
 
@@ -156,50 +236,44 @@ class DevHelper
 
   attr_reader :config
 
-  def load_config(config_path)
-    return {} unless File.exist?(config_path)
-
-    result = eval(File.read(config_path), binding, config_path) # rubocop:disable Security/Eval
-    result || {}
+  def test_api(*args)
+    run_service(:api, [*config.command_args(:api_test), *args])
   end
 
-  def deep_merge(base, override)
-    base.merge(override) do |_key, old_value, new_value|
-      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
-        deep_merge(old_value, new_value)
-      else
-        new_value
-      end
-    end
+  def test_web(*args)
+    run_service(:web, [*config.command_args(:web_test), *args], ["--no-deps"])
+  end
+
+  def run_service(service, command_args = [], compose_args = [])
+    run(*compose_run_command(service, command_args, compose_args))
+  end
+
+  def compose_run_command(service, command_args = [], compose_args = [])
+    [
+      *config.compose_command,
+      "run",
+      "--rm",
+      *compose_args,
+      config.service_name(service),
+      *command_args
+    ]
   end
 
   def compose(*args)
-    run(*config.fetch(:compose), *args)
+    run(*config.compose_command, *args)
   end
 
-  def run_service(service_name, command_args = [], compose_args = [])
-    compose("run", "--rm", *compose_args, service_name, *command_args)
+  def run(*command)
+    warn "Running: #{command.shelljoin}"
+    exec(*command)
   end
 
-  def service(name)
-    config.fetch(:services).fetch(name)
-  end
-
-  def command(name)
-    config.fetch(:commands).fetch(name)
-  end
-
-  def run(*args)
-    warn "Running: #{args.shelljoin}"
-    exec(*args)
-  end
-
-  def system_or_exit(*args)
-    warn "Running: #{args.shelljoin}"
-    return if system(*args)
+  def wait_for(*command)
+    warn "Running: #{command.shelljoin}"
+    return if system(*command)
 
     exit($?.exitstatus || 1)
   end
 end
 
-DevHelper.call(*ARGV)
+DevHelper.call(*ARGV) if $PROGRAM_NAME == __FILE__

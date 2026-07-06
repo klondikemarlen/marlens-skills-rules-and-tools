@@ -1,6 +1,6 @@
 # Dev Config Template
 
-Use this when a project wants to customize the shared Ruby `marlens-dev` wrapper without forking the wrapper itself.
+Use this when a project wants to customize the shared Ruby `dev` wrapper without forking the wrapper itself.
 
 Create `dev.config.rb` in the project root:
 

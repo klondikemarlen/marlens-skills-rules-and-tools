@@ -1,13 +1,12 @@
 # Dev Shim Template
 
-Use this for a project-local `bin/dev` that delegates to the shared Ruby `marlens-dev` binary while keeping local config beside the project.
+Use this for a project-local `bin/dev` that passes an explicit local config path to the shared Ruby `dev` binary.
 
 ```sh
 #!/usr/bin/env sh
 set -eu
 
-export MARLENS_DEV_CONFIG="${MARLENS_DEV_CONFIG:-dev.config.rb}"
-exec marlens-dev "$@"
+exec dev --config dev.config.rb "$@"
 ```
 
 ## Setup
@@ -18,4 +17,4 @@ exec marlens-dev "$@"
 
 ## Why a Shim
 
-The shared `marlens-dev` binary owns the generic command behavior. The project-local `bin/dev` shim owns the local entrypoint, config path, and any project-specific overrides.
+The shared `dev` binary owns generic command behavior. The project-local `bin/dev` shim owns the local entrypoint, config path, and any project-specific overrides.

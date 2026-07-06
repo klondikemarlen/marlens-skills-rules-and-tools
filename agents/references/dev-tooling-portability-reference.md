@@ -4,13 +4,13 @@ Use when deciding whether a project-local executable helper belongs in this shar
 
 ## Shared Dev Wrapper Pattern
 
-Use the shared Ruby `marlens-dev` binary for generic Docker Compose commands and project-local `bin/dev` shims for local customization. Keep service names, command overrides, ports, profiles, and environment details in `dev.config.rb`.
+Use the shared Ruby `dev` binary for generic Docker Compose commands and project-local `bin/dev` shims for local customization. Keep service names, command overrides, ports, profiles, and environment details in `dev.config.rb`.
 
 The shared wrapper should own behavior that is consistent across repositories: compose passthrough, `up`, `down`, `logs`, `ps`, `run`, `exec`, service shells, test dispatch, and type-check dispatch. Local projects should own the names and commands that vary.
 
 ## Default
 
-Keep binaries project-local unless the same command contract is useful across multiple repositories or can be expressed as a `marlens-dev` config override.
+Keep binaries project-local unless the same command contract is useful across multiple repositories or can be expressed as a `dev` config override.
 
 ## Good Shared-Tool Candidates
 
@@ -39,4 +39,4 @@ Before moving a binary into this package:
 
 ## Better First Step
 
-When a helper is not portable yet, import the reusable workflow or reference pattern instead of the executable. For development wrappers, prefer adding a `marlens-dev` config option before adding another project-specific command.
+When a helper is not portable yet, import the reusable workflow or reference pattern instead of the executable. For development wrappers, prefer adding a `dev` config option before adding another project-specific command.

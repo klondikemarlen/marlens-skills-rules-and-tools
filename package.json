@@ -13,7 +13,7 @@
   },
   "bin": {
     "git-edit-commit": "./bin/git-edit-commit.js",
-    "marlens-dev": "./bin/dev"
+    "dev": "./bin/dev"
   },
   "files": [
     "AGENTS.md",
