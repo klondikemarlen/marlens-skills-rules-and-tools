@@ -38,6 +38,26 @@ module Dev
       commands.fetch(name) { DEFAULT_COMMANDS.fetch(name) }
     end
 
+    def features
+      feature_names = overrides.fetch(:features, [])
+
+      unless feature_names.is_a?(Array)
+        raise TypeError, "features must be an Array of packaged feature names"
+      end
+
+      feature_names
+    end
+
+    def feature_files
+      files = overrides.fetch(:feature_files, [])
+
+      unless files.is_a?(Array)
+        raise TypeError, "feature_files must be an Array of Ruby file paths"
+      end
+
+      files
+    end
+
 
     private
 

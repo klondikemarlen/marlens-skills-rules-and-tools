@@ -52,8 +52,38 @@ Create `dev.config.rb` in the project root:
 
 ```ruby
 {
-  compose: ["docker", "compose", "--profile", "dev"]
+  compose: ["docker", "compose", "--profile", "design"]
 }
+```
+
+### Packaged Features
+
+Packaged features load from this shared repo by name:
+
+```ruby
+{
+  features: ["bash_completions"]
+}
+```
+
+`bash_completions` adds `dev bash-completions [install|uninstall|words <previous-word>]`.
+
+### Local Feature Files
+
+Local feature files load relative to `dev.config.rb`:
+
+```ruby
+{
+  feature_files: ["dev/features/project_feature.rb"]
+}
+```
+
+Feature files register commands:
+
+```ruby
+Dev::FeatureRegistry.register("hello") do |_command, args|
+  puts "hello #{args.join(' ')}"
+end
 ```
 
 ## Rule

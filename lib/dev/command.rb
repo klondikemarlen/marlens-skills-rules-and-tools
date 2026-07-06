@@ -23,7 +23,11 @@ module Dev
 
     def self.call(*args)
       config_path, command_args = ConfigArgument.parse(args)
-      new(config: ConfigLoader.load(config_path)).call(*command_args)
+      config = ConfigLoader.load(config_path)
+
+      FeatureLoader.load(config_path:, config:)
+
+      new(config:).call(*command_args)
     end
 
     def initialize(config:)
@@ -34,9 +38,12 @@ module Dev
       return help if HELP_COMMANDS.include?(command_name)
 
       command_method = COMMAND_TO_METHOD[command_name]
-      return compose(command_name, *args) if command_method.nil?
+      return public_send(command_method, *args) if command_method
 
-      public_send(command_method, *args)
+      feature_command = FeatureRegistry.fetch(command_name)
+      return feature_command.call(self, args) if feature_command
+
+      compose(command_name, *args)
     end
 
     def up(*args)
@@ -135,6 +142,12 @@ module Dev
               web_check_types: ["npm", "run", "check-types"]
             }
           }
+
+        Optional packaged features:
+          features: ["bash_completions"]
+
+        Optional local feature files:
+          feature_files: ["dev/features/project_feature.rb"]
 
         Optional config path:
           dev --config /path/to/dev.config.rb help
