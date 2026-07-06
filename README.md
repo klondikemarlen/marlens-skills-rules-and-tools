@@ -89,6 +89,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `COMMITTING.md` - reusable commit-message guidance
 - `agents/` - authoritative generic workflow, template, reference, and plan discovery docs
 - `skills/` - thin skill aliases that point at authoritative workflows under `agents/workflows/`
+- `lib/` - Ruby implementation for shared package binaries such as `dev`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
 - `.omp-plugin/` - OMP marketplace catalog

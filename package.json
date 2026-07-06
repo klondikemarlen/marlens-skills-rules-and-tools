@@ -23,6 +23,7 @@
     "skills/",
     "omp-plugin/",
     "bin/",
+    "lib/",
     ".omp-plugin/"
   ],
   "omp": {
