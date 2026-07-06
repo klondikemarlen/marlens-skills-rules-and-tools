@@ -1,18 +1,7 @@
 # Title Casing Reference
 
-Use for pull request titles and other short artifact titles that should read like headlines.
+Authoritative source: `agents/references/title-casing-reference.md`.
 
-## Rules
+Read the authoritative reference when it is available. This packaged file is only a thin `skill://pull-request-management/title-casing-reference.md` fallback for agents that cannot directly read the package-level `agents/` reference.
 
-- Capitalize the first and last word.
-- Capitalize major words: nouns, pronouns, verbs, adjectives, adverbs, and subordinating conjunctions.
-- Lowercase minor words unless they are first or last: articles, coordinating conjunctions, and short prepositions.
-- Preserve acronyms and intentional all-caps terms.
-- Preserve exact code identifiers, package names, and command names when they must appear in a title.
-- For hyphenated compounds, capitalize the first word and capitalize later words when they are major words or acronyms.
-
-## Examples
-
-- Make Packaged Skill Workflow Fallbacks Self-Contained
-- Require Title Casing for PR Titles
-- Fix Skill Lookup in Projects Without Local Workflows
+Minimum fallback contract: write PR titles in title case, while preserving acronyms, intentional all-caps terms, exact code identifiers, package names, and command names.
