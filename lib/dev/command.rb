@@ -20,15 +20,23 @@ module Dev
       "check-types" => :check_types,
       "install" => :install,
       "uninstall" => :uninstall,
+      "plugin" => :plugin,
+      "plugins" => :plugin,
       "bash-completions" => :bash_completions
     }.freeze
+    PLUGIN_ACTIONS = {
+      "install" => "install",
+      "uninstall" => "uninstall",
+      "remove" => "uninstall"
+    }.freeze
+    PLUGIN_LIST_ACTIONS = %w[list ls].freeze
     HELP_COMMANDS = [nil, "help", "--help", "-h"].freeze
 
     def self.call(*args)
       config_path, command_args = ConfigArgument.parse(args)
       config = ConfigLoader.load(config_path)
 
-      FeatureLoader.load(config_path:, config:)
+      PluginLoader.load(config_path:, config:)
 
       new(config:).call(*command_args)
     end
@@ -43,8 +51,8 @@ module Dev
       command_method = COMMAND_TO_METHOD[command_name]
       return public_send(command_method, *args) if command_method
 
-      feature_command = FeatureRegistry.fetch(command_name)
-      return feature_command.call(self, args) if feature_command
+      plugin_command = PluginRegistry.fetch(command_name)
+      return plugin_command.call(self, args) if plugin_command
 
       compose(command_name, *args)
     end
@@ -119,6 +127,15 @@ module Dev
       run_packaged_plugin(plugin_name, "uninstall", args)
     end
 
+    def plugin(action = nil, plugin_name = nil, *args)
+      plugin_action = PLUGIN_ACTIONS[action]
+      return run_packaged_plugin(plugin_name, plugin_action, args) if plugin_action
+
+      return list_packaged_plugins if PLUGIN_LIST_ACTIONS.include?(action)
+
+      puts plugin_help
+    end
+
     def bash_completions(*args)
       action = args.shift
 
@@ -145,9 +162,14 @@ module Dev
           npm <args...>             run npm in the API service
           test [api|web] [args...]  run configured API or web test command
           check-types [args...]     run configured API then web type checks
-          install <plugin> [args...] install a packaged dev plugin
-          uninstall <plugin>         uninstall a packaged dev plugin
-          bash-completions [install|uninstall|words <previous-word>]
+          plugin install <plugin> [args...] install a packaged dev plugin
+          plugin uninstall <plugin>         uninstall a packaged dev plugin
+          plugin remove <plugin>            alias for plugin uninstall
+          plugin list                       list packaged dev plugins
+          plugin ls                         alias for plugin list
+          install <plugin> [args...]        alias for plugin install
+          uninstall <plugin>                alias for plugin uninstall
+          bash-completions [install|uninstall]   direct bash completions command
 
         Config:
           Create dev.config.rb in the project root:
@@ -164,13 +186,26 @@ module Dev
           }
 
         Optional packaged plugins for config-loaded command dispatch:
-          features: ["bash_completions"]
+          plugins: ["bash_completions"]
 
-        Optional local feature files:
-          feature_files: ["dev/features/project_feature.rb"]
+        Optional local plugin files:
+          plugin_files: ["dev/plugins/project_plugin.rb"]
 
         Optional config path:
           dev --config /path/to/dev.config.rb help
+      HELP
+    end
+
+    def plugin_help
+      <<~HELP
+        Usage: dev plugin <command> [args]
+
+        Commands:
+          install <plugin> [args...] install a packaged dev plugin
+          uninstall <plugin>         uninstall a packaged dev plugin
+          remove <plugin>            alias for uninstall
+          list                       list packaged dev plugins
+          ls                         alias for list
       HELP
     end
 
@@ -190,16 +225,20 @@ module Dev
       run_service(:web, web_test_command, ["--no-deps"])
     end
 
+    def list_packaged_plugins
+      puts PluginLoader.packaged_plugin_names.join("\n")
+    end
+
     def run_packaged_plugin(plugin_name, action, args)
       raise ArgumentError, "#{action} requires a plugin name" if plugin_name.nil? || plugin_name.empty?
 
-      feature_name = plugin_name.tr("-", "_")
-      FeatureLoader.load_packaged_feature(feature_name)
+      packaged_plugin_name = plugin_name.tr("-", "_")
+      PluginLoader.load_packaged_plugin(packaged_plugin_name)
 
-      feature_command = FeatureRegistry.fetch(plugin_name)
-      raise ArgumentError, "Packaged dev plugin did not register command: #{plugin_name}" unless feature_command
+      plugin_command = PluginRegistry.fetch(plugin_name)
+      raise ArgumentError, "Packaged dev plugin did not register command: #{plugin_name}" unless plugin_command
 
-      feature_command.call(self, [action, *args])
+      plugin_command.call(self, [action, *args])
     end
 
     def run_service(service, command_args = [], compose_args = [])

@@ -6,16 +6,10 @@ import { basename, join } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const usage = `Usage:
-  git-edit-commit --message-only <commit> "New commit message"
-  git-edit-commit --edit <commit> [new commit message]
-
-Git subcommand form also works when the helper is on PATH:
-  git edit-commit --message-only <commit> "New commit message"
-  git edit-commit --edit <commit> [new commit message]
-
-Direct node usage for agents without PATH wiring:
   node bin/git-edit-commit.js --message-only <commit> "New commit message"
   node bin/git-edit-commit.js --edit <commit> [new commit message]
+
+Agent helper for scripted, non-interactive history edits.
 
 Use --message-only for message-only fixes to commits before HEAD.
 Use --edit when code and optionally the message must be amended before later commits replay.

@@ -56,41 +56,42 @@ Create `dev.config.rb` in the project root:
 }
 ```
 
-### Packaged Features
+### Packaged Plugins
 
 Packaged plugins can be run by command or loaded by config.
 
-Run installable packaged plugins directly:
+Install or remove packaged plugins:
 
 ```bash
-dev install bash-completions
-dev uninstall bash-completions
+dev plugin install bash-completions
+dev plugin uninstall bash-completions
+dev plugin list
 ```
+
+For convenience, `dev install bash-completions` and `dev uninstall bash-completions` are aliases.
 
 Load packaged plugin commands for normal dispatch:
 
 ```ruby
 {
-  features: ["bash_completions"]
+  plugins: ["bash_completions"]
 }
 ```
 
-`bash_completions` also exposes `dev bash-completions [install|uninstall|words <previous-word>]`.
+### Local Plugin Files
 
-### Local Feature Files
-
-Local feature files load relative to `dev.config.rb`:
+Local plugin files load relative to `dev.config.rb`:
 
 ```ruby
 {
-  feature_files: ["dev/features/project_feature.rb"]
+  plugin_files: ["dev/plugins/project_plugin.rb"]
 }
 ```
 
-Feature files register commands:
+Plugin files register commands:
 
 ```ruby
-Dev::FeatureRegistry.register("hello") do |_command, args|
+Dev::PluginRegistry.register("hello") do |_command, args|
   puts "hello #{args.join(' ')}"
 end
 ```

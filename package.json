@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Generic agent skills, rules, tool helpers, and OMP plugin adapter.",
   "type": "module",
   "scripts": {
@@ -12,7 +12,6 @@
     "url": "git+https://github.com/klondikemarlen/marlens-skills-rules-and-tools.git"
   },
   "bin": {
-    "git-edit-commit": "./bin/git-edit-commit.js",
     "dev": "./bin/dev"
   },
   "files": [

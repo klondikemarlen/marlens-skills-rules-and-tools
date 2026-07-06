@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Dev
-  class FeatureRegistry
+  class PluginRegistry
     @commands = {}
 
     class << self
@@ -20,4 +20,6 @@ module Dev
       attr_reader :commands
     end
   end
+
+  FeatureRegistry = PluginRegistry
 end
