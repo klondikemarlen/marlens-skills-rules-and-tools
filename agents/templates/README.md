@@ -19,6 +19,7 @@ Use `noun-template.md` or `domain-noun-template.md` for standalone templates. Us
 
 Examples:
 
+- `bin/`
 - `backend/express-light-rail/`
 - `frontend/`
 

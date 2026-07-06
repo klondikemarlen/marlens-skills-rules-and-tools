@@ -2,9 +2,15 @@
 
 Use when deciding whether a project-local executable helper belongs in this shared package.
 
+## Shared Dev Wrapper Pattern
+
+Use the shared `marlens-dev` binary for generic Docker Compose commands and project-local `bin/dev` shims for local customization. Keep service names, command overrides, ports, profiles, and environment details in `dev.config.mjs`.
+
+The shared wrapper should own behavior that is consistent across repositories: compose passthrough, `up`, `down`, `logs`, `ps`, `run`, `exec`, service shells, test dispatch, and type-check dispatch. Local projects should own the names and commands that vary.
+
 ## Default
 
-Keep binaries project-local unless the same command contract is already useful across multiple repositories.
+Keep binaries project-local unless the same command contract is useful across multiple repositories or can be expressed as a `marlens-dev` config override.
 
 ## Good Shared-Tool Candidates
 
@@ -15,7 +21,7 @@ Keep binaries project-local unless the same command contract is already useful a
 
 ## Keep Project-Local
 
-- `bin/dev` wrappers that choose Docker Compose files, service names, profiles, ports, databases, or local environment variables.
+- Project-local `bin/dev` shims and `dev.config.mjs` files that choose Docker Compose files, service names, profiles, ports, databases, or local environment variables.
 - Deploy, restart, release, or cloud-operation helpers tied to a specific infrastructure account or role.
 - Jira/GitHub helpers that embed project keys, labels, boards, milestones, or team conventions.
 - Editor bridges or API waiters that assume a particular app server, route shape, or authentication setup.
@@ -33,4 +39,4 @@ Before moving a binary into this package:
 
 ## Better First Step
 
-When a helper is not portable yet, import the reusable workflow or reference pattern instead of the executable. Shared guidance is cheaper to maintain than a binary with hidden environment assumptions.
+When a helper is not portable yet, import the reusable workflow or reference pattern instead of the executable. For development wrappers, prefer adding a `marlens-dev` config option before adding another project-specific command.

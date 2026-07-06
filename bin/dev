@@ -1,0 +1,174 @@
+#!/usr/bin/env node
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+
+const DEFAULT_CONFIG = {
+  compose: ["docker", "compose"],
+  services: {
+    api: "api",
+    web: "web",
+    db: "db",
+  },
+  commands: {
+    apiShell: ["sh"],
+    webShell: ["sh"],
+    apiTest: ["npm", "run", "test"],
+    webTest: ["npm", "run", "test"],
+    apiCheckTypes: ["npm", "run", "check-types"],
+    webCheckTypes: ["npm", "run", "check-types"],
+  },
+};
+
+const projectConfig = await loadProjectConfig();
+const config = mergeConfig(DEFAULT_CONFIG, projectConfig);
+const [command, ...args] = process.argv.slice(2);
+
+switch (command) {
+  case undefined:
+  case "help":
+  case "--help":
+  case "-h":
+    help();
+    break;
+  case "up":
+    compose(["up", "--remove-orphans", ...args]);
+    break;
+  case "down":
+    compose(["down", "--remove-orphans", ...args]);
+    break;
+  case "logs":
+    compose(["logs", "-f", ...args]);
+    break;
+  case "ps":
+    compose(["ps", ...args]);
+    break;
+  case "build":
+    compose(["build", ...args]);
+    break;
+  case "run":
+    compose(["run", "--rm", ...args]);
+    break;
+  case "exec":
+    compose(["exec", ...args]);
+    break;
+  case "sh":
+    runService(config.services.api, config.commands.apiShell, args);
+    break;
+  case "api":
+    runService(config.services.api, args);
+    break;
+  case "web":
+    runService(config.services.web, args, ["--no-deps"]);
+    break;
+  case "npm":
+    runService(config.services.api, ["npm", ...args]);
+    break;
+  case "test":
+    test(args);
+    break;
+  case "check-types":
+    checkTypes(args);
+    break;
+  default:
+    compose([command, ...args]);
+}
+
+async function loadProjectConfig() {
+  const configPath = process.env.MARLENS_DEV_CONFIG ?? "dev.config.mjs";
+  if (!existsSync(configPath)) return {};
+
+  const module = await import(pathToFileURL(configPath));
+  return module.default ?? module.config ?? {};
+}
+
+function mergeConfig(base, override) {
+  return {
+    ...base,
+    ...override,
+    services: {
+      ...base.services,
+      ...override.services,
+    },
+    commands: {
+      ...base.commands,
+      ...override.commands,
+    },
+  };
+}
+
+function compose(args) {
+  run([...config.compose, ...args]);
+}
+
+function runService(service, commandArgs = [], composeArgs = []) {
+  compose(["run", "--rm", ...composeArgs, service, ...commandArgs]);
+}
+
+function test(args) {
+  const [service, ...rest] = args;
+
+  if (service === "web") {
+    runService(config.services.web, [...config.commands.webTest, ...rest], ["--no-deps"]);
+    return;
+  }
+
+  if (service === "api") {
+    runService(config.services.api, [...config.commands.apiTest, ...rest]);
+    return;
+  }
+
+  runService(config.services.api, [...config.commands.apiTest, ...args]);
+}
+
+function checkTypes(args) {
+  runService(config.services.api, [...config.commands.apiCheckTypes, ...args]);
+  runService(config.services.web, [...config.commands.webCheckTypes, ...args], ["--no-deps"]);
+}
+
+function run(args) {
+  const [bin, ...binArgs] = args;
+  console.error(`Running: ${args.map(shellQuote).join(" ")}`);
+  const result = spawnSync(bin, binArgs, { stdio: "inherit" });
+  process.exit(result.status ?? 1);
+}
+
+function shellQuote(value) {
+  if (/^[a-zA-Z0-9_./:=@-]+$/.test(value)) return value;
+  return JSON.stringify(value);
+}
+
+function help() {
+  console.log(`Usage: marlens-dev <command> [args]
+
+Generic Docker Compose development wrapper. Copy or configure with dev.config.mjs for project-local service names and commands.
+
+Commands:
+  up [services...]          docker compose up --remove-orphans
+  down                      docker compose down --remove-orphans
+  logs [services...]        docker compose logs -f
+  ps                        docker compose ps
+  build [services...]       docker compose build
+  run <service> <cmd...>    docker compose run --rm <service> <cmd...>
+  exec <service> <cmd...>   docker compose exec <service> <cmd...>
+  sh                        shell in the API service
+  api <cmd...>              run command in the API service
+  web <cmd...>              run command in the web service without dependencies
+  npm <args...>             run npm in the API service
+  test [api|web] [args...]  run configured API or web test command
+  check-types [args...]     run configured API then web type checks
+
+Config:
+  Create dev.config.mjs in the project root:
+
+  export default {
+    services: { api: "api", web: "web", db: "db" },
+    commands: {
+      apiTest: ["npm", "run", "test"],
+      webTest: ["npm", "run", "test"],
+      apiCheckTypes: ["npm", "run", "check-types"],
+      webCheckTypes: ["npm", "run", "check-types"],
+    },
+  }
+`);
+}

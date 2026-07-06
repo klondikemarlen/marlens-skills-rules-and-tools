@@ -12,7 +12,8 @@
     "url": "git+https://github.com/klondikemarlen/marlens-skills-rules-and-tools.git"
   },
   "bin": {
-    "git-edit-commit": "./bin/git-edit-commit.js"
+    "git-edit-commit": "./bin/git-edit-commit.js",
+    "marlens-dev": "./bin/dev"
   },
   "files": [
     "AGENTS.md",
