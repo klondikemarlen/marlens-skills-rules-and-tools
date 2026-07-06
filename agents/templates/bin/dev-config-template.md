@@ -1,25 +1,25 @@
 # Dev Config Template
 
-Use this when a project wants to customize the shared `marlens-dev` wrapper without forking the wrapper itself.
+Use this when a project wants to customize the shared Ruby `marlens-dev` wrapper without forking the wrapper itself.
 
-Create `dev.config.mjs` in the project root:
+Create `dev.config.rb` in the project root:
 
-```javascript
-export default {
+```ruby
+{
   compose: ["docker", "compose"],
   services: {
     api: "api",
     web: "web",
-    db: "db",
+    db: "db"
   },
   commands: {
-    apiShell: ["sh"],
-    webShell: ["sh"],
-    apiTest: ["npm", "run", "test"],
-    webTest: ["npm", "run", "test"],
-    apiCheckTypes: ["npm", "run", "check-types"],
-    webCheckTypes: ["npm", "run", "check-types"],
-  },
+    api_shell: ["sh"],
+    web_shell: ["sh"],
+    api_test: ["npm", "run", "test"],
+    web_test: ["npm", "run", "test"],
+    api_check_types: ["npm", "run", "check-types"],
+    web_check_types: ["npm", "run", "check-types"]
+  }
 }
 ```
 
@@ -27,32 +27,32 @@ export default {
 
 ### Different Service Names
 
-```javascript
-export default {
+```ruby
+{
   services: {
     api: "backend",
     web: "frontend",
-    db: "postgres",
-  },
+    db: "postgres"
+  }
 }
 ```
 
 ### Test Runner Flags
 
-```javascript
-export default {
+```ruby
+{
   commands: {
-    apiTest: ["npm", "run", "test", "--"],
-    webTest: ["npm", "run", "test", "--"],
-  },
+    api_test: ["npm", "run", "test", "--"],
+    web_test: ["npm", "run", "test", "--"]
+  }
 }
 ```
 
 ### Alternate Compose Command
 
-```javascript
-export default {
-  compose: ["docker", "compose", "--profile", "dev"],
+```ruby
+{
+  compose: ["docker", "compose", "--profile", "dev"]
 }
 ```
 
