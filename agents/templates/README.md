@@ -20,6 +20,7 @@ Use `noun-template.md` or `domain-noun-template.md` for standalone templates. Us
 Examples:
 
 - `backend/express-light-rail/`
+- `frontend/`
 
 Template families should include their own `README.md` that lists the focused templates and when to use the family.
 

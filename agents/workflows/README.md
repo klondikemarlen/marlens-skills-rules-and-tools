@@ -37,7 +37,9 @@ Examples:
 - `node-express-api-workflow.md`
 - `pull-request-management-workflow.md`
 - `testing-instructions-workflow.md`
+- `pull-request-comment-resolution-workflow.md`
 - `release-notes-workflow.md`
+- `typescript-migration-slice-workflow.md`
 
 ## Authoring Rules
 
