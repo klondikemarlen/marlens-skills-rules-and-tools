@@ -17,7 +17,10 @@ module Dev
       "web" => :web,
       "npm" => :npm,
       "test" => :test,
-      "check-types" => :check_types
+      "check-types" => :check_types,
+      "install" => :install,
+      "uninstall" => :uninstall,
+      "bash-completions" => :bash_completions
     }.freeze
     HELP_COMMANDS = [nil, "help", "--help", "-h"].freeze
 
@@ -108,6 +111,20 @@ module Dev
       run_service(:web, web_check_command, ["--no-deps"])
     end
 
+    def install(plugin_name = nil, *args)
+      run_packaged_plugin(plugin_name, "install", args)
+    end
+
+    def uninstall(plugin_name = nil, *args)
+      run_packaged_plugin(plugin_name, "uninstall", args)
+    end
+
+    def bash_completions(*args)
+      action = args.shift
+
+      run_packaged_plugin("bash-completions", action, args)
+    end
+
     def help
       puts <<~HELP
         Usage: dev <command> [args]
@@ -128,6 +145,9 @@ module Dev
           npm <args...>             run npm in the API service
           test [api|web] [args...]  run configured API or web test command
           check-types [args...]     run configured API then web type checks
+          install <plugin> [args...] install a packaged dev plugin
+          uninstall <plugin>         uninstall a packaged dev plugin
+          bash-completions [install|uninstall|words <previous-word>]
 
         Config:
           Create dev.config.rb in the project root:
@@ -143,7 +163,7 @@ module Dev
             }
           }
 
-        Optional packaged features:
+        Optional packaged plugins for config-loaded command dispatch:
           features: ["bash_completions"]
 
         Optional local feature files:
@@ -168,6 +188,18 @@ module Dev
       web_test_command = [*config.command_args(:web_test), *args]
 
       run_service(:web, web_test_command, ["--no-deps"])
+    end
+
+    def run_packaged_plugin(plugin_name, action, args)
+      raise ArgumentError, "#{action} requires a plugin name" if plugin_name.nil? || plugin_name.empty?
+
+      feature_name = plugin_name.tr("-", "_")
+      FeatureLoader.load_packaged_feature(feature_name)
+
+      feature_command = FeatureRegistry.fetch(plugin_name)
+      raise ArgumentError, "Packaged dev plugin did not register command: #{plugin_name}" unless feature_command
+
+      feature_command.call(self, [action, *args])
     end
 
     def run_service(service, command_args = [], compose_args = [])

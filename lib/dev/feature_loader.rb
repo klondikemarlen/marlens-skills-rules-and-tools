@@ -6,6 +6,16 @@ module Dev
       new(config_path:, config:).load
     end
 
+    def self.load_packaged_feature(feature_name)
+      feature_path = File.expand_path("features/#{feature_name}.rb", __dir__)
+
+      unless File.exist?(feature_path)
+        raise ArgumentError, "Unknown packaged dev feature: #{feature_name}"
+      end
+
+      require feature_path
+    end
+
     def initialize(config_path:, config:)
       @config_path = config_path
       @config = config
@@ -22,13 +32,7 @@ module Dev
 
     def load_packaged_features
       config.features.each do |feature_name|
-        feature_path = File.expand_path("features/#{feature_name}.rb", __dir__)
-
-        unless File.exist?(feature_path)
-          raise ArgumentError, "Unknown packaged dev feature: #{feature_name}"
-        end
-
-        require feature_path
+        self.class.load_packaged_feature(feature_name)
       end
     end
 

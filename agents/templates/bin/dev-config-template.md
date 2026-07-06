@@ -58,7 +58,16 @@ Create `dev.config.rb` in the project root:
 
 ### Packaged Features
 
-Packaged features load from this shared repo by name:
+Packaged plugins can be run by command or loaded by config.
+
+Run installable packaged plugins directly:
+
+```bash
+dev install bash-completions
+dev uninstall bash-completions
+```
+
+Load packaged plugin commands for normal dispatch:
 
 ```ruby
 {
@@ -66,7 +75,7 @@ Packaged features load from this shared repo by name:
 }
 ```
 
-`bash_completions` adds `dev bash-completions [install|uninstall|words <previous-word>]`.
+`bash_completions` also exposes `dev bash-completions [install|uninstall|words <previous-word>]`.
 
 ### Local Feature Files
 
