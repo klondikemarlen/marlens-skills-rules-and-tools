@@ -10,6 +10,8 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Commit or PR wording principles.
 - Tool-specific caveats.
 - Express Light Rail backend concepts.
+- GitHub CLI and metadata editing caveats.
+- Development tooling portability decisions.
 - Cross-workflow conventions.
 
 Keep task procedures in `../workflows/`, implementation plans in `../plans/`, and copyable examples in `../templates/`.

@@ -16,7 +16,9 @@ This installs OMP skill prompts for browser QA, code review, commits, Express Li
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
-It also adds `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, and the `git-edit-commit` helper with `--message-only` and `--edit` modes for fixing older commits during a rebase.
+It also adds `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
+
+`dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
 For local plugin development, link the package root so OMP uses the same plugin path:
 
@@ -87,6 +89,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `COMMITTING.md` - reusable commit-message guidance
 - `agents/` - authoritative generic workflow, template, reference, and plan discovery docs
 - `skills/` - thin skill aliases that point at authoritative workflows under `agents/workflows/`
+- `lib/` - Ruby implementation for shared package binaries such as `dev`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
 - `.omp-plugin/` - OMP marketplace catalog

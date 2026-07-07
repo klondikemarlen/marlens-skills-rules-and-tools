@@ -133,10 +133,10 @@ Avoid: in-progress reasoning, implementation mechanics, and code symbols in pros
 
 ## Rewriting past commits
 
-Prefer the `git-rebase` skill. Use this package's `git-edit-commit` helper only after confirming it is on `PATH`:
+Prefer the `git-rebase` skill. Use this repository's agent helper only when the current checkout provides it:
 
 ```bash
-command -v git-edit-commit
+test -x bin/agent-rebase-edit.js
 ```
 
 Do not hand-roll detached-HEAD rebases unless the helper is unavailable or the worktree already contains edits that must be split across multiple older commits.
@@ -147,22 +147,22 @@ Do not hand-roll detached-HEAD rebases unless the helper is unavailable or the w
 git commit --amend -m "new message"
 ```
 
-**Reword an older commit with the helper available:**
+**Reword an older commit with the repo-local helper available:**
 
 ```bash
-git edit-commit --message-only <commit> "new message"
+node bin/agent-rebase-edit.js --message-only <commit> "new message"
 ```
 
-**Amend code into an older commit with a clean worktree and the helper available:**
+**Amend code into an older commit with a clean worktree and the repo-local helper available:**
 
 ```bash
-git edit-commit --edit <commit>
+node bin/agent-rebase-edit.js --edit <commit>
 git add <paths>
 git commit --amend --no-edit
 git rebase --continue
 ```
 
-If `command -v git-edit-commit` fails, do not guess a `node /path/to/.../bin/git-edit-commit.js` path.
+Use the fallback rebase flows when the repo-local helper is absent.
 
 **Fallback for code changes that are not applied yet:**
 
