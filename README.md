@@ -16,9 +16,24 @@ This installs OMP skill prompts for browser QA, code review, commits, Express Li
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
-It also adds `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
+It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
+
+## Reusable OMP Rules
+
+Reusable rule files live under [`rules/`](rules/). After installing this package, copy or link selected generic rules into `~/.omp/agent/rules`; keep project-specific rules in the target repo or user-level rules directory.
+
+```bash
+PACKAGE="$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools"
+mkdir -p "$HOME/.omp/agent/rules"
+ln -sf "$PACKAGE/rules/no-issue-filing-without-confirmation.md" "$HOME/.omp/agent/rules/"
+ln -sf "$PACKAGE/rules/no-envrc-example-commits.md" "$HOME/.omp/agent/rules/"
+ln -sf "$PACKAGE/rules/omp-not-opencode-target-check.md" "$HOME/.omp/agent/rules/"
+ln -sf "$PACKAGE/rules/use-dev-wrapper-for-development-compose.md" "$HOME/.omp/agent/rules/"
+```
+
+Restart OMP after changing global rule files.
 
 For local plugin development, link the package root so OMP uses the same plugin path:
 
@@ -89,6 +104,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `COMMITTING.md` - reusable commit-message guidance
 - `agents/` - authoritative generic workflow, template, reference, and plan discovery docs
 - `skills/` - thin skill aliases that point at authoritative workflows under `agents/workflows/`
+- `rules/` - reusable OMP rule files that can be copied or linked into `~/.omp/agent/rules`
 - `lib/` - Ruby implementation for shared package binaries such as `dev`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
