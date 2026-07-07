@@ -16,7 +16,7 @@ This installs OMP skill prompts for browser QA, code review, commits, Express Li
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
-It also adds `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, a repo-local `bin/git-edit-commit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
+It also adds `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 

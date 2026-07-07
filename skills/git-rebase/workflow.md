@@ -12,9 +12,9 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 
 - Never rewrite public/shared branch history unless the user explicitly asks for that exact branch rewrite.
 - Preserve unrelated staged, unstaged, and untracked files. Stop if the target change is mixed with unrelated work.
-- Before using the repo-local agent helper, verify this checkout actually provides it: `test -x bin/git-edit-commit.js`.
-- If available, prefer `node bin/git-edit-commit.js --message-only <commit> "New message"` for message-only fixes to older commits.
-- If available, prefer `node bin/git-edit-commit.js --edit <commit> [message]` for code plus optional message changes to older commits. If unavailable, use the fallback flows below instead of guessing helper paths or hand-writing rebase todo files first.
+- Before using the repo-local agent helper, verify this checkout actually provides it: `test -x bin/agent-rebase-edit.js`.
+- If available, prefer `node bin/agent-rebase-edit.js --message-only <commit> "New message"` for message-only fixes to older commits.
+- If available, prefer `node bin/agent-rebase-edit.js --edit <commit> [message]` for code plus optional message changes to older commits. If unavailable, use the fallback flows below instead of guessing helper paths or hand-writing rebase todo files first.
 - Avoid opening an editor. Use helper modes or `GIT_SEQUENCE_EDITOR=true` for autosquash fallback rebases when the generated todo is sufficient.
 - After rewriting commits that were already pushed, use `git push --force-with-lease`, never plain force.
 
@@ -40,7 +40,7 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 4. The helper modes require a clean worktree because they start the rebase immediately. Use the repo-local agent helper only when this checkout provides it:
 
    ```bash
-   test -x bin/git-edit-commit.js
+   test -x bin/agent-rebase-edit.js
    ```
 
    If the helper is unavailable, skip directly to step 7 for code changes that are not yet applied, step 8 for existing worktree edits, or step 9 for message-only changes. Use the fallback rebase flows when the repo-local helper is absent.
@@ -48,7 +48,7 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 5. For a message-only fix to an older commit, a clean worktree, and an available repo-local helper, use:
 
    ```bash
-   node bin/git-edit-commit.js --message-only <target-commit> "New commit message."
+   node bin/agent-rebase-edit.js --message-only <target-commit> "New commit message."
    ```
 
    The helper marks exactly the target commit as `reword`, writes the supplied message non-interactively, and replays later commits.
@@ -56,8 +56,8 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 6. For code plus optional message edits to an older commit, a clean worktree, and an available repo-local helper, use:
 
    ```bash
-   node bin/git-edit-commit.js --edit <target-commit>
-   node bin/git-edit-commit.js --edit <target-commit> "New commit message."
+   node bin/agent-rebase-edit.js --edit <target-commit>
+   node bin/agent-rebase-edit.js --edit <target-commit> "New commit message."
    ```
 
    The helper marks exactly the target commit as `edit`, optionally amends its message, then stops. Make code or message edits, stage them, amend the stopped commit, and continue:

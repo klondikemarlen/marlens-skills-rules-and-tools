@@ -136,7 +136,7 @@ Avoid: in-progress reasoning, implementation mechanics, and code symbols in pros
 Prefer the `git-rebase` skill. Use this repository's agent helper only when the current checkout provides it:
 
 ```bash
-test -x bin/git-edit-commit.js
+test -x bin/agent-rebase-edit.js
 ```
 
 Do not hand-roll detached-HEAD rebases unless the helper is unavailable or the worktree already contains edits that must be split across multiple older commits.
@@ -150,13 +150,13 @@ git commit --amend -m "new message"
 **Reword an older commit with the repo-local helper available:**
 
 ```bash
-node bin/git-edit-commit.js --message-only <commit> "new message"
+node bin/agent-rebase-edit.js --message-only <commit> "new message"
 ```
 
 **Amend code into an older commit with a clean worktree and the repo-local helper available:**
 
 ```bash
-node bin/git-edit-commit.js --edit <commit>
+node bin/agent-rebase-edit.js --edit <commit>
 git add <paths>
 git commit --amend --no-edit
 git rebase --continue
