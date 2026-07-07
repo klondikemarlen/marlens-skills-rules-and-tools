@@ -2,7 +2,7 @@
 
 Reusable agent skills, rules, and tool helpers, plus a thin OMP plugin adapter.
 
-## OMP plugin install
+## OMP Plugin Install
 
 Recommended direct install:
 
@@ -28,7 +28,7 @@ omp plugin link /path/to/marlens-skills-rules-and-tools
 
 After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
 
-## Feature and issue workflow
+## Feature and Issue Workflow
 
 Preferred flow for repo issues and feature requests:
 
@@ -43,7 +43,7 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
 8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
 
-## Manual install
+## Manual Install
 
 Use this path for agents without a plugin system.
 
@@ -60,7 +60,7 @@ If an agent cannot load plugins or skills, keep the checkout nearby and point it
 
 Restart the agent after changing this file. Global instructions load at startup.
 
-## Local customization
+## Local Customization
 
 Treat this pack as the base layer. Project-local instructions win.
 
@@ -74,7 +74,7 @@ For each project, keep project-specific commands and conventions in that repo, n
 
 This keeps the shared skills usable across different stacks while letting Icefog-style repos define their own wrappers, test commands, Docker services, UI labels, and domain language.
 
-## Future adapters
+## Future Adapters
 
 Only OMP has a plugin adapter today. Add future agent-specific adapters beside it, for example `claude-plugin/` or another requested agent adapter, and have them consume the root `AGENTS.md`, `agents/`, and `skills/` content instead of copying workflows.
 

@@ -14,7 +14,7 @@ Runtime behavior:
 
 - Registers `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use Marlen's installed skills, rules, and tools.
 
-## Local development
+## Local Development
 
 Load the package root so OMP can discover both the extension and sibling `skills/` directory:
 
