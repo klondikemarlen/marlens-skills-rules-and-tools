@@ -16,6 +16,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Run the smallest checks that cover the changed behavior; do not substitute broad unrelated test runs for missing targeted checks.
 - Merge only after required review and checks pass.
 - For published artifacts, merge first, then perform the project’s documented version/changelog/publish/install verification steps on the release branch.
+- Verify the shipped artifact from the remote source after push, publish, tag, or release; local checks alone do not prove the released version is installed or usable.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
 ## Process
@@ -27,7 +28,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 5. Review the diff from the user’s perspective and run the smallest tests or QA path that covers the change.
 6. Mark the PR ready only after the acceptance criteria are satisfied and verification is recorded.
 7. Merge through the project’s normal PR path after review and required checks pass.
-8. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, reinstall from the remote source, and verify the installed version.
+8. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, then verify the shipped artifact itself, such as installing the pushed OMP plugin commit/tag, installing the packed or published npm package, running the released CLI binary, or pulling and smoke-testing the pushed Docker image. Keep project-specific install commands in the target repo’s local docs.
 
 ## Output Contract
 
