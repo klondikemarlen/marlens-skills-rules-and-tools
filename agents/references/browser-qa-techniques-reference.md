@@ -23,3 +23,5 @@ Validate behavior with user-equivalent browser actions when the claim is user-fa
 - Capture stable reviewer-facing states.
 - Store temporary files outside the repository.
 - Redact sensitive data.
+
+- When screenshots go in a PR body, use `Description`, the local app URL when applicable, then the GitHub `<img ...>` tag or an exact-path manual-upload placeholder.
