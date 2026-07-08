@@ -20,6 +20,22 @@ target, and comparison point in the subject so the outcome is clear without bran
 **Simple commits:** Single line when the change is self-explanatory.
 **Complex commits:** Title line followed by one or two plain sentences explaining the non-obvious context — things the diff doesn't make immediately clear. Each sentence ends with a period.
 
+**Bug and edge-case commits:** Prefer a body when the fix boundary is non-obvious. Name the failing condition, expected runtime effect, adjacent behavior intentionally preserved, and why the fix is one logical commit.
+
+Examples:
+
+```
+:bug: Return 503 for transient JWT key lookup outages.
+
+JWKS DNS EAI_AGAIN failures are dependency outages, not invalid tokens. Return the user-safe outage response, keep malformed or invalid JWTs on the normal auth error path, and keep this commit scoped to outage classification.
+```
+
+```
+:bug: Route current-user bootstrap failures safely.
+
+Current-user bootstrap 401s still send users to sign-in. Route controller catch-all and auth-service 5xx failures to the internal error page, preserve global 400 and 422 error-page behavior, and keep this commit scoped to authenticated bootstrap failures.
+```
+
 ## When to use bullet points
 
 Use bullet points for:
