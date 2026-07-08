@@ -52,9 +52,9 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 1. Create or identify the GitHub issue with the user story and acceptance criteria.
 2. Branch from current `main` using the issue number and short slug before editing when possible; if the scoped work already exists locally, create the issue-named branch before committing.
 3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
-4. Bump `package.json` for every change; the current release mechanism is the merge to `main` on GitHub.
-5. Open a draft PR that links the issue, includes the checks run, and is marked ready only after verification.
-6. Merge through the PR so GitHub records the review/merge path; in this repo that merge to `main` is the release.
+4. Bump `package.json` for every change before opening the release PR.
+5. Open a draft PR with `agents/workflows/pull-request-management-workflow.md`; link the issue, include the checks run, and mark it ready only after verification. PR creation is part of the release workflow, but not the release itself.
+6. Merge the PR to `main` so GitHub records the review/merge path; in this repo that merge to `main` is the release.
 7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
 8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
 
