@@ -26,7 +26,7 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 6. Review enough staged diff and issue/PR context to name the problem, outcome, and why the change belongs in this commit.
 7. If the purpose or file ownership is unclear, ask instead of guessing.
 8. If the request includes amending older commits or reorganizing branch history, switch to the `git-rebase` workflow before committing.
-9. Commit with the repo's message style; add a short body when the subject alone cannot carry the relevant bug, feature, or product context.
+9. Commit with the repo's message style; add a short body when the subject alone cannot carry the relevant bug, feature, or product context. For bug and edge-case fixes with non-obvious behavior, the body should name the concrete failing condition, the expected runtime effect after the fix, the adjacent behavior intentionally preserved, and why the boundary is narrow enough for one logical commit.
 10. Verify the resulting message with `git log -1 --format=%B` before reporting it.
 
 ## Output Contract
