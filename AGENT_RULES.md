@@ -40,6 +40,15 @@ durable prefix patterns over one-off command strings.
 - When a branch contains multiple meaningful slices, explain the current slice clearly in the PR
   context instead of treating the whole branch as one undifferentiated change.
 
+### Evidence-First Verification
+
+Start from Gold before judging implementation quality: name the behavior, invariant, or regression risk that the work must prove.
+
+Report verification outcomes with this vocabulary:
+
+- `PASS`: observed evidence proves the claimed behavior or invariant.
+- `FAIL`: observed evidence disproves the claim or shows a concrete regression or bug.
+- `BLOCKED`: required evidence is missing, unreachable, or cannot be run.
 
 ### Plain Language
 
