@@ -20,6 +20,18 @@ It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
+## Recommended Companion OMP Plugins
+
+This package stays the base layer for doctrine, skills, rules, workflows, and the thin OMP adapter. Runtime plugins remain separate packages with independent release cycles; install only the pieces that match your workflow.
+
+| Plugin | Adds | Install | Skip when |
+| --- | --- | --- | --- |
+| [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) | Evidence-first guardrails and local verifier scaffolding for hands-off agent runs. Pin the released plugin tag. | `omp plugin install github:klondikemarlen/omp-verifier#v0.6.8` | You do not want verifier-enforced evidence gates or local verifier scaffolding. |
+| [`omp-vscode-context`](https://github.com/klondikemarlen/omp-vscode-context) | Two-part VS Code extension plus OMP plugin bridge for richer editor/context handoff into OMP. | `code --install-extension klondikemarlen.omp-vscode-context --force`<br>`omp plugin install github:klondikemarlen/omp-vscode-context` | You do not use VS Code or do not need editor-state context in OMP. |
+| [`omp-developer-cost-status`](https://github.com/klondikemarlen/omp-developer-cost-status) | A developer attention/cost status meter for longer sessions. | `omp plugin install github:klondikemarlen/omp-developer-cost-status` | You do not want cost or attention telemetry in your statusline. |
+| [`omp-auto-retitle`](https://github.com/klondikemarlen/omp-auto-retitle) | Automatic session title cleanup for long or multi-thread OMP work. | `omp plugin install github:klondikemarlen/omp-auto-retitle` | You prefer manual session titles or your client already handles title hygiene. |
+| [`omp-exit-command`](https://github.com/klondikemarlen/omp-exit-command) | Exit ergonomics for ending OMP sessions intentionally. | `omp plugin install github:klondikemarlen/omp-exit-command` | Your current exit flow is already fast enough. |
+
 ## Reusable OMP Rules
 
 Reusable rule files live under [`rules/`](rules/). After installing this package, copy or link selected generic rules into `~/.omp/agent/rules`; keep project-specific rules in the target repo or user-level rules directory.
