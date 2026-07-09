@@ -70,6 +70,17 @@ if (!issueFilingRule.includes('authorization for that specific target')) {
   fail('issue filing rule must keep external-project issue filing target-specific');
 }
 
+const ompTargetRule = read('rules/omp-not-opencode-target-check.md');
+if (!ompTargetRule.includes('omp plugin install <source>')) {
+  fail('OMP target rule must use current plugin install wording');
+}
+if (ompTargetRule.includes('omp install <source>')) {
+  fail('OMP target rule must not use stale generic install wording');
+}
+if (!ompTargetRule.includes('scope: "tool"')) {
+  fail('OMP target rule must keep a reusable tool scope');
+}
+
 function resolveFirstWorkflow(projectRoot, skillName) {
   const { local, fallback } = skillContract(skillName);
   const localPath = path.join(projectRoot, local[0]);
