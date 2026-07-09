@@ -15,6 +15,7 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 - Stage files only when the user explicitly asks to stage files, asks to commit a named/relevant set, or repo-local docs authorize staging scoped files for the active workflow.
 - Never include unrelated user changes to make the tree clean.
 - Prefer one logical change per commit.
+- When dependency manifests and generated lockfiles both change, stage that pair together in its own dependency commit whenever practical. Keep dependency resolution churn out of unrelated source, test, refactor, formatting, and documentation commits.
 
 ## Process
 
