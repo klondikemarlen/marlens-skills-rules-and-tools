@@ -50,6 +50,26 @@ if (expressWorkflow.includes('Pick only the templates needed from `agents/templa
   fail('express-light-rail fallback must not require target-project agents/templates');
 }
 
+const learnWorkflow = read('agents/workflows/learn-workflow.md');
+const learnFallbackWorkflow = read('skills/learn/workflow.md');
+if (learnWorkflow !== learnFallbackWorkflow) {
+  fail('learn workflow and packaged fallback must stay synchronized');
+}
+if (!learnWorkflow.includes('repeated code-style correction')) {
+  fail('learn workflow must route repeated code-style corrections');
+}
+if (!learnWorkflow.includes('`klondikemarlen/marlens-skills-rules-and-tools` for shared prompt/workflow/review guidance, or `omp-verifier` for enforceable advisor/runtime/tooling')) {
+  fail('learn workflow must distinguish shared guidance from verifier enforcement');
+}
+
+const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
+if (!issueFilingRule.includes('sufficient authorization for the current repo')) {
+  fail('issue filing rule must allow explicitly requested current-repo issues');
+}
+if (!issueFilingRule.includes('authorization for that specific target')) {
+  fail('issue filing rule must keep external-project issue filing target-specific');
+}
+
 function resolveFirstWorkflow(projectRoot, skillName) {
   const { local, fallback } = skillContract(skillName);
   const localPath = path.join(projectRoot, local[0]);
@@ -63,12 +83,20 @@ function resolveFirstWorkflow(projectRoot, skillName) {
 const fixtureChecks = [];
 
 if (process.env.WRAP_PROJECT) {
-  fixtureChecks.push({
-    name: 'WRAP local browser QA workflow',
-    projectRoot: process.env.WRAP_PROJECT,
-    skillName: 'browser-qa',
-    expectedKind: 'local',
-  });
+  fixtureChecks.push(
+    {
+      name: 'WRAP local browser QA workflow',
+      projectRoot: process.env.WRAP_PROJECT,
+      skillName: 'browser-qa',
+      expectedKind: 'local',
+    },
+    {
+      name: 'WRAP packaged learn workflow',
+      projectRoot: process.env.WRAP_PROJECT,
+      skillName: 'learn',
+      expectedKind: 'fallback',
+    },
+  );
 }
 
 if (process.env.EXPRESS_LIGHT_RAIL_PROJECT) {
