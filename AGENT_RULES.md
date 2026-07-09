@@ -40,6 +40,11 @@ durable prefix patterns over one-off command strings.
 - When a branch contains multiple meaningful slices, explain the current slice clearly in the PR
   context instead of treating the whole branch as one undifferentiated change.
 
+
+### Plain Language
+
+Use plain terms in user-facing summaries, PR bodies, and final reports. Define domain terms once when they are useful; otherwise choose clearer phrases so maintainers and reviewers do not need glossary context.
+
 ### API Surface Ordering
 
 When editing barrel files, index files, or grouped API namespace surfaces, preserve the existing

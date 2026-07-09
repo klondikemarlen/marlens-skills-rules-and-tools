@@ -145,6 +145,14 @@ Focus on:
   possible (for example a specific runtime version mismatch) instead of describing it only in
   generic terms
 
+
+## Plain language
+
+Prefer plain terms over unexplained software jargon in commit subjects and bodies. If a domain term is useful, define it once or choose the clearer phrase.
+
+- Prefer "shared layout", "navigation shell", "notification menu", or "background metadata fetch" over "chrome" unless the repository already uses "chrome" for shared UI.
+- Optimize for the next maintainer or reviewer understanding the behavior without glossary context.
+
 Avoid: in-progress reasoning, implementation mechanics, and code symbols in prose.
 
 ## Rewriting past commits
