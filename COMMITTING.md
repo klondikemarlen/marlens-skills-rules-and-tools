@@ -95,6 +95,14 @@ Prepares for renaming receiptStatus to signedReceiptStatus in the document model
 - `:heavy_minus_sign:` — removals
 - `:label:` — typing fixes
 
+## Dependency manifest and lockfile changes
+
+When a dependency declaration file and its generated resolver file both change, keep that pair together in a dedicated dependency commit whenever practical.
+
+Do not mix dependency resolution churn with unrelated source, test, refactor, formatting, or documentation changes. Put the dependency manifest and lockfile/resolution file in one commit, then put the behavior change in a separate implementation commit.
+
+Examples include `package.json` with a JavaScript lockfile, `Gemfile` with `Gemfile.lock`, `Cargo.toml` with `Cargo.lock`, `pyproject.toml` with a Python lockfile, `go.mod` with `go.sum`, and other manifest plus generated resolution-file pairs. The examples are illustrative; the rule is the pair stays together and separate from unrelated work.
+
 ## Multi-concern commits
 
 When a commit addresses more than one concern, put the primary concern in the subject line and move secondary concerns into the body. Each sentence in the body ends with a period.
