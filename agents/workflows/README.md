@@ -33,6 +33,7 @@ Examples:
 - `express-light-rail-backend-workflow.md`
 - `feature-workflow.md`
 - `git-rebase-workflow.md`
+- `hands-off-agentic-coding-workflow.md`
 - `learn-workflow.md`
 - `node-express-api-workflow.md`
 - `pull-request-management-workflow.md`
