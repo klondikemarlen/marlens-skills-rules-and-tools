@@ -6,7 +6,7 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 
 **WHY this workflow exists:** User corrections and advisor findings encode preferences, project conventions, and reusable workflow gaps. Capture only durable lessons so the same correction is not repeated.
 
-**WHAT this workflow produces:** Memory entries for personal preferences, repo documentation updates for project rules, shared workflow/rule proposals for cross-project behavior, verifier guidance updates for evidence discipline, verifier feature requests for runtime capability gaps, or no action for one-off friction.
+**WHAT this workflow produces:** Memory entries for personal preferences, repo documentation updates for project rules, shared workflow/rule proposals for cross-project behavior, upstream feature request proposals for repeated code-style corrections, verifier guidance updates for evidence discipline, verifier feature requests for runtime capability gaps, or no action for one-off friction.
 
 **Decision Rules:**
 
@@ -15,6 +15,7 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 - Store personal preferences or recurring agent behavior corrections in memory.
 - Externalize project-specific lessons in the nearest appropriate repo file: `AGENTS.md`, a local `README.md`, or an `agents/` workflow/reference.
 - Propose shared workflow or rule updates only when the lesson is reusable across projects.
+- When a code-style correction repeats, do not only remember it or add another local rule. First classify whether it reveals project-specific style, reusable prompt/workflow/review guidance, or enforceable verifier/advisor/runtime behavior; propose an upstream feature request for `klondikemarlen/marlens-skills-rules-and-tools` or `omp-verifier` as appropriate, but file it only when issue filing is explicitly authorized.
 - Route evidence, verification discipline, advisor behavior, and verifier setup lessons toward `omp-verifier` guidance/rules when prompt-level behavior is enough.
 - Propose an upstream `omp-verifier` feature request title/body when the lesson needs command, runtime, harness, or automation support; file it only when issue filing is explicitly authorized.
 - If the lesson suggests more automatic knowledge accumulation, prefer natural-language correction/fix flows first; treat compaction-time or harness automation as a separate product question only after repeated evidence.
@@ -26,18 +27,20 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 ## Process
 
 1. Review the current session's user corrections, advisor findings, and user-authored changes.
-2. Identify the durable lesson: preference, project convention, reusable workflow/rule, verifier guidance, verifier feature request, or no action.
-3. Ask for clarification if the lesson is ambiguous.
-4. Store personal or recurring behavior corrections in memory.
-5. Externalize repo-specific guidance in the nearest appropriate repo file.
-6. Propose shared workflow/rule updates for cross-project lessons; apply them only when already authorized.
-7. Route verifier-related lessons to guidance/rules for prompt behavior or to a proposed upstream feature request for command/runtime support.
-8. Report what was remembered, changed, proposed, or intentionally skipped.
+2. Identify the durable lesson: preference, project convention, reusable workflow/rule, repeated code-style correction, verifier guidance, verifier feature request, or no action.
+3. For repeated code-style corrections, choose the upstream capability owner before persistence: product repo docs for project-only style, `klondikemarlen/marlens-skills-rules-and-tools` for shared prompt/workflow/review guidance, or `omp-verifier` for enforceable advisor/runtime/tooling.
+4. Ask for clarification if the lesson is ambiguous.
+5. Store personal or recurring behavior corrections in memory.
+6. Externalize repo-specific guidance in the nearest appropriate repo file.
+7. Propose shared workflow/rule updates for cross-project lessons; apply them only when already authorized.
+8. Route verifier-related lessons to guidance/rules for prompt behavior or to a proposed upstream feature request for command/runtime support.
+9. Report what was remembered, changed, proposed, or intentionally skipped.
 
 ## Examples
 
 - Release/install claims require shipped-artifact evidence: update shared verification guidance or verifier rules; do not claim success from local checks alone.
 - Product-scope rules belong in the product repo; internal agent workflow rules belong in shared workflows or rules.
+- Repeated code-style feedback such as "avoid terse chains; use named intermediate variables" should not become another one-off memory if it keeps recurring. Propose a shared workflow/review feature request for `klondikemarlen/marlens-skills-rules-and-tools`, or an `omp-verifier` request only when the lesson needs enforceable advisor/runtime support.
 - A correction such as "this is wrong, read project standards, fix and learn" should produce a terse durable lesson, placement decision, and smallest safe persistence action from the current session.
 
 ## Output Contract
