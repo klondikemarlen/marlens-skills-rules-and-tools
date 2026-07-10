@@ -30,6 +30,26 @@ if (packageJson.files.includes('agents/')) {
 if (packageJson.files.includes('claude-plugin/')) {
   fail('package.json must not package claude-plugin/');
 }
+if (!packageJson.files.includes('.claude-plugin/')) {
+  fail('package.json must include .claude-plugin/');
+}
+if (!existsSync(path.join(root, '.claude-plugin', 'plugin.json'))) {
+  fail('Claude plugin manifest must exist at .claude-plugin/plugin.json');
+}
+if (!existsSync(path.join(root, '.claude-plugin', 'marketplace.json'))) {
+  fail('Claude marketplace catalog must exist at .claude-plugin/marketplace.json');
+}
+if (existsSync(path.join(root, '.claude-plugin', 'plugin.json'))) {
+  const claudePluginJson = JSON.parse(read('.claude-plugin/plugin.json'));
+  if (claudePluginJson.name !== packageJson.name) fail('Claude plugin name must match package name');
+  if (claudePluginJson.version !== packageJson.version) fail('Claude plugin version must match package version');
+}
+if (existsSync(path.join(root, '.claude-plugin', 'marketplace.json'))) {
+  const claudeMarketplaceJson = JSON.parse(read('.claude-plugin/marketplace.json'));
+  if (!claudeMarketplaceJson.plugins?.some((plugin) => plugin.name === packageJson.name && plugin.source === './')) {
+    fail('Claude marketplace must install this repo as the plugin root');
+  }
+}
 
 function fallbackPath(uri) {
   return path.join(root, 'skills', ...uri.split('/'));
@@ -38,14 +58,17 @@ function fallbackPath(uri) {
 function skillContract(skillName) {
   const text = read(path.join('skills', skillName, 'SKILL.md'));
   const local = [...text.matchAll(/(?:Local project|Legacy local project): `([^`]+)`/g)].map((match) => match[1]);
-  const fallback = [...text.matchAll(/Packaged fallback: `skill:\/\/([^`]+)`/g)].map((match) => match[1]);
-  return { local, fallback };
+  const packaged = [...text.matchAll(/Packaged fallback: \[[^\]]+\]\(([^)]+)\).*`skill:\/\/([^`]+)`/g)].map((match) => ({
+    relativePath: match[1],
+    uri: match[2],
+  }));
+  return { local, packaged };
 }
 
 for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
 
-  const { local, fallback } = skillContract(entry.name);
+  const { local, packaged } = skillContract(entry.name);
 
   if (local.length === 0) fail(`${entry.name}: missing local workflow path`);
   if (local.length % 2 !== 0) fail(`${entry.name}: local workflow order must be docs/legacy pairs`);
@@ -57,16 +80,21 @@ for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true
       fail(`${entry.name}: legacy local workflow must immediately follow matching docs workflow`);
     }
   }
-  if (fallback.length === 0) fail(`${entry.name}: missing packaged fallback path`);
+  if (packaged.length === 0) fail(`${entry.name}: missing packaged fallback path`);
 
-  for (const uri of fallback) {
-    if (!existsSync(fallbackPath(uri))) fail(`${entry.name}: missing skill://${uri}`);
+  for (const fallback of packaged) {
+    const relativePath = path.join('skills', entry.name, fallback.relativePath);
+    if (!existsSync(path.join(root, relativePath))) fail(`${entry.name}: missing Claude fallback ${fallback.relativePath}`);
+    if (!existsSync(fallbackPath(fallback.uri))) fail(`${entry.name}: missing skill://${fallback.uri}`);
   }
 }
 
 const nodeExpressWorkflow = read('skills/node-express-api/workflow.md');
 if (!nodeExpressWorkflow.includes('skill://express-light-rail/workflow.md')) {
   fail('node-express-api fallback must delegate to skill://express-light-rail/workflow.md');
+}
+if (!nodeExpressWorkflow.includes('[../express-light-rail/workflow.md](../express-light-rail/workflow.md)')) {
+  fail('node-express-api fallback must include a Claude-readable relative workflow link');
 }
 if (nodeExpressWorkflow.includes('Read `docs/workflows/express-light-rail-backend-workflow.md`')) {
   fail('node-express-api fallback must not require target-project docs/workflows');

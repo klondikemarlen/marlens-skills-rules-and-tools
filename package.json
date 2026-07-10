@@ -1,7 +1,7 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "0.8.22",
-  "description": "Generic agent skills, rules, tool helpers, and OMP plugin adapter.",
+  "version": "0.8.23",
+  "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
     "test": "node scripts/verify-skill-workflows.mjs"
@@ -25,7 +25,8 @@
     "bin/",
     "lib/",
     "rules/",
-    ".omp-plugin/"
+    ".omp-plugin/",
+    ".claude-plugin/"
   ],
   "omp": {
     "extensions": ["./omp-plugin/index.ts"],

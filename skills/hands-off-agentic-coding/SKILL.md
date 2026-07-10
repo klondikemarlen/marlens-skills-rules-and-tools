@@ -9,6 +9,6 @@ Read the first available workflow:
 
 1. Local project: `docs/workflows/hands-off-agentic-coding-workflow.md`
 2. Legacy local project: `agents/workflows/hands-off-agentic-coding-workflow.md`
-3. Packaged fallback: `skill://hands-off-agentic-coding/workflow.md`
+3. Packaged fallback: [workflow.md](workflow.md) in this skill directory (`skill://hands-off-agentic-coding/workflow.md` in OMP)
 
 Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative.
