@@ -65,7 +65,7 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 2. Branch from current `main` using the issue number and short slug before editing when possible; if the scoped work already exists locally, create the issue-named branch before committing.
 3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
 4. Bump `package.json` for every change before opening the release PR.
-5. Open a draft PR with `agents/workflows/pull-request-management-workflow.md`; link the issue, include the checks run, and mark it ready only after verification. PR creation is part of the release workflow, but not the release itself.
+5. Open a draft PR with `docs/workflows/pull-request-management-workflow.md`; link the issue, include the checks run, and mark it ready only after verification. PR creation is part of the release workflow, but not the release itself.
 6. Merge the PR to `main` so GitHub records the review/merge path; in this repo that merge to `main` is the release.
 7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
 8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
@@ -83,7 +83,7 @@ ln -sf "$REPO/AGENTS.md" "$HOME/.omp/agent/AGENTS.md"
 ln -sf "$REPO/AGENTS.md" "$HOME/AGENTS.md"
 ```
 
-If an agent cannot load plugins or skills, keep the checkout nearby and point it at `AGENTS.md`; the workflow source lives under `agents/`, and the public skill entrypoints live under `skills/`.
+If an agent cannot load plugins or skills, keep the checkout nearby and point it at `AGENTS.md`; the workflow source lives under `docs/`, and the public skill entrypoints live under `skills/`.
 
 Restart the agent after changing this file. Global instructions load at startup.
 
@@ -96,14 +96,14 @@ For each project, keep project-specific commands and conventions in that repo, n
 - `AGENTS.md` for project rules.
 - `README.md` or `bin/README.md` for setup and dev-wrapper commands.
 - `COMMITTING.md` for commit-message style.
-- `agents/` for project workflows, templates, references, and plans.
+- `docs/` for project workflows, templates, references, and plans.
 - local skills for project-only shortcuts.
 
 This keeps the shared skills usable across different stacks while letting Icefog-style repos define their own wrappers, test commands, Docker services, UI labels, and domain language.
 
 ## Future Adapters
 
-Only OMP has a plugin adapter today. Add future agent-specific adapters beside it, for example `claude-plugin/` or another requested agent adapter, and have them consume the root `AGENTS.md`, `agents/`, and `skills/` content instead of copying workflows.
+Only OMP has a plugin adapter today. Add future agent-specific adapters beside it, for example `claude-plugin/` or another requested agent adapter, and have them consume the root `AGENTS.md`, `docs/`, and `skills/` content instead of copying workflows.
 
 ## Name
 
@@ -114,8 +114,8 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `AGENTS.md` - global agent instructions loaded by OMP or manual symlink consumers
 - `AGENT_RULES.md` - agent-agnostic shared decision rules
 - `COMMITTING.md` - reusable commit-message guidance
-- `agents/` - authoritative generic workflow, template, reference, and plan discovery docs
-- `skills/` - thin skill aliases that point at authoritative workflows under `agents/workflows/`
+- `docs/` - authoritative generic workflow, template, reference, and plan discovery docs
+- `skills/` - thin skill aliases that point at authoritative workflows under `docs/workflows/`
 - `rules/` - reusable OMP rule files that can be copied or linked into `~/.omp/agent/rules`
 - `lib/` - Ruby implementation for shared package binaries such as `dev`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills

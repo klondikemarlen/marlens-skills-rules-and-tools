@@ -72,8 +72,8 @@ only to API surface files, not ordinary import blocks in every source file.
 - Put project-wide agent conventions in [AGENTS.md](AGENTS.md).
 - Put commit guidance in [COMMITTING.md](COMMITTING.md).
 - Put detailed or tool-specific guidance in agent-specific or workflow-specific documents under
-  `agents/`.
+  `docs/`.
 
 ## Agent-Specific Documents
 
-- Codex-specific command approval guidance: [agents/codex-rules-guide.md](agents/codex-rules-guide.md)
+- Codex-specific command approval guidance: [docs/codex-rules-guide.md](docs/codex-rules-guide.md)

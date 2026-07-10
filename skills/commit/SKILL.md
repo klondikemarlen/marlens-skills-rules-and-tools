@@ -7,7 +7,8 @@ description: Create intentional git commits from staged or relevant local change
 
 Read the first available workflow:
 
-1. Local project: `agents/workflows/commit-workflow.md`
-2. Packaged fallback: `skill://commit/workflow.md`
+1. Local project: `docs/workflows/commit-workflow.md`
+2. Legacy local project: `agents/workflows/commit-workflow.md`
+3. Packaged fallback: `skill://commit/workflow.md`
 
-Local project workflows win. This skill is a thin alias; the workflow file is authoritative.
+Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative.

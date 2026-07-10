@@ -7,7 +7,8 @@ description: Use when reviewing a branch, pull request, or local diff for correc
 
 Read the first available workflow:
 
-1. Local project: `agents/workflows/code-review-workflow.md`
-2. Packaged fallback: `skill://code-review/workflow.md`
+1. Local project: `docs/workflows/code-review-workflow.md`
+2. Legacy local project: `agents/workflows/code-review-workflow.md`
+3. Packaged fallback: `skill://code-review/workflow.md`
 
-Local project workflows win. This skill is a thin alias; the workflow file is authoritative.
+Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative.

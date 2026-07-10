@@ -7,7 +7,8 @@ description: Use when a user wants autonomous feature or bug-fix execution with 
 
 Read the first available workflow:
 
-1. Local project: `agents/workflows/hands-off-agentic-coding-workflow.md`
-2. Packaged fallback: `skill://hands-off-agentic-coding/workflow.md`
+1. Local project: `docs/workflows/hands-off-agentic-coding-workflow.md`
+2. Legacy local project: `agents/workflows/hands-off-agentic-coding-workflow.md`
+3. Packaged fallback: `skill://hands-off-agentic-coding/workflow.md`
 
-Local project workflows win. This skill is a thin alias; the workflow file is authoritative.
+Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative.

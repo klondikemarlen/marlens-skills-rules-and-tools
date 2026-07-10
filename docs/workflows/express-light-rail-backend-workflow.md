@@ -11,7 +11,7 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 **Decision Rules:**
 
 - Project-local docs, wrappers, model conventions, auth context, error middleware, and factory helpers win.
-- Use `agents/templates/backend/express-light-rail/` as the starting point when the project has no closer local template.
+- Use `docs/templates/backend/express-light-rail/` as the starting point when the project has no closer local template.
 - Keep controllers thin: request parsing, status codes, and response shape only.
 - Put reusable or multi-step domain work in a service/use-case. Do not create a service for a trivial read if sibling endpoints keep that inline.
 - Authorize and validate before mutation. Fail closed when a policy is unclear.
@@ -21,7 +21,7 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 ## Process
 
 1. Read the nearest live backend slice for the same area: route, controller/handler, service/use-case, policy/auth, serializer, model, and tests.
-2. Pick only the templates needed from `agents/templates/backend/express-light-rail/`.
+2. Pick only the templates needed from `docs/templates/backend/express-light-rail/`.
 3. Define the API contract: method, path, params, query/body fields, status codes, response JSON, and error JSON.
 4. Add validation at the request boundary using the project’s existing validation style.
 5. Add authorization before sensitive reads and all writes.

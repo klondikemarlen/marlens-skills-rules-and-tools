@@ -4,7 +4,7 @@ This directory contains reusable, agent-readable workflows, templates, reference
 
 ## Important
 
-Directory READMEs under `agents/` are discovery documents. Use them to find relevant workflows, templates, or plans, then read the underlying files directly. The individual workflow/template/plan files are the source of truth for task-specific instructions.
+Directory READMEs under `docs/` are discovery documents. Use them to find relevant workflows, templates, or plans, then read the underlying files directly. The individual workflow/template/plan files are the source of truth for task-specific instructions.
 
 Top-level `skills/` are compatibility entry points. Keep real procedures in `workflows/`, copyable examples in `templates/`, and durable background in `references/`; skills should only point to the authoritative file.
 
@@ -18,7 +18,7 @@ Before applying a workflow from this package, read the target project's local ru
 - `README.md`
 - `COMMITTING.md`
 - `bin/README.md`
-- project-local `agents/` docs
+- project-local `docs/` docs
 - project-local skill files
 
 Keep project-specific commands, services, routes, domain terms, and deployment details in the target project. Do not bake those details into this shared pack.
@@ -27,8 +27,8 @@ Keep project-specific commands, services, routes, domain terms, and deployment d
 ## Directory Structure
 
 ```text
-agents/
-├── README.md
+docs/
+├── index.md
 ├── workflows/   # reusable task procedures
 ├── templates/   # reusable output/code/document templates
 ├── references/  # durable background guidance

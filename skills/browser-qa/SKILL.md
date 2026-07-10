@@ -7,12 +7,14 @@ description: Use when running browser QA and reporting user-visible validation e
 
 Read the first available browser QA workflow:
 
-1. Local project: `agents/workflows/browser-qa-workflow.md`
-2. Packaged fallback: `skill://browser-qa/workflow.md`
+1. Local project: `docs/workflows/browser-qa-workflow.md`
+2. Legacy local project: `agents/workflows/browser-qa-workflow.md`
+3. Packaged fallback: `skill://browser-qa/workflow.md`
 
 For PR testing instructions, read the first available testing workflow:
 
-1. Local project: `agents/workflows/testing-instructions-workflow.md`
-2. Packaged fallback: `skill://browser-qa/testing-instructions-workflow.md`
+1. Local project: `docs/workflows/testing-instructions-workflow.md`
+2. Legacy local project: `agents/workflows/testing-instructions-workflow.md`
+3. Packaged fallback: `skill://browser-qa/testing-instructions-workflow.md`
 
-Local project workflows win. This skill is a thin alias; workflow files are authoritative.
+Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; workflow files are authoritative.
