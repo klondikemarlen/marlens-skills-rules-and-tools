@@ -7,7 +7,8 @@ description: Use when fixing up, amending, rewording, squashing, or reordering o
 
 Read the first available workflow:
 
-1. Local project: `agents/workflows/git-rebase-workflow.md`
-2. Packaged fallback: `skill://git-rebase/workflow.md`
+1. Local project: `docs/workflows/git-rebase-workflow.md`
+2. Legacy local project: `agents/workflows/git-rebase-workflow.md`
+3. Packaged fallback: `skill://git-rebase/workflow.md`
 
-Local project workflows win. This skill is a thin alias; the workflow file is authoritative.
+Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative.

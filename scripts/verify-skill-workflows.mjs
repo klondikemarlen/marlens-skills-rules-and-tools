@@ -13,13 +13,31 @@ function fail(message) {
   failures.push(message);
 }
 
+const packageJson = JSON.parse(read('package.json'));
+
+if (existsSync(path.join(root, 'agents'))) {
+  fail('top-level agents/ is reserved for plugin agents; use docs/ for shared guidance');
+}
+if (!existsSync(path.join(root, 'docs', 'index.md'))) {
+  fail('docs/index.md must be the docs landing page');
+}
+if (!packageJson.files.includes('docs/')) {
+  fail('package.json must include docs/');
+}
+if (packageJson.files.includes('agents/')) {
+  fail('package.json must not package agents/');
+}
+if (packageJson.files.includes('claude-plugin/')) {
+  fail('package.json must not package claude-plugin/');
+}
+
 function fallbackPath(uri) {
   return path.join(root, 'skills', ...uri.split('/'));
 }
 
 function skillContract(skillName) {
   const text = read(path.join('skills', skillName, 'SKILL.md'));
-  const local = [...text.matchAll(/Local project: `([^`]+)`/g)].map((match) => match[1]);
+  const local = [...text.matchAll(/(?:Local project|Legacy local project): `([^`]+)`/g)].map((match) => match[1]);
   const fallback = [...text.matchAll(/Packaged fallback: `skill:\/\/([^`]+)`/g)].map((match) => match[1]);
   return { local, fallback };
 }
@@ -30,6 +48,15 @@ for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true
   const { local, fallback } = skillContract(entry.name);
 
   if (local.length === 0) fail(`${entry.name}: missing local workflow path`);
+  if (local.length % 2 !== 0) fail(`${entry.name}: local workflow order must be docs/legacy pairs`);
+  for (let index = 0; index < local.length; index += 2) {
+    const preferred = local[index];
+    const legacy = local[index + 1];
+    if (!preferred?.startsWith('docs/workflows/')) fail(`${entry.name}: preferred local workflow must use docs/workflows`);
+    if (legacy !== preferred.replace('docs/workflows/', 'agents/workflows/')) {
+      fail(`${entry.name}: legacy local workflow must immediately follow matching docs workflow`);
+    }
+  }
   if (fallback.length === 0) fail(`${entry.name}: missing packaged fallback path`);
 
   for (const uri of fallback) {
@@ -41,16 +68,16 @@ const nodeExpressWorkflow = read('skills/node-express-api/workflow.md');
 if (!nodeExpressWorkflow.includes('skill://express-light-rail/workflow.md')) {
   fail('node-express-api fallback must delegate to skill://express-light-rail/workflow.md');
 }
-if (nodeExpressWorkflow.includes('Read `agents/workflows/express-light-rail-backend-workflow.md`')) {
-  fail('node-express-api fallback must not require target-project agents/workflows');
+if (nodeExpressWorkflow.includes('Read `docs/workflows/express-light-rail-backend-workflow.md`')) {
+  fail('node-express-api fallback must not require target-project docs/workflows');
 }
 
 const expressWorkflow = read('skills/express-light-rail/workflow.md');
-if (expressWorkflow.includes('Pick only the templates needed from `agents/templates/backend/express-light-rail/`')) {
-  fail('express-light-rail fallback must not require target-project agents/templates');
+if (expressWorkflow.includes('Pick only the templates needed from `docs/templates/backend/express-light-rail/`')) {
+  fail('express-light-rail fallback must not require target-project docs/templates');
 }
 
-const learnWorkflow = read('agents/workflows/learn-workflow.md');
+const learnWorkflow = read('docs/workflows/learn-workflow.md');
 const learnFallbackWorkflow = read('skills/learn/workflow.md');
 if (learnWorkflow !== learnFallbackWorkflow) {
   fail('learn workflow and packaged fallback must stay synchronized');
@@ -81,7 +108,7 @@ if (!ompTargetRule.includes('scope: "tool"')) {
   fail('OMP target rule must keep a reusable tool scope');
 }
 
-const commentResolutionWorkflow = read('agents/workflows/pull-request-comment-resolution-workflow.md');
+const commentResolutionWorkflow = read('docs/workflows/pull-request-comment-resolution-workflow.md');
 if (!commentResolutionWorkflow.includes('temporarily draft')) {
   fail('comment resolution workflow must distinguish temporary draft state');
 }
@@ -97,7 +124,7 @@ if (!pullRequestWorkflow.includes('restore ready-for-review status unless the PR
   fail('packaged pull request workflow must include self-contained restored ready-for-review guidance');
 }
 
-const codeReviewWorkflow = read('agents/workflows/code-review-workflow.md');
+const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [
   ['authoritative code review workflow', codeReviewWorkflow],
@@ -121,7 +148,7 @@ for (const [name, workflow] of [
 }
 
 const sharedCommitGuide = read('COMMITTING.md');
-const commitWorkflow = read('agents/workflows/commit-workflow.md');
+const commitWorkflow = read('docs/workflows/commit-workflow.md');
 const commitFallbackWorkflow = read('skills/commit/workflow.md');
 for (const [name, workflow] of [
   ['shared commit guide', sharedCommitGuide],
@@ -141,12 +168,14 @@ for (const [name, workflow] of [
 
 function resolveFirstWorkflow(projectRoot, skillName) {
   const { local, fallback } = skillContract(skillName);
-  const localPath = path.join(projectRoot, local[0]);
+  for (const localRelativePath of local) {
+    const localPath = path.join(projectRoot, localRelativePath);
+    if (existsSync(localPath)) return { kind: 'local', path: localPath };
+  }
 
-  if (existsSync(localPath)) return { kind: 'local', path: localPath };
   if (fallback[0] && existsSync(fallbackPath(fallback[0]))) return { kind: 'fallback', path: `skill://${fallback[0]}` };
 
-  return { kind: 'missing', path: localPath };
+  return { kind: 'missing', path: path.join(projectRoot, local[0]) };
 }
 
 const fixtureChecks = [];

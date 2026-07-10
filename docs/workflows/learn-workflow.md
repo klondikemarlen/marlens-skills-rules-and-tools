@@ -13,14 +13,14 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 - `learn` means durable persistence beyond the current conversation.
 - Extract only durable, reusable lessons from the current session; ignore one-off friction, transient tool failures, and speculative ideas that have not repeated.
 - Store personal preferences or recurring agent behavior corrections in memory.
-- Externalize project-specific lessons in the nearest appropriate repo file: `AGENTS.md`, a local `README.md`, or an `agents/` workflow/reference.
+- Externalize project-specific lessons in the nearest appropriate repo file: `AGENTS.md`, a local `README.md`, or a `docs/` workflow/reference.
 - Propose shared workflow or rule updates only when the lesson is reusable across projects.
 - When a code-style correction repeats, do not only remember it or add another local rule. First classify whether it reveals project-specific style, reusable prompt/workflow/review guidance, or enforceable verifier/advisor/runtime behavior; propose an upstream feature request for `klondikemarlen/marlens-skills-rules-and-tools` or `omp-verifier` as appropriate, but file it only when issue filing is explicitly authorized.
 - Route evidence, verification discipline, advisor behavior, and verifier setup lessons toward `omp-verifier` guidance/rules when prompt-level behavior is enough.
 - Propose an upstream `omp-verifier` feature request title/body when the lesson needs command, runtime, harness, or automation support; file it only when issue filing is explicitly authorized.
 - If the lesson suggests more automatic knowledge accumulation, prefer natural-language correction/fix flows first; treat compaction-time or harness automation as a separate product question only after repeated evidence.
 - Before editing shared guidance, output the proposed changes first unless the user explicitly asked to apply them.
-- Keep `AGENTS.md` as a short cross-cutting index; shard detailed guidance near the code or in `agents/`.
+- Keep `AGENTS.md` as a short cross-cutting index; shard detailed guidance near the code or in `docs/`.
 - When externalization changes repository guidance and commits are authorized, commit the repo update after verification.
 - Ask when a correction has multiple plausible meanings.
 

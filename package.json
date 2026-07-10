@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "0.8.21",
+  "version": "0.8.22",
   "description": "Generic agent skills, rules, tool helpers, and OMP plugin adapter.",
   "type": "module",
   "scripts": {
@@ -19,7 +19,7 @@
     "AGENTS.md",
     "AGENT_RULES.md",
     "COMMITTING.md",
-    "agents/",
+    "docs/",
     "skills/",
     "omp-plugin/",
     "bin/",

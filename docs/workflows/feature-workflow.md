@@ -24,7 +24,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 1. Capture the user story and acceptance criteria in a GitHub issue.
 2. Create a branch named for the issue number and short feature slug.
 3. Implement the feature against project-local patterns and keep the diff scoped to the story.
-4. Open a draft pull request linked to the issue using `agents/workflows/pull-request-management-workflow.md`.
+4. Open a draft pull request linked to the issue using `docs/workflows/pull-request-management-workflow.md`.
 5. Review the diff from the user's perspective and run the smallest tests or QA path that covers the change.
 6. Mark the PR ready only after the acceptance criteria are satisfied and verification is recorded.
 7. Merge through the project's normal PR path after review and required checks pass, so GitHub records the review/merge path.

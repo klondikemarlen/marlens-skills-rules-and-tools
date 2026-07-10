@@ -1,6 +1,6 @@
 # Express Light Rail Backend Concepts Reference
 
-Use with `agents/workflows/express-light-rail-backend-workflow.md` when centralizing Node.js + Express + TypeScript backend feature patterns.
+Use with `docs/workflows/express-light-rail-backend-workflow.md` when centralizing Node.js + Express + TypeScript backend feature patterns.
 
 ## Rails
 

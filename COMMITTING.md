@@ -268,7 +268,7 @@ Use `git push --force-with-lease` after rewriting a pushed feature branch. Never
 
 ## PR Description Guidelines
 
-See also: [`agents/workflows/pull-request-management-workflow.md`](agents/workflows/pull-request-management-workflow.md) for full PR creation workflow.
+See also: [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md) for full PR creation workflow.
 
 - **Concise language:** use direct, active voice. Avoid redundant words like "entire", "proper", "fully".
 - **Context section:** focus on the problem and solution. Use present tense ("implements" not "will implement").
@@ -279,7 +279,7 @@ See also: [`agents/workflows/pull-request-management-workflow.md`](agents/workfl
 
 ## Testing Instructions Format
 
-See also: [`agents/workflows/testing-instructions-workflow.md`](agents/workflows/testing-instructions-workflow.md) for comprehensive guidance.
+See also: [`docs/workflows/testing-instructions-workflow.md`](docs/workflows/testing-instructions-workflow.md) for comprehensive guidance.
 
 Standard setup (always include):
 

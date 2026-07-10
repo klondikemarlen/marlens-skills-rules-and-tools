@@ -5,7 +5,7 @@ Thin OMP runtime adapter for the generic repo root.
 The package root owns the reusable content:
 
 - `AGENTS.md`, `AGENT_RULES.md`, `COMMITTING.md` for shared rules.
-- `agents/` for workflows, templates, references, and plans.
+- `docs/` for workflows, templates, references, and plans.
 - `skills/` for thin skill aliases into the workflow core.
 
 This directory only contains OMP-specific runtime code. Keep shared procedures out of here.
