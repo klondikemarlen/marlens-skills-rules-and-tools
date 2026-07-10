@@ -14,6 +14,7 @@ Use when creating or updating a pull request.
 1. Inspect repository status and preserve unrelated local work.
 2. Read the branch diff and recent commits before drafting text.
 3. Create PRs as drafts. Before pushing changes to an existing open PR, convert it back to draft unless the user asks to keep it ready for review.
+   After follow-up work resolves review comments, verify every addressed thread is resolved, restore ready-for-review status unless the PR was intentionally left draft, and re-check the remote PR state before reporting it ready.
 4. Write a PR body with these sections when applicable:
    - Related links
    - Context: why the change exists
