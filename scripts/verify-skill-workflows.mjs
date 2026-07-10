@@ -117,6 +117,25 @@ if (!learnWorkflow.includes('`klondikemarlen/marlens-skills-rules-and-tools` for
   fail('learn workflow must distinguish shared guidance from verifier enforcement');
 }
 
+const learnerWorkflow = read('docs/workflows/learner-feedback-workflow.md');
+const learnerFallbackWorkflow = read('skills/learner/workflow.md');
+const learnerEval = JSON.parse(read('docs/evals/learner-feedback.json'));
+if (learnerWorkflow !== learnerFallbackWorkflow) {
+  fail('learner workflow and packaged fallback must stay synchronized');
+}
+if (!learnerWorkflow.includes('createAgentSession') || !learnerWorkflow.includes('must not add a second passive capture loop')) {
+  fail('learner workflow must document OMP API limits and autolearn boundary');
+}
+if (!learnerWorkflow.includes('commit_file_grouping') || !learnerWorkflow.includes('insufficient_context')) {
+  fail('learner workflow must define commit grouping and insufficient context categories');
+}
+if (!learnerEval.cases?.some((testCase) => testCase.id === 'insufficient-context-commit-grouping-negative')) {
+  fail('learner eval must include negative commit grouping provenance');
+}
+if (!learnerEval.cases?.some((testCase) => testCase.id === 'verifier-overlap')) {
+  fail('learner eval must include verifier-overlap/no-action coverage');
+}
+
 const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
 if (!issueFilingRule.includes('sufficient authorization for the current repo')) {
   fail('issue filing rule must allow explicitly requested current-repo issues');
