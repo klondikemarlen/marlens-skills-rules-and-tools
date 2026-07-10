@@ -97,6 +97,23 @@ if (!pullRequestWorkflow.includes('restore ready-for-review status unless the PR
   fail('packaged pull request workflow must include self-contained restored ready-for-review guidance');
 }
 
+const codeReviewWorkflow = read('agents/workflows/code-review-workflow.md');
+const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
+for (const [name, workflow] of [
+  ['authoritative code review workflow', codeReviewWorkflow],
+  ['packaged code review workflow', codeReviewFallbackWorkflow],
+]) {
+  if (!workflow.includes('Test expectations should be declarative expected data')) {
+    fail(`${name} must require declarative test expectations`);
+  }
+  if (!workflow.includes('mapping, sorting, branching')) {
+    fail(`${name} must reject expectation-building logic`);
+  }
+  if (!workflow.includes('same production constant/helper under test')) {
+    fail(`${name} must reject production-derived expected values`);
+  }
+}
+
 function resolveFirstWorkflow(projectRoot, skillName) {
   const { local, fallback } = skillContract(skillName);
   const localPath = path.join(projectRoot, local[0]);
