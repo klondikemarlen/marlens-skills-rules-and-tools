@@ -81,6 +81,22 @@ if (!ompTargetRule.includes('scope: "tool"')) {
   fail('OMP target rule must keep a reusable tool scope');
 }
 
+const commentResolutionWorkflow = read('agents/workflows/pull-request-comment-resolution-workflow.md');
+if (!commentResolutionWorkflow.includes('temporarily draft')) {
+  fail('comment resolution workflow must distinguish temporary draft state');
+}
+if (!commentResolutionWorkflow.includes('mark it ready for review again')) {
+  fail('comment resolution workflow must restore ready-for-review status after resolved follow-up threads');
+}
+if (!commentResolutionWorkflow.includes('Re-check the remote PR state')) {
+  fail('comment resolution workflow must verify remote PR state before reporting ready');
+}
+
+const pullRequestWorkflow = read('skills/pull-request-management/workflow.md');
+if (!pullRequestWorkflow.includes('restore ready-for-review status unless the PR was intentionally left draft')) {
+  fail('packaged pull request workflow must include self-contained restored ready-for-review guidance');
+}
+
 function resolveFirstWorkflow(projectRoot, skillName) {
   const { local, fallback } = skillContract(skillName);
   const localPath = path.join(projectRoot, local[0]);
