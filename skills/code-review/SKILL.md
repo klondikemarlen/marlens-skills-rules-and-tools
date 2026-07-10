@@ -9,6 +9,6 @@ Read the first available workflow:
 
 1. Local project: `docs/workflows/code-review-workflow.md`
 2. Legacy local project: `agents/workflows/code-review-workflow.md`
-3. Packaged fallback: `skill://code-review/workflow.md`
+3. Packaged fallback: [workflow.md](workflow.md) in this skill directory (`skill://code-review/workflow.md` in OMP)
 
 Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative.

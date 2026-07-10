@@ -1,0 +1,12 @@
+{
+  "name": "marlens-skills-rules-and-tools",
+  "displayName": "Marlen's Skills, Rules, and Tools",
+  "version": "0.8.23",
+  "description": "Reusable agent skills, rules, workflow guidance, and tool helpers.",
+  "author": {
+    "name": "Marlen Brunner"
+  },
+  "homepage": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools",
+  "repository": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools",
+  "keywords": ["agent-rules", "skills", "workflows"]
+}

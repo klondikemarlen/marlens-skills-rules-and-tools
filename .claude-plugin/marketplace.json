@@ -1,0 +1,14 @@
+{
+  "name": "marlens-skills-rules-and-tools",
+  "owner": {
+    "name": "Marlen Brunner"
+  },
+  "description": "Reusable agent skills, rules, workflow guidance, and tool helpers.",
+  "plugins": [
+    {
+      "name": "marlens-skills-rules-and-tools",
+      "source": "./",
+      "description": "Reusable agent skills, rules, workflow guidance, and tool helpers."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Marlen's Skills, Rules, and Tools
 
-Reusable agent skills, rules, and tool helpers, plus a thin OMP plugin adapter.
+Reusable agent skills, rules, and tool helpers, plus thin OMP and Claude Code plugin adapters.
 
 ## OMP Plugin Install
 
@@ -19,6 +19,25 @@ These are skill prompts only; this package does not install browser automation o
 It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use the installed skills/rules/workflows, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
+
+## Claude Code Plugin Install
+
+Install this repo as a Claude Code marketplace, then install the plugin from it:
+
+```bash
+claude plugin marketplace add klondikemarlen/marlens-skills-rules-and-tools
+claude plugin install marlens-skills-rules-and-tools@marlens-skills-rules-and-tools
+```
+
+For local development, load the checkout directly:
+
+```bash
+claude --plugin-dir /path/to/marlens-skills-rules-and-tools
+```
+
+Claude Code exposes this package's public skills under the plugin namespace, for example `/marlens-skills-rules-and-tools:learn`, `/marlens-skills-rules-and-tools:feature`, `/marlens-skills-rules-and-tools:commit`, and `/marlens-skills-rules-and-tools:code-review`.
+
+The Claude adapter is manifest-only: `.claude-plugin/plugin.json` lets Claude Code load the existing `skills/` tree, and `.claude-plugin/marketplace.json` lets users install the repo without copying workflow files.
 
 ## Recommended Companion OMP Plugins
 
@@ -103,7 +122,7 @@ This keeps the shared skills usable across different stacks while letting Icefog
 
 ## Future Adapters
 
-Only OMP has a plugin adapter today. Add future agent-specific adapters beside it, for example `claude-plugin/` or another requested agent adapter, and have them consume the root `AGENTS.md`, `docs/`, and `skills/` content instead of copying workflows.
+OMP and Claude Code have thin plugin adapters today. Add future agent-specific adapters beside them, and have those adapters consume the root `AGENTS.md`, `docs/`, and `skills/` content instead of copying workflows.
 
 ## Name
 
@@ -121,3 +140,4 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
 - `.omp-plugin/` - OMP marketplace catalog
+- `.claude-plugin/` - Claude Code plugin manifest and marketplace catalog

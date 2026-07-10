@@ -6,7 +6,7 @@ For backend projects that use the shared route/controller/service/policy/seriali
 
 1. Local project: `docs/workflows/express-light-rail-backend-workflow.md`
 2. Legacy local project: `agents/workflows/express-light-rail-backend-workflow.md`
-3. Packaged fallback: `skill://express-light-rail/workflow.md`
+3. Packaged fallback: [../express-light-rail/workflow.md](../express-light-rail/workflow.md) in this plugin (`skill://express-light-rail/workflow.md` in OMP)
 
 Use this workflow name when a prompt or installed skill still points at `node-express-api`; it intentionally delegates to the centralized Express Light Rail backend workflow instead of keeping a second pattern.
 
