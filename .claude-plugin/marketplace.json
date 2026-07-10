@@ -1,0 +1,19 @@
+{
+  "name": "marlens-skills-rules-and-tools",
+  "owner": {
+    "name": "Marlen Brunner"
+  },
+  "description": "Marlen's shared agent skills, rules, workflows, templates, and references.",
+  "plugins": [
+    {
+      "name": "marlens-skills-rules-and-tools",
+      "source": "./claude-plugin",
+      "description": "Marlen's shared agent skills, rules, workflows, templates, and references.",
+      "version": "0.8.19",
+      "author": {
+        "name": "Marlen Brunner"
+      },
+      "repository": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools"
+    }
+  ]
+}

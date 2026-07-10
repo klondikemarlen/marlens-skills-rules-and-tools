@@ -8,6 +8,8 @@ description: Use when adding backend features in Node.js + Express + TypeScript 
 Read the first available workflow:
 
 1. Local project: `agents/workflows/express-light-rail-backend-workflow.md`
-2. Packaged fallback: `skill://express-light-rail/workflow.md`
+2. Packaged fallback for the current runtime:
+   - OMP: `skill://express-light-rail/workflow.md`
+   - Claude Code: `${CLAUDE_SKILL_DIR}/workflow.md`
 
 Local project workflows win. This skill is a thin alias; the workflow file is authoritative.

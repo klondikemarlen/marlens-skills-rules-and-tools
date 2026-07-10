@@ -20,6 +20,24 @@ It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
+## Claude Code Plugin Install
+
+For local testing from a checkout, install through the marketplace flow so Claude copies the plugin root and dereferences shared skill symlinks into its cache:
+
+```bash
+claude plugin marketplace add ~/code/klondikemarlen/marlens-skills-rules-and-tools
+claude plugin install marlens-skills-rules-and-tools@marlens-skills-rules-and-tools
+```
+
+For a persistent Claude Code install, add this repo as a marketplace and install the plugin:
+
+```bash
+claude plugin marketplace add klondikemarlen/marlens-skills-rules-and-tools
+claude plugin install marlens-skills-rules-and-tools@marlens-skills-rules-and-tools
+```
+
+Claude Code loads the same `skills/` directory as OMP. Skill entrypoints retain OMP `skill://...` fallbacks and also name Claude's `${CLAUDE_SKILL_DIR}/...` fallback paths so bundled workflow files resolve after Claude copies the plugin into its cache.
+
 ## Recommended Companion OMP Plugins
 
 This package stays the base layer for doctrine, skills, rules, workflows, and the thin OMP adapter. Runtime plugins remain separate packages with independent release cycles; install only the pieces that match your workflow.
