@@ -13,6 +13,7 @@ This directory only contains OMP-specific runtime code. Keep shared procedures o
 Runtime behavior:
 
 - Registers `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use Marlen's installed skills, rules, and tools.
+- Registers `/learner ...`, an opt-in command surface for durable-feedback triage. It stores pending/reviewed candidates locally under the active OMP agent directory and routes promoted candidates back through the learn workflow; it does not add a passive capture loop.
 
 ## Local Development
 
