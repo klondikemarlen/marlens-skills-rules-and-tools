@@ -16,6 +16,7 @@ Use when reviewing a branch, pull request, or local diff.
 - Prefer deletion and simpler existing patterns over new abstractions.
 - Do not block on project-specific rules that are not documented locally.
 - Test expectations should be declarative expected data, not expectation-building logic. For business catalogs and configured defaults, prefer explicit expected values over mapping, sorting, branching, or deriving expectations from the same production constant/helper under test.
+- Review commit scope when relevant: flag mixed code/test changes, migrations/schema/data changes, dependency churn, formatting, and documentation or workflow-learning updates unless the user explicitly requested a combined commit and the files are inseparable for review.
 
 ## Process
 

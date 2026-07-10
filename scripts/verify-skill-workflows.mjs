@@ -112,6 +112,31 @@ for (const [name, workflow] of [
   if (!workflow.includes('same production constant/helper under test')) {
     fail(`${name} must reject production-derived expected values`);
   }
+  if (!workflow.includes('Review commit scope when relevant')) {
+    fail(`${name} must check commit scope by change type`);
+  }
+  if (!workflow.includes('documentation or workflow-learning')) {
+    fail(`${name} must flag mixed documentation-learning changes during review`);
+  }
+}
+
+const sharedCommitGuide = read('COMMITTING.md');
+const commitWorkflow = read('agents/workflows/commit-workflow.md');
+const commitFallbackWorkflow = read('skills/commit/workflow.md');
+for (const [name, workflow] of [
+  ['shared commit guide', sharedCommitGuide],
+  ['authoritative commit workflow', commitWorkflow],
+  ['packaged commit workflow', commitFallbackWorkflow],
+]) {
+  if (!workflow.includes('Keep commits cohesive and homogeneous') && !workflow.includes('Keep commits homogeneous by change type')) {
+    fail(`${name} must require homogeneous commits`);
+  }
+  if (!workflow.includes('documentation or workflow-learning')) {
+    fail(`${name} must split documentation-learning edits from code/test fixes`);
+  }
+  if (!workflow.includes('migrations/schema/data')) {
+    fail(`${name} must split schema/data changes from other change types`);
+  }
 }
 
 function resolveFirstWorkflow(projectRoot, skillName) {
