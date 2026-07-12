@@ -123,10 +123,12 @@ try {
   const recordTool = tools.get('learner_record_candidate');
   assert.ok(learner, 'learner command must register');
   assert.ok(recordTool, 'learner recording tool must register');
-  assert.deepEqual(learner.getArgumentCompletions('').map((item) => item.label), ['on', 'off', 'status', 'classify', 'add', 'review', 'promote', 'discard', 'edit', 'feedback']);
+  assert.deepEqual(learner.getArgumentCompletions('').map((item) => item.label), ['on', 'off', 'status']);
 
   await learner.handler('review', {});
-  assert.equal(messages.at(-1).message.content, 'No pending learner candidates.');
+  assert.match(messages.at(-1).message.content, /Unknown learner command: review/);
+  await learner.handler('on extra', {});
+  assert.match(messages.at(-1).message.content, /Usage: \/learner on/);
 
   await learner.handler('on', {});
   assert.match(messages.at(-1).message.content, /automatic triage enabled/);
@@ -168,29 +170,14 @@ try {
   await learner.handler('status', {});
   assert.match(messages.at(-1).message.content, /automatic triage: on/);
   assert.match(messages.at(-1).message.content, /recording tool: active/);
-
-  await learner.handler('review', {});
-  assert.match(messages.at(-1).message.content, /### lf-1 — test_style/);
-  assert.doesNotMatch(messages.at(-1).message.content, new RegExp(token));
-
-  await learner.handler('classify Keep tests direct.', {});
-  assert.equal(messages.at(-1).message.customType, 'learner-classify');
-  assert.equal(messages.at(-1).options.triggerTurn, true);
-  const classifyPromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: messages.at(-1).message.content, systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
-  assert.deepEqual(classifyPromptResult, {});
-  assert.ok(!activeTools.includes('learner_record_candidate'));
+  assert.match(messages.at(-1).message.content, /pending candidates: 1/);
 
   const ordinaryPromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: 'Please remember this code style.', systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
   assert.match(ordinaryPromptResult.systemPromptAppend, /Learner automatic triage is enabled/);
   assert.ok(activeTools.includes('learner_record_candidate'));
 
-
-  await learner.handler('promote lf-1 useful', {});
-  assert.equal(messages.at(-1).message.customType, 'learner-promote');
-  assert.equal(messages.at(-1).options.triggerTurn, true);
-  assert.match(messages.at(-1).message.content, /Review learner candidate lf-1/);
-  const promotePromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: messages.at(-1).message.content, systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
-  assert.deepEqual(promotePromptResult, {});
+  const workflowPromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: 'Use docs/workflows/learner-feedback-workflow.md to classify this user feedback.', systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
+  assert.deepEqual(workflowPromptResult, {});
   assert.ok(!activeTools.includes('learner_record_candidate'));
 
 

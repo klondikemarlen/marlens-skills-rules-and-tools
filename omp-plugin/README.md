@@ -13,7 +13,7 @@ This directory only contains OMP-specific runtime code. Keep shared procedures o
 Runtime behavior:
 
 - Registers `/marlens-skills-rules-and-tools [task]`, a prompting shortcut that asks the agent to use Marlen's installed skills, rules, and tools.
-- Registers `/learner ...`, a verifier-style opt-in learner surface. `/learner on` persists automatic triage, activates the default-inactive `learner_record_candidate` tool, and appends learner instructions to future turns; `/learner off` disables it. Manual review commands still store pending/reviewed candidates under the active OMP agent directory and route promoted candidates back through the learn workflow.
+- Registers `/learner on|off|status`, a verifier-style opt-in learner surface. `/learner on` persists automatic triage, activates the default-inactive `learner_record_candidate` tool, and appends learner instructions to future turns; `/learner off` disables it; `/learner status` reports state.
 
 ## Local Development
 

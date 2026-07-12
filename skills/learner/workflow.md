@@ -17,14 +17,7 @@ Use this package's explicit `/learner` command path:
 - `/learner on` enables automatic learner triage for future turns.
 - `/learner off` disables automatic learner triage and deactivates the recording tool.
 - `/learner status` reports enabled state, tool state, pending candidates, and store path.
-- `/learner classify <feedback>` manually asks the active agent to classify only the supplied feedback with this workflow; stored learner history stays out of classification until the executable eval gate passes.
-- `/learner add <candidate-json>` stores a pending candidate for review.
-- `/learner review` lists pending candidates.
-- `/learner promote <id> [rationale]` routes an accepted candidate through `docs/workflows/learn-workflow.md`.
-- `/learner discard <id> [label] [rationale]` persists a rejected decision.
-- `/learner edit <id> <candidate-json>` updates a pending candidate.
-- `/learner feedback <id> <useful|noisy|wrong-scope|wrong-destination> <rationale>` stores feedback about learner quality.
-- `learner_record_candidate` is a default-inactive LLM-callable tool. `/learner on` activates it so the current model turn can store one high-confidence pending candidate without asking the user to rerun `/learner add`.
+- `learner_record_candidate` is a default-inactive LLM-callable tool. `/learner on` activates it so the current model turn can store one high-confidence pending candidate for later human review without exposing manual slash subcommands.
 
 The command stores `feedback-store.json` under the active OMP agent directory (`pi.pi.getAgentDir()/learner/`), or `OMP_LEARNER_DIR` when set for tests or explicit relocation. Writes are bounded, redacted, and local; the plugin does not use plugin-manager internals as storage.
 

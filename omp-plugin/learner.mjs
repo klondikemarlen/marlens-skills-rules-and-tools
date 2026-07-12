@@ -209,23 +209,16 @@ export function formatReview(store) {
 }
 
 export function classifierPrompt(feedback, _store) {
-  return `Use docs/workflows/learner-feedback-workflow.md to classify this user feedback.\n\nFeedback:\n${redactText(feedback)}\n\nStored learner history is intentionally not injected into classification yet; use /learner review for human review and keep adaptive summaries disabled until an executable eval proves they reduce noise without increasing verifier overlap.\n\nReturn one candidate JSON object only if it is high-confidence and durable. Use category ambiguous_needs_review for uncertain feedback, insufficient_context for commit grouping without structured visible provenance, and one_off_no_action for local nits. For commit_file_grouping, include provenance.kind as diff, staged_files, commit_hash, or local_committing_doc and provenance.reference naming the visible source. Do not persist, file issues, commit, push, or edit files. If a candidate should be stored for human review, tell the user to run /learner add with the JSON.`;
+  return `Use docs/workflows/learner-feedback-workflow.md to classify this user feedback.\n\nFeedback:\n${redactText(feedback)}\n\nStored learner history is intentionally not injected into classification yet; keep pending candidates human-reviewed and keep adaptive summaries disabled until an executable eval proves they reduce noise without increasing verifier overlap.\n\nReturn one candidate JSON object only if it is high-confidence and durable. Use category ambiguous_needs_review for uncertain feedback, insufficient_context for commit grouping without structured visible provenance, and one_off_no_action for local nits. For commit_file_grouping, include provenance.kind as diff, staged_files, commit_hash, or local_committing_doc and provenance.reference naming the visible source. Do not persist, file issues, commit, push, edit files, or ask the user to run hidden learner subcommands.`;
 }
 
 export function automaticSystemPrompt() {
   return `Learner automatic triage is enabled. For the current user prompt only, decide whether it contains explicit durable feedback about code style, test style, commit message style, commit file grouping, or reusable workflow/tooling guidance. If it does, call ${RECORD_TOOL_NAME} exactly once with a pending learner candidate. Do not call the tool for one-off wording nits, verifier evidence/PASS/FAIL/BLOCKED feedback, ordinary task instructions, or uncertain feedback. For commit_file_grouping, only use that category when provenance.kind is diff, staged_files, commit_hash, or local_committing_doc and provenance.reference names the visible source; otherwise use insufficient_context or do not record. Stored learner history is not part of this classification.`;
 }
 
-function parseJsonArgument(raw) {
-  try {
-    return JSON.parse(raw);
-  } catch (error) {
-    throw new Error(`Expected JSON argument: ${error.message}`);
-  }
-}
 
 function helpText() {
-  return `Learner commands:\n/learner on\n/learner off\n/learner status\n/learner classify <feedback>\n/learner add <candidate-json>\n/learner review\n/learner promote <id> [rationale]\n/learner discard <id> [label] [rationale]\n/learner edit <id> <candidate-json>\n/learner feedback <id> <useful|noisy|wrong-scope|wrong-destination> <rationale>`;
+  return `Learner commands:\n/learner on\n/learner off\n/learner status`;
 }
 
 function statusText(store, filePath, pi) {
@@ -242,7 +235,7 @@ function statusText(store, filePath, pi) {
 function completeLearner(argumentPrefix) {
   if (argumentPrefix.includes(' ')) return null;
   const lower = argumentPrefix.toLowerCase();
-  const commands = ['on', 'off', 'status', 'classify', 'add', 'review', 'promote', 'discard', 'edit', 'feedback'];
+  const commands = ['on', 'off', 'status'];
   const matches = commands.filter((command) => command.startsWith(lower)).map((command) => ({ value: `${command} `, label: command }));
   return matches.length ? matches : null;
 }
@@ -308,7 +301,7 @@ function registerLearnerTool(pi) {
       });
       writeStore(store, filePath);
       return {
-        content: [{ type: 'text', text: `Stored pending learner candidate ${candidate.id}. Run /learner review or /learner promote ${candidate.id}.` }],
+        content: [{ type: 'text', text: `Stored pending learner candidate ${candidate.id} for human review.` }],
         details: { id: candidate.id, category: candidate.category },
       };
     },
@@ -340,15 +333,17 @@ export function registerLearnerCommand(pi) {
   });
 
   pi.registerCommand('learner', {
-    description: 'Toggle automatic learner triage or review durable style, commit, test, and workflow feedback.',
+    description: 'Toggle automatic learner triage.',
     getArgumentCompletions: completeLearner,
     handler: async (args, ctx) => {
-      const [command = 'help', ...rest] = args.trim().split(/\s+/).filter(Boolean);
+      const tokens = args.trim().split(/\s+/).filter(Boolean);
+      const command = tokens[0] || 'status';
       const filePath = storePathFor(pi, ctx);
       const store = readStore(filePath);
 
       try {
-        if (command === 'help') return sendDisplay(pi, helpText());
+        if (tokens.length > 1) return sendDisplay(pi, `Usage: /learner ${command}\n\n${helpText()}`);
+        if (command === 'status') return sendDisplay(pi, statusText(store, filePath, pi));
         if (command === 'on') {
           setLearnerEnabled(store, true);
           writeStore(store, filePath);
@@ -361,50 +356,8 @@ export function registerLearnerCommand(pi) {
           await setLearnerToolActive(pi, false);
           return sendDisplay(pi, 'Learner automatic triage disabled.');
         }
-        if (command === 'status') return sendDisplay(pi, statusText(store, filePath, pi));
-        if (command === 'review') return sendDisplay(pi, formatReview(store));
-        if (command === 'classify') {
-          const feedback = args.trim().slice(command.length).trim();
-          if (!feedback) return sendDisplay(pi, 'Usage: /learner classify <feedback>');
-          return pi.sendMessage({ customType: 'learner-classify', content: classifierPrompt(feedback, store), display: true, attribution: 'user' }, { deliverAs: 'followUp', triggerTurn: true });
-        }
-        if (command === 'add') {
-          const candidate = addCandidate(store, parseJsonArgument(args.trim().slice(command.length).trim()));
-          writeStore(store, filePath);
-          return sendDisplay(pi, `Stored pending learner candidate ${candidate.id}. Run /learner review or /learner promote ${candidate.id}.`);
-        }
-        if (command === 'edit') {
-          const id = rest[0];
-          const patchText = args.trim().slice(`edit ${id}`.length).trim();
-          const candidate = editCandidate(store, id, parseJsonArgument(patchText));
-          writeStore(store, filePath);
-          return sendDisplay(pi, `Updated learner candidate ${candidate.id}.`);
-        }
-        if (command === 'promote') {
-          const id = rest[0];
-          const rationale = args.trim().slice(`promote ${id}`.length).trim();
-          const decision = promoteCandidate(store, id, rationale);
-          writeStore(store, filePath);
-          return pi.sendMessage({ customType: 'learner-promote', content: `Review learner candidate ${decision.id} through docs/workflows/learn-workflow.md before persisting it. Candidate:\n${JSON.stringify(decision, null, 2)}`, display: true, attribution: 'user' }, { deliverAs: 'followUp', triggerTurn: true });
-        }
-        if (command === 'discard') {
-          const id = rest[0];
-          const label = rest[1] || 'noisy';
-          const rationale = rest.slice(2).join(' ');
-          const decision = discardCandidate(store, id, label, rationale);
-          writeStore(store, filePath);
-          return sendDisplay(pi, `Discarded learner candidate ${decision.id} as ${decision.feedbackLabel}.`);
-        }
-        if (command === 'feedback') {
-          const id = rest[0];
-          const label = rest[1];
-          const rationale = rest.slice(2).join(' ');
-          addFeedback(store, id, label, rationale);
-          writeStore(store, filePath);
-          return sendDisplay(pi, `Recorded learner feedback for ${id}.`);
-        }
 
-        return sendDisplay(pi, helpText());
+        return sendDisplay(pi, `Unknown learner command: ${command}\n\n${helpText()}`);
       } catch (error) {
         return sendDisplay(pi, `Learner error: ${error.message}`);
       }
