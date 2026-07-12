@@ -85,11 +85,33 @@ try {
 const commandTmp = mkdtempSync(path.join(os.tmpdir(), 'learner-command-check-'));
 try {
   const commands = new Map();
+  const tools = new Map();
+  const events = new Map();
   const messages = [];
+  let activeTools = [];
+  const schema = { optional: () => schema, describe: () => schema };
+  const z = {
+    string: () => schema,
+    enum: () => schema,
+    object: () => schema,
+  };
   const pi = {
     pi: { getAgentDir: () => commandTmp },
+    zod: { z },
     registerCommand(name, options) {
       commands.set(name, options);
+    },
+    registerTool(tool) {
+      tools.set(tool.name, tool);
+    },
+    on(event, handler) {
+      events.set(event, handler);
+    },
+    getActiveTools() {
+      return activeTools;
+    },
+    async setActiveTools(nextTools) {
+      activeTools = nextTools;
     },
     sendMessage(message, options) {
       messages.push({ message, options });
@@ -98,35 +120,86 @@ try {
 
   registerLearnerCommand(pi);
   const learner = commands.get('learner');
+  const recordTool = tools.get('learner_record_candidate');
   assert.ok(learner, 'learner command must register');
+  assert.ok(recordTool, 'learner recording tool must register');
+  assert.deepEqual(learner.getArgumentCompletions('').map((item) => item.label), ['on', 'off', 'status', 'classify', 'add', 'review', 'promote', 'discard', 'edit', 'feedback']);
 
-  await learner.handler('review');
+  await learner.handler('review', {});
   assert.equal(messages.at(-1).message.content, 'No pending learner candidates.');
 
-  const candidateJson = JSON.stringify({
+  await learner.handler('on', {});
+  assert.match(messages.at(-1).message.content, /automatic triage enabled/);
+  assert.ok(activeTools.includes('learner_record_candidate'));
+  activeTools = [];
+  const notices = [];
+  await events.get('session_start')({ type: 'session_start' }, { agentDir: commandTmp, ui: { notify(message, level) { notices.push({ message, level }); } } });
+  assert.ok(activeTools.includes('learner_record_candidate'));
+  assert.deepEqual(notices, [{ message: 'Learner automatic triage enabled', level: 'info' }]);
+
+  assert.equal(readStore(path.join(commandTmp, 'learner', 'feedback-store.json')).settings.enabled, true);
+
+  const pendingEvalCases = JSON.parse(readFileSync('docs/evals/learner-feedback.json', 'utf8')).cases.filter((testCase) => testCase.expectedAction === 'pending_candidate');
+  const beforePromptMessages = messages.length;
+  for (const testCase of pendingEvalCases) {
+    const result = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: testCase.input, systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
+    assert.match(result.systemPromptAppend, /Learner automatic triage is enabled/, testCase.id);
+    assert.match(result.systemPromptAppend, /learner_record_candidate/, testCase.id);
+  }
+  assert.equal(messages.length, beforePromptMessages);
+
+  const toolResult = await recordTool.execute('tc-1', {
     category: 'test_style',
     proposedRule: `Assert explicit expected values. ${token}`,
     scope: 'cross-project tests',
     provenance: { kind: 'local_committing_doc', reference: 'COMMITTING.md' },
     confidence: 'high',
-  });
-  await learner.handler(`add ${candidateJson}`);
-  assert.match(messages.at(-1).message.content, /Stored pending learner candidate lf-1/);
-  assert.ok(existsSync(path.join(commandTmp, 'learner', 'feedback-store.json')));
+  }, undefined, undefined, { agentDir: commandTmp });
+  assert.match(toolResult.content[0].text, /Stored pending learner candidate lf-1/);
   assert.ok(!readFileSync(path.join(commandTmp, 'learner', 'feedback-store.json'), 'utf8').includes(token));
 
-  await learner.handler('review');
+  const skippedToolResult = await recordTool.execute('tc-2', {
+    category: 'insufficient_context',
+    proposedRule: 'Split commit groups.',
+  }, undefined, undefined, { agentDir: commandTmp });
+  assert.match(skippedToolResult.content[0].text, /No learner candidate recorded for insufficient_context/);
+  assert.equal(readStore(path.join(commandTmp, 'learner', 'feedback-store.json')).pending.length, 1);
+
+  await learner.handler('status', {});
+  assert.match(messages.at(-1).message.content, /automatic triage: on/);
+  assert.match(messages.at(-1).message.content, /recording tool: active/);
+
+  await learner.handler('review', {});
   assert.match(messages.at(-1).message.content, /### lf-1 — test_style/);
   assert.doesNotMatch(messages.at(-1).message.content, new RegExp(token));
 
-  await learner.handler('classify Keep tests direct.');
+  await learner.handler('classify Keep tests direct.', {});
   assert.equal(messages.at(-1).message.customType, 'learner-classify');
   assert.equal(messages.at(-1).options.triggerTurn, true);
+  const classifyPromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: messages.at(-1).message.content, systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
+  assert.deepEqual(classifyPromptResult, {});
+  assert.ok(!activeTools.includes('learner_record_candidate'));
 
-  await learner.handler('promote lf-1 useful');
+  const ordinaryPromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: 'Please remember this code style.', systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
+  assert.match(ordinaryPromptResult.systemPromptAppend, /Learner automatic triage is enabled/);
+  assert.ok(activeTools.includes('learner_record_candidate'));
+
+
+  await learner.handler('promote lf-1 useful', {});
   assert.equal(messages.at(-1).message.customType, 'learner-promote');
   assert.equal(messages.at(-1).options.triggerTurn, true);
   assert.match(messages.at(-1).message.content, /Review learner candidate lf-1/);
+  const promotePromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: messages.at(-1).message.content, systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
+  assert.deepEqual(promotePromptResult, {});
+  assert.ok(!activeTools.includes('learner_record_candidate'));
+
+
+  await learner.handler('off', {});
+  const disabledPromptResult = await events.get('before_agent_start')({ type: 'before_agent_start', prompt: 'Please remember this code style.', systemPrompt: ['base prompt'] }, { agentDir: commandTmp });
+  assert.deepEqual(disabledPromptResult, {});
+  assert.match(messages.at(-1).message.content, /disabled/);
+  assert.ok(!activeTools.includes('learner_record_candidate'));
+  assert.equal(readStore(path.join(commandTmp, 'learner', 'feedback-store.json')).settings.enabled, false);
 } finally {
   rmSync(commandTmp, { recursive: true, force: true });
 }

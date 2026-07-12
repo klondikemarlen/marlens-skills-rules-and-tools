@@ -16,7 +16,7 @@ This installs OMP skill prompts for browser QA, code review, commits, Express Li
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
-It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-tools [task]`, `/learner ...` opt-in durable-feedback triage commands, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
+It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-tools [task]`, `/learner on|off|status` automatic durable-feedback triage plus manual review commands, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
@@ -139,6 +139,6 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `lib/` - Ruby implementation for shared package binaries such as `dev`
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
-- `omp-plugin/learner.mjs` - opt-in learner command storage and candidate review helpers
+- `omp-plugin/learner.mjs` - learner toggle, recording tool, command storage, and candidate review helpers
 - `.omp-plugin/` - OMP marketplace catalog
 - `.claude-plugin/` - Claude Code plugin manifest and marketplace catalog
