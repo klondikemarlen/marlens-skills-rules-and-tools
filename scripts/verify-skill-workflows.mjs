@@ -123,8 +123,11 @@ const learnerEval = JSON.parse(read('docs/evals/learner-feedback.json'));
 if (learnerWorkflow !== learnerFallbackWorkflow) {
   fail('learner workflow and packaged fallback must stay synchronized');
 }
-if (!learnerWorkflow.includes('createAgentSession') || !learnerWorkflow.includes('must not add a second passive capture loop')) {
-  fail('learner workflow must document OMP API limits and autolearn boundary');
+if (!learnerWorkflow.includes('before_agent_start') || !learnerWorkflow.includes('default-inactive tools') || !learnerWorkflow.includes('persisted guidance')) {
+  fail('learner workflow must document the verifier-style persisted toggle and tool activation path');
+}
+if (!learnerWorkflow.includes('autolearn.enabled')) {
+  fail('learner workflow must document the built-in autolearn boundary');
 }
 if (!learnerWorkflow.includes('commit_file_grouping') || !learnerWorkflow.includes('insufficient_context')) {
   fail('learner workflow must define commit grouping and insufficient context categories');

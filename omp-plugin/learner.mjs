@@ -5,6 +5,7 @@ import path from 'node:path';
 const STORE_VERSION = 1;
 const MAX_EXCERPT = 500;
 const SUMMARY_LIMIT = 5;
+const RECORD_TOOL_NAME = 'learner_record_candidate';
 const COMMIT_CONTEXT_KINDS = new Set(['diff', 'staged_files', 'commit_hash', 'local_committing_doc']);
 const CATEGORIES = new Set([
   'project_code_style',
@@ -18,6 +19,7 @@ const CATEGORIES = new Set([
   'insufficient_context',
 ]);
 const FEEDBACK_LABELS = new Set(['useful', 'noisy', 'wrong-scope', 'wrong-destination']);
+const NON_RECORDING_CATEGORIES = new Set(['one_off_no_action', 'ambiguous_needs_review', 'insufficient_context']);
 
 export function learnerStorePath(env = process.env, agentDir) {
   const baseDir = env.OMP_LEARNER_DIR || agentDir || path.join(env.HOME || os.homedir(), '.omp', 'agent');
@@ -25,7 +27,7 @@ export function learnerStorePath(env = process.env, agentDir) {
 }
 
 function emptyStore() {
-  return { version: STORE_VERSION, nextId: 1, pending: [], decisions: [], edits: [], feedback: [] };
+  return { version: STORE_VERSION, nextId: 1, settings: { enabled: false }, pending: [], decisions: [], edits: [], feedback: [] };
 }
 
 export function readStore(filePath = learnerStorePath()) {
@@ -35,6 +37,7 @@ export function readStore(filePath = learnerStorePath()) {
   return {
     ...emptyStore(),
     ...parsed,
+    settings: { ...emptyStore().settings, ...(parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : {}) },
     pending: Array.isArray(parsed.pending) ? parsed.pending : [],
     decisions: Array.isArray(parsed.decisions) ? parsed.decisions : [],
     edits: Array.isArray(parsed.edits) ? parsed.edits : [],
@@ -169,6 +172,11 @@ export function addFeedback(store, id, label, rationale = '') {
   return record;
 }
 
+export function setLearnerEnabled(store, enabled) {
+  store.settings = { ...(store.settings || {}), enabled: Boolean(enabled), updatedAt: timestamp() };
+  return store.settings;
+}
+
 export function boundedFeedbackSummary(store, limit = SUMMARY_LIMIT) {
   const accepted = store.decisions.filter((item) => item.status === 'accepted').slice(-limit);
   const rejected = store.decisions.filter((item) => item.status === 'rejected').slice(-limit);
@@ -200,8 +208,12 @@ export function formatReview(store) {
   ].join('\n')).join('\n\n');
 }
 
-export function classifierPrompt(feedback, store) {
+export function classifierPrompt(feedback, _store) {
   return `Use docs/workflows/learner-feedback-workflow.md to classify this user feedback.\n\nFeedback:\n${redactText(feedback)}\n\nStored learner history is intentionally not injected into classification yet; use /learner review for human review and keep adaptive summaries disabled until an executable eval proves they reduce noise without increasing verifier overlap.\n\nReturn one candidate JSON object only if it is high-confidence and durable. Use category ambiguous_needs_review for uncertain feedback, insufficient_context for commit grouping without structured visible provenance, and one_off_no_action for local nits. For commit_file_grouping, include provenance.kind as diff, staged_files, commit_hash, or local_committing_doc and provenance.reference naming the visible source. Do not persist, file issues, commit, push, or edit files. If a candidate should be stored for human review, tell the user to run /learner add with the JSON.`;
+}
+
+export function automaticSystemPrompt() {
+  return `Learner automatic triage is enabled. For the current user prompt only, decide whether it contains explicit durable feedback about code style, test style, commit message style, commit file grouping, or reusable workflow/tooling guidance. If it does, call ${RECORD_TOOL_NAME} exactly once with a pending learner candidate. Do not call the tool for one-off wording nits, verifier evidence/PASS/FAIL/BLOCKED feedback, ordinary task instructions, or uncertain feedback. For commit_file_grouping, only use that category when provenance.kind is diff, staged_files, commit_hash, or local_committing_doc and provenance.reference names the visible source; otherwise use insufficient_context or do not record. Stored learner history is not part of this classification.`;
 }
 
 function parseJsonArgument(raw) {
@@ -213,19 +225,143 @@ function parseJsonArgument(raw) {
 }
 
 function helpText() {
-  return `Learner commands:\n/learner classify <feedback>\n/learner add <candidate-json>\n/learner review\n/learner promote <id> [rationale]\n/learner discard <id> [label] [rationale]\n/learner edit <id> <candidate-json>\n/learner feedback <id> <useful|noisy|wrong-scope|wrong-destination> <rationale>`;
+  return `Learner commands:\n/learner on\n/learner off\n/learner status\n/learner classify <feedback>\n/learner add <candidate-json>\n/learner review\n/learner promote <id> [rationale]\n/learner discard <id> [label] [rationale]\n/learner edit <id> <candidate-json>\n/learner feedback <id> <useful|noisy|wrong-scope|wrong-destination> <rationale>`;
+}
+
+function statusText(store, filePath, pi) {
+  const activeTools = new Set(pi.getActiveTools?.() || []);
+  return [
+    'Learner status:',
+    `automatic triage: ${store.settings?.enabled ? 'on' : 'off'}`,
+    `recording tool: ${activeTools.has(RECORD_TOOL_NAME) ? 'active' : 'inactive'}`,
+    `pending candidates: ${store.pending.length}`,
+    `store: ${filePath}`,
+  ].join('\n');
+}
+
+function completeLearner(argumentPrefix) {
+  if (argumentPrefix.includes(' ')) return null;
+  const lower = argumentPrefix.toLowerCase();
+  const commands = ['on', 'off', 'status', 'classify', 'add', 'review', 'promote', 'discard', 'edit', 'feedback'];
+  const matches = commands.filter((command) => command.startsWith(lower)).map((command) => ({ value: `${command} `, label: command }));
+  return matches.length ? matches : null;
+}
+
+async function setLearnerToolActive(pi, enabled) {
+  if (!pi.getActiveTools || !pi.setActiveTools) return;
+  const active = new Set(pi.getActiveTools());
+  if (enabled) active.add(RECORD_TOOL_NAME);
+  else active.delete(RECORD_TOOL_NAME);
+  await pi.setActiveTools([...active]);
+}
+
+export function isLearnerWorkflowPrompt(promptText) {
+  const text = String(promptText || '');
+  return text.startsWith('Use docs/workflows/learner-feedback-workflow.md')
+    || text.startsWith('Review learner candidate ')
+    || text.includes('through docs/workflows/learn-workflow.md before persisting it');
+}
+
+
+function storePathFor(pi, ctx) {
+  return learnerStorePath(process.env, ctx?.agentDir || pi.pi?.getAgentDir?.());
+}
+
+function registerLearnerTool(pi) {
+  const z = pi.zod?.z;
+  pi.registerTool?.({
+    name: RECORD_TOOL_NAME,
+    label: 'Record Learner Candidate',
+    description: 'Record one human-reviewed learner candidate from enabled automatic feedback triage. Use only for high-confidence durable guidance; never for verifier evidence review or one-off wording nits.',
+    defaultInactive: true,
+    approval: 'write',
+    parameters: z?.object({
+      category: z.enum([...CATEGORIES]).describe('Learner category'),
+      proposedRule: z.string().describe('Durable rule or guidance to remember'),
+      scope: z.string().optional().describe('Scope where the guidance applies'),
+      rationale: z.string().optional().describe('Why this is durable feedback'),
+      suggestedDestination: z.string().optional().describe('Likely memory, workflow, or rule destination'),
+      evidence: z.string().optional().describe('Redacted bounded user feedback excerpt'),
+      provenance: z.object({
+        kind: z.string().describe('diff, staged_files, commit_hash, local_committing_doc, or observed_user_feedback'),
+        reference: z.string().describe('Visible source reference'),
+      }).optional(),
+      confidence: z.string().optional(),
+      whenNotToApply: z.string().optional(),
+      relationshipToExistingGuidance: z.string().optional(),
+    }) || {},
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+      const category = normalizeCategory(params.category);
+      if (NON_RECORDING_CATEGORIES.has(category)) {
+        return {
+          content: [{ type: 'text', text: `No learner candidate recorded for ${category}.` }],
+          details: { recorded: false, category },
+        };
+      }
+
+      const filePath = storePathFor(pi, ctx);
+      const store = readStore(filePath);
+      const candidate = addCandidate(store, {
+        ...params,
+        evidence: params.evidence || params.promptExcerpt || params.proposedRule,
+        provenance: params.provenance || { kind: 'observed_user_feedback', reference: 'enabled learner observation' },
+      });
+      writeStore(store, filePath);
+      return {
+        content: [{ type: 'text', text: `Stored pending learner candidate ${candidate.id}. Run /learner review or /learner promote ${candidate.id}.` }],
+        details: { id: candidate.id, category: candidate.category },
+      };
+    },
+  });
 }
 
 export function registerLearnerCommand(pi) {
+  registerLearnerTool(pi);
+
+  pi.on?.('session_start', async (_event, ctx) => {
+    const filePath = storePathFor(pi, ctx);
+    const store = readStore(filePath);
+    if (!store.settings?.enabled) return;
+    await setLearnerToolActive(pi, true);
+    ctx?.ui?.notify?.('Learner automatic triage enabled', 'info');
+  });
+
+  pi.on?.('before_agent_start', async (event, ctx) => {
+    const filePath = storePathFor(pi, ctx);
+    const store = readStore(filePath);
+    if (!store.settings?.enabled) return {};
+    if (isLearnerWorkflowPrompt(event.prompt)) {
+      await setLearnerToolActive(pi, false);
+      return {};
+    }
+
+    await setLearnerToolActive(pi, true);
+    return { systemPromptAppend: automaticSystemPrompt() };
+  });
+
   pi.registerCommand('learner', {
-    description: 'Opt-in learner triage for durable style, commit, test, and workflow feedback.',
-    handler: async (args) => {
+    description: 'Toggle automatic learner triage or review durable style, commit, test, and workflow feedback.',
+    getArgumentCompletions: completeLearner,
+    handler: async (args, ctx) => {
       const [command = 'help', ...rest] = args.trim().split(/\s+/).filter(Boolean);
-      const filePath = learnerStorePath(process.env, pi.pi?.getAgentDir?.());
+      const filePath = storePathFor(pi, ctx);
       const store = readStore(filePath);
 
       try {
         if (command === 'help') return sendDisplay(pi, helpText());
+        if (command === 'on') {
+          setLearnerEnabled(store, true);
+          writeStore(store, filePath);
+          await setLearnerToolActive(pi, true);
+          return sendDisplay(pi, 'Learner automatic triage enabled. New feedback-like user messages will be classified automatically.');
+        }
+        if (command === 'off') {
+          setLearnerEnabled(store, false);
+          writeStore(store, filePath);
+          await setLearnerToolActive(pi, false);
+          return sendDisplay(pi, 'Learner automatic triage disabled.');
+        }
+        if (command === 'status') return sendDisplay(pi, statusText(store, filePath, pi));
         if (command === 'review') return sendDisplay(pi, formatReview(store));
         if (command === 'classify') {
           const feedback = args.trim().slice(command.length).trim();

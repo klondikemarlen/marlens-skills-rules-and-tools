@@ -8,17 +8,23 @@ The learner proposes durable learnings conservatively, keeps every candidate hum
 
 ## OMP API Finding
 
-The current public OMP extension API supports commands, tools, session events, messages, and optional memory. `ctx.models` is query-only; `pi.pi.createAgentSession` can spawn a full nested agent session, but this package rejects that path because it recursively loads extension/tool surfaces, has broad cost and side-effect risk, and does not provide a narrow learner-classifier contract. There is no safe public in-session advisor/model-call bridge for plugins. OMP has built-in opt-in `autolearn.enabled` behavior; this package must not add a second passive capture loop.
+The current public OMP extension API supports commands, tools, session events, messages, and optional memory. `ctx.models` is query-only; `pi.pi.createAgentSession` can spawn a full nested agent session, but this package rejects that path because it recursively loads extension/tool surfaces, has broad cost and side-effect risk, and does not provide a narrow learner-classifier contract. There is no safe public in-session advisor/model-call bridge for plugins. OMP does support `before_agent_start` system-prompt appends and default-inactive tools, so `/learner on` follows the verifier-style lifecycle: turn on persisted guidance, activate the recording tool, and let the current model turn decide whether the user's prompt contains durable feedback.
 
-Use this package's explicit `/learner` command path instead:
+Boundary with OMP built-in learning: this package does not read or write `autolearn.enabled` state. Use `/learner on` only when you want this package's durable-guidance triage; if built-in autolearn is also enabled, keep promoted learner candidates human-reviewed to avoid duplicate persistence.
 
-- `/learner classify <feedback>` asks the active agent to classify only the supplied feedback with this workflow; stored learner history stays out of classification until the executable eval gate passes.
+Use this package's explicit `/learner` command path:
+
+- `/learner on` enables automatic learner triage for future turns.
+- `/learner off` disables automatic learner triage and deactivates the recording tool.
+- `/learner status` reports enabled state, tool state, pending candidates, and store path.
+- `/learner classify <feedback>` manually asks the active agent to classify only the supplied feedback with this workflow; stored learner history stays out of classification until the executable eval gate passes.
 - `/learner add <candidate-json>` stores a pending candidate for review.
 - `/learner review` lists pending candidates.
 - `/learner promote <id> [rationale]` routes an accepted candidate through `docs/workflows/learn-workflow.md`.
 - `/learner discard <id> [label] [rationale]` persists a rejected decision.
 - `/learner edit <id> <candidate-json>` updates a pending candidate.
 - `/learner feedback <id> <useful|noisy|wrong-scope|wrong-destination> <rationale>` stores feedback about learner quality.
+- `learner_record_candidate` is a default-inactive LLM-callable tool. `/learner on` activates it so the current model turn can store one high-confidence pending candidate without asking the user to rerun `/learner add`.
 
 The command stores `feedback-store.json` under the active OMP agent directory (`pi.pi.getAgentDir()/learner/`), or `OMP_LEARNER_DIR` when set for tests or explicit relocation. Writes are bounded, redacted, and local; the plugin does not use plugin-manager internals as storage.
 
