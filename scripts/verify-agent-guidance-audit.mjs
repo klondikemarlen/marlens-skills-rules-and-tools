@@ -41,14 +41,23 @@ try {
   const findings = JSON.parse(json.stdout);
   if (findings.length !== 3) fail(`expected 3 JSON findings, got ${findings.length}`);
 
+  const strictExampleRepo = path.join(fixtureRoot, 'strict-example-repo');
+  const strictExampleWorkflowDir = path.join(strictExampleRepo, 'docs', 'workflows');
+  mkdirSync(strictExampleWorkflowDir, { recursive: true });
+  writeFileSync(path.join(strictExampleWorkflowDir, 'README.md'), 'Examples:\n- `ok-workflow.md`\n- `missing-example-workflow.md`\n');
+  writeFileSync(path.join(strictExampleWorkflowDir, 'ok-workflow.md'), '# OK\n');
+  writeFileSync(path.join(strictExampleWorkflowDir, 'unlisted-example-workflow.md'), '# Unlisted example\n');
+  const strictExample = spawnSync(process.execPath, [command, '--strict', strictExampleRepo], { encoding: 'utf8' });
+  if (strictExample.status !== 0) fail(`expected strict example fixture exit 0, got ${strictExample.status}: ${strictExample.stdout}${strictExample.stderr}`);
+
   const strictRepo = path.join(fixtureRoot, 'strict-repo');
   const strictWorkflowDir = path.join(strictRepo, 'docs', 'workflows');
   mkdirSync(strictWorkflowDir, { recursive: true });
-  writeFileSync(path.join(strictWorkflowDir, 'README.md'), '- `ok-workflow.md`\n- `missing-workflow.md`\n');
+  writeFileSync(path.join(strictWorkflowDir, 'README.md'), '<!-- agent-guidance-audit: inventory -->\n- `ok-workflow.md`\n- `missing-workflow.md`\n');
   writeFileSync(path.join(strictWorkflowDir, 'ok-workflow.md'), '# OK\n');
   writeFileSync(path.join(strictWorkflowDir, 'unlisted-workflow.md'), '# Unlisted\n');
   const strict = spawnSync(process.execPath, [command, '--strict', strictRepo], { encoding: 'utf8' });
-  if (strict.status !== 1) fail(`expected strict fixture exit 1, got ${strict.status}: ${strict.stdout}${strict.stderr}`);
+  if (strict.status !== 1) fail(`expected strict inventory fixture exit 1, got ${strict.status}: ${strict.stdout}${strict.stderr}`);
   if (!strict.stdout.includes('workflow-inventory missing inventory entry docs/workflows/unlisted-workflow.md')) fail('missing unlisted workflow finding');
   if (!strict.stdout.includes('workflow-inventory inventory lists missing workflow missing-workflow.md')) fail('missing listed-but-absent workflow finding');
 
