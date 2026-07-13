@@ -162,6 +162,10 @@ function walkFiles(root, files = []) {
   return files;
 }
 
+function isStaleLiteralExempt(text, offset, stale) {
+  return stale.needle === '/learner' && text.slice(offset).startsWith('/learner setup ');
+}
+
 function scanFile(root, file) {
   const text = readFileSync(file, 'utf8');
   const baseDir = path.dirname(file);
@@ -169,7 +173,9 @@ function scanFile(root, file) {
   for (const stale of STALE_LITERALS) {
     let offset = text.indexOf(stale.needle);
     while (offset !== -1) {
-      results.push(finding(root, file, lineNumber(text, offset), stale.check, stale.detail, stale.needle));
+      if (!isStaleLiteralExempt(text, offset, stale)) {
+        results.push(finding(root, file, lineNumber(text, offset), stale.check, stale.detail, stale.needle));
+      }
       offset = text.indexOf(stale.needle, offset + stale.needle.length);
     }
   }

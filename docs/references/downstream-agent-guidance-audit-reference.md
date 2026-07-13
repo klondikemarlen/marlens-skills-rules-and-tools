@@ -42,7 +42,7 @@ Suppress intentional examples on the same line with `<!-- agent-guidance-audit: 
 
 - Stale shared package identity: `marlens-rules-and-skills`. <!-- agent-guidance-audit: ignore stale-package-name -->
 - Stale install command form: `omp install github:klondikemarlen/marlens-skills-rules-and-tools`. <!-- agent-guidance-audit: ignore stale-install-command -->
-- Removed learner public surfaces: `/learner`, `learner_record_candidate`, `docs/workflows/learner-feedback-workflow.md`, `docs/evals/learner-feedback.json`, `skills/learner`, and `omp-plugin/learner` paths. <!-- agent-guidance-audit: ignore backtick-path --> <!-- agent-guidance-audit: ignore removed-learner-surface -->
+- Removed bundled learner public surfaces: `/learner` commands except standalone `omp-learner` setup (`/learner setup <upstream-repository-url>`), `learner_record_candidate`, `docs/workflows/learner-feedback-workflow.md`, `docs/evals/learner-feedback.json`, `skills/learner`, and `omp-plugin/learner` paths. <!-- agent-guidance-audit: ignore backtick-path --> <!-- agent-guidance-audit: ignore removed-learner-surface -->
 - Markdown links to missing local files, resolved relative to the containing Markdown file.
 - Backtick path references to missing local files for path-like prefixes such as `docs/`, `agents/`, `skills/`, `scripts/`, `lib/`, `bin/`, `rules/`, `./`, and `../`. <!-- agent-guidance-audit: ignore backtick-path -->
 - Static workflow README inventory drift when `--strict` is set and the workflow README includes `<!-- agent-guidance-audit: inventory -->`.

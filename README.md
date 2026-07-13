@@ -50,6 +50,15 @@ This package stays the base layer for doctrine, skills, rules, workflows, and th
 | [`omp-developer-cost-status`](https://github.com/klondikemarlen/omp-developer-cost-status) | A developer attention/cost status meter for longer sessions. | `omp plugin install github:klondikemarlen/omp-developer-cost-status` | You do not want cost or attention telemetry in your statusline. |
 | [`omp-auto-retitle`](https://github.com/klondikemarlen/omp-auto-retitle) | Automatic session title cleanup for long or multi-thread OMP work. | `omp plugin install github:klondikemarlen/omp-auto-retitle` | You prefer manual session titles or your client already handles title hygiene. |
 | [`omp-exit-command`](https://github.com/klondikemarlen/omp-exit-command) | Exit ergonomics for ending OMP sessions intentionally. | `omp plugin install github:klondikemarlen/omp-exit-command` | Your current exit flow is already fast enough. |
+| [`omp-learner`](https://github.com/klondikemarlen/omp-learner) | Optional durable-feedback watchdog that can turn high-confidence shared-guidance and project-knowledge proposals into reviewable GitHub issues. | `omp plugin install github:klondikemarlen/omp-learner` | You do not want an opt-in learner watchdog or GitHub issue backlog. |
+
+`omp-learner` is the standalone replacement for the removed bundled learner runtime. After installing it, restart OMP if needed, then explicitly target this repository:
+
+```text
+/learner setup https://github.com/klondikemarlen/marlens-skills-rules-and-tools
+```
+
+Setup requires existing `gh` authentication, an accessible upstream repository with GitHub Issues enabled, and permission for the authenticated account to create issues in that repository. Learner-created issues are a human-review backlog for proposed shared skills, rules, workflows, and stable project knowledge; maintainers decide whether accepted proposals become repository guidance. Installing this package never enables learner filing by itself, and OMP Learner does not open pull requests, edit files, commit, push, change memory, or inject behavior into unrelated agents. See [`omp-learner#1`](https://github.com/klondikemarlen/omp-learner/issues/1) for the watchdog/setup feature history.
 
 ## Reusable OMP Rules
 
