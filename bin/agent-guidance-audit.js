@@ -23,6 +23,9 @@ const STALE_LITERALS = [
   { check: 'removed-learner-surface', needle: 'omp-plugin/learner', detail: 'learner runtime moved out of this package' },
 ];
 const WORKFLOW_INVENTORY_MARKER = '<!-- agent-guidance-audit: inventory -->';
+const SUPPRESSIBLE_CHECKS = new Set(['stale-package-name', 'stale-install-command', 'removed-learner-surface', 'markdown-link', 'backtick-path']);
+
+
 
 
 function parseArgs(argv) {
@@ -99,6 +102,53 @@ function finding(root, file, line, check, detail, target = null) {
   };
 }
 
+function parseSuppressions(root, file, text) {
+  const suppressions = [];
+  const results = [];
+  const lines = text.split('\n');
+
+  lines.forEach((lineText, index) => {
+    const line = index + 1;
+    for (const match of lineText.matchAll(/<!--\s*agent-guidance-audit:\s*([^>]+?)\s*-->/g)) {
+      const directive = match[1].trim();
+      if (directive === 'inventory') continue;
+
+      const parts = directive.split(/\s+/);
+      if (parts[0] !== 'ignore' || !parts[1] || parts.length > 3 || !SUPPRESSIBLE_CHECKS.has(parts[1])) {
+        results.push(finding(root, file, line, 'audit-suppression', `invalid suppression ${directive}`));
+        continue;
+      }
+
+      suppressions.push({ line, check: parts[1], target: parts[2] ?? null, used: false });
+    }
+  });
+
+  return { suppressions, results };
+}
+
+function applySuppressions(root, file, findings, suppressions) {
+  const kept = [];
+
+  for (const item of findings) {
+    const suppression = suppressions.find(({ line, check, target }) => line === item.line && check === item.check && (!target || target === item.target));
+    if (suppression) {
+      suppression.used = true;
+      continue;
+    }
+
+    kept.push(item);
+  }
+
+  for (const suppression of suppressions) {
+    if (!suppression.used) {
+      kept.push(finding(root, file, suppression.line, 'audit-suppression', `unused suppression ${suppression.check}${suppression.target ? ` ${suppression.target}` : ''}`, suppression.target));
+    }
+  }
+
+  return kept;
+}
+
+
 function walkFiles(root, files = []) {
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     if (SKIP_DIRS.has(entry.name)) continue;
@@ -115,8 +165,7 @@ function walkFiles(root, files = []) {
 function scanFile(root, file) {
   const text = readFileSync(file, 'utf8');
   const baseDir = path.dirname(file);
-  const results = [];
-
+  const { suppressions, results } = parseSuppressions(root, file, text);
   for (const stale of STALE_LITERALS) {
     let offset = text.indexOf(stale.needle);
     while (offset !== -1) {
@@ -143,7 +192,7 @@ function scanFile(root, file) {
     }
   }
 
-  return results;
+  return applySuppressions(root, file, results, suppressions);
 }
 
 function markdownInventoryPaths(text) {

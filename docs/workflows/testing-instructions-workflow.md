@@ -5,7 +5,7 @@ Use when writing or updating pull request testing instructions.
 ## Process
 
 1. Read the PR body, diff, and any existing testing section.
-2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs.
+2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs. <!-- agent-guidance-audit: ignore backtick-path -->
 3. Identify behavior a reviewer can actually verify.
 4. Start from Gold: name the behavior, invariant, or regression risk each scenario must prove.
 5. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.

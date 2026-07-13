@@ -41,6 +41,33 @@ try {
   const findings = JSON.parse(json.stdout);
   if (findings.length !== 3) fail(`expected 3 JSON findings, got ${findings.length}`);
 
+  const suppressionRepo = path.join(fixtureRoot, 'suppression-repo');
+  const suppressionDocs = path.join(suppressionRepo, 'docs', 'workflows');
+  mkdirSync(suppressionDocs, { recursive: true });
+  writeFileSync(
+    path.join(suppressionRepo, 'README.md'),
+    [
+      '[suppressed](./suppressed.md) <!-- agent-guidance-audit: ignore markdown-link ./suppressed.md -->',
+      '[adjacent](./adjacent.md)',
+      '`docs/workflows/nope.md` <!-- agent-guidance-audit: ignore markdown-link docs/workflows/nope.md -->',
+      '[malformed](./malformed.md) <!-- agent-guidance-audit: ignore -->',
+      '[valid](docs/workflows/ok.md) <!-- agent-guidance-audit: ignore markdown-link ./unused.md -->',
+      '[unknown](docs/workflows/ok.md) <!-- agent-guidance-audit: ignore workflow-inventory -->',
+      '',
+    ].join('\n'),
+  );
+  writeFileSync(path.join(suppressionDocs, 'ok.md'), '# OK\n');
+  const suppressed = spawnSync(process.execPath, [command, '--json', suppressionRepo], { encoding: 'utf8' });
+  if (suppressed.status !== 1) fail(`expected suppression fixture exit 1, got ${suppressed.status}: ${suppressed.stdout}${suppressed.stderr}`);
+  const suppressionFindings = JSON.parse(suppressed.stdout);
+  const suppressionDetails = suppressionFindings.map((item) => `${item.check} ${item.detail}`).join('\n');
+  if (suppressionDetails.includes('missing target ./suppressed.md')) fail('same-line suppression did not suppress matching finding');
+  if (!suppressionDetails.includes('markdown-link missing target ./adjacent.md')) fail('adjacent line was incorrectly suppressed');
+  if (!suppressionDetails.includes('backtick-path missing target docs/workflows/nope.md')) fail('other check was incorrectly suppressed');
+  if (!suppressionDetails.includes('audit-suppression invalid suppression ignore')) fail('malformed suppression was not reported');
+  if (!suppressionDetails.includes('audit-suppression invalid suppression ignore workflow-inventory')) fail('unknown suppression check was not reported');
+  if (!suppressionDetails.includes('audit-suppression unused suppression markdown-link ./unused.md')) fail('unused suppression was not reported');
+
   const strictExampleRepo = path.join(fixtureRoot, 'strict-example-repo');
   const strictExampleWorkflowDir = path.join(strictExampleRepo, 'docs', 'workflows');
   mkdirSync(strictExampleWorkflowDir, { recursive: true });
