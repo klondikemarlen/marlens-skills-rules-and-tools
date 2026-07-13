@@ -39,3 +39,8 @@ docs/
 ## Agent-Specific Documents
 
 - Codex command approval guidance: [`codex-rules-guide.md`](./codex-rules-guide.md)
+
+## Maintainer Tools
+
+- Downstream agent guidance audit: [`references/downstream-agent-guidance-audit-reference.md`](./references/downstream-agent-guidance-audit-reference.md)
+- Informational shared-guidance ledger template: [`templates/agent-guidance-ledger-template.md`](./templates/agent-guidance-ledger-template.md)

@@ -6,3 +6,5 @@ Reusable backend implementation templates live here. Keep framework-specific fam
 
 - `notification-event-service-template.md` - TypeScript notification event-service and outbox guidance for in-app/email delivery coordination.
 - `express-light-rail/` - Node.js + Express + TypeScript route, controller, service, policy, serializer, model, and test templates.
+- `serializer-index-template.md` - TypeScript serializer projection shape for index/show/reference payloads.
+- `express-sequelize-crud/` - Node.js + Express + Sequelize CRUD resource rail templates.
