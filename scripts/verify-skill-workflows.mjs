@@ -198,6 +198,23 @@ const githubToolingReference = read('docs/references/github-tooling-reference.md
 if (!githubToolingReference.includes('does not provide a public upload endpoint that hosts a local screenshot')) {
   fail('github tooling reference must document that gh api cannot host local screenshots as user attachments');
 }
+
+const administrationTabTemplate = read('docs/templates/frontend/administration-tab-page-template.md');
+const frontendTemplatesIndex = read('docs/templates/frontend/README.md');
+for (const requiredText of [
+  'Vue 3 with `<script setup lang="ts">`',
+  'route-query-suffix="{RouteQuerySuffix}"',
+  'Hide the parent column',
+  'After successful delete/mutation, refresh',
+  'Verification Checklist',
+]) {
+  if (!administrationTabTemplate.includes(requiredText)) {
+    fail(`administration tab template must document ${requiredText}`);
+  }
+}
+if (!frontendTemplatesIndex.includes('administration-tab-page-template.md')) {
+  fail('frontend template index must list administration-tab-page-template.md');
+}
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [
