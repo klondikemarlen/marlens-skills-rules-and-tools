@@ -43,11 +43,9 @@
 
 ## Agent Architecture
 
-- Skills are not used directly. The equivalent is **workflows** (process guidance) + **templates** (code examples/end state).
-- Per-agent skills may serve as thin shortcuts to existing workflows, but never as substitutes.
-- **Plans** are a separate category for exploratory, multi-phase work — not a skill or workflow.
-- Keep global rules lean: only promote cross-project process habits here. Put codebase-specific
-  architecture, schema, framework, and naming rules in the nearest project `AGENTS.md` or `README.md`.
+- Skills are compatibility entry points. The authoritative guidance categories and precedence rules are in [docs/references/guidance-precedence-reference.md](docs/references/guidance-precedence-reference.md).
+  In short: workflows are procedures, templates are copyable end-state shapes, references are durable background, and plans are exploratory or multi-phase implementation notes.
+  Keep global rules lean; put codebase-specific architecture, schema, framework, and naming rules in the nearest project `AGENTS.md` or `README.md`.
 
 ## Branch Continuation
 

@@ -74,6 +74,22 @@ omp plugin link /path/to/marlens-skills-rules-and-tools
 
 After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
 
+## Task-Oriented Documentation Map
+
+Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common routes:
+
+| Task | Start here |
+| --- | --- |
+| Implement a repo issue or feature request | [`docs/workflows/feature-workflow.md`](docs/workflows/feature-workflow.md) |
+| Open, update, or merge a pull request | [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md) |
+| Resolve PR review comments | [`docs/workflows/pull-request-comment-resolution-workflow.md`](docs/workflows/pull-request-comment-resolution-workflow.md) |
+| Commit scoped changes | [`COMMITTING.md`](COMMITTING.md) and [`docs/workflows/commit-workflow.md`](docs/workflows/commit-workflow.md) |
+| Edit older commits safely | [`docs/workflows/git-rebase-workflow.md`](docs/workflows/git-rebase-workflow.md) and `git-edit-commit` |
+| Add Express Light Rail backend code | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
+| Add frontend or backend reusable scaffolding | [`docs/templates/`](docs/templates/) |
+| Upload PR screenshots | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md) |
+| Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
+
 ## Feature and Issue Workflow
 
 Preferred flow for repo issues and feature requests:
@@ -108,17 +124,9 @@ Restart the agent after changing this file. Global instructions load at startup.
 
 ## Local Customization
 
-Treat this pack as the base layer. Project-local instructions win.
+Treat this pack as the base layer; project-local instructions win. The detailed placement and precedence policy lives in [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md).
 
-For each project, keep project-specific commands and conventions in that repo, not in this shared pack:
-
-- `AGENTS.md` for project rules.
-- `README.md` or `bin/README.md` for setup and dev-wrapper commands.
-- `COMMITTING.md` for commit-message style.
-- `docs/` for project workflows, templates, references, and plans.
-- local skills for project-only shortcuts.
-
-This keeps the shared skills usable across different stacks while letting Icefog-style repos define their own wrappers, test commands, Docker services, UI labels, and domain language.
+For each project, keep project-specific commands, wrappers, test commands, Docker services, UI labels, domain language, and stack conventions in that repo.
 
 ## Future Adapters
 
