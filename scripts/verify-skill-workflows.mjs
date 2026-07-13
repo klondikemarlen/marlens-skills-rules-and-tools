@@ -215,6 +215,25 @@ for (const requiredText of [
 if (!frontendTemplatesIndex.includes('administration-tab-page-template.md')) {
   fail('frontend template index must list administration-tab-page-template.md');
 }
+
+const notificationEventTemplate = read('docs/templates/backend/notification-event-service-template.md');
+const backendTemplatesIndex = read('docs/templates/backend/README.md');
+for (const requiredText of [
+  'Do not add this layer for a simple in-app-only row',
+  '{NotificationPreferenceService}',
+  'Single Recipient Event Service',
+  'Multiple Recipient Event Service With Attributes',
+  'Outbox Architecture Note',
+  'delivery status or retry tracking',
+  'observable delivery contracts',
+]) {
+  if (!notificationEventTemplate.includes(requiredText)) {
+    fail(`notification event template must document ${requiredText}`);
+  }
+}
+if (!backendTemplatesIndex.includes('notification-event-service-template.md')) {
+  fail('backend template index must list notification-event-service-template.md');
+}
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [
