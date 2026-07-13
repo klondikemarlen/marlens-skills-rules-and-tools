@@ -68,11 +68,7 @@ only to API surface files, not ordinary import blocks in every source file.
 
 ### Documentation Placement
 
-- Put shared, cross-agent rules here.
-- Put project-wide agent conventions in [AGENTS.md](AGENTS.md).
-- Put commit guidance in [COMMITTING.md](COMMITTING.md).
-- Put detailed or tool-specific guidance in agent-specific or workflow-specific documents under
-  `docs/`.
+Use [docs/references/guidance-precedence-reference.md](docs/references/guidance-precedence-reference.md) for the detailed placement and precedence policy. This file keeps only shared, agent-agnostic rules that apply while working in this repository.
 
 ## Agent-Specific Documents
 

@@ -234,6 +234,44 @@ for (const requiredText of [
 if (!backendTemplatesIndex.includes('notification-event-service-template.md')) {
   fail('backend template index must list notification-event-service-template.md');
 }
+
+const guidancePrecedenceReference = read('docs/references/guidance-precedence-reference.md');
+const docsIndex = read('docs/index.md');
+const readme = read('README.md');
+const agentRules = read('AGENT_RULES.md');
+const globalAgents = read('AGENTS.md');
+for (const [name, text] of [
+  ['docs index', docsIndex],
+  ['README', readme],
+  ['agent rules', agentRules],
+  ['global agent rules', globalAgents],
+]) {
+  if (!text.includes('guidance-precedence-reference.md')) {
+    fail(`${name} must link to the canonical guidance precedence reference`);
+  }
+}
+for (const requiredText of [
+  'Global rules',
+  'Workflows',
+  'Templates',
+  'References',
+  'Plans',
+  'Skills',
+]) {
+  if (!guidancePrecedenceReference.includes(requiredText)) {
+    fail(`guidance precedence reference must distinguish ${requiredText}`);
+  }
+}
+for (const requiredText of [
+  'Task-Oriented Documentation Map',
+  'docs/index.md',
+  'pull-request-management-workflow.md',
+  'git-rebase-workflow.md',
+]) {
+  if (!readme.includes(requiredText)) {
+    fail(`README task map must include ${requiredText}`);
+  }
+}
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [

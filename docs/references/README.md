@@ -13,6 +13,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - GitHub CLI and metadata editing caveats.
 - Development tooling portability decisions.
 - Cross-workflow conventions.
+- Guidance precedence and placement policy.
 
 Keep task procedures in `../workflows/`, implementation plans in `../plans/`, and copyable examples in `../templates/`.
 

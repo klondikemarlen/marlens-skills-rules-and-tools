@@ -12,16 +12,7 @@ Top-level `skills/` are compatibility entry points. Keep real procedures in `wor
 
 This package is the fallback base layer. Project-local instructions win.
 
-Before applying a workflow from this package, read the target project's local rules and docs when they exist:
-
-- `AGENTS.md`
-- `README.md`
-- `COMMITTING.md`
-- `bin/README.md`
-- project-local `docs/` docs
-- project-local skill files
-
-Keep project-specific commands, services, routes, domain terms, and deployment details in the target project. Do not bake those details into this shared pack.
+For the canonical precedence and placement rules, read [`references/guidance-precedence-reference.md`](./references/guidance-precedence-reference.md).
 
 
 ## Directory Structure
@@ -37,13 +28,13 @@ docs/
 
 ## Best Practices
 
-1. Keep reusable procedures in `workflows/`.
-2. Keep copyable end-state examples in `templates/`.
-3. Keep background techniques in `references/`.
-4. Keep exploratory or multi-phase implementation plans in `plans/`.
-5. Prefer descriptive filenames: `verb-noun-workflow.md`, `noun-template.md`, or `topic-reference.md`.
-6. Keep workflows generic unless the filename or directory clearly identifies a project-specific scope.
-7. Prefer discovery over long inventories: point agents to the relevant directory and naming convention.
+1. Use this page for discovery, then read the linked workflow, template, reference, or plan directly.
+2. Keep reusable procedures in `workflows/`.
+3. Keep copyable end-state examples in `templates/`.
+4. Keep background techniques in `references/`.
+5. Keep exploratory or multi-phase implementation plans in `plans/`.
+6. Prefer descriptive filenames: `verb-noun-workflow.md`, `noun-template.md`, or `topic-reference.md`.
+7. Prefer discovery over long duplicated inventories.
 
 ## Agent-Specific Documents
 
