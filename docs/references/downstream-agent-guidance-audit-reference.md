@@ -36,13 +36,15 @@ FAIL /path/to/repo/docs/workflows/example.md:42 markdown-link missing target ./m
 
 Use `--json` when another script needs structured findings. Use `--strict` to fail on static workflow README inventory drift for workflow READMEs that include the `<!-- agent-guidance-audit: inventory -->` marker.
 
+Suppress intentional examples on the same line with `<!-- agent-guidance-audit: ignore <check> [target] -->`. Suppressible checks are `stale-package-name`, `stale-install-command`, `removed-learner-surface`, `markdown-link`, and `backtick-path`. Suppressions are exact: malformed, unknown, or unused suppressions are findings.
+
 ## Checks
 
-- Stale shared package identity: `marlens-rules-and-skills`.
-- Stale install command form: `omp install github:klondikemarlen/marlens-skills-rules-and-tools`.
-- Removed learner public surfaces: `/learner`, `learner_record_candidate`, `docs/workflows/learner-feedback-workflow.md`, `docs/evals/learner-feedback.json`, `skills/learner`, and `omp-plugin/learner` paths.
+- Stale shared package identity: `marlens-rules-and-skills`. <!-- agent-guidance-audit: ignore stale-package-name -->
+- Stale install command form: `omp install github:klondikemarlen/marlens-skills-rules-and-tools`. <!-- agent-guidance-audit: ignore stale-install-command -->
+- Removed learner public surfaces: `/learner`, `learner_record_candidate`, `docs/workflows/learner-feedback-workflow.md`, `docs/evals/learner-feedback.json`, `skills/learner`, and `omp-plugin/learner` paths. <!-- agent-guidance-audit: ignore backtick-path --> <!-- agent-guidance-audit: ignore removed-learner-surface -->
 - Markdown links to missing local files, resolved relative to the containing Markdown file.
-- Backtick path references to missing local files for path-like prefixes such as `docs/`, `agents/`, `skills/`, `scripts/`, `lib/`, `bin/`, `rules/`, `./`, and `../`.
+- Backtick path references to missing local files for path-like prefixes such as `docs/`, `agents/`, `skills/`, `scripts/`, `lib/`, `bin/`, `rules/`, `./`, and `../`. <!-- agent-guidance-audit: ignore backtick-path -->
 - Static workflow README inventory drift when `--strict` is set and the workflow README includes `<!-- agent-guidance-audit: inventory -->`.
 - Explicit mirror drift when `--mirror left=right` is supplied.
 

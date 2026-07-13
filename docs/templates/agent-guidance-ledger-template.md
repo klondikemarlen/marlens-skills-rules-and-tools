@@ -6,8 +6,8 @@ Use this when a downstream repo wants an audit-friendly record of shared guidanc
 
 Put the ledger in an agent-readable documentation location, not main project config:
 
-- `agents/guidance-ledger.yml` for repos that still use `agents/`.
-- `docs/agent-guidance-ledger.yml` or `docs/references/agent-guidance-ledger.yml` for repos already centered on `docs/`.
+- `agents/guidance-ledger.yml` for repos that still use `agents/`. <!-- agent-guidance-audit: ignore backtick-path -->
+- `docs/agent-guidance-ledger.yml` or `docs/references/agent-guidance-ledger.yml` for repos already centered on `docs/`. <!-- agent-guidance-audit: ignore backtick-path -->
 - A short link from `AGENTS.md` when agents need a discoverability pointer.
 
 ## Boundary
@@ -42,7 +42,7 @@ shared_guidance:
 
 ## Verification Checklist
 
-- [ ] The ledger lives under `agents/`, `docs/`, or is linked from `AGENTS.md`; it is not in main project config such as `.config/`.
+- [ ] The ledger lives under `agents/`, `docs/`, or is linked from `AGENTS.md`; it is not in main project config such as `.config/`. <!-- agent-guidance-audit: ignore backtick-path -->
 - [ ] `package` names `github:klondikemarlen/marlens-skills-rules-and-tools`.
 - [ ] `adopted` entries describe completed migrations only, not an allowlist.
 - [ ] `local_overrides` names files that intentionally replace or narrow shared guidance.
