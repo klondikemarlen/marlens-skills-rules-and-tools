@@ -1,9 +1,6 @@
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
-import { registerLearnerPlugin } from "./learner.mjs";
-
 export default function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
   pi.setLabel("Marlen's Skills, Rules, and Tools");
-  registerLearnerPlugin(pi);
 
   pi.registerCommand("marlens-skills-rules-and-tools", {
     description: "Ask the agent to use Marlen's installed skills, rules, and tools for this task.",
