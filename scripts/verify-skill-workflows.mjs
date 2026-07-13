@@ -50,6 +50,27 @@ if (existsSync(path.join(root, '.claude-plugin', 'marketplace.json'))) {
     fail('Claude marketplace must install this repo as the plugin root');
   }
 }
+function normalizedRepositoryUrl(value) {
+  return value.replace(/^git\+/, '').replace(/\.git$/, '').replace(/\/$/, '');
+}
+
+if (!existsSync(path.join(root, '.omp-plugin', 'marketplace.json'))) {
+  fail('OMP marketplace catalog must exist at .omp-plugin/marketplace.json');
+}
+
+if (existsSync(path.join(root, '.omp-plugin', 'marketplace.json'))) {
+  const ompMarketplaceJson = JSON.parse(read('.omp-plugin/marketplace.json'));
+  if (ompMarketplaceJson.name !== packageJson.name) fail('OMP marketplace name must match package name');
+  if (ompMarketplaceJson.plugins?.length !== 1) fail('OMP marketplace must expose exactly one plugin entry');
+  const [ompPlugin] = ompMarketplaceJson.plugins ?? [];
+  if (ompPlugin) {
+    if (ompPlugin.name !== packageJson.name) fail('OMP marketplace plugin name must match package name');
+    if (ompPlugin.source !== './') fail('OMP marketplace plugin source must install this repo as the plugin root');
+    if (normalizedRepositoryUrl(ompPlugin.repository) !== normalizedRepositoryUrl(packageJson.repository.url)) {
+      fail('OMP marketplace plugin repository must match package repository');
+    }
+  }
+}
 
 function fallbackPath(uri) {
   return path.join(root, 'skills', ...uri.split('/'));
@@ -347,18 +368,24 @@ for (const [name, workflow] of [
 }
 
 function resolveFirstWorkflow(projectRoot, skillName) {
-  const { local, fallback } = skillContract(skillName);
+  const { local, packaged } = skillContract(skillName);
   for (const localRelativePath of local) {
     const localPath = path.join(projectRoot, localRelativePath);
     if (existsSync(localPath)) return { kind: 'local', path: localPath };
   }
 
-  if (fallback[0] && existsSync(fallbackPath(fallback[0]))) return { kind: 'fallback', path: `skill://${fallback[0]}` };
+  const packagedWorkflow = packaged[0]?.uri;
+  if (packagedWorkflow && existsSync(fallbackPath(packagedWorkflow))) return { kind: 'fallback', path: `skill://${packagedWorkflow}` };
 
   return { kind: 'missing', path: path.join(projectRoot, local[0]) };
 }
 
 const fixtureChecks = [];
+const packagedFixture = resolveFirstWorkflow(path.join(root, '.missing-local-workflows-fixture'), 'learn');
+if (packagedFixture.kind !== 'fallback') {
+  fail(`Packaged fallback fixture: expected fallback, got ${packagedFixture.kind} (${packagedFixture.path})`);
+}
+
 
 if (process.env.WRAP_PROJECT) {
   fixtureChecks.push(

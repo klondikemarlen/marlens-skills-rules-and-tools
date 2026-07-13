@@ -22,6 +22,8 @@ const STALE_LITERALS = [
   { check: 'removed-learner-surface', needle: 'skills/learner', detail: 'learner skill moved out of this package' },
   { check: 'removed-learner-surface', needle: 'omp-plugin/learner', detail: 'learner runtime moved out of this package' },
 ];
+const WORKFLOW_INVENTORY_MARKER = '<!-- agent-guidance-audit: inventory -->';
+
 
 function parseArgs(argv) {
   const options = { json: false, strict: false, selfTest: false, mirrors: [], roots: [] };
@@ -162,8 +164,11 @@ function scanWorkflowInventory(root) {
     const readmePath = path.join(workflowDir, 'README.md');
     if (!existsSync(workflowDir) || !existsSync(readmePath)) continue;
 
+    const readmeText = readFileSync(readmePath, 'utf8');
+    if (!readmeText.includes(WORKFLOW_INVENTORY_MARKER)) continue;
+
     const actual = new Set(readdirSync(workflowDir).filter((name) => name.endsWith('.md') && name !== 'README.md').map((name) => `${relativeDir}/${name}`));
-    const listed = markdownInventoryPaths(readFileSync(readmePath, 'utf8'));
+    const listed = markdownInventoryPaths(readmeText);
 
     for (const item of actual) {
       if (!listed.has(item) && !listed.has(path.basename(item))) {

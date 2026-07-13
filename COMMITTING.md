@@ -169,92 +169,13 @@ Avoid: in-progress reasoning, implementation mechanics, and code symbols in pros
 
 ## Rewriting past commits
 
-Prefer the `git-rebase` skill. Use this repository's agent helper only when the current checkout provides it:
+Use the [`git-rebase` workflow](docs/workflows/git-rebase-workflow.md) for older-commit rewrites, commit rewording, amend stops, autosquash, and force-with-lease rules.
 
-```bash
-test -x bin/agent-rebase-edit.js
-```
-
-Do not hand-roll detached-HEAD rebases unless the helper is unavailable or the worktree already contains edits that must be split across multiple older commits.
-
-**Reword HEAD:**
+For HEAD-only message changes:
 
 ```bash
 git commit --amend -m "new message"
 ```
-
-**Reword an older commit with the repo-local helper available:**
-
-```bash
-node bin/agent-rebase-edit.js --message-only <commit> "new message"
-```
-
-**Amend code into an older commit with a clean worktree and the repo-local helper available:**
-
-```bash
-node bin/agent-rebase-edit.js --edit <commit>
-git add <paths>
-git commit --amend --no-edit
-git rebase --continue
-```
-
-Use the fallback rebase flows when the repo-local helper is absent.
-
-**Fallback for code changes that are not applied yet:**
-
-Use a temporary non-interactive sequence editor to stop at the older commit:
-
-```bash
-target=$(git rev-parse <target-commit>)
-short_target=$(git rev-parse --short <target-commit>)
-editor=$(mktemp)
-printf '%s\n' \
-  '#!/usr/bin/env node' \
-  'import { readFileSync, writeFileSync } from "node:fs";' \
-  'const todoPath = process.argv[2];' \
-  'const target = process.env.TARGET_COMMIT;' \
-  'const shortTarget = process.env.TARGET_COMMIT_SHORT;' \
-  'let changed = false;' \
-  'const lines = readFileSync(todoPath, "utf8").split("\n").map((line) => {' \
-  '  const match = line.match(/^(pick|reword|edit|squash|fixup)\s+([0-9a-f]+)/);' \
-  '  if (!match) return line;' \
-  '  const hash = match[2];' \
-  '  if (!changed && (target.startsWith(hash) || hash.startsWith(shortTarget))) {' \
-  '    changed = true;' \
-  '    return line.replace(/^\w+/, "edit");' \
-  '  }' \
-  '  return line;' \
-  '});' \
-  'if (!changed) throw new Error(`Could not find commit ${shortTarget} in rebase todo.`);' \
-  'writeFileSync(todoPath, lines.join("\n"));' > "$editor"
-chmod +x "$editor"
-TARGET_COMMIT="$target" TARGET_COMMIT_SHORT="$short_target" GIT_SEQUENCE_EDITOR="$editor" git rebase -i <target-commit>^
-```
-
-Make the edit, then continue:
-
-```bash
-git add <paths>
-git commit --amend --no-edit
-git rebase --continue
-```
-
-For the root commit, use `TARGET_COMMIT="$target" TARGET_COMMIT_SHORT="$short_target" GIT_SEQUENCE_EDITOR="$editor" git rebase -i --root`.
-
-**Fallback for already-working tree changes that span older commits:**
-
-Use this when the desired edits already exist in the worktree or must be split across multiple targets. Split the diff by concern, create scoped fixups, then autosquash from the oldest target:
-
-```bash
-git add <paths-for-first-concern>
-git commit --fixup <first-target-commit>
-git add <paths-for-second-concern>
-git commit --fixup <second-target-commit>
-GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <oldest-target-commit>^
-```
-
-Use `git push --force-with-lease` after rewriting a pushed feature branch. Never use plain
-`git push --force`.
 
 ---
 
@@ -266,34 +187,7 @@ Use `git push --force-with-lease` after rewriting a pushed feature branch. Never
 
 ---
 
-## PR Description Guidelines
+## PR and testing workflows
 
-See also: [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md) for full PR creation workflow.
-
-- **Concise language:** use direct, active voice. Avoid redundant words like "entire", "proper", "fully".
-- **Context section:** focus on the problem and solution. Use present tense ("implements" not "will implement").
-- **Implementation section:** short, focused bullet points. Combine related items. Avoid qualifiers and unnecessary detail.
-- **Example:** "Add group creation service" instead of "Add proper group creation service for the entire system".
-
----
-
-## Testing Instructions Format
-
-See also: [`docs/workflows/testing-instructions-workflow.md`](docs/workflows/testing-instructions-workflow.md) for comprehensive guidance.
-
-Standard setup (always include):
-
-1. Run the relevant test suite via the project test command or a narrower focused test command.
-2. Boot the app via the project development command.
-3. Log in to the app with an appropriate test account.
-
-Navigation/verification steps:
-
-- Use exact UI element names: **Add Record**, **Save**
-- Reference menu locations: "top right dropdown nav", "left sidebar nav"
-- Use navigation arrows: **Administration** → **Records** → **Create**
-- Explicit verification: "Verify success message: 'Record created!'"
-- Format: Bold for **UI elements**, inline code for `exact values/URLs/errors`
-- **Always verify UI element names against the actual frontend source or browser state** before writing instructions — do not guess button labels or field names.
-
-For complex scenarios, use `## Test Case N: Description` subheadings.
+- PR descriptions: [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md).
+- Testing instructions: [`docs/workflows/testing-instructions-workflow.md`](docs/workflows/testing-instructions-workflow.md).
