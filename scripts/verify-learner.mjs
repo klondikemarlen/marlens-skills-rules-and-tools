@@ -2,30 +2,28 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  addCandidate,
-  addFeedback,
-  boundedFeedbackSummary,
-  classifierPrompt,
-  discardCandidate,
-  editCandidate,
-  learnerStorePath,
-  promoteCandidate,
-  readStore,
-  redactText,
-  registerLearnerCommand,
-  writeStore,
-} from '../omp-plugin/learner.mjs';
+import { registerLearnerPlugin } from '../omp-plugin/learner.mjs';
+import AddCandidateService from '../omp-plugin/learner/services/add-candidate-service.mjs';
+import AddFeedbackService from '../omp-plugin/learner/services/add-feedback-service.mjs';
+import BoundedFeedbackSummaryService from '../omp-plugin/learner/services/bounded-feedback-summary-service.mjs';
+import DiscardCandidateService from '../omp-plugin/learner/services/discard-candidate-service.mjs';
+import EditCandidateService from '../omp-plugin/learner/services/edit-candidate-service.mjs';
+import PromoteCandidateService from '../omp-plugin/learner/services/promote-candidate-service.mjs';
+import LearnerStoreRepository from '../omp-plugin/learner/repositories/learner-store-repository.mjs';
+import { buildClassifierPrompt } from '../omp-plugin/learner/lib/build-classifier-prompt.mjs';
+import { redactText } from '../omp-plugin/learner/lib/redact-text.mjs';
+
+const storeRepository = new LearnerStoreRepository();
 
 assert.equal(redactText('email me at user@example.com with ghp_abcdefghijklmnopqrstuvwxyz'), 'email me at [redacted-email] with [redacted-token]');
 const token = 'ghp_abcdefghijklmnopqrstuvwxyz';
 
 const tmp = mkdtempSync(path.join(os.tmpdir(), 'learner-check-'));
 try {
-  const storePath = learnerStorePath({ OMP_LEARNER_DIR: tmp }, '/ignored');
-  let store = readStore(storePath);
+  const storePath = storeRepository.path({ OMP_LEARNER_DIR: tmp }, '/ignored');
+  let store = storeRepository.read(storePath);
 
-  const missingCommitContext = addCandidate(store, {
+  const missingCommitContext = AddCandidateService.perform(store, {
     category: 'commit_file_grouping',
     proposedRule: 'Split docs and tests.',
     evidence: 'no diff or staged files were visible',
@@ -34,7 +32,7 @@ try {
   assert.equal(missingCommitContext.category, 'insufficient_context');
 
   const longText = Array(120).fill('longword').join(' ');
-  const grouped = addCandidate(store, {
+  const grouped = AddCandidateService.perform(store, {
     category: 'commit_file_grouping',
     proposedRule: `Split lockfile churn from behavior changes. ${token} ${longText}`,
     scope: `cross-project commits ${token}`,
@@ -46,19 +44,19 @@ try {
   assert.ok(!grouped.scope.includes(token));
   assert.equal(grouped.category, 'commit_file_grouping');
 
-  const edited = editCandidate(store, grouped.id, { proposedRule: 'Split dependency churn from behavior changes.' });
+  const edited = EditCandidateService.perform(store, grouped.id, { proposedRule: 'Split dependency churn from behavior changes.' });
   assert.equal(edited.status, 'edited');
   assert.equal(store.edits.length, 1);
 
-  const accepted = promoteCandidate(store, edited.id, 'good cross-project commit grouping rule');
+  const accepted = PromoteCandidateService.perform(store, edited.id, 'good cross-project commit grouping rule');
   assert.equal(accepted.status, 'accepted');
   assert.equal(store.pending.length, 1);
 
-  const noisy = addCandidate(store, { category: 'one_off_no_action', proposedRule: 'Say tiny here.' });
-  discardCandidate(store, noisy.id, 'noisy', 'local wording nit');
-  addFeedback(store, accepted.id, 'useful', 'helped future commit grouping');
+  const noisy = AddCandidateService.perform(store, { category: 'one_off_no_action', proposedRule: 'Say tiny here.' });
+  DiscardCandidateService.perform(store, noisy.id, 'noisy', 'local wording nit');
+  AddFeedbackService.perform(store, accepted.id, 'useful', 'helped future commit grouping');
 
-  const summary = boundedFeedbackSummary(store, 5);
+  const summary = BoundedFeedbackSummaryService.perform(store, 5);
   assert.match(summary, /Recent accepted examples:/);
   assert.match(summary, /Recent rejected\/noisy examples:/);
   assert.match(summary, /Recent edited examples:/);
@@ -66,16 +64,16 @@ try {
   assert.ok(!summary.includes(token));
   assert.ok(summary.length < 1200);
 
-  const prompt = classifierPrompt('Please keep lockfile churn separate.', store);
+  const prompt = buildClassifierPrompt('Please keep lockfile churn separate.');
   assert.match(prompt, /docs\/workflows\/learner-feedback-workflow\.md/);
   assert.match(prompt, /provenance\.kind as diff, staged_files, commit_hash, or local_committing_doc/);
   assert.match(prompt, /Stored learner history is intentionally not injected/);
   assert.doesNotMatch(prompt, /Recent accepted examples:/);
   assert.doesNotMatch(prompt, /Split dependency churn/);
 
-  writeStore(store, storePath);
+  storeRepository.write(store, storePath);
   assert.equal(statSync(storePath).mode & 0o777, 0o600);
-  const reread = readStore(storePath);
+  const reread = storeRepository.read(storePath);
   assert.equal(reread.decisions.length, 2);
   assert.equal(reread.edits.length, 1);
 } finally {
@@ -118,7 +116,7 @@ try {
     },
   };
 
-  registerLearnerCommand(pi);
+  registerLearnerPlugin(pi);
   const learner = commands.get('learner');
   const recordTool = tools.get('learner_record_candidate');
   assert.ok(learner, 'learner command must register');
@@ -139,7 +137,7 @@ try {
   assert.ok(activeTools.includes('learner_record_candidate'));
   assert.deepEqual(notices, [{ message: 'Learner automatic triage enabled', level: 'info' }]);
 
-  assert.equal(readStore(path.join(commandTmp, 'learner', 'feedback-store.json')).settings.enabled, true);
+  assert.equal(storeRepository.read(path.join(commandTmp, 'learner', 'feedback-store.json')).settings.enabled, true);
 
   const pendingEvalCases = JSON.parse(readFileSync('docs/evals/learner-feedback.json', 'utf8')).cases.filter((testCase) => testCase.expectedAction === 'pending_candidate');
   const beforePromptMessages = messages.length;
@@ -165,7 +163,7 @@ try {
     proposedRule: 'Split commit groups.',
   }, undefined, undefined, { agentDir: commandTmp });
   assert.match(skippedToolResult.content[0].text, /No learner candidate recorded for insufficient_context/);
-  assert.equal(readStore(path.join(commandTmp, 'learner', 'feedback-store.json')).pending.length, 1);
+  assert.equal(storeRepository.read(path.join(commandTmp, 'learner', 'feedback-store.json')).pending.length, 1);
 
   await learner.handler('status', {});
   assert.match(messages.at(-1).message.content, /automatic triage: on/);
@@ -186,7 +184,7 @@ try {
   assert.deepEqual(disabledPromptResult, {});
   assert.match(messages.at(-1).message.content, /disabled/);
   assert.ok(!activeTools.includes('learner_record_candidate'));
-  assert.equal(readStore(path.join(commandTmp, 'learner', 'feedback-store.json')).settings.enabled, false);
+  assert.equal(storeRepository.read(path.join(commandTmp, 'learner', 'feedback-store.json')).settings.enabled, false);
 } finally {
   rmSync(commandTmp, { recursive: true, force: true });
 }
