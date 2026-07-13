@@ -8,10 +8,10 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
 3. Store temporary screenshots outside the repository unless the user explicitly wants files committed.
 4. Put screenshots somewhere the headed browser can read. If Snap Chromium reports `/tmp/...png` as `This file is empty.`, copy the same image under `/home/marlen/` and upload that copy.
-5. If the image is already hosted at a durable URL, prefer the GitHub REST API to edit the PR body/comment Markdown with that URL; the REST issue/comment endpoints accept text bodies.
-6. If the image is only local, use the logged-in GitHub web editor. GitHub's documented attachment flow is drag/drop, paste, or file browse in the web UI; no official REST endpoint is documented for creating `user-attachments/assets/...` uploads.
-7. Use `addImageToGitHubMarkdownEditor` below with the PR body editor selector, scoped file input selector, local file path, and exact placeholder text.
-8. Verify the returned Markdown contains a new `user-attachments/assets/...` URL before saving.
+5. Open the PR body editor in a headed, logged-in GitHub browser session. For local screenshots, this web-editor upload is the primary path because REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
+6. Use `addImageToGitHubMarkdownEditor` below with the PR body editor selector, scoped file input selector, local file path, and exact placeholder text.
+7. Verify the returned Markdown contains a new `user-attachments/assets/...` URL before saving.
+8. After the web upload has produced a URL, API text edits may update PR/comment Markdown if that is safer than saving through the browser.
 9. Add screenshot blocks using the pattern below.
 
 ## Browser Helper
