@@ -174,6 +174,20 @@ if (!pullRequestWorkflow.includes('restore ready-for-review status unless the PR
   fail('packaged pull request workflow must include self-contained restored ready-for-review guidance');
 }
 
+
+const uploadScreenshotsWorkflow = read('docs/workflows/upload-pr-screenshots-workflow.md');
+for (const requiredText of [
+  'addImageToGitHubMarkdownEditor',
+  'editorSelector',
+  'fileInputSelector',
+  'user-attachments/assets',
+  'not already present before upload',
+  'Snap Chromium reports `/tmp/...png` as `This file is empty.`',
+]) {
+  if (!uploadScreenshotsWorkflow.includes(requiredText)) {
+    fail(`upload screenshot workflow must document ${requiredText}`);
+  }
+}
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [
