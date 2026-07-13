@@ -41,6 +41,15 @@ try {
   const findings = JSON.parse(json.stdout);
   if (findings.length !== 3) fail(`expected 3 JSON findings, got ${findings.length}`);
 
+  const learnerRepo = path.join(fixtureRoot, 'learner-repo');
+  mkdirSync(learnerRepo, { recursive: true });
+  writeFileSync(path.join(learnerRepo, 'README.md'), '/learner setup https://github.com/owner/repo\n/learner status\n');
+  const learner = spawnSync(process.execPath, [command, '--json', learnerRepo], { encoding: 'utf8' });
+  if (learner.status !== 1) fail(`expected learner fixture exit 1, got ${learner.status}: ${learner.stdout}${learner.stderr}`);
+  const learnerFindings = JSON.parse(learner.stdout);
+  if (learnerFindings.length !== 1) fail(`expected only non-setup learner command finding, got ${learnerFindings.length}`);
+  if (!learnerFindings[0].detail.includes('learner moved out of this package')) fail('missing learner non-setup finding');
+
   const suppressionRepo = path.join(fixtureRoot, 'suppression-repo');
   const suppressionDocs = path.join(suppressionRepo, 'docs', 'workflows');
   mkdirSync(suppressionDocs, { recursive: true });
