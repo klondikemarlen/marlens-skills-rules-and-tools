@@ -35,4 +35,4 @@ For fields not supported by the high-level commands, use `gh api` with the appro
 
 ## Screenshot Attachments
 
-GitHub user-attachment URLs are created through a logged-in browser session. `gh api` does not provide a simple public upload endpoint for PR screenshot attachments. Use the project workflow for screenshot capture and attachment formatting.
+GitHub user-attachment URLs are created through a logged-in browser session. `gh api` can edit issue/PR Markdown after a durable image URL exists, but it does not provide a public upload endpoint that hosts a local screenshot as a `user-attachments/assets/...` URL. Use the project workflow for screenshot capture, browser upload, and attachment formatting.

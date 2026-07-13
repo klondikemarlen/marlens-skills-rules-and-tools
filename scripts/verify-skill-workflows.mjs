@@ -183,10 +183,20 @@ for (const requiredText of [
   'user-attachments/assets',
   'not already present before upload',
   'Snap Chromium reports `/tmp/...png` as `This file is empty.`',
+  'REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL',
+  'After the web upload has produced a URL, API text edits may update PR/comment Markdown',
 ]) {
   if (!uploadScreenshotsWorkflow.includes(requiredText)) {
     fail(`upload screenshot workflow must document ${requiredText}`);
   }
+}
+if (uploadScreenshotsWorkflow.includes('prefer the GitHub REST API')) {
+  fail('upload screenshot workflow must not present REST as the primary local screenshot upload path');
+}
+
+const githubToolingReference = read('docs/references/github-tooling-reference.md');
+if (!githubToolingReference.includes('does not provide a public upload endpoint that hosts a local screenshot')) {
+  fail('github tooling reference must document that gh api cannot host local screenshots as user attachments');
 }
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
