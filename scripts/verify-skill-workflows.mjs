@@ -251,6 +251,59 @@ for (const requiredText of [
     fail(`README task map must include ${requiredText}`);
   }
 }
+
+const ledgerTemplate = read('docs/templates/agent-guidance-ledger-template.md');
+for (const requiredText of [
+  'informational and audit-only',
+  'must not become an allowlist',
+  'agents/guidance-ledger.yml',
+  'project-specific Docker/dev commands',
+]) {
+  if (!ledgerTemplate.includes(requiredText)) {
+    fail(`agent guidance ledger template must document ${requiredText}`);
+  }
+}
+
+const downstreamAuditReference = read('docs/references/downstream-agent-guidance-audit-reference.md');
+for (const requiredText of [
+  'read-only maintainer tooling',
+  'agent-guidance-audit',
+  'Markdown links to missing local files',
+  'Migration ledgers are informational/audit-only',
+]) {
+  if (!downstreamAuditReference.includes(requiredText)) {
+    fail(`downstream audit reference must document ${requiredText}`);
+  }
+}
+
+const fullStackCrudWorkflow = read('docs/workflows/full-stack-admin-crud-workflow.md');
+for (const requiredText of [
+  'Node.js + Express + Sequelize',
+  'Vue 3 + Vuetify',
+  'Backend Express/Sequelize rail',
+  'Search/filter/autocomplete inputs reset pagination',
+  'informational/audit-only note',
+]) {
+  if (!fullStackCrudWorkflow.includes(requiredText)) {
+    fail(`full-stack admin CRUD workflow must document ${requiredText}`);
+  }
+}
+
+const backendCrudTemplate = read('docs/templates/backend/express-sequelize-crud/resource-rail-template.md');
+const frontendCrudTemplate = read('docs/templates/frontend/vue-vuetify-crud/admin-resource-pages-template.md');
+const searchableAutocompleteTemplate = read('docs/templates/frontend/searchable-autocomplete-template.md');
+for (const [name, text, requiredText] of [
+  ['backend CRUD template', backendCrudTemplate, 'applyScope'],
+  ['backend CRUD template', backendCrudTemplate, 'totalCount'],
+  ['frontend CRUD template', frontendCrudTemplate, 'Vue 3 + Vuetify'],
+  ['frontend CRUD template', frontendCrudTemplate, 'validation errors'],
+  ['searchable autocomplete template', searchableAutocompleteTemplate, 'debounced'],
+  ['searchable autocomplete template', searchableAutocompleteTemplate, '{ResourceNameAsReference}'],
+]) {
+  if (!text.includes(requiredText)) {
+    fail(`${name} must document ${requiredText}`);
+  }
+}
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [

@@ -1,10 +1,10 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "0.8.34",
+  "version": "0.8.35",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
-    "test": "node scripts/verify-skill-workflows.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs"
+    "test": "node scripts/verify-skill-workflows.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-agent-guidance-audit.mjs"
   },
   "keywords": ["omp-plugin", "agent-rules", "skills"],
   "repository": {
@@ -13,7 +13,8 @@
   },
   "bin": {
     "dev": "./bin/dev",
-    "git-edit-commit": "./bin/git-edit-commit.js"
+    "git-edit-commit": "./bin/git-edit-commit.js",
+    "agent-guidance-audit": "./bin/agent-guidance-audit.js"
   },
   "files": [
     "AGENTS.md",

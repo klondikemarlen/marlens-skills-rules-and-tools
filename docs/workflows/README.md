@@ -31,6 +31,7 @@ Examples:
 - `code-review-workflow.md`
 - `commit-workflow.md`
 - `express-light-rail-backend-workflow.md`
+- `full-stack-admin-crud-workflow.md`
 - `feature-workflow.md`
 - `git-rebase-workflow.md`
 - `hands-off-agentic-coding-workflow.md`

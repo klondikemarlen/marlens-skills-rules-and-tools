@@ -86,9 +86,12 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Commit scoped changes | [`COMMITTING.md`](COMMITTING.md) and [`docs/workflows/commit-workflow.md`](docs/workflows/commit-workflow.md) |
 | Edit older commits safely | [`docs/workflows/git-rebase-workflow.md`](docs/workflows/git-rebase-workflow.md) and `git-edit-commit` |
 | Add Express Light Rail backend code | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
+| Add full-stack admin CRUD scaffolding | [`docs/workflows/full-stack-admin-crud-workflow.md`](docs/workflows/full-stack-admin-crud-workflow.md) and [`docs/templates/backend/express-sequelize-crud/`](docs/templates/backend/express-sequelize-crud/) |
 | Add frontend or backend reusable scaffolding | [`docs/templates/`](docs/templates/) |
 | Upload PR screenshots | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md) |
 | Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
+| Add an informational guidance ledger | [`docs/templates/agent-guidance-ledger-template.md`](docs/templates/agent-guidance-ledger-template.md) |
+| Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |
 
 ## Feature and Issue Workflow
 
@@ -145,6 +148,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `skills/` - thin skill aliases that point at authoritative workflows under `docs/workflows/`
 - `rules/` - reusable OMP rule files that can be copied or linked into `~/.omp/agent/rules`
 - `lib/` - Ruby implementation for shared package binaries such as `dev`
+- `bin/agent-guidance-audit.js` - read-only downstream agent-guidance audit helper for stale package names, broken local links, and explicit mirror drift checks
 - `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
 - `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
 - `.omp-plugin/` - OMP marketplace catalog
