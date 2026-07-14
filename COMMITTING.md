@@ -105,7 +105,7 @@ Examples include `package.json` with a JavaScript lockfile, `Gemfile` with `Gemf
 
 ## Multi-concern commits
 
-Keep commits cohesive and homogeneous. Do not mix code/test changes, migrations/schema/data changes, dependency churn, formatting, and documentation or workflow-learning updates in the same commit unless the user explicitly requests a combined commit and the files are inseparable for review.
+Keep commits cohesive and homogeneous. Implementation and its directly corresponding focused test belong in the same logical commit. Do not mix that feature slice with unrelated migrations/schema/data changes, dependency churn, formatting, broad test-only/support changes, documentation or workflow-learning updates unless the user explicitly requests a combined commit and the files are inseparable for review.
 
 If the user asks to commit a code/test fix, leave documentation-learning edits unstaged unless they explicitly ask for a docs commit too.
 
