@@ -165,6 +165,9 @@ if (!learnWorkflow.includes('repeated code-style correction')) {
 if (!learnWorkflow.includes('`klondikemarlen/marlens-skills-rules-and-tools` for shared prompt/workflow/review guidance, or `omp-verifier` for enforceable advisor/runtime/tooling')) {
   fail('learn workflow must distinguish shared guidance from verifier enforcement');
 }
+if (!learnWorkflow.includes('over-generalized')) {
+  fail('learn workflow must route over-generalized learner proposals to OMP Learner');
+}
 
 
 const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');

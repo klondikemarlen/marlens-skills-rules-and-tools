@@ -46,7 +46,7 @@ Use this path for GitHub issues titled or labeled as `learner:` proposals in thi
 3. Classify each proposal:
    - **Shared and missing:** implement the smallest reusable workflow, reference, rule, or template change that fits this package.
    - **Shared but already covered:** file or update the OMP Learner bug for duplicate/spam behavior, then close the shared issue with both existing-guidance citations and the learner bug link; do not add duplicate wording.
-   - **Project-specific or learner-local:** do not implement it here. If the owning repository is evidenced, create or update the proposal there; always file or update an OMP Learner bug with the misrouting evidence; then close the shared issue with both links. If ownership is not evidenced, report only the learner bug instead of guessing a destination.
+   - **Project-specific, learner-local, or over-generalized:** do not implement it here. If the owning repository is evidenced, create or update the proposal there; always file or update an OMP Learner bug with the misrouting evidence; then close the shared issue with both links. If ownership is not evidenced, report only the learner bug instead of guessing a destination.
    - **Unclear evidence:** file or update an OMP Learner bug for insufficient source evidence, then close the shared issue with the bug link instead of broadening the guidance.
 4. Preserve placement boundaries from `docs/references/guidance-precedence-reference.md`: project services, domain names, commands, schemas, and UI labels stay in the owning project unless this repo names that scope explicitly.
 5. When a learner issue is accepted, release it through the normal feature workflow for this package.
