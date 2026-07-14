@@ -7,7 +7,7 @@ For backend projects that use the shared route/controller/service/policy/seriali
 1. Local project: `docs/workflows/express-light-rail-backend-workflow.md`
 2. Legacy local project: `agents/workflows/express-light-rail-backend-workflow.md` <!-- agent-guidance-audit: ignore backtick-path -->
 3. Packaged fallback: [../express-light-rail/workflow.md](../express-light-rail/workflow.md) in this plugin (`skill://express-light-rail/workflow.md` in OMP)
-Check/read candidates sequentially. If a local candidate is missing or a read returns Path not found, continue to the next candidate; do not batch local paths. If neither local workflow path exists, read `skill://express-light-rail/workflow.md` directly.
+Check candidate existence first (for example with glob). Read only the first existing local workflow file; if neither local workflow exists, read `skill://express-light-rail/workflow.md` directly. Do not read missing local paths or batch local candidates.
 
 Use this workflow name when a prompt or installed skill still points at `node-express-api`; it intentionally delegates to the centralized Express Light Rail backend workflow instead of keeping a second pattern.
 

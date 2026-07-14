@@ -129,10 +129,10 @@ for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true
       fail(`${entry.name}: absent local workflow paths did not resolve to skill://${fallback.uri}`);
     }
 
-    const sequentialFallback = 'Check/read candidates sequentially. If a local candidate is missing or a read returns Path not found, continue to the next candidate; do not batch local paths.';
-    if (!text.includes(sequentialFallback)) fail(`${entry.name}: missing sequential local-path fallback instruction`);
+    const existenceFirstFallback = 'Check candidate existence first (for example with glob). Read only the first existing local workflow file;';
+    if (!text.includes(existenceFirstFallback)) fail(`${entry.name}: missing existence-first local workflow instruction`);
 
-    const explicitFallback = `If neither local workflow path exists, read \`skill://${fallback.uri}\` directly.`;
+    const explicitFallback = `if neither local workflow exists, read \`skill://${fallback.uri}\` directly.`;
     if (!text.includes(explicitFallback)) fail(`${entry.name}: missing explicit absent-local fallback instruction for skill://${fallback.uri}`);
   }
   rmSync(absentLocalProject, { recursive: true, force: true });
