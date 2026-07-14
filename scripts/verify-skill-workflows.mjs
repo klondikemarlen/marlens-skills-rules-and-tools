@@ -353,6 +353,23 @@ for (const [name, text, requiredText] of [
     fail(`${name} must document ${requiredText}`);
   }
 }
+const codeOrganizationReference = read('docs/references/code-organization-reference.md');
+const referencesIndex = read('docs/references/README.md');
+for (const requiredText of [
+  'Code organization is not more folders',
+  'Module Decomposition',
+  'Service Orchestration Readability',
+  'Context/request object passed everywhere',
+  'circular imports',
+]) {
+  if (!codeOrganizationReference.includes(requiredText)) {
+    fail(`code organization reference must document ${requiredText}`);
+  }
+}
+if (!referencesIndex.includes('Code organization, module boundaries, and pattern-selection criteria')) {
+  fail('references index must list the code organization reference');
+}
+
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [
@@ -373,6 +390,15 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('documentation or workflow-learning')) {
     fail(`${name} must flag mixed documentation-learning changes during review`);
+  }
+  if (!workflow.includes('code-organization-reference.md')) {
+    fail(`${name} must link to the code organization reference`);
+  }
+  if (!workflow.includes('Check code organization')) {
+    fail(`${name} must include an explicit code organization review step`);
+  }
+  if (!workflow.includes('Check simplicity')) {
+    fail(`${name} must keep the Ponytail/YAGNI simplicity review step`);
   }
 }
 
