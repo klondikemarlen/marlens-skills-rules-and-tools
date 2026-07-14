@@ -17,6 +17,7 @@ Use when reviewing a branch, pull request, or local diff.
 - Do not block on project-specific rules that are not documented locally.
 - Test expectations should be declarative expected data, not expectation-building logic. For business catalogs and configured defaults, prefer explicit expected values over mapping, sorting, branching, or deriving expectations from the same production constant/helper under test.
 - Review commit scope when relevant: flag mixed code/test changes, migrations/schema/data changes, dependency churn, formatting, and documentation or workflow-learning updates unless the user explicitly requested a combined commit and the files are inseparable for review.
+- For maintainability or organization findings, use the packaged `../../docs/references/code-organization-reference.md` reference when no local equivalent exists: flag boundaries, modules, helpers, or abstractions only when they affect ownership, data handoffs, dependency direction, side effects, or future change safety. Keep Ponytail/YAGNI simplicity checks separate. <!-- agent-guidance-audit: ignore backtick-path -->
 
 ## Process
 
@@ -26,8 +27,9 @@ Use when reviewing a branch, pull request, or local diff.
 4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant.
 5. Check type and error handling: avoid unsafe casts, non-null assumptions, swallowed errors, and impossible states represented as runtime branches.
 6. Check tests and verification: changed behavior should have the smallest meaningful runnable check, and PR testing instructions should match user-visible behavior.
-7. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem.
-8. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
+7. Check code organization: flag modules, services, repositories, value objects, adapters, or helper extractions that obscure ownership, create cycles, pass context bags, hide side effects, or fail to group code that changes together.
+8. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem.
+9. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
 ## Output Contract
 
