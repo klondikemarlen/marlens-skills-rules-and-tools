@@ -13,6 +13,7 @@ Use when reviewing a branch, pull request, or local diff.
 - Lead with behavior, contracts, data safety, security, and missing verification.
 - Start from Gold: name the behavior, invariant, or regression risk that must be proven before judging implementation quality.
 - Treat style as worth raising only when it affects clarity, consistency, or future safety.
+- Flag cramped adjacent sibling logical blocks when local precedent separates them: top-level functions/classes/modules, class methods, helper sections, and test cases/groups should usually have one blank line between siblings for scanability.
 - Use project-local rules first: `AGENTS.md`, `README.md`, `COMMITTING.md`, `bin/README.md`, and local `docs/` docs. <!-- agent-guidance-audit: ignore backtick-path -->
 - Prefer deletion and simpler existing patterns over new abstractions.
 - Do not block on project-specific rules that are not documented locally.
