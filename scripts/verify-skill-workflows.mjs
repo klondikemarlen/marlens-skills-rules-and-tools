@@ -406,10 +406,46 @@ for (const [name, workflow] of [
 }
 
 const sharedCommitGuide = read('COMMITTING.md');
+const packagedCommitGuide = read('skills/commit/COMMITTING.md');
 const commitWorkflow = read('docs/workflows/commit-workflow.md');
 const commitFallbackWorkflow = read('skills/commit/workflow.md');
+if (packagedCommitGuide !== sharedCommitGuide) {
+  fail('packaged commit guide must stay synchronized with the shared commit guide');
+}
+if (commitFallbackWorkflow !== commitWorkflow) {
+  fail('packaged commit workflow must stay synchronized with the authoritative workflow');
+}
+for (const [name, guide] of [
+  ['shared commit guide', sharedCommitGuide],
+  ['packaged commit guide', packagedCommitGuide],
+]) {
+  if (!guide.includes('`:art:` — completed quality improvements, cleanups, and refinements that do not fit a narrower semantic category')) {
+    fail(`${name} must reserve :art: for completed quality improvements without a narrower category`);
+  }
+  if (!guide.includes('`:construction:` — exclusively an explicitly incomplete, application-breaking intermediate migration slice')) {
+    fail(`${name} must reserve :construction: for incomplete application-breaking migration slices`);
+  }
+  if (!guide.includes('A completed extraction or refinement with no narrower semantic category uses `:art:`, never `:construction:`.')) {
+    fail(`${name} must select :art: for a completed extraction or refinement`);
+  }
+}
+for (const [name, workflow] of [
+  ['authoritative commit workflow', commitWorkflow],
+  ['packaged commit workflow', commitFallbackWorkflow],
+]) {
+  if (!workflow.includes('skill://commit/COMMITTING.md')) {
+    fail(`${name} must link to the packaged shared commit guide`);
+  }
+  if (!workflow.includes('Derive the likely emoji from the staged diff')) {
+    fail(`${name} must derive the commit emoji from the staged diff`);
+  }
+  if (!workflow.includes('Warn and stop before creating a `:construction:` commit')) {
+    fail(`${name} must warn before an unsupported :construction: commit`);
+  }
+}
 for (const [name, workflow] of [
   ['shared commit guide', sharedCommitGuide],
+  ['packaged commit guide', packagedCommitGuide],
   ['authoritative commit workflow', commitWorkflow],
   ['packaged commit workflow', commitFallbackWorkflow],
 ]) {
