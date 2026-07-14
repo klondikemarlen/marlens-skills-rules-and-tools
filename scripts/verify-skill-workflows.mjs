@@ -419,6 +419,9 @@ for (const [name, workflow] of [
   if (!workflow.includes('documentation or workflow-learning')) {
     fail(`${name} must split documentation-learning edits from code/test fixes`);
   }
+  if (!workflow.includes('directly corresponding focused test')) {
+    fail(`${name} must keep directly corresponding focused tests with their implementation`);
+  }
   if (!workflow.includes('migrations/schema/data')) {
     fail(`${name} must split schema/data changes from other change types`);
   }
