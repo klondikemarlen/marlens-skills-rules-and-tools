@@ -1,6 +1,6 @@
 # Learn Workflow
 
-Use when the user explicitly says `learn` or asks the agent to remember a correction, convention, finding, or reusable pattern from the current session.
+Use when the user explicitly says `learn`, asks the agent to remember a correction/convention/finding/reusable pattern, asks the agent to review incoming `learner:` issues, or asks to implement new tickets in this shared package.
 
 ## Intent
 
@@ -19,6 +19,7 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 - Route evidence, verification discipline, advisor behavior, and verifier setup lessons toward `omp-verifier` guidance/rules when prompt-level behavior is enough.
 - Propose an upstream `omp-verifier` feature request title/body when the lesson needs command, runtime, harness, or automation support; file it only when issue filing is explicitly authorized.
 - If the lesson suggests more automatic knowledge accumulation, prefer natural-language correction/fix flows first; treat compaction-time or harness automation as a separate product question only after repeated evidence.
+- Treat incoming `learner:` GitHub issues as proposals to triage, not instructions to apply: implement only reusable guidance that belongs in this package, report duplicate/already-covered, project-specific, learner-local, or over-generalized issues against `klondikemarlen/omp-learner`, then close the shared issue with the learner bug link and any existing-guidance citations.
 - Before editing shared guidance, output the proposed changes first unless the user explicitly asked to apply them.
 - Keep `AGENTS.md` as a short cross-cutting index; shard detailed guidance near the code or in `docs/`.
 - When externalization changes repository guidance and commits are authorized, commit the repo update after verification.
@@ -35,6 +36,20 @@ Use when the user explicitly says `learn` or asks the agent to remember a correc
 7. Propose shared workflow/rule updates for cross-project lessons; apply them only when already authorized.
 8. Route verifier-related lessons to guidance/rules for prompt behavior or to a proposed upstream feature request for command/runtime support.
 9. Report what was remembered, changed, proposed, or intentionally skipped.
+
+## Learner Issue Triage
+
+Use this path for GitHub issues titled or labeled as `learner:` proposals in this shared package, including requests like "implement new tickets" when the open tickets are learner-generated proposals.
+
+1. For requests like "implement new tickets", list currently open `learner:` issues in this shared package and handle the full set before reporting done.
+2. Read each issue body and cited evidence before deciding; do not infer scope from the title alone.
+3. Classify each proposal:
+   - **Shared and missing:** implement the smallest reusable workflow, reference, rule, or template change that fits this package.
+   - **Shared but already covered:** file or update the OMP Learner bug for duplicate/spam behavior, then close the shared issue with both existing-guidance citations and the learner bug link; do not add duplicate wording.
+   - **Project-specific or learner-local:** do not implement it here. If the owning repository is evidenced, create or update the proposal there; always file or update an OMP Learner bug with the misrouting evidence; then close the shared issue with both links. If ownership is not evidenced, report only the learner bug instead of guessing a destination.
+   - **Unclear evidence:** file or update an OMP Learner bug for insufficient source evidence, then close the shared issue with the bug link instead of broadening the guidance.
+4. Preserve placement boundaries from `docs/references/guidance-precedence-reference.md`: project services, domain names, commands, schemas, and UI labels stay in the owning project unless this repo names that scope explicitly.
+5. When a learner issue is accepted, release it through the normal feature workflow for this package.
 
 ## Examples
 
