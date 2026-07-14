@@ -20,16 +20,17 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 
 ## Process
 
-1. Read commit guidance before staging: repo-local `COMMITTING.md` first, then this package's shared `COMMITTING.md` for defaults not overridden by the repo.
+1. Read commit guidance before staging: repo-local `COMMITTING.md` first, then this package's shared [`skill://commit/COMMITTING.md`](skill://commit/COMMITTING.md) for defaults not overridden by the repo.
 2. Check `git status --short` and preserve unrelated local work.
 3. Inspect staged files with `git diff --cached --name-status` and `git diff --cached --stat`.
-4. If the user asked for `commit staged`, commit only the index.
-5. If the user asked to commit a named/relevant set, stage only files that clearly belong to that requested change. Avoid `git add .`.
-6. Review enough staged diff and issue/PR context to name the problem, outcome, and why the change belongs in this commit.
-7. If the purpose or file ownership is unclear, ask instead of guessing.
-8. If the request includes amending older commits or reorganizing branch history, switch to the `git-rebase` workflow before committing.
-9. Commit with the repo's message style; add a short body when the subject alone cannot carry the relevant bug, feature, or product context. For bug and edge-case fixes with non-obvious behavior, the body should name the concrete failing condition, the expected runtime effect after the fix, the adjacent behavior intentionally preserved, and why the boundary is narrow enough for one logical commit.
-10. Verify the resulting message with `git log -1 --format=%B` before reporting it.
+4. Derive the likely emoji from the staged diff and linked issue or PR using the shared commit guidance. Warn and stop before creating a `:construction:` commit unless the work explicitly identifies an incomplete, application-breaking intermediate migration slice; use `:art:` for a completed extraction or refinement that has no narrower semantic category.
+5. If the user asked for `commit staged`, commit only the index.
+6. If the user asked to commit a named/relevant set, stage only files that clearly belong to that requested change. Avoid `git add .`.
+7. Review enough staged diff and issue/PR context to name the problem, outcome, and why the change belongs in this commit.
+8. If the purpose or file ownership is unclear, ask instead of guessing.
+9. If the request includes amending older commits or reorganizing branch history, switch to the `git-rebase` workflow before committing.
+10. Commit with the repo's message style; add a short body when the subject alone cannot carry the relevant bug, feature, or product context.
+11. Verify the resulting message with `git log -1 --format=%B` before reporting it.
 
 ## Output Contract
 
