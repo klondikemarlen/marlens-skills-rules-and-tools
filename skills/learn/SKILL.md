@@ -1,6 +1,6 @@
 ---
 name: learn
-description: Use when capturing durable lessons from user corrections or recent changes; delegates to the local learn workflow.
+description: Use when capturing durable lessons from user corrections or recent changes, reviewing incoming `learner:` issues, or implementing new learner-generated tickets; delegates to the local learn workflow.
 ---
 
 # Learn
