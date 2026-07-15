@@ -428,6 +428,9 @@ for (const [name, guide] of [
   if (!guide.includes('A completed extraction or refinement with no narrower semantic category uses `:art:`, never `:construction:`.')) {
     fail(`${name} must select :art: for a completed extraction or refinement`);
   }
+  if (guide.includes(':construction: Nest document routes') || !guide.includes(':recycle: Nest document routes')) {
+    fail(`${name} must not use :construction: for completed route refactors`);
+  }
 }
 for (const [name, workflow] of [
   ['authoritative commit workflow', commitWorkflow],

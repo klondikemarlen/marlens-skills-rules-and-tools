@@ -12,8 +12,8 @@
 When using broad verbs like "align", "nest", "scope", or "move", name the concrete namespace,
 target, and comparison point in the subject so the outcome is clear without branch or PR context.
 
-- ❌ `:construction: Nest document routes.` — does not say where they are nested
-- ✅ `:construction: Nest document routes under the account namespace to match report routing.` — names the target namespace and comparison point
+- ❌ `:recycle: Nest document routes.` — does not say where they are nested
+- ✅ `:recycle: Nest document routes under the account namespace to match report routing.` — names the target namespace and comparison point
 - ❌ `:recycle: Align web routes.` — does not say what they align with
 - ✅ `:recycle: Align document web routes with account routes.` — names the comparison point
 
