@@ -16,7 +16,7 @@ omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 
 Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
 
-This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, Node Express API compatibility, rebases, learning, pull request management, release notes, and testing instructions.
+This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
@@ -104,6 +104,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Upload PR screenshots | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md) |
 | Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
 | Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |
+| Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md) |
 
 ## Feature and Issue Workflow
 
