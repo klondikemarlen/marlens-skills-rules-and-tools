@@ -489,6 +489,9 @@ for (const [name, guide] of [
   if (guide.includes(':construction: Nest document routes') || !guide.includes(':recycle: Nest document routes')) {
     fail(`${name} must not use :construction: for completed route refactors`);
   }
+  if (!guide.includes('Run `check-commit-scope` after staging and before committing') || !guide.includes('Application code may share a commit with its directly corresponding tests')) {
+    fail(`${name} must document the staged file-type boundary check and code-plus-test exception`);
+  }
 }
 for (const [name, workflow] of [
   ['authoritative commit workflow', commitWorkflow],
@@ -502,6 +505,9 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Warn and stop before creating a `:construction:` commit')) {
     fail(`${name} must warn before an unsupported :construction: commit`);
+  }
+  if (!workflow.includes('Run `check-commit-scope` after staging') || !workflow.includes('explicitly confirms that the categories are genuinely inseparable')) {
+    fail(`${name} must check and stop on mixed staged file categories`);
   }
 }
 for (const [name, workflow] of [
