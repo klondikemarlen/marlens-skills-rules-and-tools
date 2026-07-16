@@ -89,6 +89,12 @@ Extraction is warranted when the helper name captures a cohesive domain decision
 
 Extraction is not warranted for a trivial one-line transform, direct delegation, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
 
+## Private Helper Inputs
+
+Prefer a private functional helper that accepts every value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its real inputs and makes the behavior harder to reason about or test.
+
+Pass values explicitly when the caller already has them or the helper's result can be described from its arguments. Keep reads through `this` when the helper is inherently bound to object state, such as coordinating the instance lifecycle, mutating owned state, or using a cache whose identity belongs to the object. Do not add artificial parameters that merely restate that bound identity.
+
 ## Pattern Selection
 
 Use patterns only when they earn their keep:
