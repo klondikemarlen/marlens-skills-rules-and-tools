@@ -1,10 +1,10 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
-    "test": "node scripts/verify-skill-workflows.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs"
+    "test": "node scripts/verify-skill-workflows.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs"
   },
   "keywords": ["omp-plugin", "agent-rules", "skills"],
   "repository": {
@@ -15,7 +15,8 @@
     "dev": "./bin/dev",
     "git-edit-commit": "./bin/git-edit-commit.js",
     "agent-guidance-audit": "./bin/agent-guidance-audit.js",
-    "check-commit-scope": "./bin/check-commit-scope"
+    "check-commit-scope": "./bin/check-commit-scope",
+    "temporary-mcp-task": "./bin/temporary-mcp-task.js"
   },
   "files": [
     "AGENTS.md",
