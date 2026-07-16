@@ -98,6 +98,13 @@ function skillContract(skillName) {
   }));
   return { text, local, packaged };
 }
+const safeExistenceProbe = 'Use a single non-erroring project-root glob with the candidate basename';
+const unsafeExistenceProbe = 'Check candidate existence first (for example with glob).';
+
+function hasSafeGlobForLocalPaths(text, localPaths) {
+  const safeGlobPatterns = new Set([...text.matchAll(/glob\("(\*\*\/[^"]+)"\)/g)].map((match) => match[1]));
+  return localPaths.every((localPath) => safeGlobPatterns.has(`**/${path.posix.basename(localPath)}`));
+}
 
 for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
@@ -129,11 +136,18 @@ for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true
       fail(`${entry.name}: absent local workflow paths did not resolve to skill://${fallback.uri}`);
     }
 
-    const existenceFirstFallback = 'Check candidate existence first (for example with glob). Read only the first existing local workflow file;';
-    if (!text.includes(existenceFirstFallback)) fail(`${entry.name}: missing existence-first local workflow instruction`);
+    if (
+      !text.includes(safeExistenceProbe)
+      || text.includes(unsafeExistenceProbe)
+      || !hasSafeGlobForLocalPaths(text, localPair)
+    ) {
+      fail(`${entry.name}: workflow lookup must use a non-erroring glob for every local candidate`);
+    }
 
-    const explicitFallback = `if neither local workflow exists, read \`skill://${fallback.uri}\` directly.`;
-    if (!text.includes(explicitFallback)) fail(`${entry.name}: missing explicit absent-local fallback instruction for skill://${fallback.uri}`);
+    const explicitFallback = `If neither local workflow exists, read \`skill://${fallback.uri}\` directly.`;
+    if (!text.toLowerCase().includes(explicitFallback.toLowerCase())) {
+      fail(`${entry.name}: missing explicit absent-local fallback instruction for skill://${fallback.uri}`);
+    }
   }
   rmSync(absentLocalProject, { recursive: true, force: true });
 }
@@ -147,6 +161,16 @@ if (!nodeExpressWorkflow.includes('[../express-light-rail/workflow.md](../expres
 }
 if (nodeExpressWorkflow.includes('Read `docs/workflows/express-light-rail-backend-workflow.md`')) {
   fail('node-express-api fallback must not require target-project docs/workflows');
+}
+if (
+  !nodeExpressWorkflow.includes(safeExistenceProbe)
+  || nodeExpressWorkflow.includes(unsafeExistenceProbe)
+  || !hasSafeGlobForLocalPaths(nodeExpressWorkflow, [
+    'docs/workflows/express-light-rail-backend-workflow.md',
+    'agents/workflows/express-light-rail-backend-workflow.md',
+  ])
+) {
+  fail('node-express-api fallback workflow must use a non-erroring glob for every local candidate');
 }
 
 const expressWorkflow = read('skills/express-light-rail/workflow.md');
