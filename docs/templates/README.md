@@ -22,7 +22,6 @@ Examples:
 - `bin/`
 - `backend/express-light-rail/`
 - `frontend/`
-- `agent-guidance-ledger-template.md`
 
 Template families should include their own `README.md` that lists the focused templates and when to use the family.
 

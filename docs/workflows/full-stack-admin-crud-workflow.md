@@ -13,7 +13,6 @@ Use when adding a conventional admin CRUD resource to a Node.js + Express + Sequ
 - Read project-local guidance first. Local route helpers, auth policies, dev wrappers, naming conventions, and serializers win.
 - Use only the template slices needed for the current resource; do not generate unused pages, actions, filters, or associations.
 - Keep project-specific commands, credentials, deployment, route prefixes, UI labels, and domain terms in the downstream repo.
-- If the downstream repo keeps an agent-guidance ledger, update it as an informational/audit-only note. The ledger is not an allowlist and must not restrict upstream discovery.
 
 ## Source Material
 
@@ -56,5 +55,4 @@ Resource: <name>
 Backend: <model/controller/policy/services/serializers/routes/tests>
 Frontend: <api/composable/components/pages/navigation>
 Verification: <commands or browser scenario>
-Ledger: <not applicable | informational entry updated>
 ```

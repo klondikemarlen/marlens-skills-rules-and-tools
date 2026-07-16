@@ -6,7 +6,6 @@ Use this when checking downstream repos for stale shared-agent guidance, broken 
 
 The audit is read-only maintainer tooling. It reports findings and never edits downstream repos. It does not gate upstream skill, tool, workflow, or template discovery.
 
-Migration ledgers are informational/audit-only. The audit may report stale paths inside a ledger, but a ledger must not act as an allowlist or suppress dynamic discovery of newer shared package guidance.
 
 ## CLI
 
@@ -62,5 +61,4 @@ The audit reports missing or changed files under the paired trees. It does not d
 
 - [ ] Run against each downstream checkout path from the repo root.
 - [ ] Confirm findings include exact file paths and line numbers.
-- [ ] Treat ledger findings as cleanup hints, not discovery gates.
 - [ ] Verify mirror pairs manually before adding `--mirror` to automation.

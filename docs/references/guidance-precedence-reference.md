@@ -40,3 +40,4 @@ Before applying a workflow from this package, read the target project’s local 
 - Do not mirror project-local docs into this package just for discoverability; extract only reusable guidance.
 - Prefer directory discovery over long duplicated inventories. Directory READMEs should route readers to authoritative files, not repeat procedures.
 - If a document must mention precedence for its audience, link back here instead of restating the full policy.
+- Keep rationale for a local override next to the affected local guidance or in existing project agent instructions; do not maintain a separate guidance inventory.

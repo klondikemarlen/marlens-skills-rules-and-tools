@@ -347,6 +347,7 @@ for (const requiredText of [
   'References',
   'Plans',
   'Skills',
+  'Keep rationale for a local override next to the affected local guidance',
 ]) {
   if (!guidancePrecedenceReference.includes(requiredText)) {
     fail(`guidance precedence reference must distinguish ${requiredText}`);
@@ -363,24 +364,11 @@ for (const requiredText of [
   }
 }
 
-const ledgerTemplate = read('docs/templates/agent-guidance-ledger-template.md');
-for (const requiredText of [
-  'informational and audit-only',
-  'must not become an allowlist',
-  'agents/guidance-ledger.yml',
-  'project-specific Docker/dev commands',
-]) {
-  if (!ledgerTemplate.includes(requiredText)) {
-    fail(`agent guidance ledger template must document ${requiredText}`);
-  }
-}
-
 const downstreamAuditReference = read('docs/references/downstream-agent-guidance-audit-reference.md');
 for (const requiredText of [
   'read-only maintainer tooling',
   'agent-guidance-audit',
   'Markdown links to missing local files',
-  'Migration ledgers are informational/audit-only',
 ]) {
   if (!downstreamAuditReference.includes(requiredText)) {
     fail(`downstream audit reference must document ${requiredText}`);
@@ -393,10 +381,20 @@ for (const requiredText of [
   'Vue 3 + Vuetify',
   'Backend Express/Sequelize rail',
   'Search/filter/autocomplete inputs reset pagination',
-  'informational/audit-only note',
 ]) {
   if (!fullStackCrudWorkflow.includes(requiredText)) {
     fail(`full-stack admin CRUD workflow must document ${requiredText}`);
+  }
+}
+for (const [name, text] of [
+  ['README', readme],
+  ['docs index', docsIndex],
+  ['templates README', read('docs/templates/README.md')],
+  ['downstream audit reference', downstreamAuditReference],
+  ['full-stack CRUD workflow', fullStackCrudWorkflow],
+]) {
+  if (text.toLowerCase().includes('ledger')) {
+    fail(`${name} must not reintroduce the removed guidance ledger concept`);
   }
 }
 
