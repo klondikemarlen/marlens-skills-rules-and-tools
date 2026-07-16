@@ -18,6 +18,9 @@ Use when addressing pull request review comments, especially line-level review t
 - Resolve the thread only after the direct reply exists and the fix, non-applicability, or deferral is true.
 - Keep PR body and thread replies separate. The PR body explains overall scope; a thread reply explains one concern.
 - If a comment identifies follow-up outside the PR scope, create or link the appropriate issue before using the deferral reply.
+- Fix every actionable review finding or comment before the PR is marked ready or merged.
+- After a fixup, re-review the complete PR diff and repeat targeted QA and relevant checks before recording the updated evidence.
+- Keep the PR `BLOCKED` and do not mark it ready or merge while actionable feedback, QA, or required checks are unresolved.
 - Distinguish a temporarily draft PR used for safe follow-up pushes from an intentionally draft PR. Restore ready-for-review only when the PR was ready before the follow-up or the user asked to return it to review.
 - Preserve draft status when the user explicitly asks for draft status or the PR was intentionally still being built.
 

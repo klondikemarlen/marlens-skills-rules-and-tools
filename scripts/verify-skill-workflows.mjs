@@ -205,6 +205,52 @@ if (!pullRequestWorkflow.includes('restore ready-for-review status unless the PR
   fail('packaged pull request workflow must include self-contained restored ready-for-review guidance');
 }
 
+const featureWorkflow = read('docs/workflows/feature-workflow.md');
+const packagedFeatureWorkflow = read('skills/feature/workflow.md');
+for (const [name, workflow] of [
+  ['authoritative feature workflow', featureWorkflow],
+  ['packaged feature workflow', packagedFeatureWorkflow],
+]) {
+  for (const requiredText of [
+    'Self-review the complete PR diff',
+    'Run targeted QA for the user-visible changed behavior',
+    'Resolve every actionable review finding or comment',
+    'After a fixup, repeat the complete self-review and targeted QA',
+    'Keep the PR `BLOCKED`',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must require ${requiredText}`);
+    }
+  }
+}
+
+const authoritativePullRequestWorkflow = read('docs/workflows/pull-request-management-workflow.md');
+for (const [name, workflow] of [
+  ['authoritative pull request workflow', authoritativePullRequestWorkflow],
+  ['packaged pull request workflow', pullRequestWorkflow],
+]) {
+  for (const requiredText of [
+    'Review and QA evidence',
+    'Self-review the complete PR diff',
+    'Run targeted QA for the user-visible changed behavior',
+    'Resolve every actionable review finding or comment',
+    'Keep the PR `BLOCKED`',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must require ${requiredText}`);
+    }
+  }
+}
+for (const requiredText of [
+  'Fix every actionable review finding or comment',
+  'After a fixup, re-review the complete PR diff',
+  'Keep the PR `BLOCKED`',
+]) {
+  if (!commentResolutionWorkflow.includes(requiredText)) {
+    fail(`comment resolution workflow must require ${requiredText}`);
+  }
+}
+
 
 const uploadScreenshotsWorkflow = read('docs/workflows/upload-pr-screenshots-workflow.md');
 for (const requiredText of [
