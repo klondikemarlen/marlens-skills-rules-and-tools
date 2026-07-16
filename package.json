@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "dev": "./bin/dev",
     "git-edit-commit": "./bin/git-edit-commit.js",
     "agent-guidance-audit": "./bin/agent-guidance-audit.js",
-    "check-commit-scope": "./bin/check-commit-scope.js"
+    "check-commit-scope": "./bin/check-commit-scope"
   },
   "files": [
     "AGENTS.md",
