@@ -20,6 +20,7 @@ Use when reviewing a branch, pull request, or local diff.
 - Test expectations should be declarative expected data, not expectation-building logic. For business catalogs and configured defaults, prefer explicit expected values over mapping, sorting, branching, or deriving expectations from the same production constant/helper under test.
 - Review commit scope when relevant: flag mixed code/test changes, migrations/schema/data changes, dependency churn, formatting, and documentation or workflow-learning updates unless the user explicitly requested a combined commit and the files are inseparable for review.
 - For maintainability or organization findings, use `docs/references/code-organization-reference.md`: flag boundaries, modules, helpers, or abstractions only when they affect ownership, data handoffs, dependency direction, side effects, or future change safety. Keep Ponytail/YAGNI simplicity checks separate. <!-- agent-guidance-audit: ignore backtick-path -->
+- Flag private helpers that read instance fields when a caller can pass those values explicitly. Do not force parameters when the helper is inherently bound to object state.
 
 ## Process
 

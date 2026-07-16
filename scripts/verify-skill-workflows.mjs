@@ -418,6 +418,15 @@ for (const requiredText of [
 if (!referencesIndex.includes('Code organization, module boundaries, and pattern-selection criteria')) {
   fail('references index must list the code organization reference');
 }
+for (const requiredText of [
+  'Private Helper Inputs',
+  'accepts every value it uses as an explicit parameter',
+  'inherently bound to object state',
+]) {
+  if (!codeOrganizationReference.includes(requiredText)) {
+    fail(`code organization reference must document ${requiredText}`);
+  }
+}
 
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
@@ -448,6 +457,9 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Check simplicity')) {
     fail(`${name} must keep the Ponytail/YAGNI simplicity review step`);
+  }
+  if (!workflow.includes('Flag private helpers that read instance fields') || !workflow.includes('inherently bound to object state')) {
+    fail(`${name} must flag hidden instance dependencies in private helpers without forcing artificial parameters`);
   }
 }
 
