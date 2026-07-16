@@ -24,6 +24,7 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 2. Check `git status --short` and preserve unrelated local work.
 3. Inspect staged files with `git diff --cached --name-status` and `git diff --cached --stat`.
 4. Run `check-commit-scope` after staging. If it reports a mixed file-type boundary, stop and split the named paths; use `check-commit-scope --allow-mixed` only after the user explicitly confirms that the categories are genuinely inseparable, then record the exception in the commit body.
+   In an OMP plugin session, this package makes `check-commit-scope` available on `PATH`; repo-local commit guidance may still require its own invocation.
 5. Derive the likely emoji from the staged diff and linked issue or PR using the shared commit guidance. Warn and stop before creating a `:construction:` commit unless the work explicitly identifies an incomplete, application-breaking intermediate migration slice; use `:art:` for a completed extraction or refinement that has no narrower semantic category.
 6. If the user asked for `commit staged`, commit only the index.
 7. If the user asked to commit a named/relevant set, stage only files that clearly belong to that requested change. Avoid `git add .`.
