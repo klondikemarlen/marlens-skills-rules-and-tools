@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkCommitScope } from '../lib/commit-scope-check.mjs';
+import { checkCommitScope, classifyCommitPath } from '../lib/commit-scope-check.mjs';
 
 const commandPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../bin/check-commit-scope.js');
 
@@ -41,6 +41,8 @@ function runScopeCheck(files, args = []) {
 }
 
 assert.deepEqual(checkCommitScope(['src/order.ts', 'test/order.test.ts']).boundaries, []);
+assert.equal(classifyCommitPath('src/migration-helper.ts'), 'application code');
+assert.equal(classifyCommitPath('.env.local'), 'configuration');
 
 for (const { files, boundary, paths } of [
   {
