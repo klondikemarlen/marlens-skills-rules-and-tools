@@ -42,6 +42,7 @@ Examples:
 - `pull-request-comment-resolution-workflow.md`
 - `release-notes-workflow.md`
 - `self-improvement-workflow.md`
+- `temporary-mcp-task-workflow.md`
 - `typescript-migration-slice-workflow.md`
 - `upload-pr-screenshots-workflow.md`
 
