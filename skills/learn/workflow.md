@@ -35,7 +35,7 @@ Use when the user explicitly says `learn`, asks the agent to remember a correcti
 5. Store personal or recurring behavior corrections in memory.
 6. Externalize repo-specific guidance in the nearest appropriate repo file.
 7. Propose shared workflow/rule updates for cross-project lessons; apply them only when already authorized.
-7a. When the lesson concerns a prompt, command injection, or agent identity, record it with [`docs/templates/prompt-improvement-template.md`](../templates/prompt-improvement-template.md) before choosing its owner or next step.
+7a. When the lesson concerns a prompt, command injection, or agent identity, record it with [`docs/templates/prompt-improvement-template.md`](../../docs/templates/prompt-improvement-template.md) before choosing its owner or next step.
 8. Route verifier-related lessons to guidance/rules for prompt behavior or to a proposed upstream feature request for command/runtime support.
 9. Report what was remembered, changed, proposed, or intentionally skipped.
 

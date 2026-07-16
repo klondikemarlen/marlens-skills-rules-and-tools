@@ -180,8 +180,12 @@ if (expressWorkflow.includes('Pick only the templates needed from `docs/template
 
 const learnWorkflow = read('docs/workflows/learn-workflow.md');
 const learnFallbackWorkflow = read('skills/learn/workflow.md');
-if (learnWorkflow !== learnFallbackWorkflow) {
-  fail('learn workflow and packaged fallback must stay synchronized');
+const normalizedLearnFallbackWorkflow = learnFallbackWorkflow.replace(
+  '../../docs/templates/prompt-improvement-template.md',
+  '../templates/prompt-improvement-template.md',
+);
+if (learnWorkflow !== normalizedLearnFallbackWorkflow) {
+  fail('learn workflow and packaged fallback must stay synchronized except for the packaged prompt-improvement template link');
 }
 if (!learnWorkflow.includes('repeated code-style correction')) {
   fail('learn workflow must route repeated code-style corrections');
