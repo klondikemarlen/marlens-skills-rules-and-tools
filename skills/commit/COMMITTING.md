@@ -103,6 +103,12 @@ Before creating a commit, inspect the staged diff with its issue or PR context a
 - Use `:construction:` only when the staged change and linked work explicitly identify an incomplete, application-breaking intermediate migration slice.
 - If a proposed `:construction:` message does not meet that condition, stop and warn before committing; choose the emoji that matches the completed change instead.
 
+## Staged file-type boundaries
+
+Run `check-commit-scope` after staging and before committing. Application code may share a commit with its directly corresponding tests. Keep documentation, migrations, developer tooling, and configuration separate from application code; keep configuration separate from every non-configuration change.
+
+If the check reports a mixed boundary, stop and split the named paths into separate commits. Use `check-commit-scope --allow-mixed` only after the user explicitly confirms that the listed categories are genuinely inseparable, then record that exception in the commit body.
+
 ## Dependency manifest and lockfile changes
 
 When a dependency declaration file and its generated resolver file both change, keep that pair together in a dedicated dependency commit whenever practical.
