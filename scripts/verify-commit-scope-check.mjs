@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkCommitScope, classifyCommitPath } from '../lib/commit-scope-check.mjs';
 
-const commandPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../bin/check-commit-scope.js');
+const commandPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../bin/check-commit-scope');
 
 function writeStagedFiles(directory, files) {
   for (const [relativePath, content] of Object.entries(files)) {
