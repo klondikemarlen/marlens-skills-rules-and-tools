@@ -103,7 +103,6 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Add frontend or backend reusable scaffolding | [`docs/templates/`](docs/templates/) |
 | Upload PR screenshots | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md) |
 | Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
-| Add an informational guidance ledger | [`docs/templates/agent-guidance-ledger-template.md`](docs/templates/agent-guidance-ledger-template.md) |
 | Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |
 
 ## Feature and Issue Workflow
