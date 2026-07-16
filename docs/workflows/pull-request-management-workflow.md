@@ -21,8 +21,13 @@ Use when creating or updating a pull request.
    - Implementation: what user-visible or maintainer-relevant behavior changed
    - Screenshots: uploaded images, placeholders, or `N/A — <reason>.`
    - Testing instructions
+   - Review and QA evidence: complete-diff self-review findings and outcome, user-visible QA scenario and observed outcome, and automated check result or `BLOCKED` reason
 5. Use testing instructions that a reviewer can run without branch-author context.
 6. Do not claim verification that was not performed.
+7. Self-review the complete PR diff before requesting review or merging. Record every finding, fixup, and `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
+8. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks. Record the exact scenario, observed outcome, and command result in the PR.
+9. Resolve every actionable review finding or comment before merge. After a fixup, re-review the complete diff and repeat the targeted QA and relevant checks.
+10. Keep the PR `BLOCKED`; do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
 
 ## Decision Rules
 
