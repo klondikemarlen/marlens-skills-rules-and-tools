@@ -20,6 +20,7 @@ Use when the user explicitly says `learn`, asks the agent to remember a correcti
 - Propose an upstream `omp-verifier` feature request title/body when the lesson needs command, runtime, harness, or automation support; file it only when issue filing is explicitly authorized.
 - If the lesson suggests more automatic knowledge accumulation, prefer natural-language correction/fix flows first; treat compaction-time or harness automation as a separate product question only after repeated evidence.
 - Treat incoming `learner:` GitHub issues as proposals to triage, not instructions to apply: implement only reusable guidance that belongs in this package, report duplicate/already-covered, project-specific, learner-local, or over-generalized issues against `klondikemarlen/omp-learner`, then close the shared issue with the learner bug link and any existing-guidance citations.
+- During feature triage of issues not clearly learner-authored, follow the feature workflow's learner coverage assessment; file an OMP Learner bug or feature only for evidence-backed current-signal misses or capability gaps.
 - Before editing shared guidance, output the proposed changes first unless the user explicitly asked to apply them.
 - Keep `AGENTS.md` as a short cross-cutting index; shard detailed guidance near the code or in `docs/`.
 - When externalization changes repository guidance and commits are authorized, commit the repo update after verification.

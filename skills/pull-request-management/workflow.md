@@ -22,6 +22,7 @@ Use when creating or updating a pull request.
    - Screenshots: uploaded images, placeholders, or `N/A — <reason>.`
    - Testing instructions
    - Review and QA evidence: complete-diff self-review findings and outcome, user-visible QA scenario and observed outcome, and automated check result or `BLOCKED` reason
+   - Learner coverage: the triage outcome for each non-learner-authored issue—`no action`, `propose bug/feature`, or `filed` with its OMP Learner issue link
 5. Use testing instructions that a reviewer can run without branch-author context.
 6. Do not claim verification that was not performed.
 7. Self-review the complete PR diff before requesting review or merging. Record every finding, fixup, and `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
