@@ -19,23 +19,35 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Run targeted QA of the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed outcome, and command result in the PR.
 - Resolve every actionable review finding or comment before merge. After a fixup, repeat the complete self-review and targeted QA.
 - Keep the PR `BLOCKED` and do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
+- During issue triage, record an evidence-based learner coverage outcome for every issue not clearly learner-authored; file an OMP Learner bug or feature only for a current-signal miss or capability gap.
 - For published artifacts, merge first, then perform the project’s documented version/changelog/publish/install verification steps on the release branch.
 - Verify the shipped artifact from the remote source after push, publish, tag, or release; local checks alone do not prove the released version is installed or usable.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
+## Learner Coverage During Issue Triage
+
+For each issue not clearly learner-authored, inspect explicit provenance—author, `learner:` title or label, issue body, and cited evidence—rather than guessing from its appearance. Record exactly one learner coverage outcome in the implementation PR:
+
+- **Learner coverage: no action** — the issue is one-off, intentionally manual, judgment-only, or lacks source evidence.
+- **Learner coverage: propose bug/feature** — a repeatable signal plausibly available to OMP Learner was missed, or detection needs a new capability.
+- **Learner coverage: filed** — link the evidence-backed OMP Learner bug or feature request.
+
+Do not auto-file a learner issue solely because an issue was manually authored.
+
 ## Process
 
 1. Capture the user story and acceptance criteria in a GitHub issue.
-2. Create a branch named for the issue number and short feature slug.
-3. Implement the feature against project-local patterns and keep the diff scoped to the story.
-4. Open a draft pull request linked to the issue using `docs/workflows/pull-request-management-workflow.md`.
-5. Self-review the complete PR diff; record findings, any fixups, and a `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
-6. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed result, and command output in the PR.
-7. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded.
-8. Resolve every actionable review finding or comment with the pull-request comment-resolution workflow. After each fixup, repeat the complete self-review and targeted QA, then update the PR evidence.
-9. Keep the PR `BLOCKED` and do not merge while review feedback, QA, or required checks are unresolved.
-10. Merge through the project's normal PR path only after review and required checks pass, so GitHub records the review/merge path.
-11. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, then verify the shipped artifact itself, such as installing the pushed OMP plugin commit/tag, installing the packed or published npm package, running the released CLI binary, or pulling and smoke-testing the pushed Docker image. Keep project-specific install commands in the target repo’s local docs.
+2. For each issue not clearly learner-authored, record a learner coverage outcome from the issue's explicit provenance and evidence. File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
+3. Create a branch named for the issue number and short feature slug.
+4. Implement the feature against project-local patterns and keep the diff scoped to the story.
+5. Open a draft pull request linked to the issue using `docs/workflows/pull-request-management-workflow.md`.
+6. Self-review the complete PR diff; record findings, any fixups, and a `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
+7. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed result, and command output in the PR.
+8. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded.
+9. Resolve every actionable review finding or comment with the pull-request comment-resolution workflow. After each fixup, repeat the complete self-review and targeted QA, then update the PR evidence.
+10. Keep the PR `BLOCKED` and do not merge while review feedback, QA, or required checks are unresolved.
+11. Merge through the project's normal PR path only after review and required checks pass, so GitHub records the review/merge path.
+12. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, then verify the shipped artifact itself, such as installing the pushed OMP plugin commit/tag, installing the packed or published npm package, running the released CLI binary, or pulling and smoke-testing the pushed Docker image. Keep project-specific install commands in the target repo’s local docs.
 
 ## Output Contract
 
@@ -45,6 +57,7 @@ Report the concrete artifacts and evidence:
 Issue: <url or number>
 Branch: <branch>
 PR: <url or number>
+Learner coverage: <no action, proposed issue, or filed issue link>
 Verification: <commands or QA path run>
 Release/install: <publish/install/version evidence, or "not published">
 ```

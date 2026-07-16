@@ -168,6 +168,14 @@ if (!learnWorkflow.includes('`klondikemarlen/marlens-skills-rules-and-tools` for
 if (!learnWorkflow.includes('over-generalized')) {
   fail('learn workflow must route over-generalized learner proposals to OMP Learner');
 }
+for (const requiredText of [
+  'issues not clearly learner-authored',
+  'evidence-backed current-signal misses or capability gaps',
+]) {
+  if (!learnWorkflow.includes(requiredText)) {
+    fail(`learn workflow must document ${requiredText}`);
+  }
+}
 
 
 const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
@@ -217,6 +225,10 @@ for (const [name, workflow] of [
     'Resolve every actionable review finding or comment',
     'After a fixup, repeat the complete self-review and targeted QA',
     'Keep the PR `BLOCKED`',
+    'Learner Coverage During Issue Triage',
+    'Learner coverage: no action',
+    'Learner coverage: propose bug/feature',
+    'Learner coverage: filed',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
@@ -235,6 +247,7 @@ for (const [name, workflow] of [
     'Run targeted QA for the user-visible changed behavior',
     'Resolve every actionable review finding or comment',
     'Keep the PR `BLOCKED`',
+    'Learner coverage: the triage outcome for each non-learner-authored issue',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
