@@ -7,7 +7,7 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 1. Identify reviewer-relevant UI states from the diff or PR body.
 2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
 3. Store temporary screenshots outside the repository unless the user explicitly wants files committed.
-4. Put screenshots somewhere the headed browser can read. If Snap Chromium reports `/tmp/...png` as `This file is empty.`, copy the same image under `/home/marlen/` and upload that copy.
+4. Put screenshots somewhere the headed browser can read. If the browser cannot read a temporary path, move the image to a browser-readable directory and retry.
 5. Open the PR body editor in a headed, logged-in GitHub browser session. For local screenshots, this web-editor upload is the primary path because REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 6. Use `addImageToGitHubMarkdownEditor` below with the PR body editor selector, scoped file input selector, local file path, and exact placeholder text.
 7. Verify the returned Markdown contains a new `user-attachments/assets/...` URL before saving.
@@ -26,9 +26,9 @@ import { addImageToGitHubMarkdownEditor } from 'marlens-skills-rules-and-tools/l
 
 const result = await addImageToGitHubMarkdownEditor({
   page,
-  editorSelector: '#issue-4385398821-body',
-  fileInputSelector: 'input[type=file]#fc-issue-4385398821-body',
-  filePath: '/home/marlen/pr350-profile-notification-preferences.png',
+  editorSelector: '<PR body editor selector>',
+  fileInputSelector: '<scoped file input selector>',
+  filePath: '<local screenshot path>',
   insertAt: '<!-- screenshot placeholder -->',
 });
 
@@ -70,5 +70,5 @@ http://localhost:8080/some-route
 
 Description
 http://localhost:8080/some-route
-<!-- Upload blocked: drag /home/marlen/01-description.png into GitHub and paste the generated <img ...> tag here. -->
+<!-- Upload blocked: upload <local screenshot path> in GitHub and paste the generated <img ...> tag here. -->
 ```

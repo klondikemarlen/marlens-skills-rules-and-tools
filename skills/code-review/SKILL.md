@@ -5,11 +5,4 @@ description: Use when reviewing a branch, pull request, or local diff for correc
 
 # Code Review
 
-Read the first available workflow:
-
-1. Local project: `docs/workflows/code-review-workflow.md`
-2. Legacy local project: `agents/workflows/code-review-workflow.md` <!-- agent-guidance-audit: ignore backtick-path -->
-3. Packaged fallback: [workflow.md](workflow.md) in this skill directory (`skill://code-review/workflow.md` in OMP)
-Use a single non-erroring project-root glob with the candidate basename (for example, `glob("**/code-review-workflow.md")`) to find existing local candidates; choose the listed `docs/workflows/` path before its `agents/workflows/` counterpart. If neither local workflow exists, read `skill://code-review/workflow.md` directly. Do not probe missing literal paths or read them speculatively.
-
-Preferred local `docs/workflows` files win; legacy `agents/workflows` overrides remain supported. This skill is a thin alias; the workflow file is authoritative. <!-- agent-guidance-audit: ignore backtick-path -->
+Use the local `docs/workflows/code-review-workflow.md`, then `agents/workflows/code-review-workflow.md`; otherwise use the [packaged workflow](workflow.md).
