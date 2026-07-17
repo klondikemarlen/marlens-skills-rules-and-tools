@@ -17,12 +17,6 @@ export enum ResourceStatuses {
   APPROVED = "Approved",
 }
 
-/** @deprecated Prefer `ResourceStatuses`. Keep only when legacy callers still import constants. */
-export const STATUSES = Object.freeze({
-  REQUESTED: "Requested",
-  APPROVED: "Approved",
-})
-
 /** Keep in sync with the backend model. */
 export type Resource = {
   id: number
@@ -58,7 +52,6 @@ export type ResourceQueryOptions = QueryOptions<
 
 export const resourcesApi = {
   ResourceStatuses,
-  STATUSES,
 
   async list(params: ResourceQueryOptions = {}): Promise<{
     resources: ResourceAsIndex[]
@@ -104,7 +97,7 @@ export default resourcesApi
 
 ## Ordering Convention
 
-1. Enums and legacy constants.
+1. Enums.
 2. Base model type.
 3. Serializer-aligned response types: `AsIndex`, `AsShow`, `AsReference`.
 4. Policy type.
@@ -115,5 +108,5 @@ export default resourcesApi
 
 - Verify frontend types against backend models and serializers.
 - Prefer serializer-aligned response types over ad hoc nested shapes.
-- Keep legacy constants only when callers still need them.
+- Add legacy constants only for existing callers.
 - Exclude backend-only fields that serializers never expose.
