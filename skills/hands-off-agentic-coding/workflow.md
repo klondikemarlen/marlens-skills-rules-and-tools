@@ -66,13 +66,6 @@ Links/artifacts: <issues, PRs, screenshots, logs>
 Open questions: <only what tools cannot answer>
 ```
 
-## Pasteable Prompt
-
-```text
-Use the hands-off agentic coding workflow for: <feature or bug fix>.
-Start from Gold: state the behavior/invariant and the smallest runnable evidence before coding. Explore before planning if scope is unclear or multi-file; skip formal planning for a one-sentence small diff. Use subagents for independent areas, design refutation, review, or test authoring. Finish only with PASS/FAIL/BLOCKED evidence, changed files, and issue/PR links.
-```
-
 ## Output Contract
 
 ```text
