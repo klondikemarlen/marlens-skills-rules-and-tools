@@ -398,6 +398,19 @@ for (const requiredText of [
   }
 }
 for (const requiredText of [
+  '## Worktree Environment Setup',
+  'After creating or switching to a worktree',
+  'separate checkout: prepare it independently',
+  "setup docs and documented development/test wrapper",
+  'Dockerized projects or a documented wrapper such as `bin/dev`',
+  "lockfile's native package-manager command",
+  'Skip setup for read-only work',
+]) {
+  if (!globalAgents.includes(requiredText)) {
+    fail(`AGENTS.md must document worktree setup: ${requiredText}`);
+  }
+}
+for (const requiredText of [
   'Global rules',
   'Workflows',
   'Templates',
