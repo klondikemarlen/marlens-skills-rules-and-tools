@@ -1,5 +1,4 @@
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
-import os from 'node:os';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -77,100 +76,54 @@ function fallbackPath(uri) {
   return path.join(root, 'skills', ...uri.split('/'));
 }
 
-function resolveWorkflowPath(projectRoot, localPaths, fallbackUri) {
-  for (const localPath of localPaths) {
-    const candidate = path.join(projectRoot, localPath);
-    if (existsSync(candidate)) return { kind: 'local', path: candidate };
-  }
-
-  const fallback = fallbackPath(fallbackUri);
-  if (existsSync(fallback)) return { kind: 'packaged', path: fallback };
-
-  return { kind: 'missing', path: fallback };
-}
-
 function skillContract(skillName) {
   const text = read(path.join('skills', skillName, 'SKILL.md'));
-  const local = [...text.matchAll(/(?:Local project|Legacy local project): `([^`]+)`/g)].map((match) => match[1]);
-  const packaged = [...text.matchAll(/Packaged fallback: \[[^\]]+\]\(([^)]+)\).*`skill:\/\/([^`]+)`/g)].map((match) => ({
-    relativePath: match[1],
-    uri: match[2],
-  }));
-  return { text, local, packaged };
-}
-const safeExistenceProbe = 'Use a single non-erroring project-root glob with the candidate basename';
-const unsafeExistenceProbe = 'Check candidate existence first (for example with glob).';
-
-function hasSafeGlobForLocalPaths(text, localPaths) {
-  const safeGlobPatterns = new Set([...text.matchAll(/glob\("(\*\*\/[^"]+)"\)/g)].map((match) => match[1]));
-  return localPaths.every((localPath) => safeGlobPatterns.has(`**/${path.posix.basename(localPath)}`));
+  const local = [...text.matchAll(/`((?:docs|agents)\/workflows\/[^`]+)`/g)].map((match) => match[1]);
+  const packaged = [...text.matchAll(/\[[^\]]+\]\(([^)]*workflow\.md)\)/g)].map((match) => {
+    const relativePath = match[1];
+    return { relativePath, uri: path.posix.join(skillName, relativePath) };
+  });
+  return { local, packaged };
 }
 
 for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
 
-  const { text, local, packaged } = skillContract(entry.name);
+  const { local, packaged } = skillContract(entry.name);
 
   if (local.length === 0) fail(`${entry.name}: missing local workflow path`);
-  if (local.length % 2 !== 0) fail(`${entry.name}: local workflow order must be docs/legacy pairs`);
+  if (local.length !== packaged.length * 2) fail(`${entry.name}: local and packaged workflow paths must align`);
+
   for (let index = 0; index < local.length; index += 2) {
     const preferred = local[index];
     const legacy = local[index + 1];
     if (!preferred?.startsWith('docs/workflows/')) fail(`${entry.name}: preferred local workflow must use docs/workflows`);
+    if (!existsSync(path.join(root, preferred))) fail(`${entry.name}: missing preferred workflow ${preferred}`);
     if (legacy !== preferred.replace('docs/workflows/', 'agents/workflows/')) {
       fail(`${entry.name}: legacy local workflow must immediately follow matching docs workflow`);
     }
   }
-  if (packaged.length === 0) fail(`${entry.name}: missing packaged fallback path`);
 
-  const absentLocalProject = mkdtempSync(path.join(os.tmpdir(), `${entry.name}-absent-local-`));
-
-  for (const [fallbackIndex, fallback] of packaged.entries()) {
-    const relativePath = path.join('skills', entry.name, fallback.relativePath);
-    if (!existsSync(path.join(root, relativePath))) fail(`${entry.name}: missing Claude fallback ${fallback.relativePath}`);
+  for (const fallback of packaged) {
+    if (!existsSync(path.join(root, 'skills', entry.name, fallback.relativePath))) {
+      fail(`${entry.name}: missing packaged fallback ${fallback.relativePath}`);
+    }
     if (!existsSync(fallbackPath(fallback.uri))) fail(`${entry.name}: missing skill://${fallback.uri}`);
-
-    const localPair = local.slice(fallbackIndex * 2, fallbackIndex * 2 + 2);
-    const resolved = resolveWorkflowPath(absentLocalProject, localPair, fallback.uri);
-    if (resolved.kind !== 'packaged') {
-      fail(`${entry.name}: absent local workflow paths did not resolve to skill://${fallback.uri}`);
-    }
-
-    if (
-      !text.includes(safeExistenceProbe)
-      || text.includes(unsafeExistenceProbe)
-      || !hasSafeGlobForLocalPaths(text, localPair)
-    ) {
-      fail(`${entry.name}: workflow lookup must use a non-erroring glob for every local candidate`);
-    }
-
-    const explicitFallback = `If neither local workflow exists, read \`skill://${fallback.uri}\` directly.`;
-    if (!text.toLowerCase().includes(explicitFallback.toLowerCase())) {
-      fail(`${entry.name}: missing explicit absent-local fallback instruction for skill://${fallback.uri}`);
-    }
   }
-  rmSync(absentLocalProject, { recursive: true, force: true });
 }
 
 const nodeExpressWorkflow = read('skills/node-express-api/workflow.md');
-if (!nodeExpressWorkflow.includes('skill://express-light-rail/workflow.md')) {
-  fail('node-express-api fallback must delegate to skill://express-light-rail/workflow.md');
+for (const requiredText of [
+  'docs/workflows/express-light-rail-backend-workflow.md',
+  'agents/workflows/express-light-rail-backend-workflow.md',
+  '[Express Light Rail](../express-light-rail/workflow.md)',
+]) {
+  if (!nodeExpressWorkflow.includes(requiredText)) {
+    fail(`node-express-api fallback must include ${requiredText}`);
+  }
 }
-if (!nodeExpressWorkflow.includes('[../express-light-rail/workflow.md](../express-light-rail/workflow.md)')) {
-  fail('node-express-api fallback must include a Claude-readable relative workflow link');
-}
-if (nodeExpressWorkflow.includes('Read `docs/workflows/express-light-rail-backend-workflow.md`')) {
-  fail('node-express-api fallback must not require target-project docs/workflows');
-}
-if (
-  !nodeExpressWorkflow.includes(safeExistenceProbe)
-  || nodeExpressWorkflow.includes(unsafeExistenceProbe)
-  || !hasSafeGlobForLocalPaths(nodeExpressWorkflow, [
-    'docs/workflows/express-light-rail-backend-workflow.md',
-    'agents/workflows/express-light-rail-backend-workflow.md',
-  ])
-) {
-  fail('node-express-api fallback workflow must use a non-erroring glob for every local candidate');
+if (nodeExpressWorkflow.includes('glob(')) {
+  fail('node-express-api fallback must not prescribe workflow discovery tooling');
 }
 
 const expressWorkflow = read('skills/express-light-rail/workflow.md');
@@ -319,7 +272,7 @@ for (const requiredText of [
   'fileInputSelector',
   'user-attachments/assets',
   'not already present before upload',
-  'Snap Chromium reports `/tmp/...png` as `This file is empty.`',
+  'If the browser cannot read a temporary path',
   'REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL',
   'After the web upload has produced a URL, API text edits may update PR/comment Markdown',
 ]) {
