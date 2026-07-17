@@ -4,7 +4,7 @@ Reusable agent skills, rules, and tool helpers, plus thin OMP and Claude Code pl
 
 ## Stability
 
-Version `1.0.0` marks this package's stable public surfaces: installable package metadata, skill entrypoints, reusable `docs/` workflows/templates/references, `rules/`, packaged `bin/` helpers, the OMP command adapter, and Claude plugin manifests. Runtime behavior from optional companion plugins, downstream project configuration, browser automation, project test dependencies, and removed bundled learner behavior stays outside this package's v1 contract.
+The v1 contract defines this package's stable public surfaces: installable package metadata, skill entrypoints, reusable `docs/` workflows/templates/references, `rules/`, packaged `bin/` helpers, the OMP command adapter, and Claude plugin manifests. Runtime behavior from optional companion plugins, downstream project configuration, browser automation, project test dependencies, and removed bundled learner behavior stays outside this package's v1 contract.
 
 ## OMP Plugin Install
 

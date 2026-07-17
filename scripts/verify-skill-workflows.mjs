@@ -205,6 +205,26 @@ for (const requiredText of [
   }
 }
 
+const selfImprovementWorkflows = [
+  ['authoritative self-improvement workflow', read('docs/workflows/self-improvement-workflow.md')],
+  ['packaged self-improvement workflow', read('skills/self-improvement/workflow.md')],
+];
+for (const [name, workflow] of selfImprovementWorkflows) {
+  if (!workflow.includes('For this package\'s own checkout, use `npm test`')) {
+    fail(`${name} must use package verification for a package self-improvement run`);
+  }
+  if (!workflow.includes('node bin/agent-guidance-audit.js --strict <downstream-root>')) {
+    fail(`${name} must reserve the guidance audit for downstream repositories`);
+  }
+}
+
+const packageCommands = read('bin/README.md');
+for (const command of Object.keys(packageJson.bin)) {
+  if (!packageCommands.includes(`\`${command}\``)) {
+    fail(`bin/README.md must document ${command}`);
+  }
+}
+
 
 const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
 if (!issueFilingRule.includes('sufficient authorization for the current repo')) {
