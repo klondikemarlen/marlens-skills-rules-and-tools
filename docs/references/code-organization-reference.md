@@ -44,6 +44,14 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+## State Names and Dependency-Local Ordering
+
+Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
+
+Keep each query or composable result adjacent to its direct derived state. Put broader coordination state and action handlers after their inputs, and lower-priority shared helpers further down.
+
+This is a review heuristic, not an alphabetical rule. Preserve an existing stronger project convention when one exists.
+
 ## Boundary Vocabulary
 
 Use these terms as review vocabulary, not as mandatory layers:
