@@ -77,9 +77,27 @@ const allowed = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 
 assert.equal(allowed.status, 0);
 assert.match(allowed.output, /Staged files satisfy commit file-type boundaries/u);
 
-const dependencyFilesAllowed = runScopeCheck({ Gemfile: "source 'https://rubygems.org'\n", 'Gemfile.lock': 'GEM\n' });
-assert.equal(dependencyFilesAllowed.status, 0);
-assert.match(dependencyFilesAllowed.output, /Staged files satisfy commit file-type boundaries/u);
+for (const [manifest, lockfile] of [
+  ['package.json', 'package-lock.json'],
+  ['package.json', 'npm-shrinkwrap.json'],
+  ['package.json', 'yarn.lock'],
+  ['package.json', 'pnpm-lock.yaml'],
+  ['package.json', 'bun.lock'],
+  ['package.json', 'bun.lockb'],
+  ['Gemfile', 'Gemfile.lock'],
+  ['Cargo.toml', 'Cargo.lock'],
+  ['pyproject.toml', 'poetry.lock'],
+  ['pyproject.toml', 'uv.lock'],
+  ['pyproject.toml', 'pdm.lock'],
+  ['pyproject.toml', 'pylock.dev.toml'],
+  ['go.mod', 'go.sum'],
+]) {
+  assert.equal(classifyCommitPath(manifest), classifyCommitPath(lockfile));
+
+  const result = runScopeCheck({ [manifest]: 'manifest\n', [lockfile]: 'lockfile\n' });
+  assert.equal(result.status, 0);
+  assert.match(result.output, /Staged files satisfy commit file-type boundaries/u);
+}
 
 const overridden = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'docs/orders.md': '# Orders\n' }, ['--allow-mixed']);
 assert.equal(overridden.status, 0);
