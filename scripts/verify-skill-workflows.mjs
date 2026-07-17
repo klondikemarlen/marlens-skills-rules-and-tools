@@ -424,6 +424,7 @@ for (const [name, text] of [
 const backendCrudTemplate = read('docs/templates/backend/express-sequelize-crud/resource-rail-template.md');
 const frontendCrudTemplate = read('docs/templates/frontend/vue-vuetify-crud/admin-resource-pages-template.md');
 const searchableAutocompleteTemplate = read('docs/templates/frontend/searchable-autocomplete-template.md');
+const apiTypescriptTemplate = read('docs/templates/frontend/api-typescript-template.md');
 for (const [name, text, requiredText] of [
   ['backend CRUD template', backendCrudTemplate, 'applyScope'],
   ['backend CRUD template', backendCrudTemplate, 'totalCount'],
@@ -435,6 +436,12 @@ for (const [name, text, requiredText] of [
   if (!text.includes(requiredText)) {
     fail(`${name} must document ${requiredText}`);
   }
+}
+if (apiTypescriptTemplate.includes('export const STATUSES') || apiTypescriptTemplate.includes('  STATUSES,')) {
+  fail('API TypeScript template must not export a default legacy constant');
+}
+if (!apiTypescriptTemplate.includes('Add legacy constants only for existing callers.')) {
+  fail('API TypeScript template must make legacy constants conditional');
 }
 const codeOrganizationReference = read('docs/references/code-organization-reference.md');
 const referencesIndex = read('docs/references/README.md');
