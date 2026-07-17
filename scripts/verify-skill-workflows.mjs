@@ -226,6 +226,7 @@ for (const command of Object.keys(packageJson.bin)) {
 }
 
 
+
 const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
 if (!issueFilingRule.includes('sufficient authorization for the current repo')) {
   fail('issue filing rule must allow explicitly requested current-repo issues');
@@ -386,6 +387,16 @@ for (const [name, text] of [
 ]) {
   if (!text.includes('guidance-precedence-reference.md')) {
     fail(`${name} must link to the canonical guidance precedence reference`);
+  }
+}
+
+for (const requiredText of [
+  '### End-User Preferences',
+  'boolean, number, or string',
+  'JSON objects or arrays',
+]) {
+  if (!agentRules.includes(requiredText)) {
+    fail(`AGENT_RULES.md must require scalar end-user preferences: ${requiredText}`);
   }
 }
 for (const requiredText of [
