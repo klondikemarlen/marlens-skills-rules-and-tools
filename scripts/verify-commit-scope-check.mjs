@@ -77,6 +77,10 @@ const allowed = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 
 assert.equal(allowed.status, 0);
 assert.match(allowed.output, /Staged files satisfy commit file-type boundaries/u);
 
+const dependencyFilesAllowed = runScopeCheck({ Gemfile: "source 'https://rubygems.org'\n", 'Gemfile.lock': 'GEM\n' });
+assert.equal(dependencyFilesAllowed.status, 0);
+assert.match(dependencyFilesAllowed.output, /Staged files satisfy commit file-type boundaries/u);
+
 const overridden = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'docs/orders.md': '# Orders\n' }, ['--allow-mixed']);
 assert.equal(overridden.status, 0);
 assert.match(overridden.output, /Override accepted/u);
