@@ -28,7 +28,7 @@ Use when reviewing a branch, pull request, or local diff.
 4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant.
 5. Check type and error handling: avoid unsafe casts, non-null assumptions, swallowed errors, and impossible states represented as runtime branches.
 6. Check tests and verification: changed behavior should have the smallest meaningful runnable check, and PR testing instructions should match user-visible behavior.
-7. Check code organization: flag modules, services, repositories, value objects, adapters, or helper extractions that obscure ownership, create cycles, pass context bags, hide side effects, or fail to group code that changes together.
+7. Check code organization: flag modules, services, repositories, value objects, adapters, or helper extractions that obscure ownership, create cycles, pass context bags, hide side effects, or fail to group code that changes together. State names should describe represented domain facts or lifecycles, and query/composable results should stay beside their direct derived state unless a stronger local convention applies.
 8. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem.
 9. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
