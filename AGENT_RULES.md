@@ -54,6 +54,10 @@ Report verification outcomes with this vocabulary:
 
 Use plain terms in user-facing summaries, PR bodies, and final reports. Define domain terms once when they are useful; otherwise choose clearer phrases so maintainers and reviewers do not need glossary context.
 
+### End-User Preferences
+
+Expose end-user preferences as a boolean, number, or string. Do not make users author JSON objects or arrays; model structured settings as separate scalar preferences instead.
+
 ### API Surface Ordering
 
 When editing barrel files, index files, or grouped API namespace surfaces, preserve the existing
