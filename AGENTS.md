@@ -62,6 +62,7 @@
 ## Worktree Environment Setup
 
 - After creating or switching to a worktree, treat it as a separate checkout: prepare it independently and do not alter the primary checkout.
+- When creating a worktree from another checkout, copy each root `*.code-workspace` file from the source only when it is absent in the destination; do not overwrite destination workspace configuration.
 - Before development, test, or verification commands that need the project runtime, inspect the target repository's setup docs and documented development/test wrapper.
 - Prepare only dependencies needed for the requested work. For Dockerized projects or a documented wrapper such as `bin/dev`, use that wrapper or container; otherwise use the lockfile's native package-manager command.
 - Skip setup for read-only work that does not need the runtime.

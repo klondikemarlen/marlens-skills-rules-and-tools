@@ -354,6 +354,8 @@ for (const requiredText of [
   '## Worktree Environment Setup',
   'After creating or switching to a worktree',
   'separate checkout: prepare it independently',
+  'copy each root `*.code-workspace` file from the source',
+  'do not overwrite destination workspace configuration',
   "setup docs and documented development/test wrapper",
   'Dockerized projects or a documented wrapper such as `bin/dev`',
   "lockfile's native package-manager command",
