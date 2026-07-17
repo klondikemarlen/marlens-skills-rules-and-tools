@@ -225,8 +225,6 @@ for (const command of Object.keys(packageJson.bin)) {
   }
 }
 
-
-
 const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
 if (!issueFilingRule.includes('sufficient authorization for the current repo')) {
   fail('issue filing rule must allow explicitly requested current-repo issues');
