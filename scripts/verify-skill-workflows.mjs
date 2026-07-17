@@ -478,6 +478,10 @@ for (const requiredText of [
   'Service Orchestration Readability',
   'Context/request object passed everywhere',
   'circular imports',
+  'State Names and Dependency-Local Ordering',
+  'domain fact or lifecycle it represents',
+  'direct derived state',
+  'broader coordination state and action handlers',
 ]) {
   if (!codeOrganizationReference.includes(requiredText)) {
     fail(`code organization reference must document ${requiredText}`);
@@ -522,6 +526,9 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Check code organization')) {
     fail(`${name} must include an explicit code organization review step`);
+  }
+  if (!workflow.includes('State names should describe represented domain facts') || !workflow.includes('direct derived state')) {
+    fail(`${name} must review state names and dependency-local ordering`);
   }
   if (!workflow.includes('Check simplicity')) {
     fail(`${name} must keep the Ponytail/YAGNI simplicity review step`);
