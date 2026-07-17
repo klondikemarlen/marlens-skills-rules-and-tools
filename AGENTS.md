@@ -59,6 +59,13 @@
 - Compare any existing plan or handoff note against current code and commits before using it as a
   checklist.
 
+## Worktree Environment Setup
+
+- After creating or switching to a worktree, treat it as a separate checkout: prepare it independently and do not alter the primary checkout.
+- Before development, test, or verification commands that need the project runtime, inspect the target repository's setup docs and documented development/test wrapper.
+- Prepare only dependencies needed for the requested work. For Dockerized projects or a documented wrapper such as `bin/dev`, use that wrapper or container; otherwise use the lockfile's native package-manager command.
+- Skip setup for read-only work that does not need the runtime.
+
 ## Repo Release Rules
 
 - In `klondikemarlen/marlens-skills-rules-and-tools`, bump `package.json` for every change.
