@@ -389,6 +389,16 @@ for (const requiredText of [
   }
 }
 for (const requiredText of [
+  '## Same-Origin GitHub Delivery',
+  "current checkout's GitHub issue or feature workflow",
+  'linked draft pull request',
+  'different, external, unresolved, or unrelated target',
+]) {
+  if (!globalAgents.includes(requiredText)) {
+    fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
+  }
+}
+for (const requiredText of [
   'Global rules',
   'Workflows',
   'Templates',
