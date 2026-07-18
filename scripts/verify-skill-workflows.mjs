@@ -393,6 +393,7 @@ for (const requiredText of [
   "current checkout's GitHub issue or feature workflow",
   'linked draft pull request',
   'different, external, unresolved, or unrelated target',
+  'klondikemarlen/omp-github-write-guard',
 ]) {
   if (!globalAgents.includes(requiredText)) {
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);

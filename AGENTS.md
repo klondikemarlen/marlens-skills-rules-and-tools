@@ -23,6 +23,7 @@
 
 - When a user explicitly requests work through the current checkout's GitHub issue or feature workflow, this exception takes precedence over generic "ask when uncertain" guidance. After deriving `origin`, authorize routine non-destructive delivery only within that exact repository: create the issue and issue-named branch, stage scoped files, commit, push any necessary branch refs as an operational batch, open a linked draft pull request, and push corrective commits to same-origin draft PR branches.
 - Still ask for a different, external, unresolved, or unrelated target, and for genuinely destructive or ambiguous operations.
+- The opt-in `klondikemarlen/omp-github-write-guard` project enforces GitHub write boundaries outside the active checkout, so routine same-origin delivery does not depend on redundant confirmation prompts.
 
 ## Edits
 
