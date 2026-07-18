@@ -36,6 +36,7 @@ Use when creating or updating a pull request.
 - Prefer concise active language over file-by-file implementation summaries.
 - Write PR titles in title case. Read the first available title casing reference: local `docs/references/title-casing-reference.md`, then packaged `skill://pull-request-management/title-casing.md`.
 - For UI changes, include screenshots or explain why screenshots do not apply.
+- When screenshots are required, use the packaged `../../docs/workflows/upload-pr-screenshots-workflow.md` workflow for upload and PR body formatting.
 - If a project has a local PR template or workflow, follow it over this generic workflow.
 - When creating a PR from code changes, use the local or shared code-review workflow before finalizing the PR body unless the user explicitly asks to skip review.
 - Do not stop at PR body drafting: include or update testing instructions unless the user explicitly says not to.

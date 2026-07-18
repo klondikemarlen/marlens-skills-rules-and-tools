@@ -15,8 +15,7 @@ and output contracts.
   produces, and the key decision rules.
 - **Specificity:** Keep project-specific details out of generic workflows. If a workflow is
   project-specific, put it under a project-named subtree or name that scope explicitly.
-- **Skill shims:** Keep substantive procedures here. Top-level `skills/` files should stay thin aliases
-  that point to the authoritative workflow or template under `docs/`; do not mirror workflow files under `skills/`.
+- **Skill shims:** Keep substantive procedures here. Top-level `skills/` files should select project-local guidance first; their self-contained `workflow.md` fallbacks preserve the same behavioral contract for installed-package use. Update the fallback and its verifier when changing the authoritative procedure.
 - **Local precedence:** Project-local rules, docs, workflows, templates, and skills override this
   package. Use this package only as the base layer when the target project does not say otherwise.
 - **Command discovery:** Read project-local setup docs and wrappers before choosing commands. For

@@ -39,7 +39,7 @@ Do not auto-file a learner issue solely because an issue was manually authored.
 2. For each issue not clearly learner-authored, record a learner coverage outcome from the issue's explicit provenance and evidence. File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
 3. Create a branch named for the issue number and short feature slug.
 4. Implement the feature against project-local patterns and keep the diff scoped to the story.
-5. Open a pull request linked to the issue.
+5. Open a draft pull request linked to the issue.
 6. Self-review the complete PR diff; record findings, any fixups, and a `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
 7. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed result, and command output in the PR.
 8. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded.
