@@ -220,6 +220,7 @@ for (const [name, workflow] of [
   ['packaged feature workflow', packagedFeatureWorkflow],
 ]) {
   for (const requiredText of [
+    'Open a draft pull request',
     'Self-review the complete PR diff',
     'Run targeted QA for the user-visible changed behavior',
     'Resolve every actionable review finding or comment',
@@ -229,6 +230,24 @@ for (const [name, workflow] of [
     'Learner coverage: no action',
     'Learner coverage: propose bug/feature',
     'Learner coverage: filed',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must require ${requiredText}`);
+    }
+  }
+}
+
+const testingInstructionsWorkflow = read('docs/workflows/testing-instructions-workflow.md');
+const packagedTestingInstructionsWorkflow = read('skills/testing-instructions/workflow.md');
+const browserQaTestingInstructionsWorkflow = read('skills/browser-qa/testing-instructions-workflow.md');
+for (const [name, workflow] of [
+  ['authoritative testing instructions workflow', testingInstructionsWorkflow],
+  ['packaged testing instructions workflow', packagedTestingInstructionsWorkflow],
+  ['browser QA testing instructions workflow', browserQaTestingInstructionsWorkflow],
+]) {
+  for (const requiredText of [
+    'Start from Gold',
+    'Use `PASS`, `FAIL`, and `BLOCKED`',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
@@ -253,6 +272,10 @@ for (const [name, workflow] of [
       fail(`${name} must require ${requiredText}`);
     }
   }
+}
+
+if (!pullRequestWorkflow.includes('upload-pr-screenshots-workflow.md')) {
+  fail('packaged pull request workflow must link the screenshot upload workflow');
 }
 for (const requiredText of [
   'Fix every actionable review finding or comment',
@@ -510,6 +533,15 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Flag private helpers that read instance fields') || !workflow.includes('inherently bound to object state')) {
     fail(`${name} must flag hidden instance dependencies in private helpers without forcing artificial parameters`);
+  }
+  for (const requiredText of [
+    'Start from Gold',
+    'Flag cramped adjacent sibling logical blocks',
+    'Report evidence-sensitive checks as `PASS`, `FAIL`, or `BLOCKED`',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must require ${requiredText}`);
+    }
   }
 }
 

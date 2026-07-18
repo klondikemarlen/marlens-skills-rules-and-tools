@@ -11,7 +11,9 @@ Use when reviewing a branch, pull request, or local diff.
 **Decision Rules:**
 
 - Lead with behavior, contracts, data safety, security, and missing verification.
+- Start from Gold: name the behavior, invariant, or regression risk that must be proven before judging implementation quality.
 - Treat style as worth raising only when it affects clarity, consistency, or future safety.
+- Flag cramped adjacent sibling logical blocks when local precedent separates them: top-level functions/classes/modules, class methods, helper sections, and test cases/groups should usually have one blank line between siblings for scanability.
 - Use project-local rules first: `AGENTS.md`, `README.md`, `COMMITTING.md`, `bin/README.md`, and local `docs/` docs. <!-- agent-guidance-audit: ignore backtick-path -->
 - Prefer deletion and simpler existing patterns over new abstractions.
 - Do not block on project-specific rules that are not documented locally.
@@ -28,9 +30,10 @@ Use when reviewing a branch, pull request, or local diff.
 4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant.
 5. Check type and error handling: avoid unsafe casts, non-null assumptions, swallowed errors, and impossible states represented as runtime branches.
 6. Check tests and verification: changed behavior should have the smallest meaningful runnable check, and PR testing instructions should match user-visible behavior.
-7. Check code organization: flag modules, services, repositories, value objects, adapters, or helper extractions that obscure ownership, create cycles, pass context bags, hide side effects, or fail to group code that changes together. State names should describe represented domain facts or lifecycles, and query/composable results should stay beside their direct derived state unless a stronger local convention applies.
-8. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem.
-9. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
+7. Report evidence-sensitive checks as `PASS`, `FAIL`, or `BLOCKED` using the shared vocabulary in `AGENT_RULES.md`.
+8. Check code organization: flag modules, services, repositories, value objects, adapters, or helper extractions that obscure ownership, create cycles, pass context bags, hide side effects, or fail to group code that changes together. State names should describe represented domain facts or lifecycles, and query/composable results should stay beside their direct derived state unless a stronger local convention applies.
+9. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem.
+10. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
 ## Output Contract
 
