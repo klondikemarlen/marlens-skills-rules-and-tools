@@ -427,13 +427,19 @@ for (const requiredText of [
   }
 }
 
-const titleCasingReference = read('docs/references/title-casing-reference.md');
-for (const requiredText of [
-  'Markdown headings, email subjects',
-  'explicit local style guide says otherwise',
-]) {
-  if (!titleCasingReference.includes(requiredText)) {
-    fail(`title casing reference must cover display titles: ${requiredText}`);
+const titleCasingGuidance = [
+  ['title casing reference', read('docs/references/title-casing-reference.md')],
+  ['packaged title casing fallback', read('skills/pull-request-management/title-casing.md')],
+];
+for (const [name, guidance] of titleCasingGuidance) {
+  for (const requiredText of [
+    'Markdown headings',
+    'email subjects',
+    'explicit local style guide says otherwise',
+  ]) {
+    if (!guidance.includes(requiredText)) {
+      fail(`${name} must cover display titles: ${requiredText}`);
+    }
   }
 }
 
