@@ -1,8 +1,10 @@
 # Title Casing Reference
 
-Use for pull request titles and other short artifact titles that should read like headlines.
+Use for pull request titles, Markdown headings, email subjects, and other short user-visible display titles that should read like headlines. Explicit local style guides win.
 
 ## Rules
+
+- Before reporting a draft edit complete, review user-visible Markdown headings and email subjects for title case unless an explicit local style guide says otherwise.
 
 - Capitalize the first and last word.
 - Capitalize major words: nouns, pronouns, verbs, adjectives, adverbs, and subordinating conjunctions.
