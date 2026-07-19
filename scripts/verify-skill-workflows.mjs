@@ -410,11 +410,24 @@ for (const requiredText of [
   '## Same-Origin GitHub Delivery',
   "current checkout's GitHub issue or feature workflow",
   'linked draft pull request',
-  'different, external, unresolved, or unrelated target',
+  'different, external, unresolved, or unrelated targets',
+  'sole confirmation boundary',
+  'Do not render a manual Ask prompt',
   'klondikemarlen/omp-github-write-guard',
+  'requested current-checkout issue or feature workflow',
+  'genuinely destructive or ambiguous Git operations',
 ]) {
   if (!globalAgents.includes(requiredText)) {
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
+  }
+}
+
+for (const forbiddenText of [
+  'Repo-specific exception:',
+  'If uncertain, ask before any git operation.',
+]) {
+  if (globalAgents.includes(forbiddenText)) {
+    fail(`AGENTS.md must not retain conflicting Git Ask guidance: ${forbiddenText}`);
   }
 }
 
