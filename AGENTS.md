@@ -4,10 +4,9 @@
 
 - Do not stage or commit without explicit user request.
 - If the user says "commit staged fix", commit staged files only; if none are staged, ask the user to stage them first.
-- Only stage files when the user explicitly says to stage files.
-- **Pre-commit gate:** Before running `git commit`, pause and check whether the user's last message contained the word "commit" or "stage". If not, do not commit — stage the changes and ask for confirmation. Do not infer intent from context ("continue", "go ahead", "fix it").
-- Repo-specific exception: when the current repository is `klondikemarlen/marlens-skills-rules-and-tools`, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing only the scoped files needed for that workflow. Keep this exception out of other repositories.
-- If uncertain, ask before any git operation.
+- Only stage files when the user explicitly asks to stage or commit, or explicitly requests an issue or feature workflow in the current checkout.
+- **Pre-commit gate:** Before `git commit`, confirm the scoped change is authorized by an explicit commit/stage request or a requested current-checkout issue or feature workflow. If neither applies, ask.
+- Ask only before genuinely destructive or ambiguous Git operations; the Same-Origin GitHub Delivery rule below governs routine GitHub writes.
 - Assume multiple agents or the user may be working in the same repo; never overwrite or revert
   unrelated changes.
 - If `git status` shows staged changes you did not create, assume another agent owns them. Poll
@@ -21,9 +20,8 @@
 
 ## Same-Origin GitHub Delivery
 
-- When a user explicitly requests work through the current checkout's GitHub issue or feature workflow, this exception takes precedence over generic "ask when uncertain" guidance. After deriving `origin`, authorize routine non-destructive delivery only within that exact repository: create the issue and issue-named branch, stage scoped files, commit, push any necessary branch refs as an operational batch, open a linked draft pull request, and push corrective commits to same-origin draft PR branches.
-- Still ask for a different, external, unresolved, or unrelated target, and for genuinely destructive or ambiguous operations.
-- The opt-in `klondikemarlen/omp-github-write-guard` project enforces GitHub write boundaries outside the active checkout, so routine same-origin delivery does not depend on redundant confirmation prompts.
+- When a user explicitly requests work through the current checkout's GitHub issue or feature workflow, derive `origin` and authorize routine non-destructive delivery only within that exact repository: create the issue and issue-named branch, stage scoped files, commit, push any necessary branch refs as an operational batch, open a linked draft pull request, and push corrective commits to same-origin draft PR branches.
+- The opt-in `klondikemarlen/omp-github-write-guard` project is the sole confirmation boundary for GitHub writes targeting different, external, unresolved, or unrelated targets. Do not render a manual Ask prompt for that boundary.
 
 ## Edits
 
