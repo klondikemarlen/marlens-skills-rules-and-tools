@@ -38,6 +38,7 @@
 - Use descriptive names and avoid abbreviations unless the project already uses them.
 - Prefer expanded, readable control flow: guard clauses, blank lines after guards, and named constants for magic values.
 - Keep project-specific architecture, schema, auth, and formatting rules in the project's local docs.
+- Before reporting a Markdown draft or email edit complete, review user-visible headings and subjects for title case unless an explicit local style guide says otherwise. Preserve exact code identifiers, resource names, commands, and acronyms.
 
 ## Ponytail Standards
 

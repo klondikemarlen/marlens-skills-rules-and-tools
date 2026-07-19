@@ -417,6 +417,26 @@ for (const requiredText of [
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
   }
 }
+
+for (const requiredText of [
+  'Markdown draft or email edit complete',
+  'exact code identifiers, resource names, commands, and acronyms',
+]) {
+  if (!globalAgents.includes(requiredText)) {
+    fail(`AGENTS.md must require display title review: ${requiredText}`);
+  }
+}
+
+const titleCasingReference = read('docs/references/title-casing-reference.md');
+for (const requiredText of [
+  'Markdown headings, email subjects',
+  'explicit local style guide says otherwise',
+]) {
+  if (!titleCasingReference.includes(requiredText)) {
+    fail(`title casing reference must cover display titles: ${requiredText}`);
+  }
+}
+
 for (const requiredText of [
   'Global rules',
   'Workflows',
