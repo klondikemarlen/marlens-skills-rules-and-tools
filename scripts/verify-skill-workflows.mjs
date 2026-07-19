@@ -416,6 +416,7 @@ for (const requiredText of [
   'klondikemarlen/omp-github-write-guard',
   'requested current-checkout issue or feature workflow',
   'genuinely destructive or ambiguous Git operations',
+  'merge reviewed same-origin pull requests',
 ]) {
   if (!globalAgents.includes(requiredText)) {
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
