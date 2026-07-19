@@ -237,6 +237,24 @@ for (const [name, workflow] of [
   }
 }
 
+const layeredPageWorkflows = [
+  ['authoritative layered-page workflow', read('docs/workflows/layered-page-orchestration-workflow.md')],
+  ['packaged layered-page workflow', read('skills/layered-page-orchestration/workflow.md')],
+];
+for (const [name, workflow] of layeredPageWorkflows) {
+  for (const requiredText of [
+    'initial route only decides between concrete pathways',
+    'route replacement',
+    'unmounted after redirect',
+    'Do not add a resolver layer',
+    '## Routing Example',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must include ${requiredText}`);
+    }
+  }
+}
+
 const testingInstructionsWorkflow = read('docs/workflows/testing-instructions-workflow.md');
 const packagedTestingInstructionsWorkflow = read('skills/testing-instructions/workflow.md');
 const browserQaTestingInstructionsWorkflow = read('skills/browser-qa/testing-instructions-workflow.md');
@@ -420,6 +438,15 @@ for (const requiredText of [
 ]) {
   if (!readme.includes(requiredText)) {
     fail(`README task map must include ${requiredText}`);
+  }
+}
+
+for (const requiredText of [
+  'layered page orchestration',
+  'layered-page-orchestration-workflow.md',
+]) {
+  if (!readme.includes(requiredText)) {
+    fail(`README must document layered page orchestration: ${requiredText}`);
   }
 }
 
