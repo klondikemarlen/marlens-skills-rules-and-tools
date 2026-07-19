@@ -20,7 +20,7 @@
 
 ## Same-Origin GitHub Delivery
 
-- When a user explicitly requests work through the current checkout's GitHub issue or feature workflow, derive `origin` and authorize routine non-destructive delivery only within that exact repository: create the issue and issue-named branch, stage scoped files, commit, push any necessary branch refs as an operational batch, open a linked draft pull request, and push corrective commits to same-origin draft PR branches.
+- When a user explicitly requests work through the current checkout's GitHub issue or feature workflow, derive `origin` and authorize routine non-destructive delivery only within that exact repository: create the issue and issue-named branch, stage scoped files, commit, push any necessary branch refs as an operational batch, open a linked draft pull request, push corrective commits to same-origin draft PR branches, and merge reviewed same-origin pull requests.
 - The opt-in `klondikemarlen/omp-github-write-guard` project is the sole confirmation boundary for GitHub writes targeting different, external, unresolved, or unrelated targets. Do not render a manual Ask prompt for that boundary.
 
 ## Edits
