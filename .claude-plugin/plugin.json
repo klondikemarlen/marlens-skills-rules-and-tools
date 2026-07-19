@@ -1,7 +1,7 @@
 {
   "name": "marlens-skills-rules-and-tools",
   "displayName": "Marlen's Skills, Rules, and Tools",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "description": "Reusable agent skills, rules, workflow guidance, and tool helpers.",
   "author": {
     "name": "Marlen Brunner"
