@@ -16,7 +16,7 @@ omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 
 Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
 
-This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, temporary MCP tasks, and testing instructions.
+This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, temporary MCP tasks, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
@@ -101,6 +101,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Add Express Light Rail backend code | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
 | Add full-stack admin CRUD scaffolding | [`docs/workflows/full-stack-admin-crud-workflow.md`](docs/workflows/full-stack-admin-crud-workflow.md) and [`docs/templates/backend/express-sequelize-crud/`](docs/templates/backend/express-sequelize-crud/) |
 | Add frontend or backend reusable scaffolding | [`docs/templates/`](docs/templates/) |
+| Layer route-based UI flows | [`docs/workflows/layered-page-orchestration-workflow.md`](docs/workflows/layered-page-orchestration-workflow.md) |
 | Upload PR screenshots | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md) |
 | Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
 | Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |

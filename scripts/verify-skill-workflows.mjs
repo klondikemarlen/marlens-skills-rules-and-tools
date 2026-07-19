@@ -441,6 +441,15 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'layered page orchestration',
+  'layered-page-orchestration-workflow.md',
+]) {
+  if (!readme.includes(requiredText)) {
+    fail(`README must document layered page orchestration: ${requiredText}`);
+  }
+}
+
 const downstreamAuditReference = read('docs/references/downstream-agent-guidance-audit-reference.md');
 for (const requiredText of [
   'read-only maintainer tooling',
