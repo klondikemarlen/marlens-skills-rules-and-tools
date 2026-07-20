@@ -21,7 +21,9 @@
 ## Same-Origin GitHub Delivery
 
 - When a user explicitly requests work through the current checkout's GitHub issue or feature workflow, derive `origin` and authorize routine non-destructive delivery only within that exact repository: create the issue and issue-named branch, stage scoped files, commit, push any necessary branch refs as an operational batch, open a linked draft pull request, push corrective commits to same-origin draft PR branches, and merge reviewed same-origin pull requests.
-- The opt-in `klondikemarlen/omp-github-write-guard` project is the sole confirmation boundary for GitHub writes targeting different, external, unresolved, or unrelated targets. Do not render a manual Ask prompt for that boundary.
+- When installed, the opt-in `klondikemarlen/omp-github-write-guard` project provides one standard OMP Ask for recognized external `git push` and GitHub issue creation; approval permits one exact retry.
+  It does not guard external pull-request creation or merges, other GitHub API writes, unsupported command grammar, arbitrary clients, or writes outside OMP. Those paths still require host-level explicit target authorization; this package does not enforce them.
+  Checkout membership should be resolved as a canonical checkout identity rather than inferred from a directory or branch name; see the planned resolver work in [omp-github-write-guard#49](https://github.com/klondikemarlen/omp-github-write-guard/issues/49).
 
 ## Edits
 
