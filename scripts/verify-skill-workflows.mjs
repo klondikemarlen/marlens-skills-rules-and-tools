@@ -435,6 +435,15 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'A later, explicit user instruction narrows or supersedes an earlier broad workflow directive',
+  'do not recommend or perform implementation, release, installation, pull-request, or other writes in that repository',
+]) {
+  if (!globalAgents.includes(requiredText)) {
+    fail(`AGENTS.md must honor later explicit user scope: ${requiredText}`);
+  }
+}
+
 const manualAskBeforeSameOriginDelivery = /\b(?:call|invoke|render|show|use)\s+`?ask`?[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)|(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}\b(?:call|invoke|render|show|use)\s+`?ask`?/iu;
 for (const manualAskExample of [
   'Call `ask` before a resolved same-origin branch push.',
@@ -498,6 +507,8 @@ for (const requiredText of [
   'Plans',
   'Skills',
   'Keep rationale for a local override next to the affected local guidance',
+  'later explicit instruction narrows or supersedes an earlier broad workflow directive',
+  'it does not override a higher-precedence source',
 ]) {
   if (!guidancePrecedenceReference.includes(requiredText)) {
     fail(`guidance precedence reference must distinguish ${requiredText}`);

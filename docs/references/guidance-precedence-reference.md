@@ -8,6 +8,7 @@ Use this as the canonical placement and precedence rule for this package.
 2. The target project’s local instructions win over this shared package.
 3. This package is the fallback base layer for reusable guidance.
 4. Thin skill entrypoints point to authoritative workflow files; they do not replace them.
+Within the user-authored task scope, a later explicit instruction narrows or supersedes an earlier broad workflow directive; it does not override a higher-precedence source.
 
 Before applying a workflow from this package, read the target project’s local guidance when it exists:
 
