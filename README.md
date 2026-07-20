@@ -14,13 +14,13 @@ Recommended direct install:
 omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 ```
 
-Use direct install instead of the marketplace flow when you want both the package skills and the OMP extension command.
+Use direct install instead of the marketplace flow when you want both the package skills and OMP adapter.
 
 This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, temporary MCP tasks, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
-It also adds reusable OMP rule files under `rules/`, `/marlens-skills-rules-and-tools [task]`, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
+It also adds reusable OMP rule files under `rules/`, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
