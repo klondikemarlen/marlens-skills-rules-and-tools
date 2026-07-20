@@ -410,9 +410,11 @@ for (const requiredText of [
   '## Same-Origin GitHub Delivery',
   "current checkout's GitHub issue or feature workflow",
   'linked draft pull request',
-  'different, external, unresolved, or unrelated targets',
-  'sole confirmation boundary',
-  'Do not render a manual Ask prompt',
+  'recognized external `git push` and GitHub issue creation',
+  'one exact retry',
+  'does not guard external pull-request creation or merges',
+  'host-level explicit target authorization',
+  'omp-github-write-guard/issues/49',
   'klondikemarlen/omp-github-write-guard',
   'requested current-checkout issue or feature workflow',
   'genuinely destructive or ambiguous Git operations',
@@ -426,6 +428,8 @@ for (const requiredText of [
 for (const forbiddenText of [
   'Repo-specific exception:',
   'If uncertain, ask before any git operation.',
+  'sole confirmation boundary for GitHub writes',
+  'Do not render a manual Ask prompt for that boundary.',
 ]) {
   if (globalAgents.includes(forbiddenText)) {
     fail(`AGENTS.md must not retain conflicting Git Ask guidance: ${forbiddenText}`);
@@ -487,6 +491,16 @@ for (const requiredText of [
 ]) {
   if (!readme.includes(requiredText)) {
     fail(`README must document layered page orchestration: ${requiredText}`);
+  }
+}
+
+for (const requiredText of [
+  'omp-github-write-guard',
+  'omp plugin install github:klondikemarlen/omp-github-write-guard',
+  'GitHub issue creation',
+]) {
+  if (!readme.includes(requiredText)) {
+    fail(`README must document guard coverage: ${requiredText}`);
   }
 }
 
