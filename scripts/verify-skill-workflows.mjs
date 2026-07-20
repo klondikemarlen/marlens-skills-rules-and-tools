@@ -416,18 +416,41 @@ for (const requiredText of [
   '## Same-Origin GitHub Delivery',
   "current checkout's GitHub issue or feature workflow",
   'linked draft pull request',
-  'recognized external `git push` and GitHub issue creation',
   'one exact retry',
   'does not guard external pull-request creation or merges',
-  'host-level explicit target authorization',
   'omp-github-write-guard/issues/49',
   'klondikemarlen/omp-github-write-guard',
   'requested current-checkout issue or feature workflow',
   'genuinely destructive or ambiguous Git operations',
   'merge reviewed same-origin pull requests',
+  'push any necessary branch refs directly with `git push`',
+  'documented direct `git push` tag command and release-publication command',
+  'Do not call `ask` solely to authorize same-origin branch delivery, tag publication, or documented release publication',
+  '`git push` and GitHub issue creation when the target is recognized external or unresolved',
+  'Host-level authorization is limited to external, unresolved, destructive, or genuinely ambiguous targets.',
+  'MUST NOT require a duplicate manual `ask`',
 ]) {
   if (!globalAgents.includes(requiredText)) {
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
+  }
+}
+
+const manualAskBeforeSameOriginDelivery = /\b(?:call|invoke|render|show|use)\s+`?ask`?[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)|(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}\b(?:call|invoke|render|show|use)\s+`?ask`?/iu;
+for (const manualAskExample of [
+  'Call `ask` before a resolved same-origin branch push.',
+  'Call `ask` before documented same-origin tag publication.',
+  'Call `ask` before documented same-origin release publication.',
+]) {
+  if (!manualAskBeforeSameOriginDelivery.test(manualAskExample)) {
+    fail(`manual Ask guard must detect: ${manualAskExample}`);
+  }
+}
+for (const [name, workflow] of [
+  ['authoritative feature workflow', featureWorkflow],
+  ['packaged feature workflow', packagedFeatureWorkflow],
+]) {
+  if (manualAskBeforeSameOriginDelivery.test(workflow)) {
+    fail(`${name} must not ask before same-origin delivery or release publication`);
   }
 }
 
