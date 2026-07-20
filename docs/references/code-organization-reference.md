@@ -52,6 +52,10 @@ Keep each query or composable result adjacent to its direct derived state. Put b
 
 This is a review heuristic, not an alphabetical rule. Preserve an existing stronger project convention when one exists.
 
+## UI Navigation Handler Names
+
+Name a UI router-navigation handler after its destination and effect. Prefer `goToTemplateWorkflowsPage` or `goToCategoryWorkflowNewPage`; avoid trigger-oriented (`select...`, `open...`) or imprecise names that hide the route change. An established project convention wins.
+
 ## Boundary Vocabulary
 
 Use these terms as review vocabulary, not as mandatory layers:

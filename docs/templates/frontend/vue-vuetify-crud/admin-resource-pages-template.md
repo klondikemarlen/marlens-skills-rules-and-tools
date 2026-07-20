@@ -19,7 +19,7 @@ Use this when a Vue 3 + Vuetify admin area needs list, show, and form pages for 
     <v-card-title class="d-flex align-center">
       <span>{ResourceNames}</span>
       <v-spacer />
-      <v-btn color="primary" @click="goToCreate">Add {ResourceName}</v-btn>
+      <v-btn color="primary" @click="goTo{ResourceName}NewPage">Add {ResourceName}</v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -72,13 +72,17 @@ function updateTableOptions() {
   fetch{ResourceNames}()
 }
 
-function goToCreate() {
+function goTo{ResourceName}NewPage() {
   router.push({ name: "{RouteBase}New" })
 }
 
 onMounted(fetch{ResourceNames})
 </script>
 ```
+
+## Navigation Handler Names
+
+Name router-navigation handlers after their destination and effect; see [UI Navigation Handler Names](../../../references/code-organization-reference.md#ui-navigation-handler-names).
 
 ## Show/Form Slices
 
