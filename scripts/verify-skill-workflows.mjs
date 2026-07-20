@@ -230,6 +230,12 @@ for (const [name, workflow] of [
     'Learner coverage: no action',
     'Learner coverage: propose bug/feature',
     'Learner coverage: filed',
+    "Before opening a PR, verify its base is the repository's default branch or a documented release branch.",
+    'After merge, check out the intended default/release branch and fast-forward it from origin.',
+    'Delete the merged issue branch locally and remotely only when it is agent-owned and no longer needed.',
+    'Run `git worktree prune` and inspect `git worktree list`',
+    'Final branch/sync:',
+    'Retained worktrees:',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);

@@ -14,6 +14,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Create or update a GitHub issue before coding user-facing work unless the user explicitly says not to use issues.
 - Keep branches and PRs named for the issue so GitHub links the work automatically.
 - Run the smallest checks that cover the changed behavior; do not substitute broad unrelated test runs for missing targeted checks.
+- Before opening a PR, verify its base is the repository's default branch or a documented release branch.
 - Merge only after required review and checks pass.
 - Before requesting review or merging, authors MUST self-review the complete PR diff and record their findings and outcome in the PR.
 - Run targeted QA of the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed outcome, and command result in the PR.
@@ -39,15 +40,20 @@ Do not auto-file a learner issue solely because an issue was manually authored.
 1. Capture the user story and acceptance criteria in a GitHub issue.
 2. For each issue not clearly learner-authored, record a learner coverage outcome from the issue's explicit provenance and evidence. File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
 3. Create a branch named for the issue number and short feature slug.
-4. Implement the feature against project-local patterns and keep the diff scoped to the story.
-5. Open a draft pull request linked to the issue using `docs/workflows/pull-request-management-workflow.md`.
-6. Self-review the complete PR diff; record findings, any fixups, and a `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
-7. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed result, and command output in the PR.
-8. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded.
-9. Resolve every actionable review finding or comment with the pull-request comment-resolution workflow. After each fixup, repeat the complete self-review and targeted QA, then update the PR evidence.
-10. Keep the PR `BLOCKED` and do not merge while review feedback, QA, or required checks are unresolved.
-11. Merge through the project's normal PR path only after review and required checks pass, so GitHub records the review/merge path.
-12. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, then verify the shipped artifact itself, such as installing the pushed OMP plugin commit/tag, installing the packed or published npm package, running the released CLI binary, or pulling and smoke-testing the pushed Docker image. Keep project-specific install commands in the target repo’s local docs.
+4. Before opening a PR, verify its base is the repository's default branch or a documented release branch.
+5. Implement the feature against project-local patterns and keep the diff scoped to the story.
+6. Open a draft pull request linked to the issue using `docs/workflows/pull-request-management-workflow.md`.
+7. Self-review the complete PR diff; record findings, any fixups, and a `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
+8. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed result, and command output in the PR.
+9. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded.
+10. Resolve every actionable review finding or comment with the pull-request comment-resolution workflow. After each fixup, repeat the complete self-review and targeted QA, then update the PR evidence.
+11. Keep the PR `BLOCKED` and do not merge while review feedback, QA, or required checks are unresolved.
+12. Merge through the project's normal PR path only after review and required checks pass, so GitHub records the review/merge path.
+13. After merge, check out the intended default/release branch and fast-forward it from origin.
+14. Delete the merged issue branch locally and remotely only when it is agent-owned and no longer needed.
+15. Run `git worktree prune` and inspect `git worktree list`; remove only stale or agent-owned worktrees, never another user's worktree.
+16. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, then verify the shipped artifact itself, such as installing the pushed OMP plugin commit/tag, installing the packed or published npm package, running the released CLI binary, or pulling and smoke-testing the pushed Docker image. Keep project-specific install commands in the target repo’s local docs.
+17. Record the final checked-out branch, sync state, and retained worktrees as release evidence.
 
 ## Output Contract
 
@@ -57,6 +63,8 @@ Report the concrete artifacts and evidence:
 Issue: <url or number>
 Branch: <branch>
 PR: <url or number>
+Final branch/sync: <checked-out branch and fast-forward status>
+Retained worktrees: <`git worktree list` result>
 Learner coverage: <no action, proposed issue, or filed issue link>
 Verification: <commands or QA path run>
 Release/install: <publish/install/version evidence, or "not published">
