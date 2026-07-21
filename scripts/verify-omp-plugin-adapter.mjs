@@ -14,8 +14,19 @@ function createFakePi() {
     setLabel(label) {
       this.label = label;
     },
+    registeredTool: null,
+    zod: {
+      z: {
+        object(shape) {
+          return shape;
+        },
+      },
+    },
     registerCommand() {
       fail('the adapter must not register commands');
+    },
+    registerTool(tool) {
+      this.registeredTool = tool;
     },
   };
 }
@@ -33,6 +44,14 @@ try {
 }
 
 if (pi.label !== "Marlen's Skills, Rules, and Tools") fail(`unexpected label: ${pi.label}`);
+
+if (pi.registeredTool?.name !== "github_markdown_image_upload_helper_path") {
+  fail("the adapter must expose the screenshot upload helper path tool");
+}
+const toolResult = await pi.registeredTool.execute();
+if (!toolResult.details.helperUrl.endsWith("/lib/github-markdown-image-upload-helper.mjs")) {
+  fail(`unexpected screenshot helper URL: ${toolResult.details.helperUrl}`);
+}
 
 
 console.log('OMP plugin adapter contract checks passed');
