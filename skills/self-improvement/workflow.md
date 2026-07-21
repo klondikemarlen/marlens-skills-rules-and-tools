@@ -18,11 +18,13 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 - For prompt, command-injection, or agent-identity findings, use [`docs/templates/prompt-improvement-template.md`](../../docs/templates/prompt-improvement-template.md). A prompt change needs an observed trigger and an owner, not just a better-sounding instruction.
 - Follow existing issue-filing authorization rules. Do not file an external issue without authorization for that target.
 
+- For an import-style finding, inspect the target's existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration before proposing a project-root import. Prefer the configured root across feature/module boundaries; retain short relative imports for co-located siblings. Record incompatible or inconsistent resolution as a blocker, and do not bulk-rewrite imports solely for style.
+
 ## Process
 
 1. State the target purpose, the user-visible or maintainer-visible risk, the smallest proof, and explicit non-goals.
 2. Read the target's local guidance, workflow/skill architecture, and the affected public surface. Reuse existing audit, review, and learning paths before adding guidance.
-3. Run the narrowest relevant read-only audit or verification command. Record exact findings, including absent findings.
+3. Run the narrowest relevant read-only audit or verification command. Record exact findings, including absent findings. For an import-style pass, also read the existing module-resolution configuration and scan the affected source tree without editing. Record whether deep cross-module relative imports exist, whether every supported resolver agrees on the configured root, and whether an existing local guidance or lint rule already preserves the chosen style.
 4. For each finding, record evidence, durable impact, classification, owner, and next action. Use the prompt-improvement template when it concerns a prompt or adapter.
 5. Implement only **fix now** findings already authorized by the request. Keep changes in the existing placement: workflow for procedure, template for repeatable shape, reference for durable background, skill for a thin entrypoint.
 6. For a **scoped feature or bug**, draft or file an issue only when authorized. For a **verifier/runtime proposal**, name the specific missing enforcement rather than adding a local workaround.

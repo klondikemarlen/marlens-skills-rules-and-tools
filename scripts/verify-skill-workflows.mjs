@@ -171,6 +171,19 @@ for (const [name, workflow] of selfImprovementWorkflows) {
   }
 }
 
+for (const [name, workflow] of selfImprovementWorkflows) {
+  for (const requiredText of [
+    'existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration',
+    'deep cross-module relative imports exist',
+    'whether an existing local guidance or lint rule already preserves the chosen style',
+    'do not bulk-rewrite imports solely for style',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must make root-import guidance configuration-aware`);
+    }
+  }
+}
+
 const packageCommands = read('bin/README.md');
 for (const command of Object.keys(packageJson.bin)) {
   if (!packageCommands.includes(`\`${command}\``)) {
@@ -624,6 +637,24 @@ for (const requiredText of [
   'Private Helper Inputs',
   'accepts every value it uses as an explicit parameter',
   'inherently bound to object state',
+]) {
+  if (!codeOrganizationReference.includes(requiredText)) {
+    fail(`code organization reference must document ${requiredText}`);
+  }
+}
+for (const requiredText of [
+  'Project-Root Imports and Paths',
+  'configured project-root import',
+  'consider adding it when recurring cross-module traversal warrants the setup',
+  'every supported compiler, test runner, bundler, and editor/language server resolves identically',
+  'short relative import for an immediately co-located sibling',
+  'Do not bulk-rewrite imports solely for style',
+  'record it in project-local guidance',
+  'do not add a dependency merely to police import spelling',
+  'define one application/source root and derive paths from it',
+  'framework-managed autoloaded constants instead of relative `require` traversal',
+  '`Rails.root.join` for application-root file paths',
+  'Do not treat a runtime path constant as module-resolution configuration',
 ]) {
   if (!codeOrganizationReference.includes(requiredText)) {
     fail(`code organization reference must document ${requiredText}`);

@@ -44,6 +44,17 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+## Project-Root Imports and Paths
+
+Prefer configured project-root imports for dependencies across features or modules when they make the dependency direction clearer than `../../..` traversal. The root must be a project-defined source root or alias that every supported compiler, test runner, bundler, and editor/language server resolves identically.
+
+Keep a short relative import for an immediately co-located sibling when it better expresses that the files form one local unit. Use the package name—not a project-root alias—for public package/library imports. Do not use a root import for external, generated, or vendor code. Where the language/toolchain lacks supported project-root resolution, consider adding it when recurring cross-module traversal warrants the setup and every supported environment can resolve the same root; otherwise retain the established local convention.
+
+For runtime file paths, define one application/source root and derive paths from it instead of traversing from each caller. In Ruby/Rails, use framework-managed autoloaded constants instead of relative `require` traversal, and use `Rails.root.join` for application-root file paths. Do not treat a runtime path constant as module-resolution configuration: each environment still needs its own supported import resolver.
+
+Before converting imports, confirm the existing module-resolution configuration and exercise the affected build and test path. Treat a deep relative path as a review signal, not an automatic rewrite: preserve a relative path when moving the dependency would be clearer than widening module visibility. Do not bulk-rewrite imports solely for style.
+When the project adopts this convention, record it in project-local guidance. Configure an already-installed import-style lint rule only when it can enforce the same resolved root; do not add a dependency merely to police import spelling.
+
 ## State Names and Dependency-Local Ordering
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
