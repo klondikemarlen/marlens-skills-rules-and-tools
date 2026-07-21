@@ -18,6 +18,8 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 - For prompt, command-injection, or agent-identity findings, use [`docs/templates/prompt-improvement-template.md`](../../docs/templates/prompt-improvement-template.md). A prompt change needs an observed trigger and an owner, not just a better-sounding instruction.
 - Follow existing issue-filing authorization rules. Do not file an external issue without authorization for that target.
 
+- For an import-style finding, inspect the target's existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration before proposing a project-root import. Prefer the configured root across feature/module boundaries; retain short relative imports for co-located siblings. Record incompatible or inconsistent resolution as a blocker, and do not bulk-rewrite imports solely for style.
+
 ## Process
 
 1. State the target purpose, the user-visible or maintainer-visible risk, the smallest proof, and explicit non-goals.

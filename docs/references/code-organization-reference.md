@@ -44,6 +44,14 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+## Project-Root Imports
+
+Prefer a configured project-root import for dependencies across features or modules when it makes the dependency direction clearer than `../../..` traversal. The root must be a project-defined source root or alias that every supported compiler, test runner, bundler, and editor/language server resolves identically.
+
+Keep a short relative import for an immediately co-located sibling when it better expresses that the files form one local unit. Use the package name—not a project-root alias—for public package/library imports. Do not use a root import for external, generated, or vendor code, and do not introduce one where the language/toolchain lacks supported project-root resolution or an established local convention intentionally differs.
+
+Before converting imports, confirm the existing module-resolution configuration and exercise the affected build and test path. Treat a deep relative path as a review signal, not an automatic rewrite: preserve a relative path when moving the dependency would be clearer than widening module visibility. Do not bulk-rewrite imports solely for style.
+
 ## State Names and Dependency-Local Ordering
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.

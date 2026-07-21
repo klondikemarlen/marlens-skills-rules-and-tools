@@ -171,6 +171,17 @@ for (const [name, workflow] of selfImprovementWorkflows) {
   }
 }
 
+for (const [name, workflow] of selfImprovementWorkflows) {
+  for (const requiredText of [
+    'existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration',
+    'do not bulk-rewrite imports solely for style',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must make root-import guidance configuration-aware`);
+    }
+  }
+}
+
 const packageCommands = read('bin/README.md');
 for (const command of Object.keys(packageJson.bin)) {
   if (!packageCommands.includes(`\`${command}\``)) {
@@ -624,6 +635,18 @@ for (const requiredText of [
   'Private Helper Inputs',
   'accepts every value it uses as an explicit parameter',
   'inherently bound to object state',
+]) {
+  if (!codeOrganizationReference.includes(requiredText)) {
+    fail(`code organization reference must document ${requiredText}`);
+  }
+}
+
+for (const requiredText of [
+  'Project-Root Imports',
+  'configured project-root import',
+  'every supported compiler, test runner, bundler, and editor/language server resolves identically',
+  'short relative import for an immediately co-located sibling',
+  'Do not bulk-rewrite imports solely for style',
 ]) {
   if (!codeOrganizationReference.includes(requiredText)) {
     fail(`code organization reference must document ${requiredText}`);
