@@ -335,6 +335,11 @@ for (const requiredText of [
   'If the browser cannot read a temporary path',
   'REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL',
   'After the web upload has produced a URL, API text edits may update PR/comment Markdown',
+  'browser-readable directory such as `~/Downloads`',
+  'existing PR body editor—not the temporary new-comment composer',
+  'one stable HTML-comment placeholder per screenshot',
+  'Submit the PR body form, then read the persisted PR body',
+  'Keep QA logs, local file paths, and internal verification evidence out of the PR body',
 ]) {
   if (!uploadScreenshotsWorkflow.includes(requiredText)) {
     fail(`upload screenshot workflow must document ${requiredText}`);
