@@ -21,7 +21,7 @@ REST/`gh api` can edit Markdown text but cannot create the required `user-attach
 
 The package exposes `github_markdown_image_upload_helper_path` to OMP. Call the tool first; then use its returned `file:` URL in OMP Browser `run` code. This avoids browser-run package resolution and keeps the Puppeteer `page` handle in its own runtime.
 
-For repeatable PR-body uploads, call `github_pr_screenshot_upload_path` and import its returned `file:` URL. The uploader navigates to the PR, rejects an unauthenticated browser session, opens the PR-body options control selected by `bodyOptionsSelector` when the editor is closed, rejects temporary comment editors, uploads every placeholder, submits the body, and verifies each persisted attachment URL.
+For repeatable PR-body uploads, call `github_pr_screenshot_upload_path` and import its returned `file:` URL. The uploader navigates to the PR, rejects an unauthenticated browser session, opens the PR-body `<details>` container selected by `bodyControlsSelector` when the editor is closed, rejects temporary comment editors, uploads every placeholder, submits the body, and verifies each persisted attachment URL.
 
 ```js
 const { uploadPullRequestBodyScreenshots } = await import(
@@ -33,7 +33,7 @@ const results = await uploadPullRequestBodyScreenshots({
   prUrl: 'https://github.com/owner/repository/pull/123',
   editorSelector: '<PR body textarea selector>',
   fileInputSelector: '<scoped file input selector>',
-  bodyOptionsSelector: '<PR body Show options control selector>',
+  bodyControlsSelector: '<PR body details container selector>',
   screenshots: [
     {
       filePath: '<browser-readable screenshot path>',
