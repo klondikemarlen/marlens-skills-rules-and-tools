@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { addImageToGitHubMarkdownEditor } from '../lib/github-markdown-image-upload-helper.mjs';
+
+const helperPath = execFileSync(
+  process.execPath,
+  ['bin/github-markdown-image-upload-helper-path.js'],
+  { encoding: 'utf8' },
+).trim();
+assert.equal(helperPath, path.resolve('lib/github-markdown-image-upload-helper.mjs'));
 
 class ElementHandle {
   constructor(node) {
