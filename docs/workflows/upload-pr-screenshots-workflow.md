@@ -16,16 +16,12 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 ## Browser Helper
 
-The package ships a Puppeteer/browser-run helper at `lib/github-markdown-image-upload-helper.mjs`. In OMP Browser `run` code, resolve the installed copy through the plugin-provided command instead of importing the package name: browser-run code does not use the agent package resolver.
+The package exposes `github_markdown_image_upload_helper_path` to OMP. Call the tool first; then use its returned `file:` URL in OMP Browser `run` code. This avoids browser-run package resolution and keeps the Puppeteer `page` handle in its own runtime.
 
 ```js
-import { execFileSync } from 'node:child_process';
-import { pathToFileURL } from 'node:url';
-
-const helperPath = execFileSync('github-markdown-image-upload-helper-path', {
-  encoding: 'utf8',
-}).trim();
-const { addImageToGitHubMarkdownEditor } = await import(pathToFileURL(helperPath).href);
+const { addImageToGitHubMarkdownEditor } = await import(
+  '<file: URL returned by github_markdown_image_upload_helper_path>',
+);
 
 const result = await addImageToGitHubMarkdownEditor({
   page,
