@@ -50,7 +50,7 @@ class Page {
   }
 
   async waitForSelector(selector, options) {
-    if (selector.includes('pr-body-menu')) {
+    if (selector.includes('details-menu')) {
       assert.equal(options.visible, true);
       return this.editor;
     }
@@ -140,21 +140,20 @@ try {
 
   const closedEditorPage = buildPage();
   let editorOpen = false;
-  let prBodyOptionsOpen = false;
+  let prBodyDetailsOpen = false;
   const originalDollar = closedEditorPage.$.bind(closedEditorPage);
   const originalDollarDollar = closedEditorPage.$$.bind(closedEditorPage);
   closedEditorPage.$ = async (selector) => {
     if (selector === '#pr-body') return editorOpen ? closedEditorPage.editor : null;
-    if (selector === '#pr-body-options') {
+    if (selector === '#pr-body-controls summary') {
       return new ElementHandle({
-        click() { prBodyOptionsOpen = true; },
-        getAttribute(name) { return name === 'aria-controls' ? 'pr-body-menu' : null; },
+        click() { prBodyDetailsOpen = true; },
       });
     }
     return originalDollar(selector);
   };
   closedEditorPage.$$ = async (selector) => {
-    if (selector === '[id="pr-body-menu"] button, [id="pr-body-menu"] [role="menuitem"], [id="pr-body-menu"] a') {
+    if (selector === '#pr-body-controls details-menu button, #pr-body-controls details-menu [role="menuitem"], #pr-body-controls details-menu a') {
       return [new ElementHandle(controlNode('Edit', () => { editorOpen = true; }))];
     }
     if (selector === 'button, [role="menuitem"], a') {
@@ -166,12 +165,12 @@ try {
     page: closedEditorPage,
     prUrl: 'https://github.com/owner/repository/pull/123',
     editorSelector: '#pr-body',
-    bodyOptionsSelector: '#pr-body-options',
+    bodyControlsSelector: '#pr-body-controls',
     fileInputSelector: 'input[type=\"file\"]',
     screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
   });
   assert.equal(editorOpen, true);
-  assert.equal(prBodyOptionsOpen, true);
+  assert.equal(prBodyDetailsOpen, true);
 
   assert.equal(page.submitted, true);
 

@@ -342,7 +342,7 @@ for (const requiredText of [
   'Keep QA logs, local file paths, and internal verification evidence out of the PR body',
   'github_pr_screenshot_upload_path',
   'uploadPullRequestBodyScreenshots',
-  'bodyOptionsSelector',
+  'bodyControlsSelector',
   'not a `raw.githubusercontent.com` URL',
 ]) {
   if (!uploadScreenshotsWorkflow.includes(requiredText)) {
