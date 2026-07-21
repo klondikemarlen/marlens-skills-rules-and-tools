@@ -37,6 +37,21 @@ export default function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
     },
   });
 
+  pi.registerTool({
+    name: "github_pr_screenshot_upload_path",
+    label: "GitHub PR Screenshot Upload Path",
+    description: "Returns the installed uploader URL for OMP Browser PR-body screenshot uploads.",
+    parameters: z.object({}),
+    async execute() {
+      const uploaderUrl = new URL("../lib/github-pr-screenshot-upload.mjs", import.meta.url).href;
+
+      return {
+        content: [{ type: "text", text: uploaderUrl }],
+        details: { uploaderUrl },
+      };
+    },
+  });
+
   pi.setLabel("Marlen's Skills, Rules, and Tools");
 
 }
