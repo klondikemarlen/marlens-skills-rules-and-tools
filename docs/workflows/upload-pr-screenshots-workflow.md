@@ -6,13 +6,16 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 1. Identify reviewer-relevant UI states from the diff or PR body.
 2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
-3. Store temporary screenshots outside the repository unless the user explicitly wants files committed.
-4. Put screenshots somewhere the headed browser can read. If the browser cannot read a temporary path, move the image to a browser-readable directory and retry.
-5. Open the PR body editor in a headed, logged-in GitHub browser session. For local screenshots, this web-editor upload is the primary path because REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
-6. Use `addImageToGitHubMarkdownEditor` below with the PR body editor selector, scoped file input selector, local file path, and exact placeholder text.
-7. Verify the returned Markdown contains a new `user-attachments/assets/...` URL before saving.
-8. After the web upload has produced a URL, API text edits may update PR/comment Markdown if that is safer than saving through the browser.
-9. Add screenshot blocks using the pattern below.
+3. Store temporary screenshots outside the repository, then copy each upload image to a browser-readable directory such as `~/Downloads`. If the browser cannot read a temporary path, do not rely on `/tmp`; use that browser-readable copy.
+4. Add one stable HTML-comment placeholder per screenshot to the existing PR body.
+5. Open the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
+6. Call `github_markdown_image_upload_helper_path`, then dynamically import its returned `file:` URL in OMP Browser `run` code.
+7. Call `addImageToGitHubMarkdownEditor` once per screenshot with `page`, the PR-body textarea selector, its browser-readable file path, and that screenshot's exact placeholder as `insertAt`.
+8. Require each result to contain a new `user-attachments/assets/...` URL and confirm it replaced the intended placeholder.
+9. Submit the PR body form, then read the persisted PR body and confirm every expected attachment URL is present.
+10. After the web upload has produced a URL, API text edits may update PR/comment Markdown if that is safer than saving through the browser.
+
+REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 
 ## Browser Helper
 
@@ -52,6 +55,7 @@ Helper behavior:
 - Do not commit temporary screenshots by default.
 - Redact secrets, credentials, personal data, and tokens.
 - Do not save the PR/comment until the helper returns a generated `user-attachments/assets/...` URL and you have reviewed the body.
+- Keep QA logs, local file paths, and internal verification evidence out of the PR body.
 - If screenshot upload is blocked, leave a captioned placeholder that names the exact local screenshot file and explains the blocker.
 
 ## PR Body Pattern
