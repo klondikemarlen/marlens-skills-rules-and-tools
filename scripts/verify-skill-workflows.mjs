@@ -645,6 +645,7 @@ for (const requiredText of [
 for (const requiredText of [
   'Project-Root Imports and Paths',
   'configured project-root import',
+  'consider adding it when recurring cross-module traversal warrants the setup',
   'every supported compiler, test runner, bundler, and editor/language server resolves identically',
   'short relative import for an immediately co-located sibling',
   'Do not bulk-rewrite imports solely for style',
