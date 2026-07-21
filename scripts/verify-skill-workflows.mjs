@@ -642,15 +642,18 @@ for (const requiredText of [
     fail(`code organization reference must document ${requiredText}`);
   }
 }
-
 for (const requiredText of [
-  'Project-Root Imports',
+  'Project-Root Imports and Paths',
   'configured project-root import',
   'every supported compiler, test runner, bundler, and editor/language server resolves identically',
   'short relative import for an immediately co-located sibling',
   'Do not bulk-rewrite imports solely for style',
   'record it in project-local guidance',
   'do not add a dependency merely to police import spelling',
+  'define one application/source root and derive paths from it',
+  'framework-managed autoloaded constants instead of relative `require` traversal',
+  '`Rails.root.join` for application-root file paths',
+  'Do not treat a runtime path constant as module-resolution configuration',
 ]) {
   if (!codeOrganizationReference.includes(requiredText)) {
     fail(`code organization reference must document ${requiredText}`);
