@@ -18,6 +18,8 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 The package exposes `github_markdown_image_upload_helper_path` to OMP. Call the tool first; then use its returned `file:` URL in OMP Browser `run` code. This avoids browser-run package resolution and keeps the Puppeteer `page` handle in its own runtime.
 
+Top priority: editing an existing PR body with lots of text. Put explicit screenshot placeholders in the PR body first, then pass that exact placeholder as `insertAt` so the helper replaces only the target screenshot slot and leaves surrounding PR text unchanged.
+
 ```js
 const { addImageToGitHubMarkdownEditor } = await import(
   '<file: URL returned by github_markdown_image_upload_helper_path>',
