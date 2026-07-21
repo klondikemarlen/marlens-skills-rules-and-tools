@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { uploadPullRequestBodyScreenshots } from '../lib/github-pr-screenshot-upload.mjs';
+import { uploadPullRequestCommentScreenshots } from '../lib/github-pr-screenshot-upload.mjs';
 
 class ElementHandle {
   constructor(node) {
@@ -13,21 +13,20 @@ class ElementHandle {
     return callback(this.node, ...args);
   }
 
-
   async click() {
     this.node.click();
   }
+
   async uploadFile(filePath) {
     this.node.onUpload(filePath);
   }
 }
 
 class Page {
-  constructor({ authenticated = true, editor, input }) {
+  constructor({ authenticated = true, targetSelector }) {
     this.authenticated = authenticated;
-    this.editor = new ElementHandle(editor);
-    this.input = new ElementHandle(input);
-    this.persistedBody = '';
+    this.targetSelector = targetSelector;
+    this.persistedMarkup = '';
     this.submitted = false;
     this.urls = [];
   }
@@ -38,11 +37,13 @@ class Page {
 
   async $(selector) {
     if (selector === 'a[href^="/login"]') return this.authenticated ? null : new ElementHandle({});
-    return selector === '#pr-body' ? this.editor : null;
+    if (selector === this.targetSelector) return this.target;
+    if (selector === `${this.targetSelector} textarea`) return this.editor;
+    return null;
   }
 
   async $$(selector) {
-    return selector === 'input[type="file"]' ? [this.input] : [];
+    return selector === `${this.targetSelector} input[type="file"]` ? [this.input] : [];
   }
 
   async evaluate(callback, ...args) {
@@ -54,36 +55,30 @@ class Page {
       assert.equal(options.visible, true);
       return this.editor;
     }
-    assert.equal(selector, '#pr-body');
+    assert.equal(selector, `${this.targetSelector} textarea`);
     if (options.visible) return this.editor;
     assert.equal(options.hidden, true);
     assert.equal(this.submitted, true);
   }
-
-  async content() {
-    return this.persistedBody;
-  }
 }
 
-function controlNode(label, click, hidden = false) {
+function controlNode(label, click, ariaLabel = label) {
   return {
-    hidden,
     textContent: label,
     click,
     getAttribute(name) {
-      if (name === 'aria-label') return label;
-      return hidden && name === 'aria-hidden' ? 'true' : null;
+      return name === 'aria-label' ? ariaLabel : null;
     },
   };
 }
 
-function buildPage({ authenticated = true, temporaryComment = false } = {}) {
-  const page = new Page({ authenticated, editor: null, input: null });
+function buildPage({ authenticated = true, targetSelector = '#issue-123' } = {}) {
+  const page = new Page({ authenticated, targetSelector });
   const submit = {
     disabled: false,
     click() {
       page.submitted = true;
-      page.persistedBody = page.urls.join('\n');
+      page.persistedMarkup = page.urls.join('\n');
     },
   };
   const form = {
@@ -94,14 +89,18 @@ function buildPage({ authenticated = true, temporaryComment = false } = {}) {
       return [submit];
     },
   };
+  const target = {
+    get innerHTML() {
+      return page.persistedMarkup;
+    },
+  };
   const editor = {
-    id: temporaryComment ? 'new_comment_field' : 'issue-123-body',
-    name: temporaryComment ? 'comment[body]' : 'issue[body]',
     value: '<!-- screenshot -->',
     selectionStart: 0,
     selectionEnd: 0,
     closest(selector) {
-      return selector === 'form' ? form : null;
+      if (selector === 'form') return form;
+      return selector === targetSelector ? target : null;
     },
     focus() {},
     setSelectionRange(start, end) {
@@ -118,6 +117,7 @@ function buildPage({ authenticated = true, temporaryComment = false } = {}) {
       page.urls.push('https://github.com/user-attachments/assets/test-upload');
     },
   };
+  page.target = new ElementHandle(target);
   page.editor = new ElementHandle(editor);
   page.input = new ElementHandle(input);
   return page;
@@ -129,71 +129,63 @@ try {
   writeFileSync(imagePath, 'png');
 
   const page = buildPage();
-  const result = await uploadPullRequestBodyScreenshots({
+  const result = await uploadPullRequestCommentScreenshots({
     page,
-    prUrl: 'https://github.com/owner/repository/pull/123',
-    editorSelector: '#pr-body',
+    prUrl: 'https://github.com/owner/repository/pull/123#issue-123',
+    editorSelector: 'textarea',
     fileInputSelector: 'input[type="file"]',
     screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
   });
   assert.equal(result[0].attachmentUrl, 'https://github.com/user-attachments/assets/test-upload');
+  assert.equal(page.url, 'https://github.com/owner/repository/pull/123');
 
   const closedEditorPage = buildPage();
   let editorOpen = false;
-  let prBodyDetailsOpen = false;
+  let detailsOpen = false;
   const originalDollar = closedEditorPage.$.bind(closedEditorPage);
   const originalDollarDollar = closedEditorPage.$$.bind(closedEditorPage);
   closedEditorPage.$ = async (selector) => {
-    if (selector === '#pr-body') return editorOpen ? closedEditorPage.editor : null;
-    if (selector === '#pr-body-controls summary') {
-      return new ElementHandle({
-        click() { prBodyDetailsOpen = true; },
-      });
+    if (selector === '#issue-123 textarea') return editorOpen ? closedEditorPage.editor : null;
+    if (selector === '#issue-123 details summary') {
+      return new ElementHandle({ click() { detailsOpen = true; } });
     }
     return originalDollar(selector);
   };
   closedEditorPage.$$ = async (selector) => {
-    if (selector === '#pr-body-controls details-menu button, #pr-body-controls details-menu [role="menuitem"], #pr-body-controls details-menu a') {
-      return [new ElementHandle(controlNode('Edit', () => { editorOpen = true; }))];
-    }
-    if (selector === 'button, [role="menuitem"], a') {
-      return [new ElementHandle(controlNode('Edit', () => {}))];
+    if (selector === '#issue-123 details-menu button, #issue-123 details-menu [role="menuitem"], #issue-123 details-menu a') {
+      return [new ElementHandle(controlNode('Edit', () => { editorOpen = true; }, 'Edit comment'))];
     }
     return originalDollarDollar(selector);
   };
-  await uploadPullRequestBodyScreenshots({
+  await uploadPullRequestCommentScreenshots({
     page: closedEditorPage,
-    prUrl: 'https://github.com/owner/repository/pull/123',
-    editorSelector: '#pr-body',
-    bodyControlsSelector: '#pr-body-controls',
-    fileInputSelector: 'input[type=\"file\"]',
+    prUrl: 'https://github.com/owner/repository/pull/123#issue-123',
+    editorSelector: 'textarea',
+    fileInputSelector: 'input[type="file"]',
     screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
   });
   assert.equal(editorOpen, true);
-  assert.equal(prBodyDetailsOpen, true);
+  assert.equal(detailsOpen, true);
 
-  assert.equal(page.submitted, true);
+  const commentPage = buildPage({ targetSelector: '#issuecomment-456' });
+  await uploadPullRequestCommentScreenshots({
+    page: commentPage,
+    prUrl: 'https://github.com/owner/repository/pull/123#issuecomment-456',
+    editorSelector: 'textarea',
+    fileInputSelector: 'input[type="file"]',
+    screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
+  });
+  assert.equal(commentPage.submitted, true);
 
   await assert.rejects(
-    () => uploadPullRequestBodyScreenshots({
+    () => uploadPullRequestCommentScreenshots({
       page: buildPage({ authenticated: false }),
-      prUrl: 'https://github.com/owner/repository/pull/123',
-      editorSelector: '#pr-body',
+      prUrl: 'https://github.com/owner/repository/pull/123#issue-123',
+      editorSelector: 'textarea',
       fileInputSelector: 'input[type="file"]',
       screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
     }),
     /not authenticated/,
-  );
-
-  await assert.rejects(
-    () => uploadPullRequestBodyScreenshots({
-      page: buildPage({ temporaryComment: true }),
-      prUrl: 'https://github.com/owner/repository/pull/123',
-      editorSelector: '#pr-body',
-      fileInputSelector: 'input[type="file"]',
-      screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
-    }),
-    /Temporary comment editors/,
   );
 } finally {
   rmSync(tmpDir, { recursive: true, force: true });
