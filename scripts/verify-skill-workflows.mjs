@@ -174,6 +174,8 @@ for (const [name, workflow] of selfImprovementWorkflows) {
 for (const [name, workflow] of selfImprovementWorkflows) {
   for (const requiredText of [
     'existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration',
+    'deep cross-module relative imports exist',
+    'whether an existing local guidance or lint rule already preserves the chosen style',
     'do not bulk-rewrite imports solely for style',
   ]) {
     if (!workflow.includes(requiredText)) {
@@ -647,6 +649,8 @@ for (const requiredText of [
   'every supported compiler, test runner, bundler, and editor/language server resolves identically',
   'short relative import for an immediately co-located sibling',
   'Do not bulk-rewrite imports solely for style',
+  'record it in project-local guidance',
+  'do not add a dependency merely to police import spelling',
 ]) {
   if (!codeOrganizationReference.includes(requiredText)) {
     fail(`code organization reference must document ${requiredText}`);

@@ -24,7 +24,7 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 
 1. State the target purpose, the user-visible or maintainer-visible risk, the smallest proof, and explicit non-goals.
 2. Read the target's local guidance, workflow/skill architecture, and the affected public surface. Reuse existing audit, review, and learning paths before adding guidance.
-3. Run the narrowest relevant read-only audit or verification command. Record exact findings, including absent findings.
+3. Run the narrowest relevant read-only audit or verification command. Record exact findings, including absent findings. For an import-style pass, also read the existing module-resolution configuration and scan the affected source tree without editing. Record whether deep cross-module relative imports exist, whether every supported resolver agrees on the configured root, and whether an existing local guidance or lint rule already preserves the chosen style.
 4. For each finding, record evidence, durable impact, classification, owner, and next action. Use the prompt-improvement template when it concerns a prompt or adapter.
 5. Implement only **fix now** findings already authorized by the request. Keep changes in the existing placement: workflow for procedure, template for repeatable shape, reference for durable background, skill for a thin entrypoint.
 6. For a **scoped feature or bug**, draft or file an issue only when authorized. For a **verifier/runtime proposal**, name the specific missing enforcement rather than adding a local workaround.
