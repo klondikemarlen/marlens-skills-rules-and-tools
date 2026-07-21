@@ -44,6 +44,12 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+## Domain-Oriented Modules and Tests
+
+Split a growing module by the domain action or external integration it owns—not into generic `helpers`, `utils`, `services`, or `tests` buckets. Each module should have one narrow responsibility: parse or validate a boundary, make a policy decision, coordinate one action, or adapt one external system. Keep parsers and policies pure where practical; let orchestration depend on those decisions; keep filesystem, HTTP, database, framework, and extension state at the outer adapter boundary. Classes earn their cost only when they own meaningful state or a lifecycle; otherwise use a function.
+
+Co-locate focused unit tests with the pure policy, parser, or small domain operation they protect. Use a boundary integration test for the adapter contract, and share a fixture only when it represents stable domain data used by several tests—do not hide expectations or duplicate test setup through a broad fixture layer. Before a structural move, run the existing behavior check; after the move, rerun the same check and add only the smallest missing behavior test. A folder split that cannot name its owned action or preserve that check should stay a module.
+
 ## Project-Root Imports and Paths
 
 Prefer configured project-root imports for dependencies across features or modules when they make the dependency direction clearer than `../../..` traversal. The root must be a project-defined source root or alias that every supported compiler, test runner, bundler, and editor/language server resolves identically.

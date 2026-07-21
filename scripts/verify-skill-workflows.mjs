@@ -661,6 +661,21 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'Domain-Oriented Modules and Tests',
+  'domain action or external integration it owns',
+  'Keep parsers and policies pure',
+  'Classes earn their cost only when they own meaningful state or a lifecycle',
+  'Co-locate focused unit tests',
+  'boundary integration test',
+  'share a fixture only when it represents stable domain data',
+  'Before a structural move, run the existing behavior check',
+]) {
+  if (!codeOrganizationReference.includes(requiredText)) {
+    fail(`code organization reference must document ${requiredText}`);
+  }
+}
+
 const codeReviewWorkflow = read('docs/workflows/code-review-workflow.md');
 const codeReviewFallbackWorkflow = read('skills/code-review/workflow.md');
 for (const [name, workflow] of [
