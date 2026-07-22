@@ -254,7 +254,7 @@ for (const [name, workflow] of [
     'Run `git worktree prune` and inspect `git worktree list`',
     'Final branch/sync:',
     'Retained worktrees:',
-    'An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation',
+    "External or unresolved GitHub writes defer to `omp-github-write-guard`'s single standard Ask",
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
