@@ -90,7 +90,7 @@ async function missingBrowserCase() {
 }
 
 function launcherArguments(sentinel) {
-  return ['bin/github-headless-session.js', '--repo', 'owner/repo', '--pr', '1', '--continue-file', sentinel];
+  return ['bin/github-headless-session', '--repo', 'owner/repo', '--pr', '1', '--continue-file', sentinel];
 }
 
 function capture(child) {
