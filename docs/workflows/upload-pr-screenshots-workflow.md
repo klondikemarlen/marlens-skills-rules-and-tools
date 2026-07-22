@@ -6,14 +6,16 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 1. Identify reviewer-relevant UI states from the diff or PR body.
 2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
-3. Store temporary screenshots outside the repository, then copy each upload image to a browser-readable directory such as `~/Downloads`. If the browser cannot read a temporary path, do not rely on `/tmp`; use that browser-readable copy.
+3. Store temporary screenshots outside the repository, then copy each upload image to `~/Downloads` and verify that exact staged copy is readable before Browser upload. Do not rely on `/tmp`.
 4. Add one stable HTML-comment placeholder per screenshot to the existing PR body.
 5. Open the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
 6. Call `github_markdown_image_upload_helper_path`, then dynamically import its returned `file:` URL in OMP Browser `run` code.
 7. Call `addImageToGitHubMarkdownEditor` once per screenshot with `page`, the PR-body textarea selector, its browser-readable file path, and that screenshot's exact placeholder as `insertAt`.
 8. Require each result to contain a new `user-attachments/assets/...` URL and confirm it replaced the intended placeholder.
-9. Submit the PR body form, then read the persisted PR body and confirm every expected attachment URL is present.
-10. After the web upload has produced a URL, API text edits may update PR/comment Markdown if that is safer than saving through the browser.
+9. Submit the PR body form, reload the persisted target, and confirm every expected attachment URL is present.
+10. In the rendered target, confirm each image appears directly after its reviewer-facing caption and route.
+11. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
+12. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 
