@@ -18,15 +18,21 @@ function writeStagedFiles(directory, files) {
   execFileSync('git', ['add', '.'], { cwd: directory });
 }
 
-function runScopeCheck(files, args = []) {
+function runScopeCheck(files, args = [], { unstagedPaths = [], workingDirectory } = {}) {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'commit-scope-check-'));
 
   try {
     execFileSync('git', ['init', '--quiet'], { cwd: directory });
     writeStagedFiles(directory, files);
 
+    if (unstagedPaths.length > 0) {
+      execFileSync('git', ['rm', '--cached', '--', ...unstagedPaths], { cwd: directory, stdio: 'ignore' });
+    }
+
+    const cwd = workingDirectory ? path.join(directory, workingDirectory) : directory;
+    mkdirSync(cwd, { recursive: true });
     const result = spawnSync(process.execPath, [commandPath, ...args], {
-      cwd: directory,
+      cwd,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -107,6 +113,33 @@ for (const [manifest, lockfile] of [
   assert.equal(result.status, 0);
   assert.match(result.output, /Staged files satisfy commit file-type boundaries/u);
 }
+
+const releaseMetadataGroup = ['package.json', 'lib/harvest_worklog/version.rb'];
+const releaseMetadataFiles = {
+  '.commit-scope.json': `${JSON.stringify({ atomicGroups: [releaseMetadataGroup] })}\n`,
+  'package.json': '{}\n',
+  'lib/harvest_worklog/version.rb': 'VERSION = "1.2.3"\n',
+};
+const atomicGroupAllowed = runScopeCheck(releaseMetadataFiles, [], {
+  unstagedPaths: ['.commit-scope.json'],
+  workingDirectory: 'scripts',
+});
+assert.equal(atomicGroupAllowed.status, 0);
+assert.match(atomicGroupAllowed.output, /Staged files satisfy commit file-type boundaries/u);
+
+const partialAtomicGroup = runScopeCheck(releaseMetadataFiles, [], {
+  unstagedPaths: ['.commit-scope.json', 'lib/harvest_worklog/version.rb'],
+});
+assert.equal(partialAtomicGroup.status, 1);
+assert.match(partialAtomicGroup.output, /Atomic commit groups must include every member and no other path/u);
+
+const mixedAtomicGroup = runScopeCheck(
+  { ...releaseMetadataFiles, 'tsconfig.json': '{}\n' },
+  [],
+  { unstagedPaths: ['.commit-scope.json'] },
+);
+assert.equal(mixedAtomicGroup.status, 1);
+assert.match(mixedAtomicGroup.output, /Atomic commit groups must include every member and no other path/u);
 
 
 const overridden = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'docs/orders.md': '# Orders\n' }, ['--allow-mixed']);
