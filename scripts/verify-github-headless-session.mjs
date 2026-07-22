@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { constants } from 'node:fs';
 import { access, chmod, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,6 +9,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const temp = await mkdtemp(path.join(os.tmpdir(), 'github-session-test-'));
 const fake = path.join(temp, 'fake-chromium.mjs');
 
+await access(path.join(root, 'bin/github-headless-session'), constants.X_OK);
 await writeFile(fake, `#!/usr/bin/env node
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
