@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import { checkCommitScope, formatCommitScopeFailures } from '../lib/commit-scope-check.mjs';
 
 function stagedPaths() {
@@ -9,8 +11,29 @@ function stagedPaths() {
     .filter(Boolean);
 }
 
+function repositoryRoot() {
+  return execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+}
+
+function atomicGroups() {
+  const configPath = path.join(repositoryRoot(), '.commit-scope.json');
+
+  if (!existsSync(configPath)) return [];
+
+  const { atomicGroups: configuredGroups = [] } = JSON.parse(readFileSync(configPath, 'utf8'));
+  if (!Array.isArray(configuredGroups)) throw new Error('atomicGroups must be an array.');
+
+  for (const group of configuredGroups) {
+    if (!Array.isArray(group) || group.length < 2 || !group.every((filePath) => typeof filePath === 'string')) {
+      throw new Error('Each atomic group must list at least two file paths.');
+    }
+  }
+
+  return configuredGroups;
+}
+
 const paths = stagedPaths();
-const { boundaries } = checkCommitScope(paths);
+const { boundaries } = checkCommitScope(paths, { atomicGroups: atomicGroups() });
 
 if (boundaries.length === 0) {
   console.log('Staged files satisfy commit file-type boundaries.');
