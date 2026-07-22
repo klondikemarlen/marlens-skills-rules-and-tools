@@ -254,6 +254,7 @@ for (const [name, workflow] of [
     'Run `git worktree prune` and inspect `git worktree list`',
     'Final branch/sync:',
     'Retained worktrees:',
+    'An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);

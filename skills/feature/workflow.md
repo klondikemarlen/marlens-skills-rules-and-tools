@@ -12,6 +12,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 
 - Project-local release and contribution docs win over this generic workflow.
 - Create or update a GitHub issue before coding user-facing work unless the user explicitly says not to use issues.
+- An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation; do not ask again solely for that delivery. Keep confirmation for external, unresolved, destructive, or ambiguous GitHub writes.
 - Keep branches and PRs named for the issue so GitHub links the work automatically.
 - Before opening a PR, verify its base is the repository's default branch or a documented release branch.
 - Run the smallest checks that cover the changed behavior; do not substitute broad unrelated test runs for missing targeted checks.
