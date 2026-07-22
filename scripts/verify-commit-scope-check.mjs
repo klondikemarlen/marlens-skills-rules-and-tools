@@ -39,6 +39,15 @@ function runScopeCheck(files, args = []) {
     rmSync(directory, { recursive: true, force: true });
   }
 }
+assert.deepEqual(
+  checkCommitScope(['package.json', '.claude-plugin/plugin.json'], {
+    atomicGroups: [
+      ['package.json', 'lib/harvest_worklog/version.rb'],
+      ['package.json', '.claude-plugin/plugin.json'],
+    ],
+  }).boundaries,
+  [],
+);
 
 assert.deepEqual(checkCommitScope(['src/order.ts', 'test/order.test.ts']).boundaries, []);
 assert.equal(classifyCommitPath('src/migration-helper.ts'), 'application code');
@@ -98,6 +107,7 @@ for (const [manifest, lockfile] of [
   assert.equal(result.status, 0);
   assert.match(result.output, /Staged files satisfy commit file-type boundaries/u);
 }
+
 
 const overridden = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'docs/orders.md': '# Orders\n' }, ['--allow-mixed']);
 assert.equal(overridden.status, 0);
