@@ -341,8 +341,8 @@ for (const requiredText of [
   'Submit the PR body form, then read the persisted PR body',
   'Keep QA logs, local file paths, and internal verification evidence out of the PR body',
   'github_pr_screenshot_upload_path',
-  'uploadPullRequestBodyScreenshots',
-  'bodyControlsSelector',
+  'uploadPullRequestCommentScreenshots',
+  '#issuecomment-…',
   'not a `raw.githubusercontent.com` URL',
 ]) {
   if (!uploadScreenshotsWorkflow.includes(requiredText)) {
