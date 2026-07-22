@@ -107,6 +107,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
 | Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |
 | Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md) |
+| Draft or file Jira reports | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting` |
 | Run one task with a temporarily enabled MCP server | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md) |
 
 ## Feature and Issue Workflow
