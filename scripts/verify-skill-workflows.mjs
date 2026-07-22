@@ -566,6 +566,16 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'semantic versioning with a bounded patch release train',
+  'After 20 patch releases',
+  'For example, `2.3.20` rolls to `2.4.0`',
+]) {
+  if (!readme.includes(requiredText)) {
+    fail(`README must document bounded release versioning: ${requiredText}`);
+  }
+}
+
 const downstreamAuditReference = read('docs/references/downstream-agent-guidance-audit-reference.md');
 for (const requiredText of [
   'read-only maintainer tooling',

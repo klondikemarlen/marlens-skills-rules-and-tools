@@ -124,6 +124,17 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
 8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
 
+## Release Versioning
+
+Use semantic versioning with a bounded patch release train:
+
+- Bump **major** for a breaking public plugin, tool, skill, workflow, or configuration contract.
+- Bump **minor** for a backward-compatible reusable capability or substantive core workflow change.
+- Bump **patch** for compatible fixes, clarifications, and narrow maintenance.
+
+After 20 patch releases in one minor line, the next release must bump minor and reset patch to `0`, even when it contains only compatible maintenance. A substantive compatible core change may bump minor earlier. For example, `2.3.20` rolls to `2.4.0`. Do not rewrite historical versions.
+
+
 ## Manual Install
 
 Use this path for agents without a plugin system.
