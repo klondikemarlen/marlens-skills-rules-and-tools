@@ -5,4 +5,4 @@ description: Use when fixing up, amending, rewording, squashing, or reordering o
 
 # Git Rebase
 
-Use the local `docs/workflows/git-rebase-workflow.md`, then `agents/workflows/git-rebase-workflow.md`; otherwise use the [packaged workflow](workflow.md).
+Use the local `docs/workflows/git-rebase-workflow.md`, then `agents/workflows/git-rebase-workflow.md`; otherwise use the [packaged workflow](workflow.md): read `skill://git-rebase/workflow.md` before attempting a rebase helper.

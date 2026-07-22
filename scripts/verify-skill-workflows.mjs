@@ -112,6 +112,11 @@ for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true
   }
 }
 
+const gitRebaseSkill = read('skills/git-rebase/SKILL.md');
+if (!gitRebaseSkill.includes('read `skill://git-rebase/workflow.md`')) {
+  fail('git-rebase skill must explicitly direct agents to read its packaged workflow');
+}
+
 const nodeExpressWorkflow = read('skills/node-express-api/workflow.md');
 for (const requiredText of [
   'docs/workflows/express-light-rail-backend-workflow.md',
