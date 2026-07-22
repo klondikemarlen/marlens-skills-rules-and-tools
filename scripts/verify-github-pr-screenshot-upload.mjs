@@ -47,22 +47,43 @@ class Page {
   }
 
   async evaluate(callback, ...args) {
-    return callback(...args.map((arg) => (arg instanceof ElementHandle ? arg.node : arg)));
+    const document = globalThis.document;
+    globalThis.document = {
+      querySelector: (selector) => (
+        selector === `${this.targetSelector} button.js-comment-edit-button`
+          ? this.menuEdit.node
+          : null
+      ),
+    };
+    try {
+      return callback(...args.map((arg) => (arg instanceof ElementHandle ? arg.node : arg)));
+    } finally {
+      globalThis.document = document;
+    }
   }
 
   async waitForSelector(selector, options) {
-    if (selector.includes('details-menu')) {
+    if (selector.includes('.js-comment-edit-button')) {
       assert.equal(options.visible, true);
-      return this.editor;
+      return this.menuEdit || this.editor;
     }
+    if (selector === this.targetSelector && options.visible) return this.target;
     assert.equal(selector, `${this.targetSelector} textarea`);
     if (options.visible) return this.editor;
     assert.equal(options.hidden, true);
     assert.equal(this.submitted, true);
   }
+
+  async waitForFunction(_callback, options, selector, attachmentUrl) {
+    assert.equal(options.timeout, 60_000);
+    assert.equal(selector, this.targetSelector);
+    assert.equal(this.persistedMarkup.includes(attachmentUrl), true);
+  }
+
 }
 
 function controlNode(label, click, ariaLabel = label) {
+
   return {
     textContent: label,
     click,
@@ -146,14 +167,25 @@ try {
   const originalDollarDollar = closedEditorPage.$$.bind(closedEditorPage);
   closedEditorPage.$ = async (selector) => {
     if (selector === '#issue-123 textarea') return editorOpen ? closedEditorPage.editor : null;
-    if (selector === '#issue-123 details summary') {
-      return new ElementHandle({ click() { detailsOpen = true; } });
+    if (selector === '#issue-123 summary:has(svg[aria-label="Show options"])') {
+      return new ElementHandle({
+        click() { detailsOpen = true; },
+        closest() {
+          return { querySelectorAll() { return [closedEditorPage.menuEdit.node]; } };
+        },
+      });
+    }
+    if (selector === '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]') {
+      return closedEditorPage.menuEdit;
     }
     return originalDollar(selector);
   };
+  closedEditorPage.menuEdit = new ElementHandle(
+    controlNode('Edit', () => { editorOpen = true; }, 'Edit comment'),
+  );
   closedEditorPage.$$ = async (selector) => {
-    if (selector === '#issue-123 details-menu button, #issue-123 details-menu [role="menuitem"], #issue-123 details-menu a') {
-      return [new ElementHandle(controlNode('Edit', () => { editorOpen = true; }, 'Edit comment'))];
+    if (selector === '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]') {
+      return [closedEditorPage.menuEdit];
     }
     return originalDollarDollar(selector);
   };
