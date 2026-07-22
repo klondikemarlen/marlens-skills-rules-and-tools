@@ -1,0 +1,357 @@
+#!/usr/bin/env node
+import process from 'node:process';
+import { spawnSync } from 'node:child_process';
+
+import {
+  REVIEW_COMMENT_REACTION_REPLIES,
+  graphqlResolveMutation,
+  graphqlThreadCommentsPageQuery,
+  graphqlThreadLocatorQuery,
+  graphqlThreadVerifyQuery,
+  normalizeRepository,
+  parseOptions,
+  reviewCommentReactionEndpoint,
+  reviewCommentReplyEndpoint,
+} from '../lib/github-review-thread.js';
+
+const ACTIONS = new Set(['upvote', 'downvote', 'reply', 'resolve']);
+
+const action = process.argv[2];
+const options = parseOptions(process.argv.slice(3));
+
+if (action === undefined || options.help || action === 'help') usage(1);
+if (!ACTIONS.has(action)) usage(1, `Unknown action: ${action}`);
+
+const repository = normalizeRepository(options.repo);
+if (!repository) fail('Use --repo OWNER/REPOSITORY (required).');
+
+const currentRepository = currentCheckoutRepository(process.cwd());
+if (!currentRepository) fail('Could not resolve current checkout GitHub repository origin.');
+if (repository !== currentRepository) {
+  fail(`Refusing external target: ${repository} != checkout repository ${currentRepository}`);
+}
+
+const commentId = parseInteger(options.commentId, '--comment-id');
+if (options.dryRun) {
+  await printPlannedPlan();
+  process.exit(0);
+}
+
+const token = await resolveToken();
+if (!token) fail('Authenticate with gh (`gh auth login`) or set GITHUB_TOKEN/GH_TOKEN.');
+
+switch (action) {
+  case 'upvote':
+  case 'downvote': {
+    const reaction = action === 'upvote' ? REVIEW_COMMENT_REACTION_REPLIES[0] : REVIEW_COMMENT_REACTION_REPLIES[1];
+    await callRest(
+      'POST',
+      reviewCommentReactionEndpoint(repository, commentId),
+      { content: reaction },
+      token,
+    );
+    console.log(JSON.stringify({ action, repository, commentId, status: 'ok', result: `reaction:${reaction}` }));
+    break;
+  }
+
+  case 'reply': {
+    const pullRequest = parseInteger(options.pr, '--pr');
+    const body = parseReplyBody(options.body);
+    await callRest('POST', reviewCommentReplyEndpoint(repository, pullRequest, commentId), { body }, token);
+    console.log(JSON.stringify({
+      action,
+      repository,
+      pullRequest,
+      commentId,
+      status: 'ok',
+    }));
+    break;
+  }
+
+  case 'resolve': {
+    const pullRequest = parseInteger(options.pr, '--pr');
+    const mapped = await findThreadByCommentId(repository, pullRequest, commentId, token);
+    if (!mapped) {
+      fail(`No review-thread mapping found for comment ${commentId} in ${repository}#${pullRequest}.`);
+    }
+    if (mapped.isResolved) {
+      fail(`Review thread for comment ${commentId} in ${repository}#${pullRequest} is already resolved.`);
+    }
+
+    await callGraphql(graphqlResolveMutation(), { threadId: mapped.threadId }, token);
+    const isResolved = await verifyThreadResolved(mapped.threadId, token);
+    if (!isResolved) fail(`Resolution completed but thread ${mapped.threadId} did not report isResolved=true.`);
+
+    console.log(JSON.stringify({
+      action,
+      repository,
+      pullRequest,
+      commentId,
+      threadId: mapped.threadId,
+      status: 'resolved',
+    }));
+    break;
+  }
+
+  default:
+    fail(`Unknown action: ${action}`);
+}
+
+async function printPlannedPlan() {
+  const [owner, name] = repository.split('/');
+  const plan = [];
+
+  if (action === 'upvote' || action === 'downvote') {
+    const reaction = action === 'upvote' ? REVIEW_COMMENT_REACTION_REPLIES[0] : REVIEW_COMMENT_REACTION_REPLIES[1];
+    plan.push({
+      method: 'POST',
+      endpoint: reviewCommentReactionEndpoint(repository, commentId),
+      body: { content: reaction },
+    });
+    console.log(JSON.stringify({
+      action,
+      repository,
+      commentId,
+      dryRun: true,
+      owner,
+      name,
+      plan,
+    }));
+    return;
+  }
+
+  if (action === 'reply') {
+    const pullRequest = parseInteger(options.pr, '--pr');
+    const body = parseReplyBody(options.body);
+    plan.push({
+      method: 'POST',
+      endpoint: reviewCommentReplyEndpoint(repository, pullRequest, commentId),
+      body: { body },
+      note: 'reply endpoint uses review-comment databaseId directly',
+      commentId,
+      pullRequest,
+    });
+    console.log(JSON.stringify({
+      action,
+      repository,
+      commentId,
+      pullRequest,
+      dryRun: true,
+      owner,
+      name,
+      plan,
+    }));
+    return;
+  }
+
+  if (action === 'resolve') {
+    const pullRequest = parseInteger(options.pr, '--pr');
+    plan.push({
+      method: 'POST',
+      endpoint: '/graphql',
+      query: 'LocateReviewThread',
+      variables: {
+        owner,
+        name,
+        pullNumber: pullRequest,
+      },
+      note: 'map review comment databaseId -> review thread id',
+    });
+    plan.push({
+      method: 'POST',
+      endpoint: '/graphql',
+      query: 'ResolveReviewThread',
+      variables: { threadId: '<thread-id>' },
+    });
+    plan.push({
+      method: 'POST',
+      endpoint: '/graphql',
+      query: 'CheckReviewThreadResolved',
+      variables: { threadId: '<thread-id>' },
+    });
+
+    console.log(JSON.stringify({
+      action,
+      repository,
+      commentId,
+      pullRequest,
+      dryRun: true,
+      owner,
+      name,
+      plan,
+    }));
+    return;
+  }
+}
+
+async function resolveToken() {
+  if (typeof process.env.GITHUB_TOKEN === 'string' && process.env.GITHUB_TOKEN.trim()) {
+    return process.env.GITHUB_TOKEN;
+  }
+  if (typeof process.env.GH_TOKEN === 'string' && process.env.GH_TOKEN.trim()) {
+    return process.env.GH_TOKEN;
+  }
+
+  const ghToken = spawnSync('gh', ['auth', 'token'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  if (ghToken.status !== 0) return undefined;
+
+  const token = ghToken.stdout?.trim();
+  return token || undefined;
+}
+
+async function findThreadByCommentId(repositoryValue, pullRequestNumber, reviewCommentId, authToken) {
+  let after;
+  for (;;) {
+    const response = await callGraphql(
+      graphqlThreadLocatorQuery(),
+      {
+        owner: repositoryValue.split('/')[0],
+        name: repositoryValue.split('/')[1],
+        pullNumber: pullRequestNumber,
+        after,
+      },
+      authToken,
+    );
+
+    const threads = response?.data?.repository?.pullRequest?.reviewThreads;
+    if (!threads) return undefined;
+
+    for (const thread of threads.nodes ?? []) {
+      if (threadContainsComment(thread, reviewCommentId)) return { threadId: thread.id, isResolved: Boolean(thread.isResolved) };
+
+      if (await threadContainsCommentInLaterPages(thread, reviewCommentId, authToken)) {
+        return { threadId: thread.id, isResolved: Boolean(thread.isResolved) };
+      }
+    }
+
+    if (!threads.pageInfo?.hasNextPage) return undefined;
+    after = threads.pageInfo?.endCursor;
+  }
+}
+
+function threadContainsComment(thread, reviewCommentId) {
+  return (thread?.comments?.nodes ?? []).some(
+    (node) => String(node?.databaseId) === String(reviewCommentId),
+  );
+}
+
+async function threadContainsCommentInLaterPages(thread, reviewCommentId, authToken) {
+  let after = thread?.comments?.pageInfo?.endCursor;
+  let hasNextPage = Boolean(thread?.comments?.pageInfo?.hasNextPage);
+  while (hasNextPage) {
+    const response = await callGraphql(
+      graphqlThreadCommentsPageQuery(),
+      {
+        threadId: thread?.id,
+        after,
+      },
+      authToken,
+    );
+    const comments = response?.data?.node?.comments;
+    if ((comments?.nodes ?? []).some((node) => String(node?.databaseId) === String(reviewCommentId))) {
+      return true;
+    }
+    hasNextPage = Boolean(comments?.pageInfo?.hasNextPage);
+    after = comments?.pageInfo?.endCursor;
+  }
+  return false;
+}
+
+async function verifyThreadResolved(threadId, authToken) {
+  const response = await callGraphql(graphqlThreadVerifyQuery(), { threadId }, authToken);
+  return Boolean(response?.data?.node?.isResolved);
+}
+
+async function callRest(method, endpoint, payload, authToken) {
+  const response = await fetch(`https://api.github.com/${endpoint}`, {
+    method,
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${authToken}`,
+      'User-Agent': 'marlens-review-thread-helper',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(payload ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: payload === undefined ? undefined : JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => undefined);
+  if (!response.ok) {
+    const message = data?.message ?? response.statusText;
+    fail(`GitHub REST call failed (${method} ${endpoint}): ${response.status} ${message}`);
+  }
+  return data;
+}
+
+async function callGraphql(query, variables, authToken) {
+  const response = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${authToken}`,
+      'User-Agent': 'marlens-review-thread-helper',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  const data = await response.json().catch(() => undefined);
+  if (!response.ok) {
+    const message = data?.errors?.[0]?.message ?? response.statusText;
+    fail(`GitHub GraphQL call failed: ${response.status} ${message}`);
+  }
+  if (Array.isArray(data?.errors) && data.errors.length > 0) {
+    fail(`GitHub GraphQL call returned errors: ${data.errors.map((error) => error.message).join('; ')}`);
+  }
+  return data;
+}
+
+function parseInteger(raw, label) {
+  if (typeof raw !== 'string' || !/^[1-9]\d*$/u.test(raw)) fail(`Expected positive integer for ${label}.`);
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isSafeInteger(value) || value <= 0) fail(`Invalid integer for ${label}: ${raw}`);
+  return value;
+}
+
+function parseReplyBody(raw) {
+  if (typeof raw !== 'string' || raw.trim() === '') fail('reply requires --pr, --comment-id, and --body.');
+  return raw;
+}
+
+function currentCheckoutRepository(cwd) {
+  const top = gitOutput(['-C', cwd, 'rev-parse', '--show-toplevel']);
+  if (!top) return undefined;
+  const remote = gitOutput(['-C', top, 'remote', 'get-url', 'origin']);
+  return parseGitRemote(remote);
+}
+
+function parseGitRemote(value) {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim().replace(/\.git$/u, '');
+  const match = trimmed.match(/github\.com[:/]([^/]+)\/([^/]+)$/u);
+  return match ? `${match[1]}/${match[2]}`.toLowerCase() : undefined;
+}
+
+function gitOutput(args) {
+  const result = spawnSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  if (result.status !== 0 || !result.stdout) return undefined;
+  return result.stdout.trim();
+}
+
+function usage(exitCode, message) {
+  if (message) console.error(message);
+  console.error(`
+Usage:
+  github-review-thread upvote   --repo OWNER/REPOSITORY --comment-id ID [--dry-run]
+  github-review-thread downvote --repo OWNER/REPOSITORY --comment-id ID [--dry-run]
+  github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id ID --body TEXT [--dry-run]
+  github-review-thread resolve  --repo OWNER/REPOSITORY --pr NUMBER --comment-id ID [--dry-run]
+`);
+  process.exit(exitCode);
+}
+
+function fail(message) {
+  console.error(`github-review-thread: ${message}`);
+  process.exit(1);
+}
