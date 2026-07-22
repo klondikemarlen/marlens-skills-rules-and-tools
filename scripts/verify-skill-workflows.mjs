@@ -730,6 +730,12 @@ for (const [name, workflow] of [
   if (!workflow.includes('same production constant/helper under test')) {
     fail(`${name} must reject production-derived expected values`);
   }
+  if (!workflow.includes('Default to one `expect` per test') || !workflow.includes('response.status` and `response.body')) {
+    fail(`${name} must allow separate controller status and body assertions`);
+  }
+  if (!workflow.includes('alphabetized by exported symbol') || !workflow.includes('do not require unrelated barrel-file rewrites')) {
+    fail(`${name} must review changed index re-export ordering`);
+  }
   if (!workflow.includes('Review commit scope when relevant')) {
     fail(`${name} must check commit scope by change type`);
   }
