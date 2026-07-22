@@ -117,6 +117,21 @@ if (!gitRebaseSkill.includes('read `skill://git-rebase/workflow.md`')) {
   fail('git-rebase skill must explicitly direct agents to read its packaged workflow');
 }
 
+const jiraReportingWorkflow = read('docs/workflows/jira-reporting-workflow.md');
+for (const requiredText of [
+  '# Context',
+  '# User Report',
+  '# Proposed Solution',
+  'Use H2 `To Reproduce` and `Expected Behavior` under `Context` for Bugs',
+  'Embed supplied screenshots when the target supports media embeds',
+  'Read the project-local Jira workflow, comparable tickets',
+  'Link related Jira issues with the relationship that matches the evidence',
+]) {
+  if (!jiraReportingWorkflow.includes(requiredText)) {
+    fail(`Jira reporting workflow must include ${requiredText}`);
+  }
+}
+
 const nodeExpressWorkflow = read('skills/node-express-api/workflow.md');
 for (const requiredText of [
   'docs/workflows/express-light-rail-backend-workflow.md',
