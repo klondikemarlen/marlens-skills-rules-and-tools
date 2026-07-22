@@ -211,13 +211,10 @@ for (const command of Object.keys(packageJson.bin)) {
   }
 }
 
-const issueFilingRule = read('rules/no-issue-filing-without-confirmation.md');
-if (!issueFilingRule.includes('sufficient authorization for the current repo')) {
-  fail('issue filing rule must allow explicitly requested current-repo issues');
+if (existsSync(path.join(root, 'rules', 'no-issue-filing-without-confirmation.md'))) {
+  fail('package must not ship the obsolete issue-filing confirmation rule');
 }
-if (!issueFilingRule.includes('authorization for that specific target')) {
-  fail('issue filing rule must keep external-project issue filing target-specific');
-}
+
 
 const ompTargetRule = read('rules/omp-not-opencode-target-check.md');
 if (!ompTargetRule.includes('omp plugin install <source>')) {

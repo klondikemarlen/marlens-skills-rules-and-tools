@@ -9,11 +9,16 @@ After installing this package as an OMP plugin, copy or link only the rules you 
 ```bash
 PACKAGE="$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools"
 mkdir -p "$HOME/.omp/agent/rules"
-ln -sf "$PACKAGE/rules/no-issue-filing-without-confirmation.md" "$HOME/.omp/agent/rules/"
 ln -sf "$PACKAGE/rules/no-envrc-example-commits.md" "$HOME/.omp/agent/rules/"
 ln -sf "$PACKAGE/rules/omp-not-opencode-target-check.md" "$HOME/.omp/agent/rules/"
 ln -sf "$PACKAGE/rules/use-dev-wrapper-for-development-compose.md" "$HOME/.omp/agent/rules/"
 ```
+Upgrading from v1.3.2 or earlier? Remove the obsolete rule before restarting OMP:
+
+```bash
+rm -f "$HOME/.omp/agent/rules/no-issue-filing-without-confirmation.md"
+```
+
 
 Restart OMP after changing global rule files.
 
