@@ -567,12 +567,12 @@ for (const requiredText of [
 }
 
 for (const requiredText of [
-  'semantic versioning with a bounded patch release train',
-  'After 20 patch releases',
-  'For example, `2.3.20` rolls to `2.4.0`',
+  'semantic versioning with cumulative release judgment',
+  'There is no numeric patch threshold',
+  'size and public significance of the accumulated work',
 ]) {
   if (!readme.includes(requiredText)) {
-    fail(`README must document bounded release versioning: ${requiredText}`);
+    fail(`README must document cumulative release versioning: ${requiredText}`);
   }
 }
 

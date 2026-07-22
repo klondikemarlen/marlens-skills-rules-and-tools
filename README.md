@@ -126,13 +126,13 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 
 ## Release Versioning
 
-Use semantic versioning with a bounded patch release train:
+Use semantic versioning with cumulative release judgment:
 
 - Bump **major** for a breaking public plugin, tool, skill, workflow, or configuration contract.
-- Bump **minor** for a backward-compatible reusable capability or substantive core workflow change.
+- Bump **minor** for a backward-compatible reusable capability, substantive core workflow change, or a cumulative set of compatible changes that now merits a higher-tier release.
 - Bump **patch** for compatible fixes, clarifications, and narrow maintenance.
 
-After 20 patch releases in one minor line, the next release must bump minor and reset patch to `0`, even when it contains only compatible maintenance. A substantive compatible core change may bump minor earlier. For example, `2.3.20` rolls to `2.4.0`. Do not rewrite historical versions.
+There is no numeric patch threshold. Promote to a minor release before a long run of compatible changes becomes misleading; use the size and public significance of the accumulated work rather than a mechanical counter. Do not rewrite historical versions.
 
 
 ## Manual Install
