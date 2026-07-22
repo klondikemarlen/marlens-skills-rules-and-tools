@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import {
   REVIEW_COMMENT_REACTION_REPLIES,
   graphqlResolveMutation,
+  graphqlThreadCommentsPageQuery,
   graphqlThreadLocatorQuery,
   graphqlThreadVerifyQuery,
   normalizeRepository,
@@ -216,16 +217,44 @@ async function findThreadByCommentId(repositoryValue, pullRequestNumber, reviewC
     if (!threads) return undefined;
 
     for (const thread of threads.nodes ?? []) {
-      const matches = (thread?.comments?.nodes ?? []).some(
-        (node) => String(node?.databaseId) === String(reviewCommentId),
-      );
-      if (!matches) continue;
-      return { threadId: thread.id, isResolved: Boolean(thread.isResolved) };
+      if (threadContainsComment(thread, reviewCommentId)) return { threadId: thread.id, isResolved: Boolean(thread.isResolved) };
+
+      if (await threadContainsCommentInLaterPages(thread, reviewCommentId, authToken)) {
+        return { threadId: thread.id, isResolved: Boolean(thread.isResolved) };
+      }
     }
 
     if (!threads.pageInfo?.hasNextPage) return undefined;
     after = threads.pageInfo?.endCursor;
   }
+}
+
+function threadContainsComment(thread, reviewCommentId) {
+  return (thread?.comments?.nodes ?? []).some(
+    (node) => String(node?.databaseId) === String(reviewCommentId),
+  );
+}
+
+async function threadContainsCommentInLaterPages(thread, reviewCommentId, authToken) {
+  let after = thread?.comments?.pageInfo?.endCursor;
+  let hasNextPage = Boolean(thread?.comments?.pageInfo?.hasNextPage);
+  while (hasNextPage) {
+    const response = await callGraphql(
+      graphqlThreadCommentsPageQuery(),
+      {
+        threadId: thread?.id,
+        after,
+      },
+      authToken,
+    );
+    const comments = response?.data?.node?.comments;
+    if ((comments?.nodes ?? []).some((node) => String(node?.databaseId) === String(reviewCommentId))) {
+      return true;
+    }
+    hasNextPage = Boolean(comments?.pageInfo?.hasNextPage);
+    after = comments?.pageInfo?.endCursor;
+  }
+  return false;
 }
 
 async function verifyThreadResolved(threadId, authToken) {

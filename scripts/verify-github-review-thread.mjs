@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import {
   REVIEW_COMMENT_REACTION_REPLIES,
   graphqlResolveMutation,
+  graphqlThreadCommentsPageQuery,
   graphqlThreadLocatorQuery,
   graphqlThreadVerifyQuery,
   normalizeRepository,
@@ -347,7 +348,76 @@ test('github-review-thread', async (suite) => {
       assert.equal(result.calls[1].body.variables.pullNumber, 456);
       assert.equal(result.json?.status, 'resolved');
     });
+
+    await resolveSuite.test('resolves when target comment is on paginated thread-comment page', async () => {
+      // Arrange
+      const expectedCommentId = '777';
+      // Act
+      const result = await runWithMock({
+        action: 'resolve',
+        args: ['--repo', repository, '--pr', '456', '--comment-id', expectedCommentId],
+        responses: [
+          {
+            status: 200,
+            body: {
+              data: {
+                repository: {
+                  pullRequest: {
+                    reviewThreads: {
+                      nodes: [{
+                        id: 'thread-target-page-comments',
+                        isResolved: false,
+                        comments: {
+                          nodes: [{ databaseId: 111 }],
+                          pageInfo: { hasNextPage: true, endCursor: 'comment-cursor-1' },
+                        },
+                      }],
+                      pageInfo: { hasNextPage: false, endCursor: null },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
+            status: 200,
+            body: {
+              data: {
+                node: {
+                  comments: {
+                    nodes: [{ databaseId: Number(expectedCommentId) }],
+                    pageInfo: { hasNextPage: false, endCursor: null },
+                  },
+                },
+              },
+            },
+          },
+          { status: 200, body: { data: { resolveReviewThread: { thread: { id: 'thread-target-page-comments', isResolved: true } } } },
+          },
+          { status: 200, body: { data: { node: { isResolved: true } } },
+          },
+        ],
+      });
+      // Assert
+      assert.equal(result.status, 0);
+      assert.equal(result.calls.length, 4);
+      assert.equal(result.calls[0].body.query, graphqlThreadLocatorQuery());
+      assert.equal(result.calls[1].body.query, graphqlThreadCommentsPageQuery());
+      assert.equal(result.calls[2].body.query, graphqlResolveMutation());
+      assert.equal(result.calls[3].body.query, graphqlThreadVerifyQuery());
+      assert.equal(result.calls[1].body.variables.threadId, 'thread-target-page-comments');
+      assert.equal(result.calls[1].body.variables.after, 'comment-cursor-1');
+      assert.equal(result.calls[2].body.variables.threadId, 'thread-target-page-comments');
+      assert.equal(result.calls[3].body.variables.threadId, 'thread-target-page-comments');
+      assert.equal(result.calls[0].body.variables.after, undefined);
+      assert.equal(result.calls[0].body.variables.owner, repositoryOwner);
+      assert.equal(result.calls[0].body.variables.name, repositoryName);
+      assert.equal(result.calls[0].body.variables.pullNumber, 456);
+      assert.equal(result.calls[1].body.variables.threadId, 'thread-target-page-comments');
+      assert.equal(result.json?.status, 'resolved');
+    });
   });
+
 
   await suite.test('maps failure modes', async (failureSuite) => {
     await failureSuite.test('reports unresolved review-thread mapping', async () => {
