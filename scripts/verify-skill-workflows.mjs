@@ -566,6 +566,16 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'semantic versioning with cumulative release judgment',
+  'There is no numeric patch threshold',
+  'size and public significance of the accumulated work',
+]) {
+  if (!readme.includes(requiredText)) {
+    fail(`README must document cumulative release versioning: ${requiredText}`);
+  }
+}
+
 const downstreamAuditReference = read('docs/references/downstream-agent-guidance-audit-reference.md');
 for (const requiredText of [
   'read-only maintainer tooling',
