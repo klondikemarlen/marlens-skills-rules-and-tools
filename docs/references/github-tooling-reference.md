@@ -20,7 +20,6 @@ gh pr view 456 --json title,body,state,isDraft,mergeStateStatus,url
 ```
 
 ## Metadata Updates
-
 For issue or pull request body/title changes, prefer the high-level commands and verify with `gh issue view` or `gh pr view`:
 
 ```bash
@@ -31,8 +30,18 @@ gh pr edit <number> --title "New Title"
 gh pr view <number> --json title,body,state,isDraft,url
 ```
 
-For fields not supported by the high-level commands, use `gh api` with the appropriate issue or pull request endpoint.
+## Review Comment Thread Actions
+
+For this repository, use local script helpers before touching write-sensitive GitHub APIs:
+
+```bash
+github-review-thread upvote   --repo OWNER/REPOSITORY --comment-id COMMENT_ID
+github-review-thread downvote --repo OWNER/REPOSITORY --comment-id COMMENT_ID
+github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body "..."
+github-review-thread resolve  --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID
+```
+
+Use `--dry-run` for a JSON plan preview.
 
 ## Screenshot Attachments
-
 GitHub user-attachment URLs are created through a logged-in browser session. `gh api` can edit issue/PR Markdown after a durable image URL exists, but it does not provide a public upload endpoint that hosts a local screenshot as a `user-attachments/assets/...` URL. Use the project workflow for screenshot capture, browser upload, and attachment formatting.
