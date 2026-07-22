@@ -9,7 +9,7 @@ const temp = await mkdtemp(path.join(os.tmpdir(), 'github-session-test-'));
 const fake = path.join(temp, 'fake-chromium.mjs');
 
 await writeFile(fake, `#!/usr/bin/env node
-import { appendFile, writeFile } from 'node:fs/promises';
+import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 const profile = process.argv.find((arg) => arg.startsWith('--user-data-dir=')).slice(16);
 const headless = process.argv.includes('--headless=new');
@@ -17,7 +17,8 @@ const server = createServer((request, response) => response.end('{}'));
 server.listen(0, '127.0.0.1', async () => {
   const port = server.address().port;
   await writeFile(profile + '/DevToolsActivePort', port + '\\n');
-  await appendFile(process.env.FAKE_LOG, JSON.stringify({ profile, headless }) + '\\n');
+  const preferences = JSON.parse(await readFile(profile + '/Default/Preferences', 'utf8'));
+  await appendFile(process.env.FAKE_LOG, JSON.stringify({ profile, headless, passwordManagerEnabled: preferences.credentials_enable_service || preferences.profile.password_manager_enabled }) + '\\n');
   if (headless && process.env.FAKE_NORMAL_EXIT) setTimeout(() => server.close(() => process.exit(0)), 200);
 });
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close(() => process.exit(0)));
@@ -58,6 +59,7 @@ async function signedInCase(name, { signal, normalExit = false }) {
     const [headed, headless] = await waitFor(() => launches(log).then((rows) => rows.length === 2 ? rows : false), name, output);
     assert.equal(headed.headless, false);
     assert.equal(headless.headless, true);
+    assert.equal(headed.passwordManagerEnabled, false);
     assert.equal(headed.profile, headless.profile);
     if (signal) child.kill(signal);
     await waitForExit(child, name, output);

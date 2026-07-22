@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -28,6 +28,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
 });
 
 try {
+  await prepareProfile();
   browser = launch(false);
   await endpoint();
   await waitForContinuation();
@@ -40,6 +41,13 @@ try {
   await headlessExit;
 } finally {
   await cleanup();
+}
+async function prepareProfile() {
+  await mkdir(path.join(profile, 'Default'), { recursive: true });
+  await writeFile(path.join(profile, 'Default', 'Preferences'), JSON.stringify({
+    credentials_enable_service: false,
+    profile: { password_manager_enabled: false },
+  }));
 }
 
 function option(flag) { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; }
