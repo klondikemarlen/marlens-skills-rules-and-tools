@@ -4,7 +4,22 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scanRoots = ['README.md', 'AGENTS.md', 'AGENT_RULES.md', 'bin', 'docs', 'skills', 'scripts'];
+const scanRoots = [
+  'README.md',
+  'AGENTS.md',
+  'AGENT_RULES.md',
+  'COMMITTING.md',
+  'package.json',
+  '.claude-plugin',
+  '.omp-plugin',
+  'bin',
+  'docs',
+  'lib',
+  'omp-plugin',
+  'rules',
+  'scripts',
+  'skills',
+];
 const unsafeInlineBody = /(?:^|\s)(?:github-review-thread\s+reply|gh\s+(?:issue|pr)\s+(?:create|edit|comment))[^\n]*--body(?:[=\s])/u;
 const files = [];
 for (const relativePath of scanRoots) {
