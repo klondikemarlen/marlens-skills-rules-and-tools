@@ -266,7 +266,7 @@ for (const [name, workflow] of [
     'Run `git worktree prune` and inspect `git worktree list`',
     'Final branch/sync:',
     'Retained worktrees:',
-    "External or unresolved GitHub writes defer to `omp-github-write-guard`'s single standard Ask",
+    "External or unresolved GitHub writes defer to `omp-repository-boundary-guard`'s single standard Ask",
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
@@ -459,16 +459,18 @@ for (const requiredText of [
   "current checkout's GitHub issue or feature workflow",
   'linked draft pull request',
   'one exact retry',
-  'does not guard external pull-request creation or merges',
-  'omp-github-write-guard/issues/49',
-  'klondikemarlen/omp-github-write-guard',
+  'omp-repository-boundary-guard',
+  'repository-boundary guarding for local writes and moves',
+  'supported `gh issue`/`gh pr`/`gh api` mutations',
+  'supported `xd://github` writes',
+  'canonical checkout identity',
   'requested current-checkout issue or feature workflow',
   'genuinely destructive or ambiguous Git operations',
   'merge reviewed same-origin pull requests',
   'push any necessary branch refs directly with `git push`',
   'documented direct `git push` tag command and release-publication command',
   'Do not call `ask` solely to authorize same-origin branch delivery, tag publication, or documented release publication',
-  '`git push` and GitHub issue creation when the target is recognized external or unresolved',
+  'one standard OMP Ask before a mutation crosses the active repository boundary',
   'Host-level authorization is limited to external, unresolved, destructive, or genuinely ambiguous targets.',
   'MUST NOT require a duplicate manual `ask`',
 ]) {
@@ -577,12 +579,14 @@ for (const requiredText of [
 }
 
 for (const requiredText of [
-  'omp-github-write-guard',
-  'omp plugin install github:klondikemarlen/omp-github-write-guard',
-  'GitHub issue creation',
+  'omp-repository-boundary-guard',
+  'omp plugin install github:klondikemarlen/omp-repository-boundary-guard#v1.0.0',
+  'Repository-boundary guard for local writes and moves',
+  'supported `gh issue`/`gh pr`/`gh api` mutations',
+  'supported `xd://github` writes',
 ]) {
   if (!readme.includes(requiredText)) {
-    fail(`README must document guard coverage: ${requiredText}`);
+    fail(`README must document boundary guard coverage: ${requiredText}`);
   }
 }
 
