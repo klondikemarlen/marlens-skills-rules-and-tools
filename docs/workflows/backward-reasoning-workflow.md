@@ -88,6 +88,12 @@ Verification gate: <smallest runnable proof>
 Residual risk: <named remaining risk or none>
 ```
 
+## Related Assets
+
+- Reference: [`../references/backward-reasoning-reference.md`](../references/backward-reasoning-reference.md)
+- Template: [`../templates/backward-reasoning-plan-template.md`](../templates/backward-reasoning-plan-template.md)
+- Skill: [`../../skills/backward-reasoning/SKILL.md`](../../skills/backward-reasoning/SKILL.md)
+
 ## Verification Checklist
 
 - Gold is observable and not an implementation preference.
