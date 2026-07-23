@@ -18,7 +18,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Use subagents or fusion when work splits across independent repo areas, multiple designs need comparison, review/refutation would catch risk, or test authoring needs focus.
 - Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
-
+- For design-heavy tasks, run `docs/workflows/backward-reasoning-workflow.md` before implementation planning.
 ## Process
 
 1. Capture the request in four lines before editing:
