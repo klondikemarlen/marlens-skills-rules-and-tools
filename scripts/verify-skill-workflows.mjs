@@ -267,6 +267,8 @@ for (const [name, workflow] of [
     'Final branch/sync:',
     'Retained worktrees:',
     "External or unresolved GitHub writes defer to `omp-repository-boundary-guard`'s single standard Ask",
+    'Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference',
+    'Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
@@ -580,13 +582,28 @@ for (const requiredText of [
 
 for (const requiredText of [
   'omp-repository-boundary-guard',
-  'omp plugin install github:klondikemarlen/omp-repository-boundary-guard#v1.0.0',
+  'omp plugin install github:klondikemarlen/omp-repository-boundary-guard',
   'Repository-boundary guard for local writes and moves',
   'supported `gh issue`/`gh pr`/`gh api` mutations',
   'supported `xd://github` writes',
+  'Routine OMP installs use the generic GitHub reference',
+  'exact full-commit reference with `--force` is exceptional',
 ]) {
   if (!readme.includes(requiredText)) {
-    fail(`README must document boundary guard coverage: ${requiredText}`);
+    fail(`README must document boundary and install guidance: ${requiredText}`);
+  }
+}
+
+const ompInstallReference = read('docs/references/omp-plugin-install-reference.md');
+for (const requiredText of [
+  'omp plugin install github:OWNER/REPOSITORY',
+  'full commit hash',
+  'exact artifact',
+  'stale plugin-cache state',
+  'Do not describe an unpinned GitHub reference as a versioned release',
+]) {
+  if (!ompInstallReference.includes(requiredText)) {
+    fail(`OMP install reference must document ${requiredText}`);
   }
 }
 

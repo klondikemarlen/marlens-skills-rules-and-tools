@@ -23,6 +23,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Keep the PR `BLOCKED` and do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
 - During issue triage, record an evidence-based learner coverage outcome for every issue not clearly learner-authored; file an OMP Learner bug or feature only for a current-signal miss or capability gap.
 - For published artifacts, merge first, then perform the project’s documented version/changelog/publish/install verification steps on the release branch.
+- Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference and follow the default branch. Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis; verify the installed version separately.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
 ## Learner Coverage During Issue Triage
