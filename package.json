@@ -1,10 +1,10 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
-    "test": "node --check bin/github-headless-session && node --check bin/github-review-thread && node scripts/verify-github-review-thread.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs"
+    "test": "node --check bin/github-headless-session && node --check bin/github-review-thread && node scripts/verify-github-review-thread.mjs && node scripts/verify-github-body-file-writes.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs"
   },
   "keywords": ["omp-plugin", "agent-rules", "skills"],
   "repository": {
