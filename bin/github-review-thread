@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import process from 'node:process';
+import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 
 import {
@@ -56,7 +57,7 @@ switch (action) {
 
   case 'reply': {
     const pullRequest = parseInteger(options.pr, '--pr');
-    const body = parseReplyBody(options.body);
+    const body = await parseReplyBody(options);
     await callRest('POST', reviewCommentReplyEndpoint(repository, pullRequest, commentId), { body }, token);
     console.log(JSON.stringify({
       action,
@@ -122,7 +123,7 @@ async function printPlannedPlan() {
 
   if (action === 'reply') {
     const pullRequest = parseInteger(options.pr, '--pr');
-    const body = parseReplyBody(options.body);
+    const body = await parseReplyBody(options);
     plan.push({
       method: 'POST',
       endpoint: reviewCommentReplyEndpoint(repository, pullRequest, commentId),
@@ -314,9 +315,22 @@ function parseInteger(raw, label) {
   return value;
 }
 
-function parseReplyBody(raw) {
-  if (typeof raw !== 'string' || raw.trim() === '') fail('reply requires --pr, --comment-id, and --body.');
-  return raw;
+async function parseReplyBody(options) {
+  if (options.body !== undefined) {
+    fail('reply rejects inline --body; write Markdown to a file and use --body-file.');
+  }
+  if (typeof options.bodyFile !== 'string' || options.bodyFile.trim() === '') {
+    fail('reply requires --pr, --comment-id, and --body-file.');
+  }
+
+  let body;
+  try {
+    body = await readFile(options.bodyFile, 'utf8');
+  } catch (error) {
+    fail(`Could not read --body-file ${options.bodyFile}: ${error.message}`);
+  }
+  if (body.trim() === '') fail('--body-file must contain non-empty text.');
+  return body;
 }
 
 function currentCheckoutRepository(cwd) {
@@ -345,7 +359,7 @@ function usage(exitCode, message) {
 Usage:
   github-review-thread upvote   --repo OWNER/REPOSITORY --comment-id ID [--dry-run]
   github-review-thread downvote --repo OWNER/REPOSITORY --comment-id ID [--dry-run]
-  github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id ID --body TEXT [--dry-run]
+  github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id ID --body-file PATH [--dry-run]
   github-review-thread resolve  --repo OWNER/REPOSITORY --pr NUMBER --comment-id ID [--dry-run]
 `);
   process.exit(exitCode);

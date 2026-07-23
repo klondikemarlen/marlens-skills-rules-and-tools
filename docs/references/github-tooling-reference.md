@@ -37,9 +37,20 @@ For this repository, use local script helpers before touching write-sensitive Gi
 ```bash
 github-review-thread upvote   --repo OWNER/REPOSITORY --comment-id COMMENT_ID
 github-review-thread downvote --repo OWNER/REPOSITORY --comment-id COMMENT_ID
-github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body "..."
+github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body-file PATH
 github-review-thread resolve  --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID
 ```
+
+Never pass Markdown through inline `--body`; the shell evaluates backticks and `$()` before the CLI receives the argument. Write the exact text to a file and pass `--body-file`:
+
+```bash
+cat >/tmp/review-reply.md <<'EOF'
+Addressed in <commit-hash>: <specific fix>.
+EOF
+github-review-thread reply --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body-file /tmp/review-reply.md
+```
+
+The helper rejects inline `--body` for replies. Use the same file-based pattern for `gh issue` and `gh pr` body/comment writes.
 
 Use `--dry-run` for a JSON plan preview.
 

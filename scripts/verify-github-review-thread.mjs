@@ -24,6 +24,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const bin = path.join(root, 'bin/github-review-thread');
 const temp = await mkdtemp(path.join(os.tmpdir(), 'github-review-thread-test-'));
 const mockFetchHook = path.join(temp, 'mock-fetch-hook.cjs');
+const dryRunBodyFile = path.join(temp, 'dry-run-reply.md');
+await writeFile(dryRunBodyFile, 'reply text\n');
 await writeFile(mockFetchHook, buildMockFetchHook());
 
 await access(bin, constants.F_OK);
@@ -110,6 +112,20 @@ test('github-review-thread', async (suite) => {
       assert.notEqual(child.status, 0);
       assert.match(child.stderr, /Refusing external target/u);
     });
+    await validationSuite.test('rejects inline reply body', () => {
+      // Arrange
+      const child = runCli([
+        'reply',
+        '--repo', repository,
+        '--pr', '456',
+        '--comment-id', '1',
+        '--body', 'unsafe `gh auth token`',
+        '--dry-run',
+      ]);
+      // Assert
+      assert.notEqual(child.status, 0);
+      assert.match(child.stderr, /rejects inline --body/u);
+    });
 
     const invalidNumericCases = [
       {
@@ -180,14 +196,17 @@ test('github-review-thread', async (suite) => {
       assert.equal(result.calls[0].body?.content, REVIEW_COMMENT_REACTION_REPLIES[1]);
     });
 
-    await actionSuite.test('replies to review comment via REST endpoint', async () => {
+    await actionSuite.test('replies with literal file content via REST endpoint', async () => {
       // Arrange
       const expectedCommentId = '123';
       const expectedPullRequest = 456;
+      const expectedBody = 'literal `gh auth token` and $(not-shell)\n';
+      const bodyFile = path.join(temp, 'reply-body.md');
+      await writeFile(bodyFile, expectedBody);
       // Act
       const result = await runWithMock({
         action: 'reply',
-        args: ['--repo', repository, '--pr', String(expectedPullRequest), '--comment-id', expectedCommentId, '--body', 'test'],
+        args: ['--repo', repository, '--pr', String(expectedPullRequest), '--comment-id', expectedCommentId, '--body-file', bodyFile],
         responses: [{ status: 201, body: { id: 55 } }],
       });
       // Assert
@@ -195,7 +214,7 @@ test('github-review-thread', async (suite) => {
       assert.equal(result.calls.length, 1);
       assert.equal(result.calls[0].method, 'POST');
       assert.equal(result.calls[0].url, `https://api.github.com/${reviewCommentReplyEndpoint(repository, expectedPullRequest, expectedCommentId)}`);
-      assert.equal(result.calls[0].body?.body, 'test');
+      assert.equal(result.calls[0].body?.body, expectedBody);
       assert.equal(result.json?.status, 'ok');
     });
   });
@@ -558,15 +577,17 @@ test.after(async () => {
 });
 
 function runDry([repositoryValue, action]) {
-  const child = spawnSync(process.execPath, [
+  const args = [
     bin,
     action,
     '--repo', repositoryValue,
     '--comment-id', '123',
     '--pr', '456',
-    '--body', 'reply text',
     '--dry-run',
-  ], {
+  ];
+  if (action === 'reply') args.push('--body-file', dryRunBodyFile);
+
+  const child = spawnSync(process.execPath, args, {
     cwd: root,
     env: { ...process.env, GH_TOKEN: 'mock-token' },
     encoding: 'utf8',
