@@ -11,6 +11,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Tool-specific caveats.
 - Express Light Rail backend concepts.
 - Code organization, module boundaries, and pattern-selection criteria: [`code-organization-reference.md`](./code-organization-reference.md).
+- Backward-reasoning planning and fit checks: [`backward-reasoning-reference.md`](./backward-reasoning-reference.md).
 - GitHub CLI and metadata editing caveats.
 - Development tooling portability decisions.
 - Cross-workflow conventions.

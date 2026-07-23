@@ -2,6 +2,8 @@
 
 Use when asked to improve an agent's reusable guidance, prompt flow, or evidence-backed technical debt. Do not use it for vague self-reflection, a one-off project defect, or an unverified preference.
 
+For design-planning requests, run the backward-reasoning workflow first, then return here for evidence-backed guidance improvement.
+
 ## Intent
 
 **WHY this workflow exists:** Reusable agent guidance improves only when a concrete signal is traced to its owner and verified. Reflection without evidence creates duplicate rules, speculative abstractions, and prompt bloat.

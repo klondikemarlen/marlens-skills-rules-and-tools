@@ -23,6 +23,7 @@ Examples:
 - `backend/express-light-rail/`
 - `frontend/`
 - `prompt-improvement-template.md`
+- `backward-reasoning-plan-template.md`
 
 Template families should include their own `README.md` that lists the focused templates and when to use the family.
 

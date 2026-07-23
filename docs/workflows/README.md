@@ -36,6 +36,7 @@ Examples:
 - `hands-off-agentic-coding-workflow.md`
 - `learn-workflow.md`
 - `jira-reporting-workflow.md`
+- `backward-reasoning-workflow.md`
 - `node-express-api-workflow.md`
 - `pull-request-management-workflow.md`
 - `testing-instructions-workflow.md`
