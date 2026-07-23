@@ -16,6 +16,8 @@ omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 
 Use direct install instead of the marketplace flow when you want both the package skills and OMP adapter.
 
+Routine OMP installs use the generic GitHub reference and follow the repository's default branch. An exact full-commit reference with `--force` is exceptional: use it only to reproduce an exact artifact or diagnose stale plugin-cache state. See [`docs/references/omp-plugin-install-reference.md`](docs/references/omp-plugin-install-reference.md).
+
 This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, temporary MCP tasks, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
@@ -49,8 +51,8 @@ This package stays the base layer for doctrine, skills, rules, workflows, and th
 
 | Plugin | Adds | Install | Skip when |
 | --- | --- | --- | --- |
-| [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) | Evidence-first guardrails and local verifier scaffolding for hands-off agent runs. Pin the released plugin tag. | `omp plugin install github:klondikemarlen/omp-verifier#v0.6.8` | You do not want verifier-enforced evidence gates or local verifier scaffolding. |
-| [`omp-repository-boundary-guard`](https://github.com/klondikemarlen/omp-repository-boundary-guard) | Repository-boundary guard for local writes and moves, `git push`, supported `gh issue`/`gh pr`/`gh api` mutations, and supported `xd://github` writes. It asks before mutations cross the active boundary and permits one exact retry. | `omp plugin install github:klondikemarlen/omp-repository-boundary-guard#v1.0.0` | You do not need repository-boundary protection for local or GitHub writes. |
+| [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) | Evidence-first guardrails and local verifier scaffolding for hands-off agent runs. Routine installs follow the default branch; use an exact tag or hash only for artifact verification. | `omp plugin install github:klondikemarlen/omp-verifier` | You do not want verifier-enforced evidence gates or local verifier scaffolding. |
+| [`omp-repository-boundary-guard`](https://github.com/klondikemarlen/omp-repository-boundary-guard) | Repository-boundary guard for local writes and moves, `git push`, supported `gh issue`/`gh pr`/`gh api` mutations, and supported `xd://github` writes. Routine installs follow the default branch; use an exact tag or hash only for artifact verification. | `omp plugin install github:klondikemarlen/omp-repository-boundary-guard` | You do not need repository-boundary protection for local or GitHub writes. |
 | [`omp-vscode-context`](https://github.com/klondikemarlen/omp-vscode-context) | Two-part VS Code extension plus OMP plugin bridge for richer editor/context handoff into OMP. | `code --install-extension klondikemarlen.omp-vscode-context --force`<br>`omp plugin install github:klondikemarlen/omp-vscode-context` | You do not use VS Code or do not need editor-state context in OMP. |
 | [`omp-developer-cost-status`](https://github.com/klondikemarlen/omp-developer-cost-status) | A developer attention/cost status meter for longer sessions. | `omp plugin install github:klondikemarlen/omp-developer-cost-status` | You do not want cost or attention telemetry in your statusline. |
 | [`omp-auto-retitle`](https://github.com/klondikemarlen/omp-auto-retitle) | Automatic session title cleanup for long or multi-thread OMP work. | `omp plugin install github:klondikemarlen/omp-auto-retitle` | You prefer manual session titles or your client already handles title hygiene. |

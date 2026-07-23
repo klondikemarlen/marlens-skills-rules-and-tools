@@ -12,6 +12,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Express Light Rail backend concepts.
 - Code organization, module boundaries, and pattern-selection criteria: [`code-organization-reference.md`](./code-organization-reference.md).
 - Backward-reasoning planning and fit checks: [`backward-reasoning-reference.md`](./backward-reasoning-reference.md).
+- OMP plugin routine and exact-hash installation policy: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).
 - GitHub CLI and metadata editing caveats.
 - Development tooling portability decisions.
 - Cross-workflow conventions.
