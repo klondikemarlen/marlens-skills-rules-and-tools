@@ -5,7 +5,7 @@ Read this file when a workflow refers to package-local command setup. It maps pu
 | Command | Purpose | Source |
 | --- | --- | --- |
 | `dev` | Generic Docker Compose wrapper for project-local `bin/dev` shims. | [`bin/dev`](./dev) |
-| `check-commit-scope` | Reject mixed staged file categories unless explicitly overridden; a root `.commit-scope.json` can declare atomic release metadata groups. | [`bin/check-commit-scope`](./check-commit-scope) |
+| `check-commit-scope` | Reject mixed staged file categories unless explicitly overridden; a root `.commit-scope.json` can declare exact inseparable release groups. | [`bin/check-commit-scope`](./check-commit-scope) |
 | `agent-guidance-audit` | Read-only audit of a downstream repository's guidance. | [`bin/agent-guidance-audit.js`](./agent-guidance-audit.js) |
 | `git-edit-commit` | Safe entrypoint for scripted history edits. | [`bin/git-edit-commit.js`](./git-edit-commit.js) |
 | `temporary-mcp-task` | Run one confirmed child task with a temporarily enabled native OMP MCP server. | [`bin/temporary-mcp-task.js`](./temporary-mcp-task.js) |
@@ -14,8 +14,10 @@ Read this file when a workflow refers to package-local command setup. It maps pu
 
 `agent-rebase-edit.js` is the implementation loaded by `git-edit-commit`; invoke the published command rather than calling it directly.
 
-To allow a required release-metadata pair without allowing unrelated mixed commits, declare each all-or-nothing group in the repository root:
+To allow a genuinely inseparable feature or release group without allowing unrelated mixed commits, declare each all-or-nothing group in the repository root:
 
 ```json
-{ "atomicGroups": [["package.json", "lib/harvest_worklog/version.rb"]] }
+{ "atomicGroups": [["src/feature.ts", "test/feature.test.ts", "docs/feature.md", "package.json"]] }
 ```
+
+The checker accepts only the exact declared paths. Partial groups or groups mixed with extra paths still fail.
