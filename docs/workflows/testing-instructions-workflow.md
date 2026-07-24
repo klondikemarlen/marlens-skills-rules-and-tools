@@ -13,6 +13,25 @@ Use when writing or updating pull request testing instructions.
 7. Include expected outcomes for each scenario.
 8. Separate independent scenarios with numbered test cases when the flow is complex.
 
+## Evidence Ownership
+
+Choose the smallest owning evidence layer that can prove the Gold. Move outward only when the changed behavior crosses a boundary.
+
+| Change surface | Primary evidence |
+|---|---|
+| Unit, parser, schema, or pure state logic | Owning unit/module test |
+| Cross-module workflow or business behavior | Deterministic business/integration test |
+| Process, shell, PATH, installer, or OS policy | OS/install wrapper or scenario |
+| Packaged or released command behavior | Build/package/install smoke check |
+| UI, media, or interaction behavior | Source-level observable check by default; browser/UI scenario when explicitly requested or required by the project workflow |
+| Live provider behavior | Protocol fixture; opt-in live check with limitations |
+| Documentation or guidance | Owning-source/link/readability check and relevant verifier |
+| Performance or resource claim | Controlled end-to-end comparison with baseline, workload, environment, sample count, and correctness |
+
+Report only affected dimensions. Do not require an unrelated full matrix by default.
+
+This evidence-ownership guidance is adapted from Tura's [contribution guide](https://github.com/Tura-AI/tura/blob/main/docs/contributing-guide.md). Tura-inspired process guidance is not evidence that any isolated Tura feature caused a benchmark result.
+
 ## Rules
 
 - Test behavior, not implementation details.

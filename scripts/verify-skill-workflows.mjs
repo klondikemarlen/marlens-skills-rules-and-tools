@@ -311,6 +311,20 @@ for (const [name, workflow] of [
     }
   }
 }
+for (const [name, workflow] of [
+  ['authoritative testing instructions workflow', testingInstructionsWorkflow],
+  ['packaged testing instructions workflow', packagedTestingInstructionsWorkflow],
+]) {
+  for (const requiredText of [
+    '## Evidence Ownership',
+    'Documentation or guidance',
+    "Tura's [contribution guide]",
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must include ${requiredText}`);
+    }
+  }
+}
 
 const authoritativePullRequestWorkflow = read('docs/workflows/pull-request-management-workflow.md');
 for (const [name, workflow] of [
@@ -962,6 +976,17 @@ if (!read('docs/workflows/README.md').includes('backward-reasoning-workflow.md')
 }
 if (!read('docs/templates/README.md').includes('backward-reasoning-plan-template.md')) {
   fail('template README must list backward reasoning');
+}
+const handsOffWorkflows = [
+  ['authoritative hands-off workflow', read('docs/workflows/hands-off-agentic-coding-workflow.md')],
+  ['packaged hands-off workflow', read('skills/hands-off-agentic-coding/workflow.md')],
+];
+for (const [name, workflow] of handsOffWorkflows) {
+  for (const requiredText of ['Completed:', 'Remaining:', 'Validation:', 'Blockers:', 'Next action:', "Tura's documented task-status"]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must include ${requiredText}`);
+    }
+  }
 }
 if (failures.length > 0) {
   console.error(failures.map((message) => `FAIL ${message}`).join('\n'));
