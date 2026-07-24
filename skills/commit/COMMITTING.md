@@ -109,7 +109,7 @@ Before creating a commit, inspect the staged diff with its issue or PR context a
 
 Run `check-commit-scope` after staging and before committing. Application code may share a commit with its directly corresponding tests. Keep documentation, migrations, developer tooling, and configuration separate from application code; keep configuration separate from every non-configuration change.
 
-If the check reports a mixed boundary, stop and split the named paths. A repository may declare an inseparable release-metadata group in root `.commit-scope.json`; stage every member and nothing else. Use `check-commit-scope --allow-mixed` only after the user explicitly confirms that the listed categories are genuinely inseparable, then record that exception in the commit body.
+If a feature genuinely requires an inseparable set of implementation, focused tests, documentation, or release metadata, declare that exact set as an `atomicGroups` entry in the repository-root `.commit-scope.json`. Stage every member and nothing else. The checker accepts the exact declared group while continuing to reject partial groups and unrelated extra paths. Use `check-commit-scope --allow-mixed` only for one-off exceptions after the user explicitly confirms that the listed categories are genuinely inseparable, then record that exception in the commit body.
 
 ## Dependency manifest and lockfile changes
 

@@ -126,6 +126,20 @@ const atomicGroupAllowed = runScopeCheck(releaseMetadataFiles, [], {
 });
 assert.equal(atomicGroupAllowed.status, 0);
 assert.match(atomicGroupAllowed.output, /Staged files satisfy commit file-type boundaries/u);
+const cohesiveFeatureGroup = ['src/feature.ts', 'test/feature.test.ts', 'docs/feature.md', 'package.json'];
+const cohesiveFeatureFiles = {
+  '.commit-scope.json': `${JSON.stringify({ atomicGroups: [cohesiveFeatureGroup] })}\n`,
+  'src/feature.ts': 'export const feature = true;\n',
+  'test/feature.test.ts': 'test("feature", () => {});\n',
+  'docs/feature.md': '# Feature\n',
+  'package.json': '{}\n',
+};
+const cohesiveFeatureAllowed = runScopeCheck(cohesiveFeatureFiles, [], {
+  unstagedPaths: ['.commit-scope.json'],
+  workingDirectory: 'scripts',
+});
+assert.equal(cohesiveFeatureAllowed.status, 0);
+assert.match(cohesiveFeatureAllowed.output, /Staged files satisfy commit file-type boundaries/u);
 
 const partialAtomicGroup = runScopeCheck(releaseMetadataFiles, [], {
   unstagedPaths: ['.commit-scope.json', 'lib/harvest_worklog/version.rb'],
