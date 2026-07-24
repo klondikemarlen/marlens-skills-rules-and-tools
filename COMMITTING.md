@@ -90,7 +90,9 @@ Prepares for renaming receiptStatus to signedReceiptStatus in the document model
 - `:unlock:` — security relaxations
 - `:ok_hand:` — fixes/adjustments
 - `:truck:` — renames/moves
-- `:white_check_mark:` / `:heavy_check_mark:` — tests
+- `:white_check_mark:` — new tests.
+- `:x:` — deliberate failing tests.
+- `:heavy_check_mark:` — fixes for failing tests.
 - `:heavy_plus_sign:` — additions
 - `:heavy_minus_sign:` — removals
 - `:label:` — typing fixes
