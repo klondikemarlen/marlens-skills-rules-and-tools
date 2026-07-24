@@ -15,6 +15,30 @@ Code organization is not more folders, more layers, or more pattern names. It is
 
 Use the smallest structure that makes ownership, change axes, data handoffs, and volatile decisions obvious.
 
+## Domain Discovery Checkpoint
+
+Before proposing a reorganization, discover the domain boundary from evidence rather than waiting for someone to name it. Inspect:
+
+- folder and module topology, including new or growing subtrees and sibling-folder conventions;
+- cohesive nouns, lifecycles, and concepts that recur together;
+- repeated change clusters and code churn;
+- dispatch conditions and dimensions that vary;
+- invariants owned by the candidate domain and the direction of its dependencies.
+
+Repeated churn, growing conditional branches, context-heavy helpers, and changes that repeatedly cross module boundaries are signals to investigate, not proof that a new abstraction or folder is warranted. Check each hypothesis against existing sibling-domain conventions and allow a domain to emerge incrementally as new evidence accumulates.
+
+Record every candidate before choosing an action:
+
+```text
+Candidate domain: <working name derived from evidence>
+Evidence: <topology, cohesive concepts, churn, conditionals, or boundary crossings>
+Owned responsibilities: <invariants, lifecycle, dispatch, and side effects>
+Boundary: <folders/modules and the allowed dependency direction>
+Smallest safe next action: <observe, rename, co-locate, extract, or split one seam>
+```
+
+Keep the candidate as a hypothesis when evidence is weak. Do not reorganize based on folder names or churn counts alone.
+
 ## Organization Tests
 
 Before adding a helper, service, class, repository, value object, adapter, folder, module, interface, factory, or registry, require at least one current reason:

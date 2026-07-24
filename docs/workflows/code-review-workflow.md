@@ -22,6 +22,8 @@ Use when reviewing a branch, pull request, or local diff.
 - For each changed `index.ts`, require re-exports to be alphabetized by exported symbol within each intentional comment/category group. Flag out-of-order exports as required corrections, name the expected ordering, preserve category boundaries, and do not require unrelated barrel-file rewrites.
 - Review commit scope when relevant: flag mixed code/test changes, migrations/schema/data changes, dependency churn, formatting, and documentation or workflow-learning updates unless the user explicitly requested a combined commit and the files are inseparable for review.
 - For maintainability or organization findings, use `docs/references/code-organization-reference.md`: flag boundaries, modules, helpers, or abstractions only when they affect ownership, data handoffs, dependency direction, side effects, or future change safety. Keep Ponytail/YAGNI simplicity checks separate. <!-- agent-guidance-audit: ignore backtick-path -->
+
+- Before proposing a reorganization, run the domain-discovery checkpoint in [`docs/references/code-organization-reference.md`](../references/code-organization-reference.md): inspect topology, cohesive concepts, repeated change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling conventions. Treat churn, growing branches, context-heavy helpers, and repeated boundary crossings as evidence to investigate—not proof of a new abstraction—and record each candidate's evidence, responsibilities, boundary, and smallest safe next action.
 - Flag private helpers that read instance fields when a caller can pass those values explicitly. Do not force parameters when the helper is inherently bound to object state.
 
 ## Process
