@@ -12,6 +12,26 @@ const packagedReview = read('../skills/code-review/workflow.md');
 const authoritativeSelfImprovement = read('../docs/workflows/self-improvement-workflow.md');
 const packagedSelfImprovement = read('../skills/self-improvement/workflow.md');
 
+function domainGuidance(workflow) {
+  return workflow
+    .split('\n')
+    .filter((line) => (
+      line.includes('Before proposing a reorganization')
+      || line.includes('Treat domain discovery as a recurring phase')
+      || line.includes('Revisit domain hypotheses before proposing refactoring')
+    ))
+    .join('\n')
+    .replaceAll('../../docs/references/code-organization-reference.md', 'REFERENCE')
+    .replaceAll('../references/code-organization-reference.md', 'REFERENCE')
+    .replaceAll('docs/references/code-organization-reference.md', 'REFERENCE');
+}
+
+assert.equal(domainGuidance(authoritativeReview), domainGuidance(packagedReview));
+assert.equal(
+  domainGuidance(authoritativeSelfImprovement),
+  domainGuidance(packagedSelfImprovement),
+);
+
 assert.match(reference, /## Domain Discovery Checkpoint/);
 assert.match(reference, /repeated change clusters and code churn/);
 assert.match(reference, /Do not reorganize based on folder names or churn counts alone/);
