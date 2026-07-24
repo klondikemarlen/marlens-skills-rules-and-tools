@@ -3,7 +3,10 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-const verificationModule = path.resolve('verifications/no-envrc-example.mjs');
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const verificationModule = path.join(root, 'verifications/no-envrc-example.mjs');
 
 
 function createGitProject() {
