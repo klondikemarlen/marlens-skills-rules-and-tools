@@ -19,6 +19,8 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
 
+The handoff fields below adapt Tura's documented task-status and context-management practices: [task status](https://github.com/Tura-AI/tura/blob/main/docs/core/task-status.md) and [context management](https://github.com/Tura-AI/tura/blob/main/docs/core/context-management.md). They preserve actionable execution state without importing Tura's runtime architecture or claiming that any benchmark result is caused by one feature.
+
 ## Process
 
 1. Capture the request in four lines before editing:
@@ -64,6 +66,11 @@ Commands: <setup/test/release commands already observed>
 Constraints: <non-goals, compatibility, security, release rules>
 Links/artifacts: <issues, PRs, screenshots, logs>
 Open questions: <only what tools cannot answer>
+Completed: <finished work and deliverables>
+Remaining: <unfinished work or none>
+Validation: <checks run, outcomes, and affected dimensions not run>
+Blockers: <user decision, credential, environment, or none>
+Next action: <exact next tool call or user action>
 ```
 
 ## Output Contract

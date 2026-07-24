@@ -29,6 +29,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 2. Build a context handoff packet:
    - relevant files, local docs, commands, constraints, issue/PR links, screenshots/logs/artifacts, and open questions;
    - include only facts observed through tools or provided by the user.
+   - These handoff fields adapt Tura's documented task-status and context-management practices: [task status](https://github.com/Tura-AI/tura/blob/main/docs/core/task-status.md) and [context management](https://github.com/Tura-AI/tura/blob/main/docs/core/context-management.md). They preserve actionable execution state without importing Tura's runtime architecture or claiming that any benchmark result is caused by one feature.
 3. Choose the execution shape:
    - **Small diff:** one-sentence request, one obvious area, no exported API change. Skip a written plan; patch directly after reading the local pattern.
    - **Unclear or multi-file:** explore first, then write the shortest plan that covers the flow end to end.
@@ -64,6 +65,11 @@ Commands: <setup/test/release commands already observed>
 Constraints: <non-goals, compatibility, security, release rules>
 Links/artifacts: <issues, PRs, screenshots, logs>
 Open questions: <only what tools cannot answer>
+Completed: <finished work and deliverables>
+Remaining: <unfinished work or none>
+Validation: <checks run, outcomes, and affected dimensions not run>
+Blockers: <user decision, credential, environment, or none>
+Next action: <exact next tool call or user action>
 ```
 
 ## Output Contract
