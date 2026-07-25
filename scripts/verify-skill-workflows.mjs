@@ -269,6 +269,11 @@ for (const [name, workflow] of [
     "External or unresolved GitHub writes defer to `omp-repository-boundary-guard`'s single standard Ask",
     'Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference',
     'Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis',
+    'Treat GitHub administration as distinct from browser UI validation',
+    'prefer an authenticated `gh`/GitHub API path when available',
+    'A signed-out browser does not block completed remote work',
+    'Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement',
+    'After any API mutation, perform a fresh API read that confirms the intended remote state',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
@@ -390,8 +395,17 @@ if (uploadScreenshotsWorkflow.includes('prefer the GitHub REST API')) {
 }
 
 const githubToolingReference = read('docs/references/github-tooling-reference.md');
-if (!githubToolingReference.includes('does not provide a public upload endpoint that hosts a local screenshot')) {
-  fail('github tooling reference must document that gh api cannot host local screenshots as user attachments');
+for (const requiredText of [
+  'does not provide a public upload endpoint that hosts a local screenshot',
+  'For non-UI GitHub administration',
+  'prefer an authenticated `gh`/GitHub API path when available',
+  'A signed-out browser session does not make API-backed work `BLOCKED`',
+  'After an API mutation, perform a fresh API read that confirms the intended remote state',
+  'Reserve browser authentication blockers for explicit browser UI validation',
+]) {
+  if (!githubToolingReference.includes(requiredText)) {
+    fail(`github tooling reference must document ${requiredText}`);
+  }
 }
 
 const administrationTabTemplate = read('docs/templates/frontend/administration-tab-page-template.md');
