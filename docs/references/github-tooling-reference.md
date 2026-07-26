@@ -41,7 +41,9 @@ github-review-thread upvote   --repo OWNER/REPOSITORY --comment-id COMMENT_ID
 github-review-thread downvote --repo OWNER/REPOSITORY --comment-id COMMENT_ID
 github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body-file PATH
 github-review-thread resolve  --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID
+
 ```
+The helper first reads the authenticated user’s reactions, skips duplicate `+1`/`-1` writes, then verifies the expected reaction after a write. Its `resolve` action maps the comment to a review thread, calls GraphQL `resolveReviewThread`, and verifies `reviewThread.isResolved` is `true`.
 
 Never pass Markdown through inline `--body`; the shell evaluates backticks and `$()` before the CLI receives the argument. Write the exact text to a file and pass `--body-file`:
 

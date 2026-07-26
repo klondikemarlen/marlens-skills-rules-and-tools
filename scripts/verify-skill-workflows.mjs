@@ -243,6 +243,34 @@ if (!pullRequestWorkflow.includes('restore ready-for-review status unless the PR
   fail('packaged pull request workflow must include self-contained restored ready-for-review guidance');
 }
 
+for (const requiredText of [
+  'react with `+1`',
+  'react with `-1`',
+  'POST /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions',
+  'resolveReviewThread',
+  'reviewThread.isResolved',
+  'After every fixup commit',
+]) {
+  if (!commentResolutionWorkflow.includes(requiredText)) {
+    fail(`comment resolution workflow must require ${requiredText}`);
+  }
+}
+
+for (const [name, workflow] of [
+  ['authoritative pull request workflow', read('docs/workflows/pull-request-management-workflow.md')],
+  ['packaged pull request workflow', pullRequestWorkflow],
+]) {
+  for (const requiredText of [
+    'react `+1`',
+    'react `-1`',
+    'reviewThread.isResolved',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must require review reaction verification: ${requiredText}`);
+    }
+  }
+}
+
 const featureWorkflow = read('docs/workflows/feature-workflow.md');
 const packagedFeatureWorkflow = read('skills/feature/workflow.md');
 for (const [name, workflow] of [

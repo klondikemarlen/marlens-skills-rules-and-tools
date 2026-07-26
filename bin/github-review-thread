@@ -45,13 +45,27 @@ switch (action) {
   case 'upvote':
   case 'downvote': {
     const reaction = action === 'upvote' ? REVIEW_COMMENT_REACTION_REPLIES[0] : REVIEW_COMMENT_REACTION_REPLIES[1];
-    await callRest(
-      'POST',
-      reviewCommentReactionEndpoint(repository, commentId),
-      { content: reaction },
-      token,
-    );
-    console.log(JSON.stringify({ action, repository, commentId, status: 'ok', result: `reaction:${reaction}` }));
+    const viewerId = await currentViewerId(token);
+    const alreadyReacted = await currentViewerHasReaction(repository, commentId, reaction, viewerId, token);
+    if (!alreadyReacted) {
+      await callRest(
+        'POST',
+        reviewCommentReactionEndpoint(repository, commentId),
+        { content: reaction },
+        token,
+      );
+      if (!await currentViewerHasReaction(repository, commentId, reaction, viewerId, token)) {
+        fail(`Reaction ${reaction} was not present after the request for comment ${commentId}.`);
+      }
+    }
+    console.log(JSON.stringify({
+      action,
+      repository,
+      commentId,
+      status: 'ok',
+      result: `reaction:${reaction}`,
+      created: !alreadyReacted,
+    }));
     break;
   }
 
@@ -105,9 +119,25 @@ async function printPlannedPlan() {
   if (action === 'upvote' || action === 'downvote') {
     const reaction = action === 'upvote' ? REVIEW_COMMENT_REACTION_REPLIES[0] : REVIEW_COMMENT_REACTION_REPLIES[1];
     plan.push({
+      method: 'GET',
+      endpoint: 'user',
+      note: 'identify the authenticated user',
+    });
+    plan.push({
+      method: 'GET',
+      endpoint: `${reviewCommentReactionEndpoint(repository, commentId)}?per_page=100&page=<n>`,
+      note: 'skip POST when the authenticated user already has the expected reaction',
+    });
+    plan.push({
       method: 'POST',
       endpoint: reviewCommentReactionEndpoint(repository, commentId),
       body: { content: reaction },
+      note: 'only when the reaction is absent',
+    });
+    plan.push({
+      method: 'GET',
+      endpoint: `${reviewCommentReactionEndpoint(repository, commentId)}?per_page=100&page=<n>`,
+      note: 'verify the authenticated user has the expected reaction',
     });
     console.log(JSON.stringify({
       action,
@@ -261,6 +291,28 @@ async function threadContainsCommentInLaterPages(thread, reviewCommentId, authTo
 async function verifyThreadResolved(threadId, authToken) {
   const response = await callGraphql(graphqlThreadVerifyQuery(), { threadId }, authToken);
   return Boolean(response?.data?.node?.isResolved);
+}
+
+async function currentViewerId(authToken) {
+  const viewer = await callRest('GET', 'user', undefined, authToken);
+  if (!Number.isInteger(viewer?.id)) fail('Could not resolve the authenticated GitHub user.');
+  return viewer.id;
+}
+
+async function currentViewerHasReaction(repositoryValue, reviewCommentId, expectedReaction, viewerId, authToken) {
+  for (let page = 1;; page += 1) {
+    const reactions = await callRest(
+      'GET',
+      `${reviewCommentReactionEndpoint(repositoryValue, reviewCommentId)}?per_page=100&page=${page}`,
+      undefined,
+      authToken,
+    );
+    if (!Array.isArray(reactions)) fail(`Reaction lookup returned an invalid response for comment ${reviewCommentId}.`);
+    if (reactions.some((reaction) => reaction.content === expectedReaction && reaction.user?.id === viewerId)) {
+      return true;
+    }
+    if (reactions.length < 100) return false;
+  }
 }
 
 async function callRest(method, endpoint, payload, authToken) {
