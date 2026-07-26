@@ -58,22 +58,26 @@ test('github-review-thread', async (suite) => {
   });
 
   await suite.test('generates dry-run plans', async (dryRunSuite) => {
-    await dryRunSuite.test('previews upvote reaction payload', () => {
+    await dryRunSuite.test('previews upvote reaction checks and payload', () => {
       // Arrange
       const action = 'upvote';
       // Act
       const plan = runDry([repository, action]);
       // Assert
-      assert.equal(plan.plan?.[0]?.body?.content, REVIEW_COMMENT_REACTION_REPLIES[0]);
+      assert.equal(plan.plan?.length, 4);
+      assert.equal(plan.plan?.[1]?.method, 'GET');
+      assert.equal(plan.plan?.[2]?.body?.content, REVIEW_COMMENT_REACTION_REPLIES[0]);
+      assert.equal(plan.plan?.[3]?.method, 'GET');
     });
 
-    await dryRunSuite.test('previews downvote reaction payload', () => {
+    await dryRunSuite.test('previews downvote reaction checks and payload', () => {
       // Arrange
       const action = 'downvote';
       // Act
       const plan = runDry([repository, action]);
       // Assert
-      assert.equal(plan.plan?.[0]?.body?.content, REVIEW_COMMENT_REACTION_REPLIES[1]);
+      assert.equal(plan.plan?.length, 4);
+      assert.equal(plan.plan?.[2]?.body?.content, REVIEW_COMMENT_REACTION_REPLIES[1]);
     });
 
     await dryRunSuite.test('previews reply endpoint and method', () => {
@@ -161,39 +165,110 @@ test('github-review-thread', async (suite) => {
   });
 
   await suite.test('runs upvote/downvote reply actions with mocked API', async (actionSuite) => {
-    await actionSuite.test('upvotes review comment', async () => {
+    await actionSuite.test('upvotes only absent review comment reactions and verifies result', async () => {
       // Arrange
       const expectedCommentId = '123';
       // Act
       const result = await runWithMock({
         action: 'upvote',
         args: ['--repo', repository, '--comment-id', expectedCommentId],
-        responses: [{ status: 201, body: { id: 101, content: '+1' } }],
+        responses: [
+          { status: 200, body: { id: 42 } },
+          { status: 200, body: [] },
+          { status: 201, body: { id: 101, content: '+1' } },
+          { status: 200, body: [{ content: '+1', user: { id: 42 } }] },
+        ],
       });
       // Assert
       assert.equal(result.status, 0);
-      assert.equal(result.calls.length, 1);
-      assert.equal(result.calls[0].method, 'POST');
-      assert.equal(result.calls[0].url, `https://api.github.com/${reviewCommentReactionEndpoint(repository, expectedCommentId)}`);
-      assert.equal(result.calls[0].body?.content, REVIEW_COMMENT_REACTION_REPLIES[0]);
+      assert.equal(result.calls.length, 4);
+      assert.equal(result.calls[0].url, 'https://api.github.com/user');
+      assert.equal(result.calls[1].method, 'GET');
+      assert.equal(result.calls[2].method, 'POST');
+      assert.equal(result.calls[2].url, `https://api.github.com/${reviewCommentReactionEndpoint(repository, expectedCommentId)}`);
+      assert.equal(result.calls[2].body?.content, REVIEW_COMMENT_REACTION_REPLIES[0]);
+      assert.equal(result.calls[3].method, 'GET');
       assert.equal(result.json?.status, 'ok');
+      assert.equal(result.json?.created, true);
     });
 
-    await actionSuite.test('downvotes review comment', async () => {
+    await actionSuite.test('does not duplicate the authenticated user reaction', async () => {
+      // Arrange
+      const expectedCommentId = '123';
+      // Act
+      const result = await runWithMock({
+        action: 'upvote',
+        args: ['--repo', repository, '--comment-id', expectedCommentId],
+        responses: [
+          { status: 200, body: { id: 42 } },
+          { status: 200, body: [{ content: '+1', user: { id: 42 } }] },
+        ],
+      });
+      // Assert
+      assert.equal(result.status, 0);
+      assert.equal(result.calls.length, 2);
+      assert.equal(result.calls[1].method, 'GET');
+      assert.equal(result.json?.created, false);
+    });
+
+    await actionSuite.test('paginates reaction checks before deciding no duplicate exists', async () => {
+      // Arrange
+      const expectedCommentId = '123';
+      const firstPage = Array.from({ length: 100 }, () => ({ content: 'heart', user: { id: 7 } }));
+      // Act
+      const result = await runWithMock({
+        action: 'upvote',
+        args: ['--repo', repository, '--comment-id', expectedCommentId],
+        responses: [
+          { status: 200, body: { id: 42 } },
+          { status: 200, body: firstPage },
+          { status: 200, body: [{ content: '+1', user: { id: 42 } }] },
+        ],
+      });
+      // Assert
+      assert.equal(result.status, 0);
+      assert.equal(result.calls.length, 3);
+      assert.equal(result.calls[2].url, `https://api.github.com/${reviewCommentReactionEndpoint(repository, expectedCommentId)}?per_page=100&page=2`);
+      assert.equal(result.json?.created, false);
+    });
+
+    await actionSuite.test('fails when a new reaction cannot be verified', async () => {
+      // Arrange
+      const expectedCommentId = '123';
+      // Act
+      const result = await runWithMock({
+        action: 'upvote',
+        args: ['--repo', repository, '--comment-id', expectedCommentId],
+        responses: [
+          { status: 200, body: { id: 42 } },
+          { status: 200, body: [] },
+          { status: 201, body: { id: 101, content: '+1' } },
+          { status: 200, body: [] },
+        ],
+      });
+      // Assert
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /was not present after the request/u);
+    });
+
+    await actionSuite.test('downvotes review comments', async () => {
       // Arrange
       const expectedCommentId = '123';
       // Act
       const result = await runWithMock({
         action: 'downvote',
         args: ['--repo', repository, '--comment-id', expectedCommentId],
-        responses: [{ status: 201, body: { id: 102, content: '-1' } }],
+        responses: [
+          { status: 200, body: { id: 42 } },
+          { status: 200, body: [] },
+          { status: 201, body: { id: 102, content: '-1' } },
+          { status: 200, body: [{ content: '-1', user: { id: 42 } }] },
+        ],
       });
       // Assert
       assert.equal(result.status, 0);
-      assert.equal(result.calls.length, 1);
-      assert.equal(result.calls[0].method, 'POST');
-      assert.equal(result.calls[0].url, `https://api.github.com/${reviewCommentReactionEndpoint(repository, expectedCommentId)}`);
-      assert.equal(result.calls[0].body?.content, REVIEW_COMMENT_REACTION_REPLIES[1]);
+      assert.equal(result.calls[2].method, 'POST');
+      assert.equal(result.calls[2].body?.content, REVIEW_COMMENT_REACTION_REPLIES[1]);
     });
 
     await actionSuite.test('replies with literal file content via REST endpoint', async () => {
@@ -512,7 +587,10 @@ test('github-review-thread', async (suite) => {
       const result = await runWithMock({
         action: 'upvote',
         args: ['--repo', repository, '--comment-id', expectedCommentId],
-        responses: [{ status: 403, body: { message: 'Forbidden' } }],
+        responses: [
+          { status: 200, body: { id: 42 } },
+          { status: 403, body: { message: 'Forbidden' } },
+        ],
       });
       // Assert
       assert.notEqual(result.status, 0);

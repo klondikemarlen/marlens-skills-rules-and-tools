@@ -27,14 +27,16 @@ Use when creating or updating a pull request.
 6. Do not claim verification that was not performed.
 7. Self-review the complete PR diff before requesting review or merging. Record every finding, fixup, and `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
 8. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks. Record the exact scenario, observed outcome, and command result in the PR.
-9. Resolve every actionable review finding or comment before merge. After a fixup, re-review the complete diff and repeat the targeted QA and relevant checks.
-10. Keep the PR `BLOCKED`; do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
+9. For every actionable inline review comment, follow the pull-request comment-resolution protocol: react `+1` for accepted/addressed feedback; react `-1` for rejected/not-applicable feedback. Avoid duplicate reactions, resolve the thread, and verify both the reaction and `reviewThread.isResolved` through GitHub. After a fixup, repeat this protocol with the complete self-review and targeted QA.
+10. Resolve every actionable review finding or comment before marking the PR ready or merging.
+11. Keep the PR `BLOCKED`; do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
 
 ## Decision Rules
 
 - Preserve existing `Fixes`, `Closes`, or issue-link semantics unless asked to change them.
 - Prefer concise active language over file-by-file implementation summaries.
 - Write PR titles in title case. Read the first available title casing reference: local `docs/references/title-casing-reference.md`, then packaged `skill://pull-request-management/title-casing.md`.
+- Keep actionable inline review comments incomplete until the expected `+1`/`-1` reaction and `reviewThread.isResolved: true` have been verified through GitHub.
 - For UI changes, include screenshots or explain why screenshots do not apply.
 - When screenshots are required, use the packaged `../../docs/workflows/upload-pr-screenshots-workflow.md` workflow for upload and PR body formatting.
 - If a project has a local PR template or workflow, follow it over this generic workflow.
