@@ -32,6 +32,18 @@ gh pr edit <number> --title "New Title"
 gh pr view <number> --json title,body,state,isDraft,url
 ```
 
+## REST Fallback for Pull Request Metadata
+
+`gh pr edit` may fail while querying the deprecated `repository.pullRequest.projectCards` GraphQL field. Keep Markdown in a file, build a JSON request body from that file, and use the REST endpoint instead:
+
+```bash
+jq -n --rawfile body /tmp/pr-body.md '{body: $body}' >/tmp/pr-patch.json
+gh api -X PATCH repos/OWNER/REPOSITORY/pulls/NUMBER --input /tmp/pr-patch.json
+gh api repos/OWNER/REPOSITORY/pulls/NUMBER --jq '{title,body}'
+```
+
+Use the same `gh api -X PATCH` endpoint with `{title: "New Title"}` for title updates. After every mutation, perform a fresh API-backed read and verify the intended title or body before reporting success. Do not pass shell-sensitive Markdown inline.
+
 ## Review Comment Thread Actions
 
 For this repository, use local script helpers before touching write-sensitive GitHub APIs:
