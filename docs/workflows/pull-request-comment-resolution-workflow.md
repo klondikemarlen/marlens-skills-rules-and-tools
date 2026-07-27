@@ -13,7 +13,7 @@ Use when addressing pull request review comments, especially line-level review t
 - Reply on the review thread for line comments. Do not use a top-level PR comment or PR body edit as a substitute.
 - For every actionable inline review comment, react with `+1` after accepting or addressing it; react with `-1` when rejecting it as not applicable.
 - Before writing a reaction, check the authenticated user’s existing reactions so the same reaction is never duplicated; verify the expected reaction exists afterward.
-- Resolve the corresponding review thread with GraphQL `resolveReviewThread` only after its direct reply and outcome are true, then verify `reviewThread.isResolved` is `true`.
+- Use the repository helper’s gated `resolve --reaction +1|-1` action after the direct reply. It establishes and verifies the expected reaction before calling GraphQL `resolveReviewThread`, then performs a final reaction and `reviewThread.isResolved` check; a resolved thread without the expected reaction is incomplete.
 - The reaction endpoint is `POST /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions`.
 - Start replies with one outcome phrase:
   - `Addressed in <commit-hash>: <specific fix>.`
@@ -35,7 +35,13 @@ Use when addressing pull request review comments, especially line-level review t
 2. For each comment, assess whether the concern is addressed, rejected as not applicable, or deferred.
 3. Check the authenticated user’s reactions and add exactly one `+1` for accepted/addressed feedback or `-1` for rejected/not-applicable feedback.
 4. Reply directly on the thread with the matching outcome phrase.
-5. Resolve the thread with GraphQL `resolveReviewThread`.
+5. Resolve with the expected reaction in the same completion gate:
+   ```bash
+   # accepted/addressed
+   github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction +1
+   # rejected/not applicable
+   github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction -1
+   ```
 6. Re-check GitHub: the expected reaction exists and `reviewThread.isResolved` is `true`.
 7. After each fixup, repeat the assessment, reaction, resolution, and verification protocol before marking the PR ready.
 8. If the PR was only converted to draft for the follow-up, mark it ready for review again.

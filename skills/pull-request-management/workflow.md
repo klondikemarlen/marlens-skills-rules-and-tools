@@ -28,6 +28,7 @@ Use when creating or updating a pull request.
 7. Self-review the complete PR diff before requesting review or merging. Record material findings, fixups, and `PASS`/`FAIL`/`BLOCKED` outcome in the PR; keep generic process claims and raw diagnostics out of the main body unless they affect a reviewer decision.
 8. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks. Record the exact scenario, observed outcome, and command result in the PR body or one clearly labeled linked evidence comment.
 9. For every actionable inline review comment, follow the pull-request comment-resolution protocol: react `+1` for accepted/addressed feedback; react `-1` for rejected/not-applicable feedback. Avoid duplicate reactions, resolve the thread, and verify both the reaction and `reviewThread.isResolved` through GitHub. After a fixup, repeat this protocol with the complete self-review and targeted QA.
+   Use `github-review-thread resolve ... --reaction +1` for accepted/addressed comments or `--reaction -1` for rejected/not-applicable comments; do not report completion until the helper’s final reaction and `reviewThread.isResolved` checks pass.
 10. Resolve every actionable review finding or comment before marking the PR ready or merging.
 11. Keep the PR `BLOCKED`; do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
 
