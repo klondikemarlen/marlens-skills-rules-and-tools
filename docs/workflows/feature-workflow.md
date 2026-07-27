@@ -30,6 +30,19 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Verify the shipped artifact from the remote source after push, publish, tag, or release; local checks alone do not prove the released version is installed or usable.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
+## Requirements Snapshot
+
+For ambiguous or cross-cutting feature work, add a lightweight requirements snapshot to the issue or planning artifact that already owns the work:
+
+- **Problem:** the user or maintainer problem being solved.
+- **Desired result/Gold:** the observable outcome.
+- **Acceptance criteria:** how completion will be recognized.
+- **Assumptions:** facts or constraints currently being taken as true.
+- **Open questions:** decisions that tools and existing project guidance cannot answer.
+- **Non-goals:** explicitly excluded behavior, integrations, and cleanup.
+
+Skip the snapshot for mechanical changes with an obvious scope. Do not turn it into a full PRD, mandatory sign-off, stakeholder roster, target-release ceremony, or separate requirements system.
+
 ## Learner Coverage During Issue Triage
 
 For each issue not clearly learner-authored, inspect explicit provenance—author, `learner:` title or label, issue body, and cited evidence—rather than guessing from its appearance. Record exactly one learner coverage outcome in the implementation PR:
