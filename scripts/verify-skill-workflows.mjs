@@ -431,6 +431,9 @@ for (const requiredText of [
   'prefer an authenticated `gh`/GitHub API path when available',
   'A signed-out browser session does not make API-backed work `BLOCKED`',
   'After an API mutation, perform a fresh API read that confirms the intended remote state',
+  'repository.pullRequest.projectCards',
+  'gh api -X PATCH repos/OWNER/REPOSITORY/pulls/NUMBER',
+  'Do not pass shell-sensitive Markdown inline',
   'Reserve browser authentication blockers for explicit browser UI validation',
 ]) {
   if (!githubToolingReference.includes(requiredText)) {
