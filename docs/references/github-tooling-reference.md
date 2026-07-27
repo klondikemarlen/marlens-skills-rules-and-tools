@@ -52,10 +52,14 @@ For this repository, use local script helpers before touching write-sensitive Gi
 github-review-thread upvote   --repo OWNER/REPOSITORY --comment-id COMMENT_ID
 github-review-thread downvote --repo OWNER/REPOSITORY --comment-id COMMENT_ID
 github-review-thread reply    --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body-file PATH
-github-review-thread resolve  --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID
+
+# accepted/addressed inline comment
+github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction +1
+# rejected/not-applicable inline comment
+github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction -1
 
 ```
-The helper first reads the authenticated user’s reactions, skips duplicate `+1`/`-1` writes, then verifies the expected reaction after a write. Its `resolve` action maps the comment to a review thread, calls GraphQL `resolveReviewThread`, and verifies `reviewThread.isResolved` is `true`.
+The gated `resolve --reaction +1|-1` action maps the comment to its review thread, establishes and verifies the actor’s expected reaction before resolving, and performs a final check of both the reaction and `reviewThread.isResolved`. A resolved thread without that reaction is incomplete.
 
 Never pass Markdown through inline `--body`; the shell evaluates backticks and `$()` before the CLI receives the argument. Write the exact text to a file and pass `--body-file`:
 
