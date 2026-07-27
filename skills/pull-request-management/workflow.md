@@ -30,6 +30,7 @@ Use when creating or updating a pull request.
 9. For every actionable inline review comment, follow the pull-request comment-resolution protocol: react `+1` for accepted/addressed feedback; react `-1` for rejected/not-applicable feedback. Avoid duplicate reactions, resolve the thread, and verify both the reaction and `reviewThread.isResolved` through GitHub. After a fixup, repeat this protocol with the complete self-review and targeted QA.
 10. Resolve every actionable review finding or comment before marking the PR ready or merging.
 11. Keep the PR `BLOCKED`; do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
+12. Before merging, verify through a fresh GitHub read that `reviewDecision` is `APPROVED` and the submitted reviews include an `APPROVED` review from a login different from the PR author. Self-review and passing checks do not substitute for external review; keep the PR `BLOCKED` when that approval is missing.
 
 ## Decision Rules
 

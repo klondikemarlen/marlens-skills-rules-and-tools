@@ -302,6 +302,8 @@ for (const [name, workflow] of [
     'A signed-out browser does not block completed remote work',
     'Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement',
     'After any API mutation, perform a fresh API read that confirms the intended remote state',
+    'recorded non-author approval',
+    're-read the PR through GitHub and verify `reviewDecision` is `APPROVED` with an `APPROVED` submitted review from a login different from the PR author',
     'check-title-case --title "<final title>"',
     're-read the created title through GitHub and run the same final check',
   ]) {
@@ -373,6 +375,8 @@ for (const [name, workflow] of [
     'Resolve every actionable review finding or comment',
     'Keep the PR `BLOCKED`',
     'Learner coverage: the triage outcome for each non-learner-authored issue',
+    'reviewDecision` is `APPROVED`',
+    'submitted reviews include an `APPROVED` review from a login different from the PR author',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);

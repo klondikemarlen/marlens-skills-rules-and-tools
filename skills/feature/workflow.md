@@ -19,7 +19,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement. After any API mutation, perform a fresh API read that confirms the intended remote state before claiming success.
 - Before opening a PR, verify its base is the repository's default branch or a documented release branch.
 - Run the smallest checks that cover the changed behavior; do not substitute broad unrelated test runs for missing targeted checks.
-- Merge only after required review and checks pass.
+- Merge only after a recorded non-author approval and required checks pass. Self-review, passing checks, or ready-for-review status do not substitute for external review. Before merging, re-read the PR through GitHub and verify `reviewDecision` is `APPROVED` with an `APPROVED` submitted review from a login different from the PR author; otherwise keep it `BLOCKED`.
 - Before requesting review or merging, authors MUST self-review the complete PR diff and record their findings and outcome in the PR.
 - Run targeted QA of the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed outcome, and command result in the PR.
 - Resolve every actionable review finding or comment before merge. After a fixup, repeat the complete self-review and targeted QA.
