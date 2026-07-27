@@ -15,6 +15,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation; do not ask again solely for that delivery. External or unresolved GitHub writes defer to `omp-repository-boundary-guard`'s single standard Ask; do not add another confirmation. Preserve destructive or ambiguous Git-operation safeguards.
 - Keep branches and PRs named for the issue so GitHub links the work automatically.
 - Treat GitHub administration as distinct from browser UI validation: for non-UI issue, pull request, and release reconciliation, prefer an authenticated `gh`/GitHub API path when available. A signed-out browser does not block completed remote work when the required state can be queried or mutated through the API.
+- Before creating or updating a GitHub issue or pull request, run `check-title-case --title "<final title>"`; pass exact identifiers with `--preserve`, then re-read the created title through GitHub and run the same final check.
 - Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement. After any API mutation, perform a fresh API read that confirms the intended remote state before claiming success.
 - Run the smallest checks that cover the changed behavior; do not substitute broad unrelated test runs for missing targeted checks.
 - Before opening a PR, verify its base is the repository's default branch or a documented release branch.

@@ -10,6 +10,7 @@ Read this file when a workflow refers to package-local command setup. It maps pu
 | `git-edit-commit` | Safe entrypoint for scripted history edits. | [`bin/git-edit-commit.js`](./git-edit-commit.js) |
 | `temporary-mcp-task` | Run one confirmed child task with a temporarily enabled native OMP MCP server. | [`bin/temporary-mcp-task.js`](./temporary-mcp-task.js) |
 | `github-review-thread` | Upvote/downvote, reply, and resolve review comments in the current repository. | [`bin/github-review-thread`](./github-review-thread) |
+| `check-title-case` | Fail when a GitHub issue or pull request title is not title case. | [`bin/check-title-case`](./check-title-case) |
 | `github-headless-session` | Starts a disposable headed-to-headless GitHub browser session and prints a loopback CDP endpoint. The endpoint is not an authorization boundary; use a dedicated test account with repository-only access. | [`bin/github-headless-session`](./github-headless-session) |
 
 `agent-rebase-edit.js` is the implementation loaded by `git-edit-commit`; invoke the published command rather than calling it directly.

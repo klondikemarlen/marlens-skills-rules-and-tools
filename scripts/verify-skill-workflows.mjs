@@ -302,6 +302,8 @@ for (const [name, workflow] of [
     'A signed-out browser does not block completed remote work',
     'Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement',
     'After any API mutation, perform a fresh API read that confirms the intended remote state',
+    'check-title-case --title "<final title>"',
+    're-read the created title through GitHub and run the same final check',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
@@ -594,6 +596,8 @@ for (const [name, guidance] of titleCasingGuidance) {
     'Markdown headings',
     'email subjects',
     'explicit local style guide says otherwise',
+    'check-title-case --title "<final title>"',
+    're-read the title through GitHub',
   ]) {
     if (!guidance.includes(requiredText)) {
       fail(`${name} must cover display titles: ${requiredText}`);

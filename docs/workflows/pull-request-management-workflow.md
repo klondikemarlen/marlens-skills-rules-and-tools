@@ -35,6 +35,7 @@ Use when creating or updating a pull request.
 
 - Preserve existing `Fixes`, `Closes`, or issue-link semantics unless asked to change them.
 - Prefer concise active language over file-by-file implementation summaries.
+- Before creating or updating a GitHub issue or pull request, run `check-title-case --title "<final title>"`; pass exact identifiers with `--preserve`, then re-read the created title through GitHub and run the same final check.
 - Write PR titles in title case. Read the first available title casing reference: local `docs/references/title-casing-reference.md`, then packaged `skill://pull-request-management/title-casing.md`.
 - Keep actionable inline review comments incomplete until the expected `+1`/`-1` reaction and `reviewThread.isResolved: true` have been verified through GitHub.
 - For UI changes, include screenshots or explain why screenshots do not apply.
