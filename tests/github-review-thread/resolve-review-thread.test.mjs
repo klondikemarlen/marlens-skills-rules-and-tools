@@ -4,7 +4,7 @@ import test from 'node:test';
 import { graphqlResolveMutation } from '../../lib/github-review-thread/graphql-resolve-mutation.js';
 import { graphqlThreadLocatorQuery } from '../../lib/github-review-thread/graphql-thread-locator-query.js';
 import { graphqlThreadVerifyQuery } from '../../lib/github-review-thread/graphql-thread-verify-query.js';
-import { resolveReviewThread } from '../../lib/github-review-thread/resolve-review-thread.js';
+import { GitHubReviewIntegration } from '../../lib/github-review-thread/github-review-integration.js';
 import { reviewCommentReactionEndpoint } from '../../lib/github-review-thread/review-comment-reaction-endpoint.js';
 
 await test('creates the expected reaction before resolving and verifies both states', async () => {
@@ -46,7 +46,8 @@ await test('creates the expected reaction before resolving and verifies both sta
     return graphResponses.shift();
   };
 
-  const result = await resolveReviewThread('owner/repo', 456, 123, '-1', 'token', callRest, callGraphql);
+  const github = new GitHubReviewIntegration('token', { callRest, callGraphql });
+  const result = await github.resolveReviewThread('owner/repo', 456, 123, '-1');
 
   assert.deepEqual({
     result,
@@ -107,7 +108,8 @@ await test('repairs a missing reaction on an already-resolved thread without res
     return graphResponses.shift();
   };
 
-  const result = await resolveReviewThread('owner/repo', 456, 123, '+1', 'token', callRest, callGraphql);
+  const github = new GitHubReviewIntegration('token', { callRest, callGraphql });
+  const result = await github.resolveReviewThread('owner/repo', 456, 123, '+1');
 
   assert.deepEqual({ result, graphQueries: graphCalls.map(({ query }) => query), reactionWrite: restCalls[2] }, {
     result: { threadId: 'thread-resolved', reactionCreated: true, verified: true },
@@ -143,8 +145,9 @@ await test('rejects completion when the final reaction check is missing', async 
   const callRest = async () => restResponses.shift();
   const callGraphql = async () => graphResponses.shift();
 
+  const github = new GitHubReviewIntegration('token', { callRest, callGraphql });
   await assert.rejects(
-    resolveReviewThread('owner/repo', 456, 123, '+1', 'token', callRest, callGraphql),
+    github.resolveReviewThread('owner/repo', 456, 123, '+1'),
     /Completion verification failed/u,
   );
 });
