@@ -19,11 +19,11 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement. After any API mutation, perform a fresh API read that confirms the intended remote state before claiming success.
 - Run the smallest checks that cover the changed behavior; do not substitute broad unrelated test runs for missing targeted checks.
 - Before opening a PR, verify its base is the repository's default branch or a documented release branch.
-- Merge only after required review and checks pass.
+- Merge verified pull requests by default with a merge commit after required review and checks pass. Wait only when the work specifically requires end-user testing the agent cannot perform. An explicit user or maintainer request to waive, drop, or clean up may instead direct merge or closure of unverified work; record the missing evidence and do not claim it was verified.
 - Before requesting review or merging, authors MUST self-review the complete PR diff and record their findings and outcome in the PR.
 - Run targeted QA of the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed outcome, and command result in the PR.
-- Resolve every actionable review finding or comment before merge. After a fixup, repeat the complete self-review and targeted QA.
-- Keep the PR `BLOCKED` and do not mark it ready or merge while review feedback, QA, or required checks are unresolved.
+- Resolve every actionable review finding or comment before merge by default. After a fixup, repeat the complete self-review and targeted QA.
+- Keep the PR `BLOCKED` while review feedback, QA, or required checks are unresolved by default. If the user explicitly requests a waiver, drop, or cleanup, follow that disposition, record the missing evidence, and do not claim verification that did not occur.
 - During issue triage, record an evidence-based learner coverage outcome for every issue not clearly learner-authored; file an OMP Learner bug or feature only for a current-signal miss or capability gap.
 - For published artifacts, merge first, then perform the project’s documented version/changelog/publish/install verification steps on the release branch.
 - Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference and follow the default branch. Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis; verify the installed version separately.
@@ -63,11 +63,11 @@ Do not auto-file a learner issue solely because an issue was manually authored.
 6. Open a draft pull request linked to the issue using `docs/workflows/pull-request-management-workflow.md`.
 7. Self-review the complete PR diff; record findings, any fixups, and a `PASS`/`FAIL`/`BLOCKED` outcome in the PR.
 8. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks; record the exact scenario, observed result, and command output in the PR.
-9. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded.
-10. Resolve every actionable review finding or comment with the pull-request comment-resolution workflow. After each fixup, repeat the complete self-review and targeted QA, then update the PR evidence.
-11. Keep the PR `BLOCKED` and do not merge while review feedback, QA, or required checks are unresolved.
-12. Merge through the project's normal PR path only after review and required checks pass, so GitHub records the review/merge path.
-13. After merge, check out the intended default/release branch and fast-forward it from origin.
+9. Mark the PR ready only after its acceptance criteria and the current self-review and QA evidence are recorded by default. If an explicit user or maintainer waiver directs readiness, record the missing evidence truthfully.
+10. Resolve every actionable review finding or comment before marking the PR ready or merging by default using the pull-request comment-resolution workflow; after each fixup, repeat the complete self-review and targeted QA. If the user explicitly requests a waiver, drop, or cleanup instead, follow that instruction, record unresolved findings truthfully, and do not claim they were resolved.
+11. Keep the PR `BLOCKED` while review feedback, QA, or required checks are unresolved by default. If the user explicitly requests a waiver, drop, or cleanup, follow that disposition, record the missing evidence, and do not claim verification that did not occur.
+12. After all required review, checks, and actionable feedback are resolved, mark the pull request ready and merge it with a merge commit by default. Wait only for specifically required end-user testing the agent cannot perform. An explicit user or maintainer waiver may instead direct merge or closure; record the missing evidence and do not claim the result was verified.
+13. After merge, check out the intended default/release branch, fast-forward it from origin, and leave the checkout clean.
 14. Delete the merged issue branch locally and remotely only when it is agent-owned and no longer needed.
 15. Run `git worktree prune` and inspect `git worktree list`; remove only stale or agent-owned worktrees, never another user's worktree.
 16. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, then verify the shipped artifact itself, such as installing the pushed OMP plugin commit/tag, installing the packed or published npm package, running the released CLI binary, or pulling and smoke-testing the pushed Docker image. Keep project-specific install commands in the target repo’s local docs.

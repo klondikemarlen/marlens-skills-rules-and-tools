@@ -269,6 +269,22 @@ for (const [name, workflow] of [
       fail(`${name} must require review reaction verification: ${requiredText}`);
     }
   }
+  for (const requiredText of [
+    'After all required review, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default',
+    'Wait only for specifically required end-user testing the agent cannot perform',
+    'If the user explicitly requests a waiver, drop, or cleanup',
+    'record the missing evidence',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must require ${requiredText}`);
+    }
+  }
+  if (workflow.includes('Keep the PR `BLOCKED` and do not merge while')) {
+    fail(`${name} must not impose an unconditional blocked merge gate`);
+  }
+  if (workflow.includes('Resolve every actionable review finding or comment before marking the PR ready or merging.')) {
+    fail(`${name} must qualify merge resolution as the default`);
+  }
 }
 
 const featureWorkflow = read('docs/workflows/feature-workflow.md');
@@ -283,13 +299,17 @@ for (const [name, workflow] of [
     'Run targeted QA for the user-visible changed behavior',
     'Resolve every actionable review finding or comment',
     'After a fixup, repeat the complete self-review and targeted QA',
-    'Keep the PR `BLOCKED`',
+    'Merge verified pull requests by default with a merge commit',
+    'After all required review, checks, and actionable feedback are resolved, mark the pull request ready and merge it with a merge commit by default',
+    'Wait only when the work specifically requires end-user testing the agent cannot perform',
+    'explicit user or maintainer request to waive, drop, or clean up',
+    'record the missing evidence',
     'Learner Coverage During Issue Triage',
     'Learner coverage: no action',
     'Learner coverage: propose bug/feature',
     'Learner coverage: filed',
     "Before opening a PR, verify its base is the repository's default branch or a documented release branch.",
-    'After merge, check out the intended default/release branch and fast-forward it from origin.',
+    'After merge, check out the intended default/release branch, fast-forward it from origin, and leave the checkout clean.',
     'Delete the merged issue branch locally and remotely only when it is agent-owned and no longer needed.',
     'Run `git worktree prune` and inspect `git worktree list`',
     'Final branch/sync:',
@@ -317,6 +337,12 @@ for (const [name, workflow] of [
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
     }
+  }
+  if (workflow.includes('Keep the PR `BLOCKED` and do not merge while')) {
+    fail(`${name} must not impose an unconditional blocked merge gate`);
+  }
+  if (workflow.includes('Resolve every actionable review finding or comment before merge.')) {
+    fail(`${name} must qualify merge resolution as the default`);
   }
 }
 
