@@ -74,5 +74,9 @@ The helper rejects inline `--body` for replies. Use the same file-based pattern 
 
 Use `--dry-run` for a JSON plan preview.
 
+## Review Helper Package Boundary
+
+The review helper is part of this repository's OMP plugin/package artifact. Its GitHub API calls are grouped behind the exported `GitHubReviewIntegration`; the CLI remains the user-facing surface. Do not create a separate gem/npm package or add Octokit/`gh api` transport until a second consumer needs the integration or it must be versioned independently.
+
 ## Screenshot Attachments
 GitHub user-attachment URLs are created through a logged-in browser session. `gh api` can edit issue/PR Markdown after a durable image URL exists, but it does not provide a public upload endpoint that hosts a local screenshot as a `user-attachments/assets/...` URL. Use the project workflow for screenshot capture, browser upload, and attachment formatting.
