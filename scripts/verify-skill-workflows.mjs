@@ -852,6 +852,9 @@ for (const [name, workflow] of [
   if (!workflow.includes('Default to one `expect` per test') || !workflow.includes('response.status` and `response.body')) {
     fail(`${name} must allow separate controller status and body assertions`);
   }
+  if (!workflow.includes('For changed test files, inspect the nearest test-directory README') || !workflow.includes('report its assertion conventions and flag violations before reporting `PASS`')) {
+    fail(`${name} must discover and report local test assertion conventions before PASS`);
+  }
   if (!workflow.includes('alphabetized by exported symbol') || !workflow.includes('do not require unrelated barrel-file rewrites')) {
     fail(`${name} must review changed index re-export ordering`);
   }
