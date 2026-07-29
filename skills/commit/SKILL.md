@@ -5,4 +5,8 @@ description: Create intentional git commits from staged or relevant local change
 
 # Commit
 
-Use the local `docs/workflows/commit-workflow.md`, then `agents/workflows/commit-workflow.md`; otherwise use the [packaged workflow](workflow.md).
+Check whether `docs/workflows/commit-workflow.md` exists. If it does, read it.
+Otherwise, check whether `agents/workflows/commit-workflow.md` exists. If it does, read it.
+If neither local workflow exists, read `skill://commit/workflow.md` (the packaged [workflow](workflow.md)).
+
+Treat missing local workflow files as an expected fallback branch, not as read errors. Read repository-local `COMMITTING.md` first when it exists; it remains applicable to whichever workflow is selected.

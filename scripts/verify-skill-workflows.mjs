@@ -891,6 +891,30 @@ const sharedCommitGuide = read('COMMITTING.md');
 const packagedCommitGuide = read('skills/commit/COMMITTING.md');
 const commitWorkflow = read('docs/workflows/commit-workflow.md');
 const commitFallbackWorkflow = read('skills/commit/workflow.md');
+
+const commitSkill = read('skills/commit/SKILL.md');
+const orderedCommitFallbackChecks = [
+  'Check whether `docs/workflows/commit-workflow.md` exists. If it does, read it.',
+  'Otherwise, check whether `agents/workflows/commit-workflow.md` exists. If it does, read it.',
+  'If neither local workflow exists, read `skill://commit/workflow.md`',
+];
+let previousCommitFallbackCheck = -1;
+for (const check of orderedCommitFallbackChecks) {
+  const index = commitSkill.indexOf(check);
+  if (index === -1) {
+    fail(`commit skill must include ${check}`);
+  } else if (index <= previousCommitFallbackCheck) {
+    fail('commit skill must check local workflow paths in order before the packaged fallback');
+  } else {
+    previousCommitFallbackCheck = index;
+  }
+}
+if (!commitSkill.includes('Treat missing local workflow files as an expected fallback branch')) {
+  fail('commit skill must treat missing local workflow files as an expected fallback branch');
+}
+if (!commitSkill.includes('Read repository-local `COMMITTING.md` first when it exists')) {
+  fail('commit skill must preserve repository-local COMMITTING.md guidance');
+}
 if (packagedCommitGuide !== sharedCommitGuide) {
   fail('packaged commit guide must stay synchronized with the shared commit guide');
 }
@@ -971,6 +995,10 @@ const fixtureChecks = [];
 const packagedFixture = resolveFirstWorkflow(path.join(root, '.missing-local-workflows-fixture'), 'learn');
 if (packagedFixture.kind !== 'fallback') {
   fail(`Packaged fallback fixture: expected fallback, got ${packagedFixture.kind} (${packagedFixture.path})`);
+}
+const commitPackagedFixture = resolveFirstWorkflow(path.join(root, '.missing-local-workflows-fixture'), 'commit');
+if (commitPackagedFixture.kind !== 'fallback' || commitPackagedFixture.path !== 'skill://commit/workflow.md') {
+  fail(`Commit packaged fallback fixture: expected skill://commit/workflow.md, got ${commitPackagedFixture.kind} (${commitPackagedFixture.path})`);
 }
 
 
