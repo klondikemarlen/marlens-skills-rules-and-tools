@@ -67,11 +67,11 @@ Do not auto-file a learner issue solely because an issue was manually authored.
 10. Resolve every actionable review finding or comment before marking the PR ready or merging by default using the pull-request comment-resolution workflow; after each fixup, repeat the complete self-review and targeted QA. If the user explicitly requests a waiver, drop, or cleanup instead, follow that instruction, record unresolved findings truthfully, and do not claim they were resolved.
 11. Keep the PR `BLOCKED` while review feedback, QA, or required checks are unresolved by default. If the user explicitly requests a waiver, drop, or cleanup, follow that disposition, record the missing evidence, and do not claim verification that did not occur.
 12. After all required review, checks, and actionable feedback are resolved, mark the pull request ready and merge it with a merge commit by default. Wait only for specifically required end-user testing the agent cannot perform. An explicit user or maintainer waiver may instead direct merge or closure; record the missing evidence and do not claim the result was verified.
-13. After merge, check out the intended default/release branch, fast-forward it from origin, and leave the checkout clean.
-14. Delete the merged issue branch locally and remotely only when it is agent-owned and no longer needed.
+13. After merge, fetch and prune remote refs (`git fetch --prune origin`) and check out the intended default/release branch.
+14. Delete the merged issue branch locally and remotely only when it is agent-owned and no longer needed, then fast-forward the default/release branch from origin (`git pull --ff-only origin <branch>`). If local `main` has no work to preserve but cannot fast-forward, reset it to `origin/main`; never discard unpushed work silently. Any test-only follow-up must start on an issue-named topic branch before staging or committing; never commit it directly to `main`.
 15. Run `git worktree prune` and inspect `git worktree list`; remove only stale or agent-owned worktrees, never another user's worktree.
 16. For published changes, follow the project release docs: version/changelog if required, publish or deploy, poll the remote distribution source until the new version appears, reinstall from the remote source, and verify the installed version.
-17. Record the final checked-out branch, sync state, and retained worktrees as release evidence.
+17. Record the final checked-out branch, sync state, and retained worktrees as release evidence. Verify `git status --short --branch` has no changed paths and the current branch is synchronized; when no user-owned branches are retained, `git branch --list` must contain only the intended default branch. Retain and report user-owned branches instead of deleting them.
 
 ## Output Contract
 
