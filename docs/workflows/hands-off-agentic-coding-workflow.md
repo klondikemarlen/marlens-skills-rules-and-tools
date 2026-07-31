@@ -13,6 +13,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Project-local issue, release, contribution, and setup docs win over this generic workflow.
 - Start from Gold: name the desired behavior, invariant, or regression risk before planning or editing.
 - Establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
+- When a target repository documents an `npm test` gate, run it for source-file changes; in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run relevant installed verifier checks (normally `/verifier verify <id...>`) after focused checks and before completion or review. Skip read-only or prose-only work unless verifier-relevant; record `BLOCKED` if unavailable.
 - Explore before planning when scope is unclear, multi-file, or cross-subsystem.
 - Skip formal planning for one-sentence small diffs that touch one obvious area; read the local context, patch, and verify.
 - Use subagents or fusion when work splits across independent repo areas, multiple designs need comparison, review/refutation would catch risk, or test authoring needs focus.
