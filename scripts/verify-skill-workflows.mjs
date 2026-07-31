@@ -14,12 +14,16 @@ function fail(message) {
 }
 
 const packageJson = JSON.parse(read('package.json'));
+if (!packageJson.scripts?.test?.includes('node scripts/verify-oversized-source-files.mjs')) {
+  fail('package test gate must run the oversized-source-file verifier');
+}
 
 const alwaysLoadedGuidance = read('AGENTS.md');
 for (const requiredText of [
   'independent responsibility clusters',
   'smallest cohesive seam',
   'do not split mechanically by line count',
+  'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`',
 ]) {
   if (!alwaysLoadedGuidance.includes(requiredText)) {
     fail(`AGENTS.md must prevent mixed-responsibility source growth with ${requiredText}`);
@@ -338,6 +342,7 @@ for (const [name, workflow] of [
     'Open a draft pull request',
     'Self-review the complete PR diff',
     'Run targeted QA for the user-visible changed behavior',
+    'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`',
     'material findings, decisions, limitations, fixups, blockers',
     'concise status in the PR body',
     'one clearly labeled PR comment or linked traceable artifact',
@@ -1186,7 +1191,7 @@ const handsOffWorkflows = [
   ['packaged hands-off workflow', read('skills/hands-off-agentic-coding/workflow.md')],
 ];
 for (const [name, workflow] of handsOffWorkflows) {
-  for (const requiredText of ['Completed:', 'Remaining:', 'Validation:', 'Blockers:', 'Next action:', "Tura's documented task-status"]) {
+  for (const requiredText of ['Completed:', 'Remaining:', 'Validation:', 'Blockers:', 'Next action:', "Tura's documented task-status", 'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`']) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must include ${requiredText}`);
     }
