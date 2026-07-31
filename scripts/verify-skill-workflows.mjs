@@ -112,6 +112,36 @@ for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true
   }
 }
 
+const sessionInsightWorkflows = [
+  ['authoritative session insight workflow', read('docs/workflows/session-insight-mining-workflow.md')],
+  ['packaged session insight workflow', read('skills/session-insight-mining/workflow.md')],
+];
+for (const [name, workflow] of sessionInsightWorkflows) {
+  for (const requiredText of [
+    'Inspect the current session only',
+    'Every actionable finding needs source evidence, an owner, a smallest next action, and a duplicate check',
+    'resolved review threads and fixup commits',
+    'concrete observable invariant',
+    'affected boundary',
+    'smallest regression check',
+    'Invariant:',
+    'Boundary:',
+    'Smallest check:',
+    'Preserve repository boundaries',
+    'Project-local guidance',
+    'Shared workflow/rule proposal',
+    'Verifier/runtime proposal',
+    'Already covered',
+    'One-off/no action',
+    'Output Contract',
+    'intentionally skipped rationale',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must include ${requiredText}`);
+    }
+  }
+}
+
 const gitRebaseSkill = read('skills/git-rebase/SKILL.md');
 if (!gitRebaseSkill.includes('read `skill://git-rebase/workflow.md`')) {
   fail('git-rebase skill must explicitly direct agents to read its packaged workflow');

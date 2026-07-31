@@ -36,6 +36,11 @@ docs/
 6. Prefer descriptive filenames: `verb-noun-workflow.md`, `noun-template.md`, or `topic-reference.md`.
 7. Prefer discovery over long duplicated inventories.
 
+
+## Workflow Entry Points
+
+- Session insight mining: [`workflows/session-insight-mining-workflow.md`](workflows/session-insight-mining-workflow.md)
+
 ## Agent-Specific Documents
 
 - Codex command approval guidance: [`codex-rules-guide.md`](./codex-rules-guide.md)

@@ -18,7 +18,7 @@ Use direct install instead of the marketplace flow when you want both the packag
 
 Routine OMP installs use the generic GitHub reference and follow the repository's default branch. An exact full-commit reference with `--force` is exceptional: use it only to reproduce an exact artifact or diagnose stale plugin-cache state. See [`docs/references/omp-plugin-install-reference.md`](docs/references/omp-plugin-install-reference.md).
 
-This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, temporary MCP tasks, and testing instructions.
+This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, session insight mining, temporary MCP tasks, and testing instructions.
 
 These are skill prompts only; this package does not install browser automation or project test dependencies.
 
@@ -114,6 +114,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
 | Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |
 | Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md) |
+| Mine session insights and route durable lessons | [`docs/workflows/session-insight-mining-workflow.md`](docs/workflows/session-insight-mining-workflow.md) |
 | Draft or file Jira reports | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting` |
 | Run one task with a temporarily enabled MCP server | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md) |
 
