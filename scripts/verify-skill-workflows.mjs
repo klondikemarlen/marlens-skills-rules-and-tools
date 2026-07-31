@@ -327,6 +327,10 @@ for (const [name, workflow] of [
     'Open a draft pull request',
     'Self-review the complete PR diff',
     'Run targeted QA for the user-visible changed behavior',
+    'material findings, decisions, limitations, fixups, blockers',
+    'concise status in the PR body',
+    'one clearly labeled PR comment or linked traceable artifact',
+    'preserving `PASS`, `FAIL`, and `BLOCKED` outcomes',
     'Resolve every actionable review finding or comment',
     'After a fixup, repeat the complete self-review and targeted QA',
     'Merge verified pull requests by default with a merge commit',
@@ -432,22 +436,55 @@ for (const [name, workflow] of [
 }
 
 const authoritativePullRequestWorkflow = read('docs/workflows/pull-request-management-workflow.md');
-for (const [name, workflow] of [
+const pullRequestWorkflowVariants = [
   ['authoritative pull request workflow', authoritativePullRequestWorkflow],
   ['packaged pull request workflow', pullRequestWorkflow],
-]) {
+];
+for (const [name, workflow] of pullRequestWorkflowVariants) {
   for (const requiredText of [
-    'Review and QA evidence',
+    'Review and QA status',
+    'Testing instructions: runnable steps a reviewer can execute without branch-author context.',
+    'Do not add reviewer-facing `Verification` or `Evidence` sections',
+    'one clearly labeled PR comment or linked traceable artifact',
+    'material findings, decisions, limitations, fixups, blockers',
     'Self-review the complete PR diff',
     'Run targeted QA for the user-visible changed behavior',
     'Resolve every actionable review finding or comment',
     'Keep the PR `BLOCKED`',
-    'Learner coverage: the triage outcome for each non-learner-authored issue',
+    'Learner coverage: a concise triage outcome for each non-learner-authored issue',
+    '`PASS`, `FAIL`, and `BLOCKED` outcomes',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
     }
   }
+  if (/^#{1,6} (?:Verification|Evidence)\b/im.test(workflow)) {
+    fail(`${name} must not prescribe reviewer-facing Verification or Evidence sections`);
+  }
+}
+
+function normalizePullRequestWorkflow(workflow) {
+  return workflow
+    .replace(
+      /\n   (?:When the follow-up work resolves review comments, use `docs\/workflows\/pull-request-comment-resolution-workflow\.md` and restore ready-for-review status after resolved thread state is verified unless the PR was intentionally left draft\.|After follow-up work resolves review comments, verify every addressed thread is resolved, restore ready-for-review status unless the PR was intentionally left draft, and re-check the remote PR state before reporting it ready\.)/,
+      '\n   [follow-up review state]',
+    )
+    .replace(
+      /\n   Use `github-review-thread resolve .*?checks pass\./,
+      '',
+    )
+    .replace(
+      'the packaged `../../docs/workflows/upload-pr-screenshots-workflow.md`',
+      '`docs/workflows/upload-pr-screenshots-workflow.md`',
+    )
+    .replace(
+      '`docs/workflows/upload-pr-screenshots-workflow.md` workflow for upload',
+      '`docs/workflows/upload-pr-screenshots-workflow.md` for upload',
+    );
+}
+
+if (normalizePullRequestWorkflow(authoritativePullRequestWorkflow) !== normalizePullRequestWorkflow(pullRequestWorkflow)) {
+  fail('pull request workflow and packaged fallback must stay synchronized except for self-contained path and review-helper guidance');
 }
 
 if (!pullRequestWorkflow.includes('upload-pr-screenshots-workflow.md')) {
