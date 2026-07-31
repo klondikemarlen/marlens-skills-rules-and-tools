@@ -270,7 +270,7 @@ for (const [name, workflow] of [
     }
   }
   for (const requiredText of [
-    'After all required review, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default',
+    'After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default',
     'Wait only for specifically required end-user testing the agent cannot perform',
     'If the user explicitly requests a waiver, drop, or cleanup',
     'record the missing evidence',
@@ -300,7 +300,7 @@ for (const [name, workflow] of [
     'Resolve every actionable review finding or comment',
     'After a fixup, repeat the complete self-review and targeted QA',
     'Merge verified pull requests by default with a merge commit',
-    'After all required review, checks, and actionable feedback are resolved, mark the pull request ready and merge it with a merge commit by default',
+    'After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the pull request ready and merge it with a merge commit by default',
     'Wait only when the work specifically requires end-user testing the agent cannot perform',
     'explicit user or maintainer request to waive, drop, or clean up',
     'record the missing evidence',
