@@ -47,6 +47,7 @@
 
 - Prefer deletion, reuse, standard library, native platform features, then installed dependencies before writing custom code.
 - Avoid speculative abstractions, boilerplate, scaffolding, and configuration for values that do not vary.
+- When a source file grows across independent responsibility clusters, stop adding behavior until you name the owners, side effects, dependency direction, and smallest cohesive seam; do not split mechanically by line count.
 - Fix bugs at the shared root and check sibling callers before patching one path.
 - Leave the smallest runnable check for non-trivial logic; skip test scaffolding that does not protect behavior.
 - Mark deliberate shortcuts with a `ponytail:` comment that names the ceiling and upgrade path.

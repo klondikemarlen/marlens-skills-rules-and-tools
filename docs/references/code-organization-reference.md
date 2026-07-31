@@ -68,6 +68,19 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+## Oversized Responsibility Clusters
+
+Treat a large source file as a review signal, not an automatic split mandate. Inspect whether it combines independently changing responsibilities such as boundary parsing, state/persistence, external adapters, policy decisions, orchestration, and CLI or transport wiring.
+
+When the signal is present, record:
+
+- the concrete responsibility clusters and invariants each owns;
+- the side effects and dependencies that cross between clusters;
+- the smallest cohesive extraction seam, or the evidence for keeping the file together;
+- the behavior check that must remain unchanged across any move.
+
+Do not split mechanically by line count, create generic `helpers` or `utils` buckets, or add layers that leave the same ownership and dependency tangles intact. The `marlens-rules:no-oversized-source-files` verification is a backstop for review; responsibility and boundary evidence determines the design decision.
+
 ## Domain-Oriented Modules and Tests
 
 Split a growing module by the domain action or external integration it owns—not into generic `helpers`, `utils`, `services`, or `tests` buckets. Each module should have one narrow responsibility: parse or validate a boundary, make a policy decision, coordinate one action, or adapt one external system. Keep parsers and policies pure where practical; let orchestration depend on those decisions; keep filesystem, HTTP, database, framework, and extension state at the outer adapter boundary. Classes earn their cost only when they own meaningful state or a lifecycle; otherwise use a function.

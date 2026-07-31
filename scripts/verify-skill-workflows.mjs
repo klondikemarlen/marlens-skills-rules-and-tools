@@ -15,6 +15,17 @@ function fail(message) {
 
 const packageJson = JSON.parse(read('package.json'));
 
+const alwaysLoadedGuidance = read('AGENTS.md');
+for (const requiredText of [
+  'independent responsibility clusters',
+  'smallest cohesive seam',
+  'do not split mechanically by line count',
+]) {
+  if (!alwaysLoadedGuidance.includes(requiredText)) {
+    fail(`AGENTS.md must prevent mixed-responsibility source growth with ${requiredText}`);
+  }
+}
+
 if (existsSync(path.join(root, 'agents'))) {
   fail('top-level agents/ is reserved for plugin agents; use docs/ for shared guidance');
 }
@@ -848,6 +859,9 @@ const referencesIndex = read('docs/references/README.md');
 for (const requiredText of [
   'Code organization is not more folders',
   'Module Decomposition',
+  'Oversized Responsibility Clusters',
+  'Do not split mechanically by line count',
+  'marlens-rules:no-oversized-source-files',
   'Service Orchestration Readability',
   'Context/request object passed everywhere',
   'circular imports',
@@ -941,6 +955,9 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Check code organization')) {
     fail(`${name} must include an explicit code organization review step`);
+  }
+  if (!workflow.includes('oversized file as a signal') || !workflow.includes('mechanical split that preserves the same tangles')) {
+    fail(`${name} must review oversized mixed-responsibility files without requiring mechanical splits`);
   }
   if (!workflow.includes('State names should describe represented domain facts') || !workflow.includes('direct derived state')) {
     fail(`${name} must review state names and dependency-local ordering`);
