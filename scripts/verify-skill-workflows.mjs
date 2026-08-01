@@ -1012,7 +1012,8 @@ if (!commitSkill.includes('Treat missing local workflow files as an expected fal
 if (!commitSkill.includes('Read repository-local `COMMITTING.md` first when it exists')) {
   fail('commit skill must preserve repository-local COMMITTING.md guidance');
 }
-if (packagedCommitGuide !== sharedCommitGuide) {
+const normalizeCommitGuide = (guide) => guide.replaceAll('](../../docs/', '](docs/');
+if (normalizeCommitGuide(packagedCommitGuide) !== sharedCommitGuide) {
   fail('packaged commit guide must stay synchronized with the shared commit guide');
 }
 if (commitFallbackWorkflow !== commitWorkflow) {
