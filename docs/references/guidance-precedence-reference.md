@@ -15,7 +15,7 @@ Before applying a workflow from this package, read the target project’s local 
 - `AGENTS.md` or equivalent project agent rules
 - `README.md`
 - `COMMITTING.md`
-- `bin/README.md` or dev-wrapper docs <!-- agent-guidance-audit: ignore backtick-path -->
+- `bin/README.md` or dev-wrapper docs
 - project-local `docs/` workflows, templates, references, or plans
 - project-local skill files or agent shortcuts
 

@@ -185,7 +185,7 @@ Avoid: in-progress reasoning, implementation mechanics, and code symbols in pros
 
 ## Rewriting past commits
 
-Use the [`git-rebase` workflow](docs/workflows/git-rebase-workflow.md) for older-commit rewrites, commit rewording, amend stops, autosquash, and force-with-lease rules.
+Use the [`git-rebase` workflow](../../docs/workflows/git-rebase-workflow.md) for older-commit rewrites, commit rewording, amend stops, autosquash, and force-with-lease rules.
 
 For HEAD-only message changes:
 
@@ -205,5 +205,5 @@ git commit --amend -m "new message"
 
 ## PR and testing workflows
 
-- PR descriptions: [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md).
-- Testing instructions: [`docs/workflows/testing-instructions-workflow.md`](docs/workflows/testing-instructions-workflow.md).
+- PR descriptions: [`docs/workflows/pull-request-management-workflow.md`](../../docs/workflows/pull-request-management-workflow.md).
+- Testing instructions: [`docs/workflows/testing-instructions-workflow.md`](../../docs/workflows/testing-instructions-workflow.md).
