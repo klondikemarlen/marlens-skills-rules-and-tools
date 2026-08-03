@@ -166,6 +166,19 @@ function isStaleLiteralExempt(text, offset, stale) {
   return stale.needle === '/learner' && text.slice(offset).startsWith('/learner setup ');
 }
 
+function isConditionalWorkflowFallback(root, file, text, offset, token) {
+  if (!token.startsWith('agents/workflows/')) return false;
+  if (!path.relative(root, file).startsWith(`skills${path.sep}`)) return false;
+
+  const paragraphStart = text.lastIndexOf('\n\n', offset) + 2;
+  const paragraphEnd = text.indexOf('\n\n', offset);
+  const paragraph = text.slice(paragraphStart, paragraphEnd === -1 ? text.length : paragraphEnd);
+  const workflowName = token.slice('agents/workflows/'.length);
+  return paragraph.includes(`docs/workflows/${workflowName}`)
+    && paragraph.includes(token)
+    && /(?:then|otherwise|if neither)/i.test(paragraph);
+}
+
 function scanFile(root, file) {
   const text = readFileSync(file, 'utf8');
   const baseDir = path.dirname(file);
@@ -193,6 +206,7 @@ function scanFile(root, file) {
   for (const match of text.matchAll(/`([^`\n]+)`/g)) {
     const token = cleanTarget(match[1]);
     if (!isPathLike(token) || token.includes('*') || token.includes(' ') || token.includes('{')) continue;
+    if (isConditionalWorkflowFallback(root, file, text, match.index, token)) continue;
     if (!backtickPathExists(baseDir, root, token)) {
       results.push(finding(root, file, lineNumber(text, match.index), 'backtick-path', `missing target ${token}`, token));
     }

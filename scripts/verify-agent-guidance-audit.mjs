@@ -97,6 +97,32 @@ try {
   if (!strict.stdout.includes('workflow-inventory missing inventory entry docs/workflows/unlisted-workflow.md')) fail('missing unlisted workflow finding');
   if (!strict.stdout.includes('workflow-inventory inventory lists missing workflow missing-workflow.md')) fail('missing listed-but-absent workflow finding');
 
+  const conditionalRepo = path.join(fixtureRoot, 'conditional-fallback-repo');
+  const conditionalSkills = path.join(conditionalRepo, 'skills', 'example');
+  const conditionalWorkflowDir = path.join(conditionalRepo, 'docs', 'workflows');
+  mkdirSync(conditionalWorkflowDir, { recursive: true });
+  writeFileSync(path.join(conditionalWorkflowDir, 'one-workflow.md'), '# One\n');
+  writeFileSync(path.join(conditionalWorkflowDir, 'two-workflow.md'), '# Two\n');
+  mkdirSync(conditionalSkills, { recursive: true });
+  writeFileSync(path.join(conditionalSkills, 'workflow.md'), '# Packaged\n');
+  writeFileSync(
+    path.join(conditionalSkills, 'SKILL.md'),
+    [
+      'Use the local `docs/workflows/one-workflow.md`, then `agents/workflows/one-workflow.md`; otherwise use the [packaged workflow](workflow.md).',
+      '',
+      'Check `docs/workflows/two-workflow.md` if it exists.',
+      'Otherwise, check whether `agents/workflows/two-workflow.md` exists. If it does, read it.',
+      'If neither local workflow exists, read `skill://example/workflow.md`.',
+      '',
+    ].join('\n'),
+  );
+  writeFileSync(path.join(conditionalSkills, 'negative.md'), '`agents/workflows/missing-workflow.md`\n');
+  const conditional = spawnSync(process.execPath, [command, '--json', conditionalRepo], { encoding: 'utf8' });
+  if (conditional.status !== 1) fail(`expected conditional fallback fixture exit 1, got ${conditional.status}`);
+  const conditionalFindings = JSON.parse(conditional.stdout);
+  if (conditionalFindings.length !== 1) fail(`expected only the unpaired fallback finding, got ${conditionalFindings.length}`);
+  if (!conditionalFindings[0].detail.includes('agents/workflows/missing-workflow.md')) fail('unpaired fallback path was not reported');
+
   writeFileSync(path.join(repo, 'README.md'), '[valid](docs/references/ok.md) `docs/workflows/ok.md`\n');
   writeFileSync(path.join(workflowDir, 'nested.md'), '[sibling](sibling.md)\n');
   const clean = execFileSync(process.execPath, [command, repo], { encoding: 'utf8' });
