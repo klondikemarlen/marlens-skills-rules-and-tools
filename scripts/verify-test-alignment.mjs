@@ -61,6 +61,7 @@ const project = createProject();
 const noGuidanceProject = createProject();
 const nonTestProject = createProject();
 const untrackedTestProject = createProject();
+const exemptionProject = createProject();
 try {
   write(project, 'tests/README.md', guidance);
   write(project, 'tests/widget.test.ts', alignedTest);
@@ -74,9 +75,25 @@ try {
   assert.match(aligned.evidence, /tests\/widget\.test\.ts/);
 
   write(project, 'tests/widget.test.ts', `describe('widget.test.ts', () => {
-  it('saves widget', () => {
+  test('saves widget', () => {
     expect(save.mock.calls).toEqual([]);
     expect(true).toEqual(true);
+  });
+
+  it.only('returns its state', function () {
+    expect(state).toEqual('ready');
+    expect(result).toEqual(state);
+    expect(complete).toBe(true);
+  });
+
+  it('waits for completion', done => {
+    expect(complete).toBe(true);
+    expect(done).toBeDefined();
+  });
+
+  it.each([[true]])('reports parameterized cases', () => {
+    expect(complete).toBe(true);
+    expect(result).toEqual('ready');
   });
 });
 `);
@@ -88,9 +105,21 @@ try {
   assert.match(misaligned.evidence, /marlens-test-alignment: test-name-when/);
   assert.match(misaligned.evidence, /marlens-test-alignment: arrange-act-assert/);
   assert.match(misaligned.evidence, /marlens-test-alignment: one-direct-expect/);
+  assert.match(misaligned.evidence, /test "saves widget" contains 2 direct `expect\(\.\.\.\)` calls/);
+  assert.match(misaligned.evidence, /test "returns its state" contains 3 direct `expect\(\.\.\.\)` calls/);
+  assert.match(misaligned.evidence, /test "waits for completion" contains 2 direct `expect\(\.\.\.\)` calls/);
+  assert.match(misaligned.evidence, /test "reports parameterized cases" contains 2 direct `expect\(\.\.\.\)` calls/);
   assert.match(misaligned.evidence, /marlens-test-alignment: no-mock-calls/);
   assert.match(misaligned.evidence, /marlens-test-alignment: describe-file-class-method/);
   assert.match(misaligned.nextCheck, /Rename the test/);
+  assert.throws(
+    () => execFileSync(process.execPath, [path.join(root, 'verifications/test-alignment.mjs')], {
+      cwd: project,
+      encoding: 'utf8',
+      env: { ...process.env, MARLENS_TEST_ALIGNMENT_BASE: 'main' },
+    }),
+    (error) => error.status === 1,
+  );
 
   write(noGuidanceProject, 'tests/widget.test.ts', alignedTest);
   commit(noGuidanceProject, 'baseline');
@@ -125,10 +154,33 @@ try {
   assert.equal(untracked.status, 'FAIL');
   assert.match(untracked.evidence, /tests\/untracked\.test\.ts:1/);
 
+  write(exemptionProject, 'README.md', '<!-- marlens-test-alignment: one-direct-expect -->\n');
+  commit(exemptionProject, 'baseline');
+  git(exemptionProject, ['switch', '--quiet', '-c', 'feature']);
+  write(exemptionProject, 'tests/controller.test.ts', `describe('controller', () => {
+  it('records the request', () => {
+    // A diagnostic may include expect( without being an assertion.
+    const diagnostic = 'expect(';
+    recordRequest();
+  });
+
+  test('returns the response', () => {
+    // marlens-test-alignment: allow-multiple-expects -- status and body are independent observable contracts.
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ saved: true });
+  });
+});
+`);
+
+  const exempt = runVerification(exemptionProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(exempt.status, 'PASS');
+  assert.match(exempt.evidence, /tests\/controller\.test\.ts/);
+
   console.log('Test alignment verification checks passed');
 } finally {
   rmSync(project, { recursive: true, force: true });
   rmSync(noGuidanceProject, { recursive: true, force: true });
   rmSync(nonTestProject, { recursive: true, force: true });
   rmSync(untrackedTestProject, { recursive: true, force: true });
+  rmSync(exemptionProject, { recursive: true, force: true });
 }
