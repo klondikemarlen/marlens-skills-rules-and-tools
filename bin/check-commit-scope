@@ -32,8 +32,84 @@ function atomicGroups() {
   return configuredGroups;
 }
 
+function normalizedPath(filePath) {
+  return filePath.replaceAll('\\', '/').replace(/^\.\//, '');
+}
+
+function isComposePath(filePath) {
+  return /(?:^|\/)(?:docker-)?compose(?:\.[^.]+)?\.ya?ml$/iu.test(normalizedPath(filePath));
+}
+
+function stagedFile(filePath) {
+  return execFileSync('git', ['show', `:${filePath}`], { encoding: 'utf8' });
+}
+
+function mappingValue(source, name) {
+  const match = source.match(new RegExp(`(?:^\\s*|[,{]\\s*)${name}:\\s*(?:"([^"]+)"|'([^']+)'|([^,}\\s#]+))`, 'u'));
+
+  return match?.[1] ?? match?.[2] ?? match?.[3] ?? null;
+}
+
+function buildSpecifications(composeSource) {
+  const specifications = [];
+  let build = null;
+
+  function addBuild() {
+    if (build?.dockerfile) specifications.push(build);
+    build = null;
+  }
+
+  for (const line of composeSource.split('\n')) {
+    const inline = line.match(/^\s*build:\s*\{(.*)\}\s*$/u);
+    if (inline) {
+      const dockerfile = mappingValue(inline[1], 'dockerfile');
+      if (dockerfile) specifications.push({ context: mappingValue(inline[1], 'context') ?? '.', dockerfile });
+      continue;
+    }
+
+    const nested = line.match(/^(\s*)build:\s*$/u);
+    if (nested) {
+      addBuild();
+      build = { indent: nested[1].length, context: '.', dockerfile: null };
+      continue;
+    }
+
+    if (!build || line.trim() === '') continue;
+    const indent = line.match(/^\s*/u)[0].length;
+    if (indent <= build.indent) {
+      addBuild();
+      continue;
+    }
+
+    build.context = mappingValue(line, 'context') ?? build.context;
+    build.dockerfile = mappingValue(line, 'dockerfile') ?? build.dockerfile;
+  }
+
+  addBuild();
+  return specifications;
+}
+
+function composeDockerfilePairs(paths) {
+  return paths
+    .filter(isComposePath)
+    .flatMap((composePath) => {
+      const normalizedComposePath = normalizedPath(composePath);
+      const composeDirectory = path.posix.dirname(normalizedComposePath);
+
+      return buildSpecifications(stagedFile(composePath))
+        .filter(({ context, dockerfile }) => !path.posix.isAbsolute(context) && !path.posix.isAbsolute(dockerfile))
+        .map(({ context, dockerfile }) => ({
+          composePath: normalizedComposePath,
+          dockerfilePath: path.posix.normalize(path.posix.join(composeDirectory, context, dockerfile)),
+        }));
+    });
+}
+
 const paths = stagedPaths();
-const { boundaries } = checkCommitScope(paths, { atomicGroups: atomicGroups() });
+const { boundaries } = checkCommitScope(paths, {
+  atomicGroups: atomicGroups(),
+  composeDockerfilePairs: composeDockerfilePairs(paths),
+});
 
 if (boundaries.length === 0) {
   console.log('Staged files satisfy commit file-type boundaries.');
