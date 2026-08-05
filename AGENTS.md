@@ -50,7 +50,7 @@
 - When a source file grows across independent responsibility clusters, stop adding behavior until you name the owners, side effects, dependency direction, and smallest cohesive seam; do not split mechanically by line count.
 - Fix bugs at the shared root and check sibling callers before patching one path.
 - Leave the smallest runnable check for non-trivial logic; skip test scaffolding that does not protect behavior.
-- When a target repository documents an `npm test` gate, run it for source-file changes; in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run relevant installed verifier checks (normally `/verifier verify <id...>`) after focused checks and before declaring work complete or requesting review. Skip this for read-only or prose-only work unless it changes verifier-relevant guidance or manifests; if the verifier is unavailable, record `BLOCKED` with the missing prerequisite.
+- When a target repository documents an `npm test` gate, run it for source-file changes; in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when the required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
 - Mark deliberate shortcuts with a `ponytail:` comment that names the ceiling and upgrade path.
 
 ## Agent Architecture
