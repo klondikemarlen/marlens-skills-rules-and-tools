@@ -305,6 +305,7 @@ for (const requiredText of [
 for (const requiredText of [
   'inspect the complete PR diff for the same underlying issue',
   'dedicated `:ok_hand:` commit',
+  'PR scope checked',
 ]) {
   if (!commentResolutionWorkflow.includes(requiredText)) {
     fail(`comment resolution workflow must require ${requiredText}`);
@@ -493,6 +494,7 @@ for (const [name, workflow] of pullRequestWorkflowVariants) {
   if (
     !workflow.includes('inspect the complete PR diff for the same underlying issue')
     || !workflow.includes('dedicated `:ok_hand:` commit')
+    || !workflow.includes('PR scope checked')
   ) {
     fail(`${name} must preserve review-derived correction history`);
   }
