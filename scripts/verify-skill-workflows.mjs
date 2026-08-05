@@ -302,6 +302,16 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'inspect the complete PR diff for the same underlying issue',
+  'dedicated `:ok_hand:` commit',
+  'PR scope checked',
+]) {
+  if (!commentResolutionWorkflow.includes(requiredText)) {
+    fail(`comment resolution workflow must require ${requiredText}`);
+  }
+}
+
 for (const [name, workflow] of [
   ['authoritative pull request workflow', read('docs/workflows/pull-request-management-workflow.md')],
   ['packaged pull request workflow', pullRequestWorkflow],
@@ -402,6 +412,24 @@ for (const [name, workflow] of [
   }
 }
 
+for (const [name, workflow] of [
+  ['AGENTS.md', alwaysLoadedGuidance],
+  ['authoritative feature workflow', featureWorkflow],
+  ['packaged feature workflow', packagedFeatureWorkflow],
+  ['authoritative hands-off workflow', read('docs/workflows/hands-off-agentic-coding-workflow.md')],
+  ['packaged hands-off workflow', read('skills/hands-off-agentic-coding/workflow.md')],
+]) {
+  for (const requiredText of [
+    'Run an installed verifier only when its declared contract directly covers a changed acceptance criterion',
+    'a generic repository-hygiene check is not relevant merely because a source file changed',
+    'Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must scope verifier gates to relevant contracts`);
+    }
+  }
+}
+
 const layeredPageWorkflows = [
   ['authoritative layered-page workflow', read('docs/workflows/layered-page-orchestration-workflow.md')],
   ['packaged layered-page workflow', read('skills/layered-page-orchestration/workflow.md')],
@@ -477,6 +505,16 @@ for (const [name, workflow] of pullRequestWorkflowVariants) {
   }
   if (/^#{1,6} (?:Verification|Evidence)\b/im.test(workflow)) {
     fail(`${name} must not prescribe reviewer-facing Verification or Evidence sections`);
+  }
+}
+
+for (const [name, workflow] of pullRequestWorkflowVariants) {
+  if (
+    !workflow.includes('inspect the complete PR diff for the same underlying issue')
+    || !workflow.includes('dedicated `:ok_hand:` commit')
+    || !workflow.includes('PR scope checked')
+  ) {
+    fail(`${name} must preserve review-derived correction history`);
   }
 }
 
@@ -1055,6 +1093,13 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Run `check-commit-scope` after staging') || !workflow.includes('explicitly confirms that the categories are genuinely inseparable')) {
     fail(`${name} must check and stop on mixed staged file categories`);
+  }
+  if (
+    !workflow.includes('inspect the complete PR diff for the same underlying issue')
+    || !workflow.includes('dedicated `:ok_hand:` commit')
+    || !workflow.includes('PR scope checked')
+  ) {
+    fail(`${name} must require a scoped :ok_hand: review correction commit`);
   }
 }
 for (const [name, workflow] of [

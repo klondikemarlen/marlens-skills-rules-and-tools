@@ -23,6 +23,7 @@ Use when addressing pull request review comments, especially line-level review t
 - Keep PR body and thread replies separate. The PR body explains overall scope; a thread reply explains one concern.
 - If a comment identifies follow-up outside the PR scope, create or link the appropriate issue before using the deferral reply.
 - Fix every actionable review finding or comment before the PR is marked ready or merged.
+- Before correcting accepted feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
 - After a fixup, re-review the complete PR diff and repeat targeted QA and relevant checks before recording the updated evidence.
 - After every fixup commit, repeat the assessment, reaction, resolution, and remote verification protocol for each actionable inline review comment.
 - Keep the PR `BLOCKED` and do not mark it ready or merge while actionable feedback, QA, or required checks are unresolved.
@@ -33,19 +34,20 @@ Use when addressing pull request review comments, especially line-level review t
 
 1. Inspect unresolved PR review threads and each actionable inline review comment.
 2. For each comment, assess whether the concern is addressed, rejected as not applicable, or deferred.
-3. Check the authenticated user’s reactions and add exactly one `+1` for accepted/addressed feedback or `-1` for rejected/not-applicable feedback.
-4. Reply directly on the thread with the matching outcome phrase.
-5. Resolve with the expected reaction in the same completion gate:
+3. Before correcting an accepted concern, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit before resolving the thread.
+4. Check the authenticated user’s reactions and add exactly one `+1` for accepted/addressed feedback or `-1` for rejected/not-applicable feedback.
+5. Reply directly on the thread with the matching outcome phrase.
+6. Resolve with the expected reaction in the same completion gate:
    ```bash
    # accepted/addressed
    github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction +1
    # rejected/not applicable
    github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction -1
    ```
-6. Re-check GitHub: the expected reaction exists and `reviewThread.isResolved` is `true`.
-7. After each fixup, repeat the assessment, reaction, resolution, and verification protocol before marking the PR ready.
-8. If the PR was only converted to draft for the follow-up, mark it ready for review again.
-9. Re-check the remote PR state before reporting it ready for review.
+7. Re-check GitHub: the expected reaction exists and `reviewThread.isResolved` is `true`.
+8. After each fixup, repeat the assessment, reaction, resolution, and verification protocol before marking the PR ready.
+9. If the PR was only converted to draft for the follow-up, mark it ready for review again.
+10. Re-check the remote PR state before reporting it ready for review.
 
 ## Output Contract
 

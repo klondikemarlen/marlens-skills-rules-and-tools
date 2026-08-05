@@ -15,6 +15,7 @@ Use when creating or updating a pull request.
 2. Read the branch diff and recent commits before drafting text.
 3. Create PRs as drafts. Before pushing changes to an existing open PR, convert it back to draft unless the user asks to keep it ready for review.
    When the follow-up work resolves review comments, use `docs/workflows/pull-request-comment-resolution-workflow.md` and restore ready-for-review status after resolved thread state is verified unless the PR was intentionally left draft.
+   Before correcting accepted review feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
 4. Write a reviewer-focused PR body with these sections when applicable:
    - Related links
    - Context: why the change exists.
