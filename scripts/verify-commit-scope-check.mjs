@@ -58,6 +58,27 @@ assert.deepEqual(
 assert.deepEqual(checkCommitScope(['src/order.ts', 'test/order.test.ts']).boundaries, []);
 assert.equal(classifyCommitPath('src/migration-helper.ts'), 'application code');
 assert.equal(classifyCommitPath('.env.local'), 'configuration');
+assert.deepEqual(
+  checkCommitScope(['docker-compose.yml', 'docker/Dockerfile'], {
+    composeDockerfilePairs: [{ composePath: 'docker-compose.yml', dockerfilePath: 'docker/Dockerfile' }],
+  }).boundaries,
+  [],
+);
+assert.match(
+  checkCommitScope(['docker-compose.yml', 'docker/Dockerfile', 'src/order.ts'], {
+    composeDockerfilePairs: [{ composePath: 'docker-compose.yml', dockerfilePath: 'docker/Dockerfile' }],
+  }).boundaries[0].message,
+  /Compose Dockerfile commits must include exactly one directly referenced pair/u,
+);
+assert.match(
+  checkCommitScope(['docker-compose.yml', 'docker/Dockerfile', 'compose.yml', 'Dockerfile'], {
+    composeDockerfilePairs: [
+      { composePath: 'docker-compose.yml', dockerfilePath: 'docker/Dockerfile' },
+      { composePath: 'compose.yml', dockerfilePath: 'Dockerfile' },
+    ],
+  }).boundaries[0].message,
+  /Compose Dockerfile commits must include exactly one directly referenced pair/u,
+);
 
 for (const { files, boundary, paths } of [
   {
@@ -91,6 +112,36 @@ for (const { files, boundary, paths } of [
 const allowed = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'test/order.test.ts': 'test("order", () => {});\n' });
 assert.equal(allowed.status, 0);
 assert.match(allowed.output, /Staged files satisfy commit file-type boundaries/u);
+
+const composeFile = `services:
+  db:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+`;
+const composeDockerfilePair = runScopeCheck({
+  'docker-compose.yml': composeFile,
+  'docker/Dockerfile': 'FROM postgres:16\n',
+});
+assert.equal(composeDockerfilePair.status, 0);
+assert.match(composeDockerfilePair.output, /Staged files satisfy commit file-type boundaries/u);
+
+const unrelatedDockerfile = runScopeCheck({
+  'docker-compose.yml': composeFile,
+  'docker/Dockerfile': 'FROM postgres:16\n',
+  Dockerfile: 'FROM node:22\n',
+});
+assert.equal(unrelatedDockerfile.status, 1);
+assert.match(unrelatedDockerfile.output, /Compose Dockerfile commits must include exactly one directly referenced pair/u);
+assert.match(unrelatedDockerfile.output, /Dockerfile/u);
+
+const composeWithApplicationCode = runScopeCheck({
+  'docker-compose.yml': composeFile,
+  'docker/Dockerfile': 'FROM postgres:16\n',
+  'src/order.ts': 'export const order = true;\n',
+});
+assert.equal(composeWithApplicationCode.status, 1);
+assert.match(composeWithApplicationCode.output, /Compose Dockerfile commits must include exactly one directly referenced pair/u);
 
 for (const [manifest, lockfile] of [
   ['package.json', 'package-lock.json'],
