@@ -412,6 +412,24 @@ for (const [name, workflow] of [
   }
 }
 
+for (const [name, workflow] of [
+  ['AGENTS.md', alwaysLoadedGuidance],
+  ['authoritative feature workflow', featureWorkflow],
+  ['packaged feature workflow', packagedFeatureWorkflow],
+  ['authoritative hands-off workflow', read('docs/workflows/hands-off-agentic-coding-workflow.md')],
+  ['packaged hands-off workflow', read('skills/hands-off-agentic-coding/workflow.md')],
+]) {
+  for (const requiredText of [
+    'Run an installed verifier only when its declared contract directly covers a changed acceptance criterion',
+    'a generic repository-hygiene check is not relevant merely because a source file changed',
+    'Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`',
+  ]) {
+    if (!workflow.includes(requiredText)) {
+      fail(`${name} must scope verifier gates to relevant contracts`);
+    }
+  }
+}
+
 const layeredPageWorkflows = [
   ['authoritative layered-page workflow', read('docs/workflows/layered-page-orchestration-workflow.md')],
   ['packaged layered-page workflow', read('skills/layered-page-orchestration/workflow.md')],
