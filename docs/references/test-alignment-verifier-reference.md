@@ -22,7 +22,7 @@ Each directive makes only its named convention enforceable:
 - `no-mock-calls` — no bundled `.mock.calls` assertions.
 - `describe-file-class-method` — three nested `describe` scopes for file, class, and method.
 
-The assertion rule recognizes `it` and `test` callbacks, including `.only`, `.skip`, `.concurrent`, and `.fails` variants.
+The assertion rule recognizes `it` and `test` callbacks, including `.each`, `.only`, `.skip`, `.concurrent`, and `.fails` variants.
 
 To exempt one test with independently observable contracts, put this comment in its body and name the reason:
 
