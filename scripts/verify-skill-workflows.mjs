@@ -150,11 +150,25 @@ for (const [name, workflow] of sessionInsightWorkflows) {
     'Already covered',
     'One-off/no action',
     'Output Contract',
+    '### Code Style Insights',
+    'Exact evidence:',
+    'Project-local convention',
+    'Cross-project agent guidance',
+    'One-off preference',
+    'Proposed guidance:',
+    'Persistence action:',
+    'When issue filing is explicitly authorized',
+    'Collect user code-review corrections separately',
+    'do not promote them merely because they repeated within one pull request',
     'intentionally skipped rationale',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must include ${requiredText}`);
     }
+  }
+
+  if (workflow.indexOf('Check existing files and issue history for coverage') > workflow.indexOf('When issue filing is explicitly authorized')) {
+    fail(`${name} must check duplicate coverage before filing code-style insight tickets`);
   }
 }
 
