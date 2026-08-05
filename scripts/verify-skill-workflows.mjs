@@ -1095,8 +1095,14 @@ for (const [name, workflow] of [
   if (!workflow.includes('Warn and stop before creating a `:construction:` commit')) {
     fail(`${name} must warn before an unsupported :construction: commit`);
   }
-  if (!workflow.includes('Run `check-commit-scope` after staging') || !workflow.includes('explicitly confirms that the categories are genuinely inseparable')) {
+  if (!workflow.includes('Run `check-commit-scope` after staging') || !workflow.includes('user confirms that the group is genuinely inseparable')) {
     fail(`${name} must check and stop on mixed staged file categories`);
+  }
+  if (
+    !workflow.includes('A standard source-plus-focused-test commit does not use `.commit-scope.json`')
+    || !workflow.includes('Only after the checker reports a mixed file-type boundary and the user confirms that the group is genuinely inseparable')
+  ) {
+    fail(`${name} must treat .commit-scope.json as optional exception configuration`);
   }
   if (
     !workflow.includes('inspect the complete PR diff for the same underlying issue')
