@@ -32,4 +32,4 @@ Set `MARLENS_TEST_ALIGNMENT_BASE` to the PR base ref when checking committed bra
 MARLENS_TEST_ALIGNMENT_BASE=origin/main /verifier verify marlens-rules:test-alignment
 ```
 
-Without that variable, the verifier examines the current worktree diff against `HEAD`; use it before committing local test changes.
+With that variable, the verifier compares committed branch changes to the base and also includes current worktree and untracked tests. Without it, the verifier examines the current worktree diff against `HEAD` plus untracked tests; use it before committing local test changes.
