@@ -957,6 +957,7 @@ for (const requiredText of [
   'Co-locate focused unit tests',
   'boundary integration test',
   'share a fixture only when it represents stable domain data',
+  'intentional duplication is clearer than a helper that hides those facts',
   'Before a structural move, run the existing behavior check',
 ]) {
   if (!codeOrganizationReference.includes(requiredText)) {
@@ -984,6 +985,9 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('For changed test files, inspect the nearest test-directory README') || !workflow.includes('report its assertion conventions and flag violations before reporting `PASS`')) {
     fail(`${name} must discover and report local test assertion conventions before PASS`);
+  }
+  if (!workflow.includes('Treat test setup as self-contained') || !workflow.includes('stable environment setup')) {
+    fail(`${name} must require self-contained test setup while allowing invariant fixtures`);
   }
   if (!workflow.includes('alphabetized by exported symbol') || !workflow.includes('do not require unrelated barrel-file rewrites')) {
     fail(`${name} must review changed index re-export ordering`);
