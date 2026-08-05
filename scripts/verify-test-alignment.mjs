@@ -85,6 +85,11 @@ try {
     expect(result).toEqual(state);
     expect(complete).toBe(true);
   });
+
+  it('waits for completion', done => {
+    expect(complete).toBe(true);
+    expect(done).toBeDefined();
+  });
 });
 `);
   commit(project, 'misaligned test change');
@@ -97,6 +102,7 @@ try {
   assert.match(misaligned.evidence, /marlens-test-alignment: one-direct-expect/);
   assert.match(misaligned.evidence, /test "saves widget" contains 2 direct `expect\(\.\.\.\)` calls/);
   assert.match(misaligned.evidence, /test "returns its state" contains 3 direct `expect\(\.\.\.\)` calls/);
+  assert.match(misaligned.evidence, /test "waits for completion" contains 2 direct `expect\(\.\.\.\)` calls/);
   assert.match(misaligned.evidence, /marlens-test-alignment: no-mock-calls/);
   assert.match(misaligned.evidence, /marlens-test-alignment: describe-file-class-method/);
   assert.match(misaligned.nextCheck, /Rename the test/);

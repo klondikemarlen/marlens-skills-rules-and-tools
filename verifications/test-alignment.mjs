@@ -199,7 +199,7 @@ function testBlocks(source) {
 
   for (const match of source.matchAll(declaration)) {
     const callbackOffset = match.index + match[0].length;
-    const callback = /^\s*,\s*(?:(?:async\s+)?function\s*\([^)]*\)|(?:async\s+)?\([^)]*\)\s*=>)\s*\{/u.exec(source.slice(callbackOffset));
+    const callback = /^\s*,\s*(?:(?:async\s+)?function\s*\([^)]*\)|(?:async\s+)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>)\s*\{/u.exec(source.slice(callbackOffset));
     const openingBrace = callback === null ? -1 : callbackOffset + callback[0].lastIndexOf('{');
     const closing = openingBrace === -1 ? null : closingBrace(source, openingBrace);
     const line = lineNumber(source, match.index);
