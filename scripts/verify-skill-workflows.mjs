@@ -302,6 +302,15 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  'inspect the complete PR diff for the same underlying issue',
+  'dedicated `:ok_hand:` commit',
+]) {
+  if (!commentResolutionWorkflow.includes(requiredText)) {
+    fail(`comment resolution workflow must require ${requiredText}`);
+  }
+}
+
 for (const [name, workflow] of [
   ['authoritative pull request workflow', read('docs/workflows/pull-request-management-workflow.md')],
   ['packaged pull request workflow', pullRequestWorkflow],
@@ -477,6 +486,15 @@ for (const [name, workflow] of pullRequestWorkflowVariants) {
   }
   if (/^#{1,6} (?:Verification|Evidence)\b/im.test(workflow)) {
     fail(`${name} must not prescribe reviewer-facing Verification or Evidence sections`);
+  }
+}
+
+for (const [name, workflow] of pullRequestWorkflowVariants) {
+  if (
+    !workflow.includes('inspect the complete PR diff for the same underlying issue')
+    || !workflow.includes('dedicated `:ok_hand:` commit')
+  ) {
+    fail(`${name} must preserve review-derived correction history`);
   }
 }
 
@@ -1055,6 +1073,13 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Run `check-commit-scope` after staging') || !workflow.includes('explicitly confirms that the categories are genuinely inseparable')) {
     fail(`${name} must check and stop on mixed staged file categories`);
+  }
+  if (
+    !workflow.includes('inspect the complete PR diff for the same underlying issue')
+    || !workflow.includes('dedicated `:ok_hand:` commit')
+    || !workflow.includes('PR scope checked')
+  ) {
+    fail(`${name} must require a scoped :ok_hand: review correction commit`);
   }
 }
 for (const [name, workflow] of [
