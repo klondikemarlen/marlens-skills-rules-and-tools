@@ -90,6 +90,11 @@ try {
     expect(complete).toBe(true);
     expect(done).toBeDefined();
   });
+
+  it.each([[true]])('reports parameterized cases', () => {
+    expect(complete).toBe(true);
+    expect(result).toEqual('ready');
+  });
 });
 `);
   commit(project, 'misaligned test change');
@@ -103,6 +108,7 @@ try {
   assert.match(misaligned.evidence, /test "saves widget" contains 2 direct `expect\(\.\.\.\)` calls/);
   assert.match(misaligned.evidence, /test "returns its state" contains 3 direct `expect\(\.\.\.\)` calls/);
   assert.match(misaligned.evidence, /test "waits for completion" contains 2 direct `expect\(\.\.\.\)` calls/);
+  assert.match(misaligned.evidence, /test "reports parameterized cases" contains 2 direct `expect\(\.\.\.\)` calls/);
   assert.match(misaligned.evidence, /marlens-test-alignment: no-mock-calls/);
   assert.match(misaligned.evidence, /marlens-test-alignment: describe-file-class-method/);
   assert.match(misaligned.nextCheck, /Rename the test/);

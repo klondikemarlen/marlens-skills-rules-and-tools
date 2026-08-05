@@ -131,14 +131,14 @@ function guidanceForTest(root, testPath) {
   return rules;
 }
 
-function closingBrace(source, openingBrace) {
+function closingDelimiter(source, openingOffset, openingCharacter, closingCharacter) {
   let depth = 0;
   let quote = null;
   let escaped = false;
   let lineComment = false;
   let blockComment = false;
 
-  for (let index = openingBrace; index < source.length; index += 1) {
+  for (let index = openingOffset; index < source.length; index += 1) {
     const character = source[index];
     const next = source[index + 1];
 
@@ -183,8 +183,8 @@ function closingBrace(source, openingBrace) {
       continue;
     }
 
-    if (character === '{') depth += 1;
-    if (character === '}') {
+    if (character === openingCharacter) depth += 1;
+    if (character === closingCharacter) {
       depth -= 1;
       if (depth === 0) return index;
     }
@@ -195,17 +195,31 @@ function closingBrace(source, openingBrace) {
 
 function testBlocks(source) {
   const blocks = [];
-  const declaration = /\b(?:it|test)(?:\.(?:concurrent|fails|only|skip))?\s*\(\s*(['"`])((?:\\.|(?!\1)[\s\S])*)\1/gmu;
+  const declaration = /\b(?:it|test)(?:\.(?:concurrent|fails|only|skip))?(?:\.each)?\s*\(/gu;
 
   for (const match of source.matchAll(declaration)) {
-    const callbackOffset = match.index + match[0].length;
+    const declarationEnd = match.index + match[0].length;
+    let titleOffset = declarationEnd;
+
+    if (match[0].includes('.each')) {
+      const eachClosing = closingDelimiter(source, declarationEnd - 1, '(', ')');
+      const testCall = eachClosing === null ? null : /^\s*\(/u.exec(source.slice(eachClosing + 1));
+      if (eachClosing === null || testCall === null) continue;
+
+      titleOffset = eachClosing + 1 + testCall[0].length;
+    }
+
+    const title = /^(['"`])((?:\\.|(?!\1)[\s\S])*)\1/u.exec(source.slice(titleOffset));
+    if (title === null) continue;
+
+    const callbackOffset = titleOffset + title[0].length;
     const callback = /^\s*,\s*(?:(?:async\s+)?function\s*\([^)]*\)|(?:async\s+)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>)\s*\{/u.exec(source.slice(callbackOffset));
     const openingBrace = callback === null ? -1 : callbackOffset + callback[0].lastIndexOf('{');
-    const closing = openingBrace === -1 ? null : closingBrace(source, openingBrace);
+    const closing = openingBrace === -1 ? null : closingDelimiter(source, openingBrace, '{', '}');
     const line = lineNumber(source, match.index);
 
     blocks.push({
-      name: match[2],
+      name: title[2],
       line,
       code: lineAt(source, line),
       body: closing === null ? '' : source.slice(openingBrace + 1, closing),
