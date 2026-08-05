@@ -17,6 +17,7 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 - Prefer one logical change per commit.
 - Keep commits homogeneous by change type when practical: a directly corresponding focused test belongs with the implementation it verifies, but split migrations/schema/data changes, dependency churn, formatting, documentation or workflow-learning updates, unrelated test-only changes, and broad test support unless the user explicitly requests a combined commit and the files are inseparable for review.
 - When dependency manifests and generated lockfiles both change, stage that pair together in its own dependency commit whenever practical. Keep dependency resolution churn out of unrelated source, test, refactor, formatting, and documentation commits.
+- For an accepted concern supplied in PR-review context, inspect the complete PR diff for the same underlying issue before staging. Correct every in-scope recurrence in one dedicated `:ok_hand:` commit; its body states the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject. Do not amend or fold the correction into an older commit.
 
 ## Process
 
