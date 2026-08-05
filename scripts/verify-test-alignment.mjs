@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +14,7 @@ function git(directory, argumentsList) {
 
 function write(directory, relativePath, contents) {
   const filePath = path.join(directory, relativePath);
-  execFileSync('mkdir', ['-p', path.dirname(filePath)]);
+  mkdirSync(path.dirname(filePath), { recursive: true });
   writeFileSync(filePath, contents);
 }
 
@@ -60,6 +60,7 @@ const alignedTest = `describe('widget.test.ts', () => {
 const project = createProject();
 const noGuidanceProject = createProject();
 const nonTestProject = createProject();
+const untrackedTestProject = createProject();
 try {
   write(project, 'tests/README.md', guidance);
   write(project, 'tests/widget.test.ts', alignedTest);
@@ -111,9 +112,23 @@ try {
   assert.equal(noTests.status, 'PASS');
   assert.match(noTests.summary, /No changed test files/);
 
+  write(untrackedTestProject, 'README.md', guidance);
+  commit(untrackedTestProject, 'baseline');
+  git(untrackedTestProject, ['switch', '--quiet', '-c', 'feature']);
+  write(untrackedTestProject, 'tests/untracked.test.ts', `it('saves widget', () => {
+  expect(save.mock.calls).toEqual([]);
+  expect(true).toEqual(true);
+});
+`);
+
+  const untracked = runVerification(untrackedTestProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(untracked.status, 'FAIL');
+  assert.match(untracked.evidence, /tests\/untracked\.test\.ts:1/);
+
   console.log('Test alignment verification checks passed');
 } finally {
   rmSync(project, { recursive: true, force: true });
   rmSync(noGuidanceProject, { recursive: true, force: true });
   rmSync(nonTestProject, { recursive: true, force: true });
+  rmSync(untrackedTestProject, { recursive: true, force: true });
 }

@@ -49,15 +49,18 @@ function repositoryRoot(projectDirectory) {
 
 function changedTestFiles(root, environment) {
   const base = environment.MARLENS_TEST_ALIGNMENT_BASE;
-  const argumentsList = base
+  const comparison = base
     ? ['diff', '--name-only', '-z', '--diff-filter=ACMR', `${base}...HEAD`]
     : ['diff', '--name-only', '-z', '--diff-filter=ACMR', 'HEAD'];
-  const changed = git(root, argumentsList)
-    .split('\0')
-    .filter(Boolean)
-    .filter(isTestPath);
+  const committed = git(root, comparison).split('\0').filter(Boolean);
+  const worktree = base
+    ? git(root, ['diff', '--name-only', '-z', '--diff-filter=ACMR', 'HEAD']).split('\0').filter(Boolean)
+    : [];
+  const untracked = git(root, ['ls-files', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean);
 
-  return [...new Set(changed)].sort();
+  return [...new Set([...committed, ...worktree, ...untracked])]
+    .filter(isTestPath)
+    .sort();
 }
 
 function isTestPath(filePath) {
