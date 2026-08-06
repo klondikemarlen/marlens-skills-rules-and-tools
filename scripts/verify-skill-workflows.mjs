@@ -24,7 +24,7 @@ for (const requiredText of [
   'independent responsibility clusters',
   'smallest cohesive seam',
   'do not split mechanically by line count',
-  'well-maintained library when it lowers net owned complexity',
+  'option that lowers net owned complexity',
   'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`',
 ]) {
   if (!alwaysLoadedGuidance.includes(requiredText)) {
