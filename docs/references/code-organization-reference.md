@@ -15,6 +15,12 @@ Code organization is not more folders, more layers, or more pattern names. It is
 
 Use the smallest structure that makes ownership, change axes, data handoffs, and volatile decisions obvious.
 
+## Libraries for Generic Mechanism
+
+Keep application code focused on product-specific policies and behavior. When a change needs generic parsing, traversal, tokenization, serialization, or equivalent plumbing, compare the standard library, installed dependencies, a well-maintained library, and bespoke code.
+
+Prefer the option that lowers net owned complexity: the codebase should not recreate generic implementation details merely to avoid a dependency. Include compatibility, maintenance, security, and the adapter code the project must still own in that comparison. Keep the project-specific policy and result model explicit at the library boundary.
+
 ## Domain Discovery Checkpoint
 
 Before proposing a reorganization, discover the domain boundary from evidence rather than waiting for someone to name it. Inspect:
