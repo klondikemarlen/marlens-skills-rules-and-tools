@@ -81,6 +81,18 @@ When the signal is present, record:
 
 Do not split mechanically by line count, create generic `helpers` or `utils` buckets, or add layers that leave the same ownership and dependency tangles intact. The `marlens-rules:no-oversized-source-files` verification is a backstop for review; responsibility and boundary evidence determines the design decision.
 
+## Review Structure, Not Metrics
+
+Readability is a delivery condition, not a post-hoc style preference. Before reporting `PASS`, identify each independent responsibility and its side effects. Flag a block that accumulates independent scenarios or hides its contract behind repeated mechanics.
+
+Use structure as evidence, not a numeric proxy. Do not impose line-count, function-count, or complexity quotas. Preserve a cohesive block when its ownership remains clear; extract only the smallest named seam that makes one responsibility or side effect easier to find.
+
+## Scenario-Oriented Verification
+
+Verification code should expose each independently observable contract through a named scenario. Keep literal fixture data beside the scenario it explains. Share only repeated mechanics, such as writing a file or invoking a command, when their names clarify the setup; do not create a generic fixture builder.
+
+Use a fresh fixture when a scenario needs a different starting state. A failing scenario must not be mutated into a clean scenario, because that couples independent behavior and obscures the clean contract.
+
 ## Domain-Oriented Modules and Tests
 
 Split a growing module by the domain action or external integration it owns—not into generic `helpers`, `utils`, `services`, or `tests` buckets. Each module should have one narrow responsibility: parse or validate a boundary, make a policy decision, coordinate one action, or adapt one external system. Keep parsers and policies pure where practical; let orchestration depend on those decisions; keep filesystem, HTTP, database, framework, and extension state at the outer adapter boundary. Classes earn their cost only when they own meaningful state or a lifecycle; otherwise use a function.
