@@ -921,6 +921,11 @@ for (const requiredText of [
   'Do not split mechanically by line count',
   'marlens-rules:no-oversized-source-files',
   'Service Orchestration Readability',
+  'Review Structure, Not Metrics',
+  'Readability is a delivery condition',
+  'numeric proxy',
+  'Scenario-Oriented Verification',
+  'must not be mutated into a clean scenario',
   'Context/request object passed everywhere',
   'circular imports',
   'State Names and Dependency-Local Ordering',
@@ -1008,6 +1013,15 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Treat test setup as self-contained') || !workflow.includes('stable environment setup')) {
     fail(`${name} must require self-contained test setup while allowing invariant fixtures`);
+  }
+  if (!workflow.includes('Make readability an explicit delivery gate') || !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')) {
+    fail(`${name} must make structural readability a PASS condition`);
+  }
+  if (!workflow.includes('unstructured accumulation of independent scenarios') || !workflow.includes('repeated mechanics') || !workflow.includes('structure rather than numeric readability proxies')) {
+    fail(`${name} must review structural readability instead of numeric proxies`);
+  }
+  if (!workflow.includes('preserve literal scenario data locally') || !workflow.includes('do not require mechanical splits or generic fixture builders')) {
+    fail(`${name} must preserve readable scenario fixtures without requiring generic abstractions`);
   }
   if (!workflow.includes('alphabetized by exported symbol') || !workflow.includes('do not require unrelated barrel-file rewrites')) {
     fail(`${name} must review changed index re-export ordering`);
