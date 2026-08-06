@@ -1,4 +1,5 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,53 +9,70 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const command = path.join(root, 'bin', 'agent-guidance-audit.js');
 const fixtureRoot = mkdtempSync(path.join(os.tmpdir(), 'agent-guidance-audit-verify-'));
 
-function fail(message) {
-  throw new Error(message);
+function createRepository(name) {
+  const repository = path.join(fixtureRoot, name);
+  mkdirSync(repository, { recursive: true });
+  return repository;
 }
 
-try {
-  const repo = path.join(fixtureRoot, 'repo');
-  const workflowDir = path.join(repo, 'docs', 'workflows');
-  const referenceDir = path.join(repo, 'docs', 'references');
-  mkdirSync(workflowDir, { recursive: true });
-  mkdirSync(referenceDir, { recursive: true });
-  writeFileSync(path.join(referenceDir, 'ok.md'), '# OK\n');
-  writeFileSync(path.join(workflowDir, 'ok.md'), '# OK\n');
-  writeFileSync(path.join(workflowDir, 'sibling.md'), '# Sibling\n');
-  writeFileSync(path.join(workflowDir, 'nested.md'), '[sibling](sibling.md) [missing sibling](missing-sibling.md)\n');
+function write(repository, relativePath, contents) {
+  const filePath = path.join(repository, relativePath);
+  mkdirSync(path.dirname(filePath), { recursive: true });
+  writeFileSync(filePath, contents);
+}
 
-  writeFileSync(
-    path.join(repo, 'README.md'),
-    '[valid](docs/references/ok.md) [missing](./missing.md) `docs/workflows/nope.md`\n',
+function runAudit(...args) {
+  return spawnSync(process.execPath, [command, ...args], { encoding: 'utf8' });
+}
+
+function expectExit(result, expectedStatus, scenario) {
+  assert.equal(
+    result.status,
+    expectedStatus,
+    `${scenario} exited ${result.status}: ${result.stdout}${result.stderr}`,
   );
+}
 
-  const broken = spawnSync(process.execPath, [command, repo], { encoding: 'utf8' });
-  if (broken.status !== 1) fail(`expected broken fixture exit 1, got ${broken.status}: ${broken.stdout}${broken.stderr}`);
-  if (!broken.stdout.includes('markdown-link missing target ./missing.md')) fail('missing root Markdown broken-link finding');
-  if (!broken.stdout.includes('markdown-link missing target missing-sibling.md')) fail('missing sibling Markdown broken-link finding');
-  if (!broken.stdout.includes('backtick-path missing target docs/workflows/nope.md')) fail('missing backtick-path finding');
-  if (broken.stdout.includes('docs/references/ok.md')) fail('valid root Markdown target was reported');
-  if (broken.stdout.includes('sibling.md:')) fail('valid sibling Markdown target was reported');
+function failingFindings(scenario, ...args) {
+  const result = runAudit(...args);
+  expectExit(result, 1, scenario);
+  return JSON.parse(result.stdout);
+}
 
-  const json = spawnSync(process.execPath, [command, '--json', repo], { encoding: 'utf8' });
-  if (json.status !== 1) fail(`expected JSON fixture exit 1, got ${json.status}`);
-  const findings = JSON.parse(json.stdout);
-  if (findings.length !== 3) fail(`expected 3 JSON findings, got ${findings.length}`);
+function testBrokenPaths() {
+  const repository = createRepository('broken-paths');
+  write(repository, 'docs/references/ok.md', '# OK\n');
+  write(repository, 'docs/workflows/ok.md', '# OK\n');
+  write(repository, 'docs/workflows/sibling.md', '# Sibling\n');
+  write(repository, 'docs/workflows/nested.md', '[sibling](sibling.md) [missing sibling](missing-sibling.md)\n');
+  write(repository, 'README.md', '[valid](docs/references/ok.md) [missing](./missing.md) `docs/workflows/nope.md`\n');
 
-  const learnerRepo = path.join(fixtureRoot, 'learner-repo');
-  mkdirSync(learnerRepo, { recursive: true });
-  writeFileSync(path.join(learnerRepo, 'README.md'), '/learner setup https://github.com/owner/repo\n/learner status\n');
-  const learner = spawnSync(process.execPath, [command, '--json', learnerRepo], { encoding: 'utf8' });
-  if (learner.status !== 1) fail(`expected learner fixture exit 1, got ${learner.status}: ${learner.stdout}${learner.stderr}`);
-  const learnerFindings = JSON.parse(learner.stdout);
-  if (learnerFindings.length !== 1) fail(`expected only non-setup learner command finding, got ${learnerFindings.length}`);
-  if (!learnerFindings[0].detail.includes('learner moved out of this package')) fail('missing learner non-setup finding');
+  const report = runAudit(repository);
+  expectExit(report, 1, 'broken paths');
+  assert.match(report.stdout, /markdown-link missing target \.\/missing\.md/);
+  assert.match(report.stdout, /markdown-link missing target missing-sibling\.md/);
+  assert.match(report.stdout, /backtick-path missing target docs\/workflows\/nope\.md/);
+  assert.doesNotMatch(report.stdout, /docs\/references\/ok\.md/);
+  assert.doesNotMatch(report.stdout, /sibling\.md:/);
 
-  const suppressionRepo = path.join(fixtureRoot, 'suppression-repo');
-  const suppressionDocs = path.join(suppressionRepo, 'docs', 'workflows');
-  mkdirSync(suppressionDocs, { recursive: true });
-  writeFileSync(
-    path.join(suppressionRepo, 'README.md'),
+  const findings = failingFindings('broken paths JSON report', '--json', repository);
+  assert.equal(findings.length, 3);
+}
+
+function testLearnerCommands() {
+  const repository = createRepository('learner-commands');
+  write(repository, 'README.md', '/learner setup https://github.com/owner/repo\n/learner status\n');
+
+  const findings = failingFindings('learner commands', '--json', repository);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].detail, /learner moved out of this package/);
+}
+
+function testSuppressions() {
+  const repository = createRepository('suppressions');
+  write(
+    repository,
+    'README.md',
     [
       '[suppressed](./suppressed.md) <!-- agent-guidance-audit: ignore markdown-link ./suppressed.md -->',
       '[adjacent](./adjacent.md)',
@@ -65,48 +83,47 @@ try {
       '',
     ].join('\n'),
   );
-  writeFileSync(path.join(suppressionDocs, 'ok.md'), '# OK\n');
-  const suppressed = spawnSync(process.execPath, [command, '--json', suppressionRepo], { encoding: 'utf8' });
-  if (suppressed.status !== 1) fail(`expected suppression fixture exit 1, got ${suppressed.status}: ${suppressed.stdout}${suppressed.stderr}`);
-  const suppressionFindings = JSON.parse(suppressed.stdout);
-  const suppressionDetails = suppressionFindings.map((item) => `${item.check} ${item.detail}`).join('\n');
-  if (suppressionDetails.includes('missing target ./suppressed.md')) fail('same-line suppression did not suppress matching finding');
-  if (!suppressionDetails.includes('markdown-link missing target ./adjacent.md')) fail('adjacent line was incorrectly suppressed');
-  if (!suppressionDetails.includes('backtick-path missing target docs/workflows/nope.md')) fail('other check was incorrectly suppressed');
-  if (!suppressionDetails.includes('audit-suppression invalid suppression ignore')) fail('malformed suppression was not reported');
-  if (!suppressionDetails.includes('audit-suppression invalid suppression ignore workflow-inventory')) fail('unknown suppression check was not reported');
-  if (!suppressionDetails.includes('audit-suppression unused suppression markdown-link ./unused.md')) fail('unused suppression was not reported');
+  write(repository, 'docs/workflows/ok.md', '# OK\n');
 
-  const strictExampleRepo = path.join(fixtureRoot, 'strict-example-repo');
-  const strictExampleWorkflowDir = path.join(strictExampleRepo, 'docs', 'workflows');
-  mkdirSync(strictExampleWorkflowDir, { recursive: true });
-  writeFileSync(path.join(strictExampleWorkflowDir, 'README.md'), 'Examples:\n- `ok-workflow.md`\n- `missing-example-workflow.md`\n');
-  writeFileSync(path.join(strictExampleWorkflowDir, 'ok-workflow.md'), '# OK\n');
-  writeFileSync(path.join(strictExampleWorkflowDir, 'unlisted-example-workflow.md'), '# Unlisted example\n');
-  const strictExample = spawnSync(process.execPath, [command, '--strict', strictExampleRepo], { encoding: 'utf8' });
-  if (strictExample.status !== 0) fail(`expected strict example fixture exit 0, got ${strictExample.status}: ${strictExample.stdout}${strictExample.stderr}`);
+  const findings = failingFindings('suppressions', '--json', repository);
+  const details = findings.map((item) => `${item.check} ${item.detail}`).join('\n');
+  assert.doesNotMatch(details, /missing target \.\/suppressed\.md/);
+  assert.match(details, /markdown-link missing target \.\/adjacent\.md/);
+  assert.match(details, /backtick-path missing target docs\/workflows\/nope\.md/);
+  assert.match(details, /audit-suppression invalid suppression ignore/);
+  assert.match(details, /audit-suppression invalid suppression ignore workflow-inventory/);
+  assert.match(details, /audit-suppression unused suppression markdown-link \.\/unused\.md/);
+}
 
-  const strictRepo = path.join(fixtureRoot, 'strict-repo');
-  const strictWorkflowDir = path.join(strictRepo, 'docs', 'workflows');
-  mkdirSync(strictWorkflowDir, { recursive: true });
-  writeFileSync(path.join(strictWorkflowDir, 'README.md'), '<!-- agent-guidance-audit: inventory -->\n- `ok-workflow.md`\n- `missing-workflow.md`\n');
-  writeFileSync(path.join(strictWorkflowDir, 'ok-workflow.md'), '# OK\n');
-  writeFileSync(path.join(strictWorkflowDir, 'unlisted-workflow.md'), '# Unlisted\n');
-  const strict = spawnSync(process.execPath, [command, '--strict', strictRepo], { encoding: 'utf8' });
-  if (strict.status !== 1) fail(`expected strict inventory fixture exit 1, got ${strict.status}: ${strict.stdout}${strict.stderr}`);
-  if (!strict.stdout.includes('workflow-inventory missing inventory entry docs/workflows/unlisted-workflow.md')) fail('missing unlisted workflow finding');
-  if (!strict.stdout.includes('workflow-inventory inventory lists missing workflow missing-workflow.md')) fail('missing listed-but-absent workflow finding');
+function testStrictInventoryExamples() {
+  const repository = createRepository('strict-inventory-examples');
+  write(repository, 'docs/workflows/README.md', 'Examples:\n- `ok-workflow.md`\n- `missing-example-workflow.md`\n');
+  write(repository, 'docs/workflows/ok-workflow.md', '# OK\n');
+  write(repository, 'docs/workflows/unlisted-example-workflow.md', '# Unlisted example\n');
 
-  const conditionalRepo = path.join(fixtureRoot, 'conditional-fallback-repo');
-  const conditionalSkills = path.join(conditionalRepo, 'skills', 'example');
-  const conditionalWorkflowDir = path.join(conditionalRepo, 'docs', 'workflows');
-  mkdirSync(conditionalWorkflowDir, { recursive: true });
-  writeFileSync(path.join(conditionalWorkflowDir, 'one-workflow.md'), '# One\n');
-  writeFileSync(path.join(conditionalWorkflowDir, 'two-workflow.md'), '# Two\n');
-  mkdirSync(conditionalSkills, { recursive: true });
-  writeFileSync(path.join(conditionalSkills, 'workflow.md'), '# Packaged\n');
-  writeFileSync(
-    path.join(conditionalSkills, 'SKILL.md'),
+  expectExit(runAudit('--strict', repository), 0, 'strict inventory examples');
+}
+
+function testStrictInventoryDrift() {
+  const repository = createRepository('strict-inventory-drift');
+  write(repository, 'docs/workflows/README.md', '<!-- agent-guidance-audit: inventory -->\n- `ok-workflow.md`\n- `missing-workflow.md`\n');
+  write(repository, 'docs/workflows/ok-workflow.md', '# OK\n');
+  write(repository, 'docs/workflows/unlisted-workflow.md', '# Unlisted\n');
+
+  const report = runAudit('--strict', repository);
+  expectExit(report, 1, 'strict inventory drift');
+  assert.match(report.stdout, /workflow-inventory missing inventory entry docs\/workflows\/unlisted-workflow\.md/);
+  assert.match(report.stdout, /workflow-inventory inventory lists missing workflow missing-workflow\.md/);
+}
+
+function testConditionalFallbacks() {
+  const repository = createRepository('conditional-fallbacks');
+  write(repository, 'docs/workflows/one-workflow.md', '# One\n');
+  write(repository, 'docs/workflows/two-workflow.md', '# Two\n');
+  write(repository, 'skills/example/workflow.md', '# Packaged\n');
+  write(
+    repository,
+    'skills/example/SKILL.md',
     [
       'Use the local `docs/workflows/one-workflow.md`, then `agents/workflows/one-workflow.md`; otherwise use the [packaged workflow](workflow.md).',
       '',
@@ -116,19 +133,39 @@ try {
       '',
     ].join('\n'),
   );
-  writeFileSync(path.join(conditionalSkills, 'negative.md'), '`agents/workflows/missing-workflow.md`\n');
-  const conditional = spawnSync(process.execPath, [command, '--json', conditionalRepo], { encoding: 'utf8' });
-  if (conditional.status !== 1) fail(`expected conditional fallback fixture exit 1, got ${conditional.status}`);
-  const conditionalFindings = JSON.parse(conditional.stdout);
-  if (conditionalFindings.length !== 1) fail(`expected only the unpaired fallback finding, got ${conditionalFindings.length}`);
-  if (!conditionalFindings[0].detail.includes('agents/workflows/missing-workflow.md')) fail('unpaired fallback path was not reported');
+  write(repository, 'skills/example/negative.md', '`agents/workflows/missing-workflow.md`\n');
 
-  writeFileSync(path.join(repo, 'README.md'), '[valid](docs/references/ok.md) `docs/workflows/ok.md`\n');
-  writeFileSync(path.join(workflowDir, 'nested.md'), '[sibling](sibling.md)\n');
-  const clean = execFileSync(process.execPath, [command, repo], { encoding: 'utf8' });
-  if (clean.trim() !== '') fail(`expected clean fixture silence, got ${clean}`);
+  const findings = failingFindings('conditional fallbacks', '--json', repository);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].detail, /agents\/workflows\/missing-workflow\.md/);
+}
 
-  execFileSync(process.execPath, [command, '--self-test'], { encoding: 'utf8' });
+function testCleanAudit() {
+  const repository = createRepository('clean-audit');
+  write(repository, 'docs/references/ok.md', '# OK\n');
+  write(repository, 'docs/workflows/ok.md', '# OK\n');
+  write(repository, 'docs/workflows/sibling.md', '# Sibling\n');
+  write(repository, 'docs/workflows/nested.md', '[sibling](sibling.md)\n');
+  write(repository, 'README.md', '[valid](docs/references/ok.md) `docs/workflows/ok.md`\n');
+
+  const report = runAudit(repository);
+  expectExit(report, 0, 'clean audit');
+  assert.equal(report.stdout.trim(), '');
+}
+
+function testAuditSelfTest() {
+  expectExit(runAudit('--self-test'), 0, 'audit self-test');
+}
+
+try {
+  testBrokenPaths();
+  testLearnerCommands();
+  testSuppressions();
+  testStrictInventoryExamples();
+  testStrictInventoryDrift();
+  testConditionalFallbacks();
+  testCleanAudit();
+  testAuditSelfTest();
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });
 }
