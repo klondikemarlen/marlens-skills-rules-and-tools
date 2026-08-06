@@ -24,6 +24,7 @@ for (const requiredText of [
   'independent responsibility clusters',
   'smallest cohesive seam',
   'do not split mechanically by line count',
+  'option that lowers net owned complexity',
   'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`',
 ]) {
   if (!alwaysLoadedGuidance.includes(requiredText)) {
@@ -921,6 +922,9 @@ for (const requiredText of [
   'Do not split mechanically by line count',
   'marlens-rules:no-oversized-source-files',
   'Service Orchestration Readability',
+  'Libraries for Generic Mechanism',
+  'net owned complexity',
+  'product-specific policies and behavior',
   'Review Structure, Not Metrics',
   'Readability is a delivery condition',
   'numeric proxy',
@@ -1013,6 +1017,12 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes('Treat test setup as self-contained') || !workflow.includes('stable environment setup')) {
     fail(`${name} must require self-contained test setup while allowing invariant fixtures`);
+  }
+  if (!workflow.includes('For generic parsing, traversal, tokenization, serialization, or equivalent plumbing') || !workflow.includes('well-maintained libraries before approving bespoke code')) {
+    fail(`${name} must compare generic implementation code with maintained libraries`);
+  }
+  if (!workflow.includes('lower net owned complexity') || !workflow.includes('compatibility, maintenance, security') || !workflow.includes('product-specific policy explicit at the library boundary')) {
+    fail(`${name} must select libraries by net owned complexity while preserving product policy`);
   }
   if (!workflow.includes('Make readability an explicit delivery gate') || !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')) {
     fail(`${name} must make structural readability a PASS condition`);

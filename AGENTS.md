@@ -45,7 +45,7 @@
 
 ## Ponytail Standards
 
-- Prefer deletion, reuse, standard library, native platform features, then installed dependencies before writing custom code.
+- Prefer the option that lowers net owned complexity—deletion, reuse, standard library, native platform features, installed dependencies, or a well-maintained library—before writing custom code.
 - Avoid speculative abstractions, boilerplate, scaffolding, and configuration for values that do not vary.
 - When a source file grows across independent responsibility clusters, stop adding behavior until you name the owners, side effects, dependency direction, and smallest cohesive seam; do not split mechanically by line count.
 - Fix bugs at the shared root and check sibling callers before patching one path.
