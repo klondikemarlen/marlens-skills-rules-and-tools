@@ -994,8 +994,14 @@ for (const [name, workflow] of [
   if (!workflow.includes('same production constant/helper under test')) {
     fail(`${name} must reject production-derived expected values`);
   }
-  if (!workflow.includes('Default to one `expect` per test') || !workflow.includes('response.status` and `response.body')) {
-    fail(`${name} must allow separate controller status and body assertions`);
+  if (!workflow.includes('Default to one `expect` per test when it proves one focused observable contract') || !workflow.includes('do not combine unrelated values merely to satisfy the heuristic')) {
+    fail(`${name} must scope one-expect guidance to one observable contract`);
+  }
+  if (!workflow.includes('Repository-native assertion patterns override generic guidance') || !workflow.includes('await expect(promise).rejects.toThrow(...)') || !workflow.includes('do not manually catch its rejection or aggregate it with mock-call arrays')) {
+    fail(`${name} must prefer native promise-error assertions over caught-error aggregates`);
+  }
+  if (!workflow.includes('Assert mock calls separately only when they are independently observable and important') || !workflow.includes('response.status` and `response.body')) {
+    fail(`${name} must allow independently observable assertions`);
   }
   if (!workflow.includes('For changed test files, inspect the nearest test-directory README') || !workflow.includes('report its assertion conventions and flag violations before reporting `PASS`')) {
     fail(`${name} must discover and report local test assertion conventions before PASS`);
