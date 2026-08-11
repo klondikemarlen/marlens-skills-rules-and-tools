@@ -5,6 +5,7 @@ Reusable frontend implementation templates live here. Keep framework-specific fa
 ## Templates
 
 - `api-typescript-template.md` - TypeScript API client shape aligned to backend models, serializers, policies, and query options.
+- `administration-tab-layout-template.md` - Vue 3 + TypeScript parent tab host for resource detail layouts and child-tab routing.
 - `administration-tab-page-template.md` - Vue 3 + TypeScript administration child-tab page for parent-scoped related lists.
 - `searchable-autocomplete-template.md` - Vue 3 + Vuetify debounced reference lookup and filter/autocomplete pattern.
 - `vue-vuetify-crud/` - Vue 3 + Vuetify admin CRUD pages and component composition.
