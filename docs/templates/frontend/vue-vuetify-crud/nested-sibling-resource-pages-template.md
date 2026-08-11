@@ -46,7 +46,7 @@ function navigateToParentResourceList() {
     <v-card-text>
       <{ResourceFormComponent}
         v-if="{ResourceCreatePolicyExpression}"
-        :parent-id="{parentResourceName}Id"
+        :{parent-resource-name}-id="{parentResourceName}Id"
         :is-submitting="isSubmitting"
         @submit="createResource"
         @cancel="navigateToParentResourceList"
@@ -153,11 +153,10 @@ async function fetchResource() {
 
 onMounted(fetchResource)
 </script>
-```
 
 ## Edit Page Rules
 
-Start from the show-page loading/error flow, pass both route ids to `{ResourceFormComponent}`, and submit through `{ResourceApiClient}.update`. On success, show `{Toast}` feedback then return to `{ParentResourceListRouteName}` with `{parentResourceName}Id`. On validation or network failure, keep the form and entered values visible with the project-standard error feedback.
+Start from the show-page loading/error flow, gate the form with `{ResourceUpdatePolicyExpression}`, pass both route ids to `{ResourceFormComponent}`, and submit through `{ResourceApiClient}.update`. On success, show `{Toast}` feedback then return to `{ParentResourceListRouteName}` with `{parentResourceName}Id`. On validation or network failure, keep the form and entered values visible with the project-standard error feedback.
 
 ## Verification Checklist
 
