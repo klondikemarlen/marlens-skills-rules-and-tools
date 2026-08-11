@@ -6,13 +6,14 @@ Use this for the parent route component that owns a resource detail card, header
 
 - Vue 3 with `<script setup lang="ts">` and Vue Router.
 - Vuetify `v-tabs`, `v-tab`, and `v-btn` components are available, or can be replaced with local equivalents.
-- A project-local `{ParentResourceName}DetailCard` renders the parent resource and exposes a header-actions slot.
+- A project-local `{ParentResourceDetailCard}` renders the parent resource and exposes a header-actions slot.
 - Parent and child routes receive `{parentResourceName}Id` through route props.
 
 ## Placeholders
 
 - `{ParentResourceName}`: PascalCase parent resource, e.g. `Account`.
 - `{parentResourceName}`: camelCase parent resource, e.g. `account`.
+- `{parent-resource-name}`: kebab-case parent resource, e.g. `account`.
 - `{parent-resource-names}`: kebab-case parent collection segment, e.g. `accounts`.
 - `{ParentResourceDetailCard}`: project-local host component, e.g. `AccountDetailCard`.
 - `{ParentResourceEditRouteName}`: named parent edit route.
