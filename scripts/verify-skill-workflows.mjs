@@ -1032,6 +1032,9 @@ for (const [name, workflow] of [
   if (!workflow.includes('For migrations that split or rename persisted settings') || !workflow.includes('Preserve existing explicit choices, including opt-outs') || !workflow.includes('existing opt-out and a missing legacy preference')) {
     fail(`${name} must review preference-splitting migrations for preserved choices`);
   }
+  if (!workflow.includes('Before the first push or review request') || !workflow.includes('closest local style and test guidance plus nearby sibling precedent') || !workflow.includes('import grouping, blank-line separation, test hierarchy, naming, and focused assertions') || !workflow.includes('Formatter output is not proof of local structural compliance')) {
+    fail(`${name} must preflight touched files against local structural style before review`);
+  }
   if (!workflow.includes('Make readability an explicit delivery gate') || !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')) {
     fail(`${name} must make structural readability a PASS condition`);
   }
