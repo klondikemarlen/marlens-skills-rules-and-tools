@@ -513,6 +513,8 @@ for (const [name, workflow] of pullRequestWorkflowVariants) {
     'Keep the PR `BLOCKED`',
     'Learner coverage: a concise triage outcome for each non-learner-authored issue',
     '`PASS`, `FAIL`, and `BLOCKED` outcomes',
+    'After creating or updating a PR body, read the PR from GitHub',
+    'A local draft or body artifact is input only',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);
