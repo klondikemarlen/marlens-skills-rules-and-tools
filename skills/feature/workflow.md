@@ -14,6 +14,8 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Create or update a GitHub issue before coding user-facing work unless the user explicitly says not to use issues.
 - An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation; do not ask again solely for that delivery. External or unresolved GitHub writes defer to `omp-repository-boundary-guard`'s single standard Ask; do not add another confirmation. Preserve destructive or ambiguous Git-operation safeguards.
 - Keep branches and PRs named for the issue so GitHub links the work automatically.
+- Before `git worktree add`, `dev branch-from`, or creating an issue branch, inspect the target project's local guidance and existing `git worktree list`/branch layout. Use its prescribed worktree path and branch-name convention; an issue-linked branch does not necessarily repeat the issue number.
+- If a worktree must move or a pushed branch must be renamed, update the registered worktree and delete the obsolete remote-tracking branch after confirming it is agent-owned. Do not hard-code project-specific paths or branch shapes into shared guidance.
 - Treat GitHub administration as distinct from browser UI validation: for non-UI issue, pull request, and release reconciliation, prefer an authenticated `gh`/GitHub API path when available. A signed-out browser does not block completed remote work when the required state can be queried or mutated through the API.
 - Before creating or updating a GitHub issue or pull request, run `check-title-case --title "<final title>"`; pass exact identifiers with `--preserve`, then re-read the created title through GitHub and run the same final check.
 - Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement. After any API mutation, perform a fresh API read that confirms the intended remote state before claiming success.
@@ -58,7 +60,7 @@ Do not auto-file a learner issue solely because an issue was manually authored.
 
 1. Capture the user story and acceptance criteria in a GitHub issue.
 2. For each issue not clearly learner-authored, record a learner coverage outcome from the issue's explicit provenance and evidence. File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
-3. Create a branch named for the issue number and short feature slug.
+3. Before `git worktree add`, `dev branch-from`, or branch creation, inspect the target project's documented naming convention and existing worktree layout. Create the worktree and issue-linked branch with the exact project-local path and branch format; do not infer an `issue-<number>/` prefix from GitHub alone.
 4. Before opening a PR, verify its base is the repository's default branch or a documented release branch.
 5. Implement the feature against project-local patterns and keep the diff scoped to the story.
 6. Open a draft pull request linked to the issue.
