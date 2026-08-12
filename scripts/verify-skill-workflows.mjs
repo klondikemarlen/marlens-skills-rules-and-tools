@@ -1029,6 +1029,9 @@ for (const [name, workflow] of [
   if (!workflow.includes('For queued or deferred work') || !workflow.includes('Pass immutable delivery fields as a snapshot') || !workflow.includes('focused delayed-execution or deletion-path check')) {
     fail(`${name} must review deferred jobs for deleted-record dependencies`);
   }
+  if (!workflow.includes('For migrations that split or rename persisted settings') || !workflow.includes('Preserve existing explicit choices, including opt-outs') || !workflow.includes('existing opt-out and a missing legacy preference')) {
+    fail(`${name} must review preference-splitting migrations for preserved choices`);
+  }
   if (!workflow.includes('Make readability an explicit delivery gate') || !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')) {
     fail(`${name} must make structural readability a PASS condition`);
   }
