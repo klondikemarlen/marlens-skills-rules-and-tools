@@ -1026,6 +1026,9 @@ for (const [name, workflow] of [
   if (!workflow.includes('lower net owned complexity') || !workflow.includes('compatibility, maintenance, security') || !workflow.includes('product-specific policy explicit at the library boundary')) {
     fail(`${name} must select libraries by net owned complexity while preserving product policy`);
   }
+  if (!workflow.includes('For queued or deferred work') || !workflow.includes('Pass immutable delivery fields as a snapshot') || !workflow.includes('focused delayed-execution or deletion-path check')) {
+    fail(`${name} must review deferred jobs for deleted-record dependencies`);
+  }
   if (!workflow.includes('Make readability an explicit delivery gate') || !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')) {
     fail(`${name} must make structural readability a PASS condition`);
   }
