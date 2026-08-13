@@ -476,17 +476,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   const violations = [];
 
   for (const testPath of testPaths) {
-    let suppression;
-    try {
-      suppression = matchingSuppression(suppressions, testPath);
-    } catch (error) {
-      return result(
-        'BLOCKED',
-        'Test-alignment suppression configuration has expired.',
-        error.message,
-        `Remove or renew the expired suppression in ${SUPPRESSION_FILE}.`,
-      );
-    }
+    const suppression = matchingSuppression(suppressions, testPath);
     if (suppression) {
       suppressed.push(`${testPath} (${suppression.path}: ${suppression.reason})`);
       continue;

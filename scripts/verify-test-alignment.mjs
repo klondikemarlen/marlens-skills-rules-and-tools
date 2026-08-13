@@ -214,6 +214,13 @@ try {
   expect(result).toEqual(saved);
 });
 `);
+  commit(suppressionProject, 'suppressed legacy test');
+
+  const suppressedPass = runVerification(suppressionProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(suppressedPass.status, 'PASS');
+  assert.match(suppressedPass.evidence, /tests\/legacy\/widget\.test\.ts/);
+  assert.match(suppressedPass.evidence, /Legacy tests are being migrated separately/);
+
   write(suppressionProject, 'tests/current/widget.test.ts', `it('current widget', () => {
   expect(saved).toEqual(widget);
   expect(result).toEqual(saved);
@@ -225,6 +232,7 @@ try {
   assert.equal(suppression.status, 'FAIL');
   assert.match(suppression.evidence, /shared baseline:1/);
   assert.match(suppression.evidence, /Suppressed marlens-rules:test-alignment for tests\/legacy\/widget\.test\.ts/);
+  assert.match(suppression.evidence, /Legacy tests are being migrated separately/);
 
   write(invalidSuppressionProject, 'tests/widget.test.ts', alignedTest);
   commit(invalidSuppressionProject, 'baseline');
