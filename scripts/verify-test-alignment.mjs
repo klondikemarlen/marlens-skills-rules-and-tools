@@ -62,6 +62,8 @@ const noGuidanceProject = createProject();
 const nonTestProject = createProject();
 const untrackedTestProject = createProject();
 const exemptionProject = createProject();
+const suppressionProject = createProject();
+const invalidSuppressionProject = createProject();
 try {
   write(project, 'tests/README.md', guidance);
   write(project, 'tests/widget.test.ts', alignedTest);
@@ -124,12 +126,19 @@ try {
   write(noGuidanceProject, 'tests/widget.test.ts', alignedTest);
   commit(noGuidanceProject, 'baseline');
   git(noGuidanceProject, ['switch', '--quiet', '-c', 'feature']);
-  write(noGuidanceProject, 'tests/widget.test.ts', `${alignedTest}\n// Changed on this branch.\n`);
+  write(noGuidanceProject, 'tests/widget.test.ts', `it('saves widget', () => {
+  expect(saved).toEqual(widget);
+  expect(result).toEqual(saved);
+});
+`);
   commit(noGuidanceProject, 'test without guidance');
 
-  const unconfigured = runVerification(noGuidanceProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
-  assert.equal(unconfigured.status, 'NOT_CONFIGURED');
-  assert.match(unconfigured.evidence, /tests\/widget\.test\.ts/);
+  const baseline = runVerification(noGuidanceProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(baseline.status, 'FAIL');
+  assert.match(baseline.evidence, /shared baseline:1/);
+  assert.match(baseline.evidence, /marlens-test-alignment: test-name-when/);
+  assert.match(baseline.evidence, /marlens-test-alignment: arrange-act-assert/);
+  assert.match(baseline.evidence, /marlens-test-alignment: one-direct-expect/);
 
   write(nonTestProject, 'src/widget.ts', 'export const widget = 1;\n');
   commit(nonTestProject, 'baseline');
@@ -158,13 +167,25 @@ try {
   commit(exemptionProject, 'baseline');
   git(exemptionProject, ['switch', '--quiet', '-c', 'feature']);
   write(exemptionProject, 'tests/controller.test.ts', `describe('controller', () => {
-  it('records the request', () => {
-    // A diagnostic may include expect( without being an assertion.
+  it('when recording a request, keeps the diagnostic local', () => {
+    // Arrange
     const diagnostic = 'expect(';
+
+    // Act
     recordRequest();
+
+    // Assert
+    void diagnostic;
   });
 
-  test('returns the response', () => {
+  test('when the response succeeds, returns the response', () => {
+    // Arrange
+    const response = fetchResponse();
+
+    // Act
+    recordResponse(response);
+
+    // Assert
     // marlens-test-alignment: allow-multiple-expects -- status and body are independent observable contracts.
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ saved: true });
@@ -176,6 +197,55 @@ try {
   assert.equal(exempt.status, 'PASS');
   assert.match(exempt.evidence, /tests\/controller\.test\.ts/);
 
+  write(suppressionProject, '.marlens-verifications.json', JSON.stringify({
+    suppressions: [{
+      id: 'marlens-rules:test-alignment',
+      path: 'tests/legacy',
+      reason: 'Legacy tests are being migrated separately.',
+      expiresOn: '2099-01-01',
+    }],
+  }));
+  write(suppressionProject, 'tests/legacy/widget.test.ts', alignedTest);
+  write(suppressionProject, 'tests/current/widget.test.ts', alignedTest);
+  commit(suppressionProject, 'baseline');
+  git(suppressionProject, ['switch', '--quiet', '-c', 'feature']);
+  write(suppressionProject, 'tests/legacy/widget.test.ts', `it('legacy widget', () => {
+  expect(saved).toEqual(widget);
+  expect(result).toEqual(saved);
+});
+`);
+  commit(suppressionProject, 'suppressed legacy test');
+
+  const suppressedPass = runVerification(suppressionProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(suppressedPass.status, 'PASS');
+  assert.match(suppressedPass.evidence, /tests\/legacy\/widget\.test\.ts/);
+  assert.match(suppressedPass.evidence, /Legacy tests are being migrated separately/);
+
+  write(suppressionProject, 'tests/current/widget.test.ts', `it('current widget', () => {
+  expect(saved).toEqual(widget);
+  expect(result).toEqual(saved);
+});
+`);
+  commit(suppressionProject, 'scoped suppression');
+
+  const suppression = runVerification(suppressionProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(suppression.status, 'FAIL');
+  assert.match(suppression.evidence, /shared baseline:1/);
+  assert.match(suppression.evidence, /Suppressed marlens-rules:test-alignment for tests\/legacy\/widget\.test\.ts/);
+  assert.match(suppression.evidence, /Legacy tests are being migrated separately/);
+
+  write(invalidSuppressionProject, 'tests/widget.test.ts', alignedTest);
+  commit(invalidSuppressionProject, 'baseline');
+  git(invalidSuppressionProject, ['switch', '--quiet', '-c', 'feature']);
+  write(invalidSuppressionProject, '.marlens-verifications.json', JSON.stringify({
+    suppressions: [{ id: 'marlens-rules:test-alignment', path: 'tests' }],
+  }));
+  write(invalidSuppressionProject, 'tests/widget.test.ts', `${alignedTest}\n// Changed on this branch.\n`);
+
+  const invalidSuppression = runVerification(invalidSuppressionProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' });
+  assert.equal(invalidSuppression.status, 'BLOCKED');
+  assert.match(invalidSuppression.evidence, /reason must be a non-empty string/);
+
   console.log('Test alignment verification checks passed');
 } finally {
   rmSync(project, { recursive: true, force: true });
@@ -183,4 +253,6 @@ try {
   rmSync(nonTestProject, { recursive: true, force: true });
   rmSync(untrackedTestProject, { recursive: true, force: true });
   rmSync(exemptionProject, { recursive: true, force: true });
+  rmSync(suppressionProject, { recursive: true, force: true });
+  rmSync(invalidSuppressionProject, { recursive: true, force: true });
 }
