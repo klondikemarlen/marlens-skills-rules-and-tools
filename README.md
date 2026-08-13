@@ -18,11 +18,11 @@ Use direct install instead of the marketplace flow when you want both the packag
 
 Routine OMP installs use the generic GitHub reference and follow the repository's default branch. An exact full-commit reference with `--force` is exceptional: use it only to reproduce an exact artifact or diagnose stale plugin-cache state. See [`docs/references/omp-plugin-install-reference.md`](docs/references/omp-plugin-install-reference.md).
 
-This installs OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, session insight mining, temporary MCP tasks, and testing instructions.
+This installs task-oriented OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, session insight mining, temporary MCP tasks, and testing instructions. Invoke a skill when its task applies; skills and workflows do not attach to unrelated turns.
 
-These are skill prompts only; this package does not install browser automation or project test dependencies.
+Every reusable OMP rule in [`rules/`](rules/) loads by default through OMP plugin discovery. Project and user rules can override a package rule by reusing its name or extend it with a new name; see [local customization](#local-customization).
 
-It also adds reusable OMP rule files under `rules/`, a repo-local `bin/agent-rebase-edit.js` agent helper for scripted history edits, and the `dev` generic Docker Compose wrapper for project-local `bin/dev` shims.
+This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper and `bin/agent-rebase-edit.js` remain available for project-local shims and scripted history edits.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
@@ -45,9 +45,9 @@ Claude Code exposes this package's public skills under the plugin namespace, for
 
 The Claude adapter is manifest-only: `.claude-plugin/plugin.json` lets Claude Code load the existing `skills/` tree, and `.claude-plugin/marketplace.json` lets users install the repo without copying workflow files.
 
-## Recommended Companion OMP Plugins
+## Companion Runtime Plugins
 
-This package stays the base layer for doctrine, skills, rules, workflows, and the thin OMP adapter. Runtime plugins remain separate packages with independent release cycles; install only the pieces that match your workflow.
+This package is the default base layer for doctrine, rules, task skills, workflows, and the thin OMP adapter. Companion runtime plugins remain separate opt-ins with independent release cycles; install only the runtime capabilities your workflow needs.
 
 | Plugin | Adds | Install | Skip when |
 | --- | --- | --- | --- |
@@ -67,26 +67,17 @@ This package stays the base layer for doctrine, skills, rules, workflows, and th
 
 Setup requires existing `gh` authentication, an accessible upstream repository with GitHub Issues enabled, and permission for the authenticated account to create issues in that repository. Learner-created issues are a human-review backlog for proposed shared skills, rules, workflows, and stable project knowledge; maintainers decide whether accepted proposals become repository guidance. When asked to "implement new tickets", list the open `learner:` issues and triage the full set with [`docs/workflows/learn-workflow.md#learner-issue-triage`](docs/workflows/learn-workflow.md#learner-issue-triage): implement reusable missing guidance; report duplicate/already-covered filings to OMP Learner before closing them with citations; push project-specific proposals to the evidenced owning repo when identifiable, file or update the OMP Learner misrouting bug, then close the shared ticket with both links. Installing this package never enables learner filing by itself, and OMP Learner does not open pull requests, edit files, commit, push, change memory, or inject behavior into unrelated agents. See [`omp-learner#1`](https://github.com/klondikemarlen/omp-learner/issues/1) for the watchdog/setup feature history.
 
-## Reusable OMP Rules
+## Default OMP Rules
 
-Reusable rule files live under [`rules/`](rules/). After installing this package, copy or link selected generic rules into `~/.omp/agent/rules`; keep project-specific rules in the target repo or user-level rules directory.
+After installing this package as an OMP plugin, every reusable rule under [`rules/`](rules/) is active by default. Restart OMP after installing or upgrading so it discovers the installed package capabilities.
 
-```bash
-PACKAGE="$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools"
-mkdir -p "$HOME/.omp/agent/rules"
-ln -sf "$PACKAGE/rules/no-envrc-example-commits.md" "$HOME/.omp/agent/rules/"
-ln -sf "$PACKAGE/rules/omp-not-opencode-target-check.md" "$HOME/.omp/agent/rules/"
-ln -sf "$PACKAGE/rules/use-dev-wrapper-for-development-compose.md" "$HOME/.omp/agent/rules/"
-ln -sf "$PACKAGE/rules/whitespace-matters.md" "$HOME/.omp/agent/rules/"
-```
-Upgrading from v1.3.2 or earlier? Remove the obsolete rule before restarting OMP:
+To customize the defaults:
 
-```bash
-rm -f "$HOME/.omp/agent/rules/no-issue-filing-without-confirmation.md"
-```
+- Define a project or user rule with the same name to override the packaged rule at higher precedence.
+- Add a differently named rule under `.omp/rules/` or `~/.omp/agent/rules/` to extend the defaults.
+- Add a rule name to OMP's `ttsr.disabledRules` setting to disable it deliberately.
 
-
-Restart OMP after changing global rule files.
+For agents without OMP plugin support, follow the [manual install](#manual-install) path and copy or link the required rule files into that agent's rule directory.
 
 For local plugin development, link the package root so OMP uses the same plugin path:
 
@@ -162,11 +153,21 @@ If an agent cannot load plugins or skills, keep the checkout nearby and point it
 
 Restart the agent after changing this file. Global instructions load at startup.
 
+For a non-plugin agent, copy or link the applicable reusable rules into its normal rules directory:
+
+```bash
+REPO=/path/to/marlens-skills-rules-and-tools
+mkdir -p "$HOME/.omp/agent/rules"
+for rule in "$REPO"/rules/*.md; do
+  [ "$(basename "$rule")" = README.md ] || ln -sf "$rule" "$HOME/.omp/agent/rules/"
+done
+```
+
 ## Local Customization
 
-Treat this pack as the base layer; project-local instructions win. The detailed placement and precedence policy lives in [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md).
+Treat this pack as the base layer: package rules are default suggestions, while project-local instructions and rules win. Use a local rule with the same name for a deliberate replacement, add a new local rule for project-only behavior, or use OMP's `ttsr.disabledRules` setting to disable one package rule. The detailed placement and precedence policy lives in [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md).
 
-For each project, keep project-specific commands, wrappers, test commands, Docker services, UI labels, domain language, and stack conventions in that repo.
+Keep project-specific commands, wrappers, test commands, Docker services, UI labels, domain language, and stack conventions in that repo.
 
 ## Future Adapters
 

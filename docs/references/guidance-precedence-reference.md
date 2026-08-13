@@ -10,6 +10,8 @@ Use this as the canonical placement and precedence rule for this package.
 4. Thin skill entrypoints point to authoritative workflow files; they do not replace them.
 Within the user-authored task scope, a later explicit instruction narrows or supersedes an earlier broad workflow directive; it does not override a higher-precedence source.
 
+For OMP rules, an installed package's `rules/` files are default guidance. A user or project rule with the same `name` overrides the package rule; differently named local rules extend the active set. Use OMP's `ttsr.disabledRules` setting only for deliberate disablement.
+
 Before applying a workflow from this package, read the target project’s local guidance when it exists:
 
 - `AGENTS.md` or equivalent project agent rules
