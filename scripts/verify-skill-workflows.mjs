@@ -19,6 +19,35 @@ if (!packageJson.scripts?.test?.includes('node scripts/verify-oversized-source-f
   fail('package test gate must run the oversized-source-file verifier');
 }
 
+const rootReadme = read('README.md');
+const rulesReadme = read('rules/README.md');
+const packagedRules = readdirSync(path.join(root, 'rules'), { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md');
+
+if (!packageJson.files.includes('rules/')) {
+  fail('package.json must package reusable OMP rules');
+}
+if (packagedRules.length === 0) {
+  fail('rules/ must contain at least one packaged OMP rule');
+}
+for (const [name, text] of [
+  ['README.md', rootReadme],
+  ['rules/README.md', rulesReadme],
+]) {
+  for (const requiredText of [
+    'active by default',
+    'same name',
+    'ttsr.disabledRules',
+  ]) {
+    if (!text.includes(requiredText)) {
+      fail(`${name} must document default rules, same-name overrides, and deliberate disablement`);
+    }
+  }
+}
+if (rootReadme.includes('copy or link selected generic rules')) {
+  fail('README.md must not describe normal plugin rules as selected opt-ins');
+}
+
 const alwaysLoadedGuidance = read('AGENTS.md');
 for (const requiredText of [
   'independent responsibility clusters',
