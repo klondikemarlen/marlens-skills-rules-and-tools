@@ -31,6 +31,10 @@ const DIRECTIVES = {
   },
 };
 
+const BASELINE_DIRECTIVES = ['test-name-when', 'arrange-act-assert', 'one-direct-expect'];
+const CHECK_ID = 'marlens-rules:test-alignment';
+const SUPPRESSION_FILE = '.marlens-verifications.json';
+
 function result(status, summary, evidence, nextCheck) {
   return { status, summary, evidence, nextCheck };
 }
@@ -102,7 +106,11 @@ function parseGuidance(source, relativePath) {
 }
 
 function guidanceForTest(root, testPath) {
-  const rules = new Map();
+  const rules = new Map(BASELINE_DIRECTIVES.map((directive) => [directive, {
+    path: 'shared baseline',
+    line: 1,
+    directive,
+  }]));
   let directory = path.dirname(testPath);
 
   while (directory !== '.' && directory !== path.dirname(directory)) {
@@ -129,6 +137,78 @@ function guidanceForTest(root, testPath) {
   }
 
   return rules;
+}
+
+function suppressionScope(value) {
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new Error('suppression path must be a non-empty relative path');
+  }
+
+  const normalized = path.posix.normalize(value);
+  if (path.posix.isAbsolute(normalized) || normalized === '..' || normalized.startsWith('../')) {
+    throw new Error('suppression path must stay inside the project');
+  }
+
+  return normalized;
+}
+
+function suppressionExpiry(value) {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/u.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`))) {
+    throw new Error('suppression expiresOn must use YYYY-MM-DD');
+  }
+
+  return value;
+}
+
+function readSuppressions(root) {
+  const configurationPath = path.join(root, SUPPRESSION_FILE);
+  if (!existsSync(configurationPath)) return [];
+
+  let configuration;
+  try {
+    configuration = JSON.parse(readFileSync(configurationPath, 'utf8'));
+  } catch {
+    throw new Error(`${SUPPRESSION_FILE} must contain valid JSON`);
+  }
+
+  if (!configuration || Array.isArray(configuration) || !Array.isArray(configuration.suppressions)) {
+    throw new Error(`${SUPPRESSION_FILE} must contain a suppressions array`);
+  }
+
+  const suppressions = configuration.suppressions.map((suppression, index) => {
+    if (!suppression || Array.isArray(suppression) || typeof suppression !== 'object') {
+      throw new Error(`suppression ${index + 1} must be an object`);
+    }
+    if (typeof suppression.id !== 'string' || suppression.id.length === 0) {
+      throw new Error(`suppression ${index + 1} id must be a non-empty string`);
+    }
+    if (typeof suppression.reason !== 'string' || suppression.reason.trim().length === 0) {
+      throw new Error(`suppression ${index + 1} reason must be a non-empty string`);
+    }
+
+    return {
+      id: suppression.id,
+      path: suppressionScope(suppression.path),
+      reason: suppression.reason.trim(),
+      expiresOn: suppressionExpiry(suppression.expiresOn),
+    };
+  });
+
+  for (const suppression of suppressions) {
+    if (suppression.id === CHECK_ID && suppression.expiresOn && suppression.expiresOn < new Date().toISOString().slice(0, 10)) {
+      throw new Error(`suppression for ${CHECK_ID} at ${suppression.path} expired on ${suppression.expiresOn}`);
+    }
+  }
+
+  return suppressions;
+}
+
+function matchingSuppression(suppressions, testPath) {
+  return suppressions.find((suppression) => {
+    if (suppression.id !== CHECK_ID) return false;
+    return suppression.path === '.' || testPath === suppression.path || testPath.startsWith(`${suppression.path}/`);
+  });
 }
 
 function closingDelimiter(source, openingOffset, openingCharacter, closingCharacter) {
@@ -379,17 +459,40 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
     return result('PASS', 'No changed test files require alignment review.', 'The worktree diff contains no changed test files.', 'No follow-up check is required.');
   }
 
+  let suppressions;
+  try {
+    suppressions = readSuppressions(root);
+  } catch (error) {
+    return result(
+      'BLOCKED',
+      'Test-alignment suppression configuration is invalid.',
+      error.message,
+      `Fix ${SUPPRESSION_FILE} before running ${CHECK_ID}.`,
+    );
+  }
+
   const configured = [];
+  const suppressed = [];
   const violations = [];
-  const unconfigured = [];
 
   for (const testPath of testPaths) {
-    const guidance = guidanceForTest(root, testPath);
-    if (guidance.size === 0) {
-      unconfigured.push(testPath);
+    let suppression;
+    try {
+      suppression = matchingSuppression(suppressions, testPath);
+    } catch (error) {
+      return result(
+        'BLOCKED',
+        'Test-alignment suppression configuration has expired.',
+        error.message,
+        `Remove or renew the expired suppression in ${SUPPRESSION_FILE}.`,
+      );
+    }
+    if (suppression) {
+      suppressed.push(`${testPath} (${suppression.path}: ${suppression.reason})`);
       continue;
     }
 
+    const guidance = guidanceForTest(root, testPath);
     const source = readFileSync(path.join(root, testPath), 'utf8');
     const blocks = testBlocks(source);
     configured.push(`${testPath} (${guidance.size} rule${guidance.size === 1 ? '' : 's'})`);
@@ -407,29 +510,26 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
     }
   }
 
-  if (configured.length === 0) {
-    return result(
-      'NOT_CONFIGURED',
-      'Changed test files have no supported local test-alignment guidance.',
-      `No \`marlens-test-alignment\` directives were found for: ${unconfigured.join(', ')}.`,
-      'Add supported directives to the nearest test-directory README, then run the check again.',
-    );
-  }
-
   if (violations.length > 0) {
+    const suppressionEvidence = suppressed.length > 0
+      ? `\nSuppressed ${CHECK_ID} for ${suppressed.join(', ')}.`
+      : '';
     return result(
       'FAIL',
       `${violations.length} test-alignment violation(s) found.`,
-      violations.map(({ evidence }) => evidence).join('\n'),
+      `${violations.map(({ evidence }) => evidence).join('\n')}${suppressionEvidence}`,
       [...new Set(violations.map(({ remediation }) => remediation))].join(' '),
     );
   }
 
-  const skipped = unconfigured.length > 0 ? ` No supported guidance for: ${unconfigured.join(', ')}.` : '';
+  const inspected = configured.length > 0 ? `Inspected ${configured.join(', ')}.` : '';
+  const skipped = suppressed.length > 0 ? ` Suppressed ${CHECK_ID} for ${suppressed.join(', ')}.` : '';
   return result(
     'PASS',
-    `Changed test files follow configured local alignment guidance.`,
-    `Inspected ${configured.join(', ')}.${skipped}`,
+    configured.length > 0
+      ? 'Changed test files follow shared baseline and local alignment guidance.'
+      : 'Changed test files are covered by a scoped test-alignment suppression.',
+    `${inspected}${skipped}`.trim(),
     'No follow-up check is required.',
   );
 }
