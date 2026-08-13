@@ -12,6 +12,7 @@ mkdir -p "$HOME/.omp/agent/rules"
 ln -sf "$PACKAGE/rules/no-envrc-example-commits.md" "$HOME/.omp/agent/rules/"
 ln -sf "$PACKAGE/rules/omp-not-opencode-target-check.md" "$HOME/.omp/agent/rules/"
 ln -sf "$PACKAGE/rules/use-dev-wrapper-for-development-compose.md" "$HOME/.omp/agent/rules/"
+ln -sf "$PACKAGE/rules/whitespace-matters.md" "$HOME/.omp/agent/rules/"
 ```
 Upgrading from v1.3.2 or earlier? Remove the obsolete rule before restarting OMP:
 
