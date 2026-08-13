@@ -61,7 +61,7 @@ The verifier reports every matching suppression and its reason in `PASS` or `FAI
 
 ## Automatic Selection
 
-The plugin manifest declares `pathTriggers` for JavaScript and TypeScript test paths. [`omp-verifier` issue #86](https://github.com/klondikemarlen/omp-verifier/issues/86) owns consuming those triggers during completed-change verification; until that runtime release is installed, invoke this verification explicitly.
+This package declares explicit default triggers for every verification: project-wide checks use `**/*`, while test alignment narrows to JavaScript and TypeScript test paths. [`omp-verifier` issue #86](https://github.com/klondikemarlen/omp-verifier/issues/86) owns consuming those triggers during completed-change verification; until that runtime release is installed, invoke this verification explicitly.
 
 ## Diff Scope
 
