@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "2.10.13",
+  "version": "2.10.14",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -53,8 +53,29 @@
     }, {
       "id": "marlens-rules:test-alignment",
       "label": "Test Alignment",
-      "description": "Checks changed JavaScript and TypeScript tests against opt-in local alignment directives.",
+      "description": "Checks changed JavaScript and TypeScript tests against a shared baseline and stricter local rules.",
       "entry": "./verifications/test-alignment.mjs",
+      "pathTriggers": [
+        "test/**",
+        "tests/**",
+        "__tests__/**",
+        "**/*.test.js",
+        "**/*.test.cjs",
+        "**/*.test.mjs",
+        "**/*.test.jsx",
+        "**/*.test.ts",
+        "**/*.test.cts",
+        "**/*.test.mts",
+        "**/*.test.tsx",
+        "**/*.spec.js",
+        "**/*.spec.cjs",
+        "**/*.spec.mjs",
+        "**/*.spec.jsx",
+        "**/*.spec.ts",
+        "**/*.spec.cts",
+        "**/*.spec.mts",
+        "**/*.spec.tsx"
+      ],
       "timeoutMs": 30000
     }]
   },
