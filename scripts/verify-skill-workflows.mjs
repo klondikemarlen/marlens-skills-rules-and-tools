@@ -290,10 +290,14 @@ if (!ompTargetRule.includes('scope: "tool"')) {
 
 const whitespaceRule = read('rules/whitespace-matters.md');
 for (const requiredText of [
+  'project formatter/checker when one exists',
   'git diff --check',
-  'closest project guidance',
-  'blank lines and import grouping',
-  'do not impose a universal formatter',
+  'import groups contiguous',
+  'exactly one blank line',
+  'Do not use consecutive blank lines',
+  'default cross-project rules',
+  'does not relax this baseline',
+  'user explicitly directs it',
 ]) {
   if (!whitespaceRule.includes(requiredText)) {
     fail(`whitespace review rule must require ${requiredText}`);
