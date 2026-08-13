@@ -1,12 +1,15 @@
 ---
 name: whitespace-matters
-description: "Before presenting a change as ready, check mechanical whitespace errors and preserve the target project's local structural whitespace conventions."
+description: "Before presenting a change as ready, enforce clean-code whitespace defaults and mechanical whitespace checks unless the user explicitly overrides them."
 condition: "git (commit|push)|pull request|PR|ready for review|review"
 scope: "tool:bash"
 ---
 
-Before presenting a changed file as ready, run `git diff --check` against the relevant change range. Use `--cached` for staged changes and the PR base range for committed review changes.
+Before presenting a changed file as ready:
 
-Treat blank lines and import grouping as structure, not cosmetic churn: read the closest project guidance and inspect nearby touched-file siblings before changing them. Preserve local grouping and separation conventions; do not impose a universal formatter, indentation rule, or language-specific layout.
+1. Run the project formatter/checker when one exists, then run `git diff --check` against the relevant change range. Use `--cached` for staged changes and the PR base range for committed review changes.
+2. Keep import groups contiguous and separate each group with exactly one blank line. Use the project’s documented group order when it has one; otherwise group standard-library, third-party, then project-local imports.
+3. Use exactly one blank line between top-level declarations and unrelated logical sibling blocks. Do not use consecutive blank lines. Keep tightly coupled statements and one logical import group together.
+4. Keep whitespace-only edits scoped to the changed area.
 
-Keep whitespace-only edits scoped to the changed area unless the user explicitly asks for wider formatting.
+These are the default cross-project rules. Project guidance may add stricter requirements, but does not relax this baseline. Depart only when the user explicitly directs it.
