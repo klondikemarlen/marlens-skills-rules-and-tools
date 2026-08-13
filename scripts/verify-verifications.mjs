@@ -1,12 +1,23 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const verificationModule = path.join(root, 'verifications/no-envrc-example.mjs');
+
+const manifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const verifications = manifest.omp?.verifications;
+assert.ok(Array.isArray(verifications));
+for (const verification of verifications) {
+  assert.ok(Array.isArray(verification.pathTriggers) && verification.pathTriggers.length > 0, `${verification.id} must declare automatic path triggers`);
+  assert.ok(verification.pathTriggers.every((trigger) => typeof trigger === 'string' && trigger.length > 0), `${verification.id} path triggers must be non-empty strings`);
+}
+for (const id of ['marlens-rules:no-envrc-example', 'marlens-rules:no-oversized-source-files']) {
+  assert.deepEqual(verifications.find((verification) => verification.id === id)?.pathTriggers, ['**/*']);
+}
 
 
 function createGitProject() {

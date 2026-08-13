@@ -79,6 +79,12 @@ To customize the defaults:
 
 For agents without OMP plugin support, follow the [manual install](#manual-install) path and copy or link the required rule files into that agent's rule directory.
 
+## Default Verifications
+
+When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is installed, its automatic-selection runtime runs every installed verification whose manifest `pathTriggers` match the changed paths. This package declares `**/*` for its project-wide environment-file and oversized-source checks, so they run for every change; test alignment declares JavaScript and TypeScript test paths.
+
+The runtime support is tracked in [`omp-verifier#86`](https://github.com/klondikemarlen/omp-verifier/issues/86). Until that release is installed, invoke verifications explicitly. Extensions add their own manifest entries and triggers; scoped suppression remains visible in verifier output rather than silently disabling a check.
+
 For local plugin development, link the package root so OMP uses the same plugin path:
 
 ```bash
