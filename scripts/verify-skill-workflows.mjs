@@ -288,6 +288,18 @@ if (!ompTargetRule.includes('scope: "tool"')) {
   fail('OMP target rule must keep a reusable tool scope');
 }
 
+const whitespaceRule = read('rules/whitespace-matters.md');
+for (const requiredText of [
+  'git diff --check',
+  'closest project guidance',
+  'blank lines and import grouping',
+  'do not impose a universal formatter',
+]) {
+  if (!whitespaceRule.includes(requiredText)) {
+    fail(`whitespace review rule must require ${requiredText}`);
+  }
+}
+
 const commentResolutionWorkflow = read('docs/workflows/pull-request-comment-resolution-workflow.md');
 if (!commentResolutionWorkflow.includes('temporarily draft')) {
   fail('comment resolution workflow must distinguish temporary draft state');
