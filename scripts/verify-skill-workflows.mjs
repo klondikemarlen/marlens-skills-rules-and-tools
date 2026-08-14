@@ -459,6 +459,13 @@ for (const [name, workflow] of [
     'Skip the snapshot for mechanical changes with an obvious scope',
     'check-title-case --title "<final title>"',
     're-read the created title through GitHub and run the same final check',
+    '## Contract Closure',
+    'cross-cutting change whose observable semantic reaches product or runtime boundaries',
+    'recording each boundary as `verified` or `N/A`',
+    'Verify parity between equivalent user-visible paths',
+    'Mechanical local changes skip contract closure.',
+    'only when the changed contract actually reaches it',
+    'not a generic whole-repository audit.',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);

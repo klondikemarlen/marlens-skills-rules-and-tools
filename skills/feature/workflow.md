@@ -46,6 +46,14 @@ For ambiguous or cross-cutting feature work, add a lightweight requirements snap
 
 Skip the snapshot for mechanical changes with an obvious scope. Do not turn it into a full PRD, mandatory sign-off, stakeholder roster, target-release ceremony, or separate requirements system.
 
+## Contract Closure
+
+For a cross-cutting change whose observable semantic reaches product or runtime boundaries, add a compact contract-closure entry to the requirements snapshot or PR self-review note. Trace the changed semantic from its source to every relevant direct consumer, recording each boundary as `verified` or `N/A`.
+
+Relevant boundaries include persistence, model/query projection, serializer/API, interactive UI, exports, background jobs, bootstrap/seed paths, and CI/test provisioning. Verify parity between equivalent user-visible paths, such as screen results and exports or downloads. Mechanical local changes skip contract closure.
+
+Reviewers should request a missing boundary only when the changed contract actually reaches it. Contract closure is not a generic whole-repository audit.
+
 ## Learner Coverage During Issue Triage
 
 For each issue not clearly learner-authored, inspect explicit provenance—author, `learner:` title or label, issue body, and cited evidence—rather than guessing from its appearance. Record exactly one learner coverage outcome in the implementation PR:
