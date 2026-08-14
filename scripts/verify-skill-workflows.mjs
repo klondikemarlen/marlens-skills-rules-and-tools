@@ -1072,6 +1072,15 @@ for (const [name, workflow] of [
   if (!workflow.includes('Treat test setup as self-contained') || !workflow.includes('stable environment setup')) {
     fail(`${name} must require self-contained test setup while allowing invariant fixtures`);
   }
+  if (!workflow.includes('shared setup or teardown hook that awaits an external, asynchronous, or potentially slow subsystem') || !workflow.includes('multiplies waits, retries, polling, or cleanup by every test and worker')) {
+    fail(`${name} must require asynchronous test-hook fan-out assessment`);
+  }
+  if (!workflow.includes('narrowest suite or describe block') || !workflow.includes('unless every test needs it') || !workflow.includes('focused regression for the race or lifecycle hazard')) {
+    fail(`${name} must scope asynchronous invariants and retain a regression check`);
+  }
+  if (!workflow.includes('all-suite correctness reason or measured fan-out rationale') || !workflow.includes('normal in-memory setup') || !workflow.includes('impose timing budgets')) {
+    fail(`${name} must bound asynchronous hook review without constraining ordinary setup`);
+  }
   if (!workflow.includes('For generic parsing, traversal, tokenization, serialization, or equivalent plumbing') || !workflow.includes('well-maintained libraries before approving bespoke code')) {
     fail(`${name} must compare generic implementation code with maintained libraries`);
   }
