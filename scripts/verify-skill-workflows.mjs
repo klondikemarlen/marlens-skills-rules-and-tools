@@ -466,6 +466,13 @@ for (const [name, workflow] of [
     'Mechanical local changes skip contract closure.',
     'only when the changed contract actually reaches it',
     'not a generic whole-repository audit.',
+    '## Conditional CI and Cache Closure',
+    'changes to build images, dependency-install layers, migrations, bootstrap or initializers, generated artifacts, or test provisioning',
+    'one representative changed file per relevant path class',
+    'each path must independently enable the expected job or cache invalidation',
+    'composition of positive rules',
+    'no path-filtered CI or cache tied to the changed surface',
+    'Ordinary source-only changes do not require CI/cache closure, generic CI edits, cache busting, or full-suite reruns.',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);

@@ -54,6 +54,12 @@ Relevant boundaries include persistence, model/query projection, serializer/API,
 
 Reviewers should request a missing boundary only when the changed contract actually reaches it. Contract closure is not a generic whole-repository audit.
 
+## Conditional CI and Cache Closure
+
+For changes to build images, dependency-install layers, migrations, bootstrap or initializers, generated artifacts, or test provisioning, trace each changed source to its conditional CI job predicates and cache keys. Prove the configuration with one representative changed file per relevant path class: each path must independently enable the expected job or cache invalidation, including the composition of positive rules.
+
+Record `N/A` when the repository has no path-filtered CI or cache tied to the changed surface. Ordinary source-only changes do not require CI/cache closure, generic CI edits, cache busting, or full-suite reruns.
+
 ## Learner Coverage During Issue Triage
 
 For each issue not clearly learner-authored, inspect explicit provenance—author, `learner:` title or label, issue body, and cited evidence—rather than guessing from its appearance. Record exactly one learner coverage outcome in the implementation PR:
