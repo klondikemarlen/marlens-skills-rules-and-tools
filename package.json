@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "2.10.19",
+  "version": "2.10.20",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -43,14 +43,12 @@
       "label": "No Tracked Environment Example",
       "description": "Checks that the active Git project does not track .envrc.example files.",
       "entry": "./verifications/no-envrc-example.mjs",
-      "pathTriggers": ["**/*"],
       "timeoutMs": 30000
     }, {
       "id": "marlens-rules:no-oversized-source-files",
       "label": "No Oversized Source Files",
       "description": "Checks that tracked source files stay within a configurable line-count ceiling.",
       "entry": "./verifications/no-oversized-source-files.mjs",
-      "pathTriggers": ["**/*"],
       "timeoutMs": 30000
     }, {
       "id": "marlens-rules:test-alignment",
