@@ -6,12 +6,17 @@ export function verifyRoutingProcedures({ read, fail }) {
     ['packaged layered-page workflow', read('skills/layered-page-orchestration/workflow.md')],
   ];
   for (const [name, workflow] of layeredPageWorkflows) {
-    requireEvery(workflow, [
-      'initial route only decides between concrete pathways',
-      'route replacement',
-      'unmounted after redirect',
-      'Do not add a resolver layer',
-      '## Routing Example',
-    ], requiredText => `${name} must include ${requiredText}`, fail);
+    requireEvery(
+      workflow,
+      [
+        'initial route only decides between concrete pathways',
+        'route replacement',
+        'unmounted after redirect',
+        'Do not add a resolver layer',
+        '## Routing Example',
+      ],
+      (requiredText) => `${name} must include ${requiredText}`,
+      fail,
+    );
   }
 }

@@ -8,13 +8,17 @@ import { runVerification as verifyNoEnvrcExample } from '../verifications/no-env
 import { runStagedVerification as verifyStagedSourceFiles } from '../verifications/no-oversized-source-files.mjs';
 
 function stagedPaths() {
-  return execFileSync('git', ['diff', '--cached', '--name-only', '-z'], { encoding: 'utf8' })
+  return execFileSync('git', ['diff', '--cached', '--name-only', '-z'], {
+    encoding: 'utf8',
+  })
     .split('\0')
     .filter(Boolean);
 }
 
 function repositoryRoot() {
-  return execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+  return execFileSync('git', ['rev-parse', '--show-toplevel'], {
+    encoding: 'utf8',
+  }).trim();
 }
 
 function atomicGroups() {
@@ -65,7 +69,11 @@ function buildSpecifications(composeSource) {
     const inline = line.match(/^\s*build:\s*\{(.*)\}\s*$/u);
     if (inline) {
       const dockerfile = mappingValue(inline[1], 'dockerfile');
-      if (dockerfile) specifications.push({ context: mappingValue(inline[1], 'context') ?? '.', dockerfile });
+      if (dockerfile)
+        specifications.push({
+          context: mappingValue(inline[1], 'context') ?? '.',
+          dockerfile,
+        });
       continue;
     }
 
@@ -92,19 +100,17 @@ function buildSpecifications(composeSource) {
 }
 
 function composeDockerfilePairs(paths) {
-  return paths
-    .filter(isComposePath)
-    .flatMap((composePath) => {
-      const normalizedComposePath = normalizedPath(composePath);
-      const composeDirectory = path.posix.dirname(normalizedComposePath);
+  return paths.filter(isComposePath).flatMap((composePath) => {
+    const normalizedComposePath = normalizedPath(composePath);
+    const composeDirectory = path.posix.dirname(normalizedComposePath);
 
-      return buildSpecifications(stagedFile(composePath))
-        .filter(({ context, dockerfile }) => !path.posix.isAbsolute(context) && !path.posix.isAbsolute(dockerfile))
-        .map(({ context, dockerfile }) => ({
-          composePath: normalizedComposePath,
-          dockerfilePath: path.posix.normalize(path.posix.join(composeDirectory, context, dockerfile)),
-        }));
-    });
+    return buildSpecifications(stagedFile(composePath))
+      .filter(({ context, dockerfile }) => !path.posix.isAbsolute(context) && !path.posix.isAbsolute(dockerfile))
+      .map(({ context, dockerfile }) => ({
+        composePath: normalizedComposePath,
+        dockerfilePath: path.posix.normalize(path.posix.join(composeDirectory, context, dockerfile)),
+      }));
+  });
 }
 
 const paths = stagedPaths();
@@ -113,10 +119,7 @@ const { boundaries } = checkCommitScope(paths, {
   composeDockerfilePairs: composeDockerfilePairs(paths),
 });
 
-const hygieneFailures = [
-  verifyNoEnvrcExample(),
-  verifyStagedSourceFiles(),
-].filter(({ status }) => status !== 'PASS');
+const hygieneFailures = [verifyNoEnvrcExample(), verifyStagedSourceFiles()].filter(({ status }) => status !== 'PASS');
 
 if (boundaries.length === 0) {
   console.log('Staged files satisfy commit file-type boundaries.');

@@ -102,7 +102,8 @@ try {
   const wrongInput = buildInput(otherForm, () => {
     throw new Error('wrong input should not be uploaded');
   });
-  const rightMarkdown = '<img width="1" height="1" alt="Screenshot" src="https://github.com/user-attachments/assets/new-upload" />';
+  const rightMarkdown =
+    '<img width="1" height="1" alt="Screenshot" src="https://github.com/user-attachments/assets/new-upload" />';
   const rightInput = buildInput(scopedForm, () => replaceSelection(editor, rightMarkdown));
 
   const result = await addImageToGitHubMarkdownEditor({
@@ -118,9 +119,11 @@ try {
   assert.equal(result.attachmentUrl, 'https://github.com/user-attachments/assets/new-upload');
   assert.equal(editor.value, originalPrBody.replace(placeholder, rightMarkdown));
 
-  const existingMarkdown = '<img width="1" height="1" alt="Old" src="https://github.com/user-attachments/assets/existing" />';
+  const existingMarkdown =
+    '<img width="1" height="1" alt="Old" src="https://github.com/user-attachments/assets/existing" />';
   const editorWithExisting = buildEditor(scopedForm, `${existingMarkdown}\n${placeholder}`);
-  const newMarkdown = '<img width="1" height="1" alt="New" src="https://github.com/user-attachments/assets/newer-upload" />';
+  const newMarkdown =
+    '<img width="1" height="1" alt="New" src="https://github.com/user-attachments/assets/newer-upload" />';
   const scopedInput = buildInput(scopedForm, () => replaceSelection(editorWithExisting, newMarkdown));
   const existingResult = await addImageToGitHubMarkdownEditor({
     page: new MockPage({ editor: editorWithExisting, inputs: [scopedInput] }),
@@ -137,10 +140,16 @@ try {
   const formWithBaselineAlert = buildForm();
   formWithBaselineAlert.errors = ['There was an error creating your PullRequest.'];
   const editorWithBaselineAlert = buildEditor(formWithBaselineAlert, placeholder);
-  const baselineMarkdown = '<img width="1" height="1" alt="Baseline" src="https://github.com/user-attachments/assets/baseline-upload" />';
-  const baselineInput = buildInput(formWithBaselineAlert, () => replaceSelection(editorWithBaselineAlert, baselineMarkdown));
+  const baselineMarkdown =
+    '<img width="1" height="1" alt="Baseline" src="https://github.com/user-attachments/assets/baseline-upload" />';
+  const baselineInput = buildInput(formWithBaselineAlert, () =>
+    replaceSelection(editorWithBaselineAlert, baselineMarkdown),
+  );
   const baselineResult = await addImageToGitHubMarkdownEditor({
-    page: new MockPage({ editor: editorWithBaselineAlert, inputs: [baselineInput] }),
+    page: new MockPage({
+      editor: editorWithBaselineAlert,
+      inputs: [baselineInput],
+    }),
     editorSelector: '#body',
     fileInputSelector: 'input[type=file]',
     filePath: imagePath,
@@ -154,13 +163,14 @@ try {
   const emptyPath = path.join(tmpDir, 'empty.png');
   writeFileSync(emptyPath, '');
   await assert.rejects(
-    () => addImageToGitHubMarkdownEditor({
-      page: new MockPage({ editor, inputs: [rightInput] }),
-      editorSelector: '#body',
-      fileInputSelector: 'input[type=file]',
-      filePath: emptyPath,
-      timeoutMs: 50,
-    }),
+    () =>
+      addImageToGitHubMarkdownEditor({
+        page: new MockPage({ editor, inputs: [rightInput] }),
+        editorSelector: '#body',
+        fileInputSelector: 'input[type=file]',
+        filePath: emptyPath,
+        timeoutMs: 50,
+      }),
     /empty/,
   );
 
@@ -169,14 +179,18 @@ try {
     scopedForm.errors = ["We don't support that file type."];
   });
   await assert.rejects(
-    () => addImageToGitHubMarkdownEditor({
-      page: new MockPage({ editor: unsupportedEditor, inputs: [unsupportedInput] }),
-      editorSelector: '#body',
-      fileInputSelector: 'input[type=file]',
-      filePath: imagePath,
-      insertAt: placeholder,
-      timeoutMs: 50,
-    }),
+    () =>
+      addImageToGitHubMarkdownEditor({
+        page: new MockPage({
+          editor: unsupportedEditor,
+          inputs: [unsupportedInput],
+        }),
+        editorSelector: '#body',
+        fileInputSelector: 'input[type=file]',
+        filePath: imagePath,
+        insertAt: placeholder,
+        timeoutMs: 50,
+      }),
     /We don't support that file type/,
   );
 } finally {

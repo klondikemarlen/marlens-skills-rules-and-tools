@@ -28,13 +28,13 @@ Place wrapper variants immediately after their base equivalent in the rules file
 
 ### Avoid These Patterns
 
-| Bad Pattern | Why | Good Alternative |
-|-------------|-----|------------------|
-| `prefix_rule(pattern=["git", "commit", "-m", "specific message"])` | One-off message won't match future commits | `prefix_rule(pattern=["git", "commit", "-m"])` |
-| `prefix_rule(pattern=["gh", "api", "repos/org/repo/pulls/315"])` | Specific PR number won't match other PRs | `prefix_rule(pattern=["gh", "api"])` |
-| `prefix_rule(pattern=["/bin/bash", "-lc", "complex \| pipeline"])` | Shell wrappers are brittle, won't match reliably | Break into separate commands or prompt |
-| `prefix_rule(pattern=["printf", "\\n---DEBUG---\\n"])` | One-off debug helpers | Remove entirely |
-| `prefix_rule(pattern=["git", "rebase", "--onto", "abc123", "def456"])` | Specific commit hashes | `prefix_rule(pattern=["git", "rebase", "--onto"])` |
+| Bad Pattern                                                            | Why                                              | Good Alternative                                   |
+| ---------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| `prefix_rule(pattern=["git", "commit", "-m", "specific message"])`     | One-off message won't match future commits       | `prefix_rule(pattern=["git", "commit", "-m"])`     |
+| `prefix_rule(pattern=["gh", "api", "repos/org/repo/pulls/315"])`       | Specific PR number won't match other PRs         | `prefix_rule(pattern=["gh", "api"])`               |
+| `prefix_rule(pattern=["/bin/bash", "-lc", "complex \| pipeline"])`     | Shell wrappers are brittle, won't match reliably | Break into separate commands or prompt             |
+| `prefix_rule(pattern=["printf", "\\n---DEBUG---\\n"])`                 | One-off debug helpers                            | Remove entirely                                    |
+| `prefix_rule(pattern=["git", "rebase", "--onto", "abc123", "def456"])` | Specific commit hashes                           | `prefix_rule(pattern=["git", "rebase", "--onto"])` |
 
 ### Prefer These Patterns
 

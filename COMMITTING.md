@@ -173,7 +173,6 @@ Focus on:
   possible (for example a specific runtime version mismatch) instead of describing it only in
   generic terms
 
-
 ## Plain language
 
 Prefer plain terms over unexplained software jargon in commit subjects and bodies. If a domain term is useful, define it once or choose the clearer phrase.

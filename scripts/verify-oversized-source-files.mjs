@@ -1,12 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { runStagedVerification, runVerification } from '../verifications/no-oversized-source-files.mjs';
@@ -68,10 +62,7 @@ try {
 
   assert.equal(runStagedVerification(nonGitProject, {}).status, 'BLOCKED');
   assert.equal(runVerification(nonGitProject, {}).status, 'BLOCKED');
-  assert.equal(
-    runVerification(projectDirectory, { MARLENS_MAX_SOURCE_LINES: '0' }).status,
-    'BLOCKED',
-  );
+  assert.equal(runVerification(projectDirectory, { MARLENS_MAX_SOURCE_LINES: '0' }).status, 'BLOCKED');
 
   console.log('Oversized source-file verification checks passed');
 } finally {

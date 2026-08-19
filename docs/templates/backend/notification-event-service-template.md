@@ -33,14 +33,14 @@ Keep the event service as a coordinator. It owns event-specific recipients and u
 
 ```typescript
 export type NotificationDeliveryOptions = {
-  inApp?: boolean
-  email?: boolean
-}
+  inApp?: boolean;
+  email?: boolean;
+};
 
 export const DEFAULT_NOTIFICATION_DELIVERY_OPTIONS: Required<NotificationDeliveryOptions> = {
   inApp: true,
   email: true,
-}
+};
 ```
 
 ### Single Recipient Event Service

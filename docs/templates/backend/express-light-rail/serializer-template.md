@@ -11,15 +11,15 @@ export function serializeProject(project: ProjectLike) {
     name: project.name,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-  }
+  };
 }
 
 type ProjectLike = {
-  id: string
-  name: string
-  createdAt: Date | string
-  updatedAt: Date | string
-}
+  id: string;
+  name: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+};
 ```
 
 ## Checklist

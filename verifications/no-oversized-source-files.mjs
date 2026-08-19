@@ -34,16 +34,7 @@ const SOURCE_EXTENSIONS = new Set([
   '.vue',
   '.svelte',
 ]);
-const IGNORED_SEGMENTS = new Set([
-  '.git',
-  'build',
-  'coverage',
-  'dist',
-  'generated',
-  'node_modules',
-  'tmp',
-  'vendor',
-]);
+const IGNORED_SEGMENTS = new Set(['.git', 'build', 'coverage', 'dist', 'generated', 'node_modules', 'tmp', 'vendor']);
 
 function result(status, summary, evidence, nextCheck) {
   return { status, summary, evidence, nextCheck };
@@ -99,11 +90,7 @@ function sourceFilesFromGit(repositoryRoot, arguments_) {
     stdio: ['ignore', 'pipe', 'ignore'],
   });
 
-  return output
-    .toString('utf8')
-    .split('\0')
-    .filter(Boolean)
-    .filter(isSourcePath);
+  return output.toString('utf8').split('\0').filter(Boolean).filter(isSourcePath);
 }
 
 function trackedSourceFiles(repositoryRoot) {
@@ -190,9 +177,7 @@ function runSourceVerification(projectDirectory, environment, sourceFiles, readS
     }
   }
 
-  const allowanceEvidence = allowlisted.length
-    ? ` Explicitly allowlisted: ${allowlisted.join(', ')}.`
-    : '';
+  const allowanceEvidence = allowlisted.length ? ` Explicitly allowlisted: ${allowlisted.join(', ')}.` : '';
   if (oversized.length > 0) {
     return result(
       'FAIL',

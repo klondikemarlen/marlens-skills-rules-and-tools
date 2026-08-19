@@ -22,6 +22,7 @@ gh pr view 456 --json title,body,state,isDraft,mergeStateStatus,url
 ```
 
 ## Metadata Updates
+
 For issue or pull request body/title changes, prefer the high-level commands and verify with `gh issue view` or `gh pr view`:
 
 ```bash
@@ -59,6 +60,7 @@ github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id CO
 github-review-thread resolve --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --reaction -1
 
 ```
+
 The gated `resolve --reaction +1|-1` action maps the comment to its review thread, establishes and verifies the actor’s expected reaction before resolving, and performs a final check of both the reaction and `reviewThread.isResolved`. A resolved thread without that reaction is incomplete.
 
 Never pass Markdown through inline `--body`; the shell evaluates backticks and `$()` before the CLI receives the argument. Write the exact text to a file and pass `--body-file`:
@@ -79,4 +81,5 @@ Use `--dry-run` for a JSON plan preview.
 The review helper is part of this repository's OMP plugin/package artifact. Its GitHub API calls are grouped behind the exported `GitHubReviewIntegration`; the CLI remains the user-facing surface. Do not create a separate gem/npm package or add Octokit/`gh api` transport until a second consumer needs the integration or it must be versioned independently.
 
 ## Screenshot Attachments
+
 GitHub user-attachment URLs are created through a logged-in browser session. `gh api` can edit issue/PR Markdown after a durable image URL exists, but it does not provide a public upload endpoint that hosts a local screenshot as a `user-attachments/assets/...` URL. Use the project workflow for screenshot capture, browser upload, and attachment formatting.

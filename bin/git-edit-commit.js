@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-import "./agent-rebase-edit.js";
+import './agent-rebase-edit.js';

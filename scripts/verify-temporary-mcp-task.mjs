@@ -30,14 +30,20 @@ try {
 `;
   writeFileSync(configPath, originalConfig, 'utf8');
 
-  assert.deepEqual(parseArgs(['--confirm', '--config', '.omp/mcp.json', '--server', 'github', '--', 'List', 'issues']), {
-    confirm: true,
-    config: '.omp/mcp.json',
-    server: 'github',
-    omp: 'omp',
-    prompt: ['List', 'issues'],
-  });
-  assert.throws(() => parseArgs(['--config', '.omp/mcp.json', '--server', 'github', '--', 'List']), /without --confirm/);
+  assert.deepEqual(
+    parseArgs(['--confirm', '--config', '.omp/mcp.json', '--server', 'github', '--', 'List', 'issues']),
+    {
+      confirm: true,
+      config: '.omp/mcp.json',
+      server: 'github',
+      omp: 'omp',
+      prompt: ['List', 'issues'],
+    },
+  );
+  assert.throws(
+    () => parseArgs(['--config', '.omp/mcp.json', '--server', 'github', '--', 'List']),
+    /without --confirm/,
+  );
   assert.equal(interruptExitStatus('SIGQUIT'), 131);
 
   const temporaryConfig = temporaryMcpConfig(JSON.parse(originalConfig), 'github');
@@ -72,10 +78,7 @@ try {
   assert(capturedConfig.disabledServers.includes('slack'));
 
   const lockPath = acquireLease(configPath, originalConfig, 0o600);
-  assert.throws(
-    () => acquireLease(configPath, originalConfig, 0o600),
-    /another temporary MCP task/,
-  );
+  assert.throws(() => acquireLease(configPath, originalConfig, 0o600), /another temporary MCP task/);
   rmSync(lockPath, { recursive: true, force: true });
 
   const staleLockPath = `${configPath}.temporary-mcp-task.lock`;

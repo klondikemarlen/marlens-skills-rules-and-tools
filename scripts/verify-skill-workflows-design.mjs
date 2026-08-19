@@ -46,7 +46,15 @@ export function verifyDesignWorkflows(read, fail) {
     ['packaged hands-off workflow', read('skills/hands-off-agentic-coding/workflow.md')],
   ];
   for (const [name, workflow] of handsOffWorkflows) {
-    for (const requiredText of ['Completed:', 'Remaining:', 'Validation:', 'Blockers:', 'Next action:', "Tura's documented task-status", 'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`']) {
+    for (const requiredText of [
+      'Completed:',
+      'Remaining:',
+      'Validation:',
+      'Blockers:',
+      'Next action:',
+      "Tura's documented task-status",
+      'in this package that gate includes `node scripts/verify-oversized-source-files.mjs`',
+    ]) {
       if (!workflow.includes(requiredText)) {
         fail(`${name} must include ${requiredText}`);
       }

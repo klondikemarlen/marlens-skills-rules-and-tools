@@ -1,5 +1,14 @@
 #!/usr/bin/env node
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,26 +19,80 @@ Read-only audit for downstream agent guidance. Reports stale package names, remo
 
 const TEXT_EXTENSIONS = new Set(['.md', '.mdx', '.txt', '.yml', '.yaml', '.json']);
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'vendor', 'tmp', 'dist', 'build', '.next', '.nuxt', 'coverage']);
-const PATH_PREFIXES = ['./', '../', 'docs/', 'agents/', 'skills/', 'scripts/', 'lib/', 'bin/', 'rules/', 'omp-plugin/', '.omp-plugin/', '.claude-plugin/'];
+const PATH_PREFIXES = [
+  './',
+  '../',
+  'docs/',
+  'agents/',
+  'skills/',
+  'scripts/',
+  'lib/',
+  'bin/',
+  'rules/',
+  'omp-plugin/',
+  '.omp-plugin/',
+  '.claude-plugin/',
+];
 
 const STALE_LITERALS = [
-  { check: 'stale-package-name', needle: 'marlens-rules-and-skills', detail: 'use marlens-skills-rules-and-tools' },
-  { check: 'stale-install-command', needle: 'omp install github:klondikemarlen/marlens-skills-rules-and-tools', detail: 'use omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools' },
-  { check: 'removed-learner-surface', needle: '/learner', detail: 'learner moved out of this package' },
-  { check: 'removed-learner-surface', needle: 'learner_record_candidate', detail: 'learner moved out of this package' },
-  { check: 'removed-learner-surface', needle: 'docs/workflows/learner-feedback-workflow.md', detail: 'learner workflow moved out of this package' },
-  { check: 'removed-learner-surface', needle: 'docs/evals/learner-feedback.json', detail: 'learner eval moved out of this package' },
-  { check: 'removed-learner-surface', needle: 'skills/learner', detail: 'learner skill moved out of this package' },
-  { check: 'removed-learner-surface', needle: 'omp-plugin/learner', detail: 'learner runtime moved out of this package' },
+  {
+    check: 'stale-package-name',
+    needle: 'marlens-rules-and-skills',
+    detail: 'use marlens-skills-rules-and-tools',
+  },
+  {
+    check: 'stale-install-command',
+    needle: 'omp install github:klondikemarlen/marlens-skills-rules-and-tools',
+    detail: 'use omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools',
+  },
+  {
+    check: 'removed-learner-surface',
+    needle: '/learner',
+    detail: 'learner moved out of this package',
+  },
+  {
+    check: 'removed-learner-surface',
+    needle: 'learner_record_candidate',
+    detail: 'learner moved out of this package',
+  },
+  {
+    check: 'removed-learner-surface',
+    needle: 'docs/workflows/learner-feedback-workflow.md',
+    detail: 'learner workflow moved out of this package',
+  },
+  {
+    check: 'removed-learner-surface',
+    needle: 'docs/evals/learner-feedback.json',
+    detail: 'learner eval moved out of this package',
+  },
+  {
+    check: 'removed-learner-surface',
+    needle: 'skills/learner',
+    detail: 'learner skill moved out of this package',
+  },
+  {
+    check: 'removed-learner-surface',
+    needle: 'omp-plugin/learner',
+    detail: 'learner runtime moved out of this package',
+  },
 ];
 const WORKFLOW_INVENTORY_MARKER = '<!-- agent-guidance-audit: inventory -->';
-const SUPPRESSIBLE_CHECKS = new Set(['stale-package-name', 'stale-install-command', 'removed-learner-surface', 'markdown-link', 'backtick-path']);
-
-
-
+const SUPPRESSIBLE_CHECKS = new Set([
+  'stale-package-name',
+  'stale-install-command',
+  'removed-learner-surface',
+  'markdown-link',
+  'backtick-path',
+]);
 
 function parseArgs(argv) {
-  const options = { json: false, strict: false, selfTest: false, mirrors: [], roots: [] };
+  const options = {
+    json: false,
+    strict: false,
+    selfTest: false,
+    mirrors: [],
+    roots: [],
+  };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -119,7 +182,12 @@ function parseSuppressions(root, file, text) {
         continue;
       }
 
-      suppressions.push({ line, check: parts[1], target: parts[2] ?? null, used: false });
+      suppressions.push({
+        line,
+        check: parts[1],
+        target: parts[2] ?? null,
+        used: false,
+      });
     }
   });
 
@@ -130,7 +198,9 @@ function applySuppressions(root, file, findings, suppressions) {
   const kept = [];
 
   for (const item of findings) {
-    const suppression = suppressions.find(({ line, check, target }) => line === item.line && check === item.check && (!target || target === item.target));
+    const suppression = suppressions.find(
+      ({ line, check, target }) => line === item.line && check === item.check && (!target || target === item.target),
+    );
     if (suppression) {
       suppression.used = true;
       continue;
@@ -141,13 +211,21 @@ function applySuppressions(root, file, findings, suppressions) {
 
   for (const suppression of suppressions) {
     if (!suppression.used) {
-      kept.push(finding(root, file, suppression.line, 'audit-suppression', `unused suppression ${suppression.check}${suppression.target ? ` ${suppression.target}` : ''}`, suppression.target));
+      kept.push(
+        finding(
+          root,
+          file,
+          suppression.line,
+          'audit-suppression',
+          `unused suppression ${suppression.check}${suppression.target ? ` ${suppression.target}` : ''}`,
+          suppression.target,
+        ),
+      );
     }
   }
 
   return kept;
 }
-
 
 function walkFiles(root, files = []) {
   for (const entry of readdirSync(root, { withFileTypes: true })) {
@@ -174,9 +252,11 @@ function isConditionalWorkflowFallback(root, file, text, offset, token) {
   const paragraphEnd = text.indexOf('\n\n', offset);
   const paragraph = text.slice(paragraphStart, paragraphEnd === -1 ? text.length : paragraphEnd);
   const workflowName = token.slice('agents/workflows/'.length);
-  return paragraph.includes(`docs/workflows/${workflowName}`)
-    && paragraph.includes(token)
-    && /(?:then|otherwise|if neither)/i.test(paragraph);
+  return (
+    paragraph.includes(`docs/workflows/${workflowName}`) &&
+    paragraph.includes(token) &&
+    /(?:then|otherwise|if neither)/i.test(paragraph)
+  );
 }
 
 function scanFile(root, file) {
@@ -199,7 +279,9 @@ function scanFile(root, file) {
     const target = cleanTarget(rawTarget);
     if (!target || target.includes('*') || target.startsWith('<')) continue;
     if (!markdownTargetExists(baseDir, target)) {
-      results.push(finding(root, file, lineNumber(text, match.index), 'markdown-link', `missing target ${target}`, target));
+      results.push(
+        finding(root, file, lineNumber(text, match.index), 'markdown-link', `missing target ${target}`, target),
+      );
     }
   }
 
@@ -208,7 +290,9 @@ function scanFile(root, file) {
     if (!isPathLike(token) || token.includes('*') || token.includes(' ') || token.includes('{')) continue;
     if (isConditionalWorkflowFallback(root, file, text, match.index, token)) continue;
     if (!backtickPathExists(baseDir, root, token)) {
-      results.push(finding(root, file, lineNumber(text, match.index), 'backtick-path', `missing target ${token}`, token));
+      results.push(
+        finding(root, file, lineNumber(text, match.index), 'backtick-path', `missing target ${token}`, token),
+      );
     }
   }
 
@@ -236,7 +320,11 @@ function scanWorkflowInventory(root) {
     const readmeText = readFileSync(readmePath, 'utf8');
     if (!readmeText.includes(WORKFLOW_INVENTORY_MARKER)) continue;
 
-    const actual = new Set(readdirSync(workflowDir).filter((name) => name.endsWith('.md') && name !== 'README.md').map((name) => `${relativeDir}/${name}`));
+    const actual = new Set(
+      readdirSync(workflowDir)
+        .filter((name) => name.endsWith('.md') && name !== 'README.md')
+        .map((name) => `${relativeDir}/${name}`),
+    );
     const listed = markdownInventoryPaths(readmeText);
 
     for (const item of actual) {
@@ -247,7 +335,9 @@ function scanWorkflowInventory(root) {
     for (const item of listed) {
       const normalized = item.startsWith(relativeDir) ? item : `${relativeDir}/${path.basename(item)}`;
       if (!actual.has(normalized)) {
-        results.push(finding(root, readmePath, 1, 'workflow-inventory', `inventory lists missing workflow ${item}`, item));
+        results.push(
+          finding(root, readmePath, 1, 'workflow-inventory', `inventory lists missing workflow ${item}`, item),
+        );
       }
     }
   }
@@ -320,13 +410,18 @@ function runSelfTest() {
     mkdirSync(refs, { recursive: true });
     writeFileSync(path.join(refs, 'ok.md'), '# ok\n');
     writeFileSync(path.join(docs, 'ok.md'), '# ok\n');
-    writeFileSync(path.join(repo, 'README.md'), '[ok](docs/references/ok.md) [missing](./missing.md) `docs/workflows/nope.md`\n');
+    writeFileSync(
+      path.join(repo, 'README.md'),
+      '[ok](docs/references/ok.md) [missing](./missing.md) `docs/workflows/nope.md`\n',
+    );
 
     const dirty = auditRoots({ roots: [repo], strict: false, mirrors: [] });
     if (dirty.length !== 2) throw new Error(`expected 2 findings, got ${dirty.length}`);
     const details = dirty.map(formatFinding).join('\n');
-    if (!details.includes('markdown-link missing target ./missing.md')) throw new Error('missing Markdown fixture finding');
-    if (!details.includes('backtick-path missing target docs/workflows/nope.md')) throw new Error('missing backtick fixture finding');
+    if (!details.includes('markdown-link missing target ./missing.md'))
+      throw new Error('missing Markdown fixture finding');
+    if (!details.includes('backtick-path missing target docs/workflows/nope.md'))
+      throw new Error('missing backtick fixture finding');
     if (details.includes('docs/references/ok.md')) throw new Error('valid relative link was reported');
 
     writeFileSync(path.join(repo, 'README.md'), '[ok](docs/references/ok.md) `docs/workflows/ok.md`\n');
@@ -337,7 +432,6 @@ function runSelfTest() {
   }
 }
 
-
 function main() {
   try {
     const options = parseArgs(process.argv.slice(2));
@@ -346,7 +440,8 @@ function main() {
       console.log('agent guidance audit self-test passed');
       return;
     }
-    if (options.roots.length === 0 && options.mirrors.length === 0) throw new Error('provide at least one downstream root or --mirror pair');
+    if (options.roots.length === 0 && options.mirrors.length === 0)
+      throw new Error('provide at least one downstream root or --mirror pair');
 
     const results = auditRoots(options);
     if (options.json) {

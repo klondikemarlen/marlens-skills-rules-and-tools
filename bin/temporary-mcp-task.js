@@ -16,7 +16,13 @@ function requireValue(argv, index, flag) {
 }
 
 export function parseArgs(argv) {
-  const options = { confirm: false, config: null, server: null, omp: 'omp', prompt: [] };
+  const options = {
+    confirm: false,
+    config: null,
+    server: null,
+    omp: 'omp',
+    prompt: [],
+  };
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -53,7 +59,11 @@ export function parseArgs(argv) {
   return options;
 }
 
-export function nativeMcpConfigPaths({ cwd = process.cwd(), home = os.homedir(), profile = process.env.OMP_PROFILE } = {}) {
+export function nativeMcpConfigPaths({
+  cwd = process.cwd(),
+  home = os.homedir(),
+  profile = process.env.OMP_PROFILE,
+} = {}) {
   const userConfig = profile
     ? path.join(home, '.omp', 'profiles', profile, 'agent', 'mcp.json')
     : path.join(home, '.omp', 'agent', 'mcp.json');
@@ -65,7 +75,9 @@ export function assertDiscoverableConfigPath(configPath, options = {}) {
   const resolvedConfigPath = path.resolve(configPath);
 
   if (!nativeMcpConfigPaths(options).includes(resolvedConfigPath)) {
-    throw new Error(`--config must be this project's .omp/mcp.json or the active profile's user mcp.json: ${resolvedConfigPath}`);
+    throw new Error(
+      `--config must be this project's .omp/mcp.json or the active profile's user mcp.json: ${resolvedConfigPath}`,
+    );
   }
 
   return resolvedConfigPath;
@@ -109,12 +121,20 @@ export function temporaryMcpConfig(config, serverName) {
   }
 
   const disabledServers = Array.isArray(temporaryConfig.disabledServers) ? temporaryConfig.disabledServers : [];
-  temporaryConfig.disabledServers = [...new Set([...disabledServers.filter((name) => name !== serverName), ...serverNames.filter((name) => name !== serverName)])];
+  temporaryConfig.disabledServers = [
+    ...new Set([
+      ...disabledServers.filter((name) => name !== serverName),
+      ...serverNames.filter((name) => name !== serverName),
+    ]),
+  ];
 
   return temporaryConfig;
 }
 function writeAtomically(filePath, content, mode) {
-  const temporaryPath = path.join(path.dirname(filePath), `.${path.basename(filePath)}.temporary-mcp-task-${process.pid}-${Date.now()}`);
+  const temporaryPath = path.join(
+    path.dirname(filePath),
+    `.${path.basename(filePath)}.temporary-mcp-task-${process.pid}-${Date.now()}`,
+  );
   writeFileSync(temporaryPath, content, { encoding: 'utf8', mode });
   renameSync(temporaryPath, filePath);
 }
@@ -166,7 +186,11 @@ export function acquireLease(configPath, originalText, originalMode) {
 
   try {
     writeFileSync(path.join(stagingLockPath, 'mcp.json.backup'), originalText, 'utf8');
-    writeFileSync(path.join(stagingLockPath, 'owner.json'), JSON.stringify({ pid: process.pid, mode: originalMode }), 'utf8');
+    writeFileSync(
+      path.join(stagingLockPath, 'owner.json'),
+      JSON.stringify({ pid: process.pid, mode: originalMode }),
+      'utf8',
+    );
     renameSync(stagingLockPath, lockPath);
   } catch (error) {
     rmSync(stagingLockPath, { recursive: true, force: true });

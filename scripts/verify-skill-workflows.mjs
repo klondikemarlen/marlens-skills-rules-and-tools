@@ -50,8 +50,9 @@ for (const verification of packageJson.omp.verifications) {
     fail(`rules and verifications reference must classify ${verificationName}`);
   }
 }
-const packagedRules = readdirSync(path.join(root, 'rules'), { withFileTypes: true })
-  .filter((entry) => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md');
+const packagedRules = readdirSync(path.join(root, 'rules'), {
+  withFileTypes: true,
+}).filter((entry) => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md');
 for (const rule of packagedRules) {
   const ruleName = path.basename(rule.name, '.md');
   if (!currentPackageClassification.includes(`\`${ruleName}\``)) {
@@ -69,11 +70,7 @@ for (const [name, text] of [
   ['README.md', rootReadme],
   ['rules/README.md', rulesReadme],
 ]) {
-  for (const requiredText of [
-    'active by default',
-    'same name',
-    'ttsr.disabledRules',
-  ]) {
+  for (const requiredText of ['active by default', 'same name', 'ttsr.disabledRules']) {
     if (!text.includes(requiredText)) {
       fail(`${name} must document default rules, same-name overrides, and deliberate disablement`);
     }
@@ -138,7 +135,10 @@ if (existsSync(path.join(root, '.claude-plugin', 'marketplace.json'))) {
   }
 }
 function normalizedRepositoryUrl(value) {
-  return value.replace(/^git\+/, '').replace(/\.git$/, '').replace(/\/$/, '');
+  return value
+    .replace(/^git\+/, '')
+    .replace(/\.git$/, '')
+    .replace(/\/$/, '');
 }
 
 if (!existsSync(path.join(root, '.omp-plugin', 'marketplace.json'))) {
@@ -172,7 +172,6 @@ if (existsSync(path.join(root, 'rules', 'no-issue-filing-without-confirmation.md
   fail('package must not ship the obsolete issue-filing confirmation rule');
 }
 
-
 const ompTargetRule = read('rules/omp-not-opencode-target-check.md');
 if (!ompTargetRule.includes('omp plugin install <source>')) {
   fail('OMP target rule must use current plugin install wording');
@@ -180,7 +179,7 @@ if (!ompTargetRule.includes('omp plugin install <source>')) {
 if (ompTargetRule.includes('omp install <source>')) {
   fail('OMP target rule must not use stale generic install wording');
 }
-if (!ompTargetRule.includes('scope: "tool"')) {
+if (!/scope:\s*['"]tool['"]/u.test(ompTargetRule)) {
   fail('OMP target rule must keep a reusable tool scope');
 }
 
@@ -200,7 +199,11 @@ for (const requiredText of [
   }
 }
 
-const { featureWorkflow, packagedFeatureWorkflow } = verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance });
+const { featureWorkflow, packagedFeatureWorkflow } = verifyFeatureProcedures({
+  read,
+  fail,
+  alwaysLoadedGuidance,
+});
 verifyReviewProcedures({ read, fail });
 verifyRoutingProcedures({ read, fail });
 verifyTestingProcedures({ read, fail });
@@ -257,11 +260,7 @@ for (const [name, text] of [
   }
 }
 
-for (const requiredText of [
-  '### End-User Preferences',
-  'boolean, number, or string',
-  'JSON objects or arrays',
-]) {
+for (const requiredText of ['### End-User Preferences', 'boolean, number, or string', 'JSON objects or arrays']) {
   if (!agentRules.includes(requiredText)) {
     fail(`AGENT_RULES.md must require scalar end-user preferences: ${requiredText}`);
   }
@@ -272,7 +271,7 @@ for (const requiredText of [
   'separate checkout: prepare it independently',
   'copy each root `*.code-workspace` file from the source',
   'do not overwrite destination workspace configuration',
-  "setup docs and documented development/test wrapper",
+  'setup docs and documented development/test wrapper',
   'Dockerized projects or a documented wrapper such as `bin/dev`',
   "lockfile's native package-manager command",
   'Skip setup for read-only work',
@@ -316,7 +315,8 @@ for (const requiredText of [
   }
 }
 
-const manualAskBeforeSameOriginDelivery = /\b(?:call|invoke|render|show|use)\s+`?ask`?[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)|(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}\b(?:call|invoke|render|show|use)\s+`?ask`?/iu;
+const manualAskBeforeSameOriginDelivery =
+  /\b(?:call|invoke|render|show|use)\s+`?ask`?[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)|(?:same-origin|resolved(?: same-origin)? origin|documented (?:same-origin )?(?:tag|release)(?: publication)?)[^.\n]{0,160}\b(?:before|prior to)[^.\n]{0,160}\b(?:call|invoke|render|show|use)\s+`?ask`?/iu;
 for (const manualAskExample of [
   'Call `ask` before a resolved same-origin branch push.',
   'Call `ask` before documented same-origin tag publication.',
@@ -399,10 +399,7 @@ for (const requiredText of [
   }
 }
 
-for (const requiredText of [
-  'layered page orchestration',
-  'layered-page-orchestration-workflow.md',
-]) {
+for (const requiredText of ['layered page orchestration', 'layered-page-orchestration-workflow.md']) {
   if (!readme.includes(requiredText)) {
     fail(`README must document layered page orchestration: ${requiredText}`);
   }
@@ -591,55 +588,114 @@ for (const [name, workflow] of [
   if (!workflow.includes('same production constant/helper under test')) {
     fail(`${name} must reject production-derived expected values`);
   }
-  if (!workflow.includes('Default to one `expect` per test when it proves one focused observable contract') || !workflow.includes('do not combine unrelated values merely to satisfy the heuristic')) {
+  if (
+    !workflow.includes('Default to one `expect` per test when it proves one focused observable contract') ||
+    !workflow.includes('do not combine unrelated values merely to satisfy the heuristic')
+  ) {
     fail(`${name} must scope one-expect guidance to one observable contract`);
   }
-  if (!workflow.includes('Repository-native assertion patterns override generic guidance') || !workflow.includes('await expect(promise).rejects.toThrow(...)') || !workflow.includes('do not manually catch its rejection or aggregate it with mock-call arrays')) {
+  if (
+    !workflow.includes('Repository-native assertion patterns override generic guidance') ||
+    !workflow.includes('await expect(promise).rejects.toThrow(...)') ||
+    !workflow.includes('do not manually catch its rejection or aggregate it with mock-call arrays')
+  ) {
     fail(`${name} must prefer native promise-error assertions over caught-error aggregates`);
   }
-  if (!workflow.includes('Assert mock calls separately only when they are independently observable and important') || !workflow.includes('response.status` and `response.body')) {
+  if (
+    !workflow.includes('Assert mock calls separately only when they are independently observable and important') ||
+    !workflow.includes('response.status` and `response.body')
+  ) {
     fail(`${name} must allow independently observable assertions`);
   }
-  if (!workflow.includes('For changed test files, inspect the nearest test-directory README') || !workflow.includes('report its assertion conventions and flag violations before reporting `PASS`')) {
+  if (
+    !workflow.includes('For changed test files, inspect the nearest test-directory README') ||
+    !workflow.includes('report its assertion conventions and flag violations before reporting `PASS`')
+  ) {
     fail(`${name} must discover and report local test assertion conventions before PASS`);
   }
   if (!workflow.includes('Treat test setup as self-contained') || !workflow.includes('stable environment setup')) {
     fail(`${name} must require self-contained test setup while allowing invariant fixtures`);
   }
-  if (!workflow.includes('shared setup or teardown hook that awaits an external, asynchronous, or potentially slow subsystem') || !workflow.includes('multiplies waits, retries, polling, or cleanup by every test and worker')) {
+  if (
+    !workflow.includes(
+      'shared setup or teardown hook that awaits an external, asynchronous, or potentially slow subsystem',
+    ) ||
+    !workflow.includes('multiplies waits, retries, polling, or cleanup by every test and worker')
+  ) {
     fail(`${name} must require asynchronous test-hook fan-out assessment`);
   }
-  if (!workflow.includes('narrowest suite or describe block') || !workflow.includes('unless every test needs it') || !workflow.includes('focused regression for the race or lifecycle hazard')) {
+  if (
+    !workflow.includes('narrowest suite or describe block') ||
+    !workflow.includes('unless every test needs it') ||
+    !workflow.includes('focused regression for the race or lifecycle hazard')
+  ) {
     fail(`${name} must scope asynchronous invariants and retain a regression check`);
   }
-  if (!workflow.includes('all-suite correctness reason or measured fan-out rationale') || !workflow.includes('normal in-memory setup') || !workflow.includes('impose timing budgets')) {
+  if (
+    !workflow.includes('all-suite correctness reason or measured fan-out rationale') ||
+    !workflow.includes('normal in-memory setup') ||
+    !workflow.includes('impose timing budgets')
+  ) {
     fail(`${name} must bound asynchronous hook review without constraining ordinary setup`);
   }
-  if (!workflow.includes('For generic parsing, traversal, tokenization, serialization, or equivalent plumbing') || !workflow.includes('well-maintained libraries before approving bespoke code')) {
+  if (
+    !workflow.includes('For generic parsing, traversal, tokenization, serialization, or equivalent plumbing') ||
+    !workflow.includes('well-maintained libraries before approving bespoke code')
+  ) {
     fail(`${name} must compare generic implementation code with maintained libraries`);
   }
-  if (!workflow.includes('lower net owned complexity') || !workflow.includes('compatibility, maintenance, security') || !workflow.includes('product-specific policy explicit at the library boundary')) {
+  if (
+    !workflow.includes('lower net owned complexity') ||
+    !workflow.includes('compatibility, maintenance, security') ||
+    !workflow.includes('product-specific policy explicit at the library boundary')
+  ) {
     fail(`${name} must select libraries by net owned complexity while preserving product policy`);
   }
-  if (!workflow.includes('For queued or deferred work') || !workflow.includes('Pass immutable delivery fields as a snapshot') || !workflow.includes('focused delayed-execution or deletion-path check')) {
+  if (
+    !workflow.includes('For queued or deferred work') ||
+    !workflow.includes('Pass immutable delivery fields as a snapshot') ||
+    !workflow.includes('focused delayed-execution or deletion-path check')
+  ) {
     fail(`${name} must review deferred jobs for deleted-record dependencies`);
   }
-  if (!workflow.includes('For migrations that split or rename persisted settings') || !workflow.includes('Preserve existing explicit choices, including opt-outs') || !workflow.includes('existing opt-out and a missing legacy preference')) {
+  if (
+    !workflow.includes('For migrations that split or rename persisted settings') ||
+    !workflow.includes('Preserve existing explicit choices, including opt-outs') ||
+    !workflow.includes('existing opt-out and a missing legacy preference')
+  ) {
     fail(`${name} must review preference-splitting migrations for preserved choices`);
   }
-  if (!workflow.includes('Before the first push or review request') || !workflow.includes('closest local style and test guidance plus nearby sibling precedent') || !workflow.includes('import grouping, blank-line separation, test hierarchy, naming, and focused assertions') || !workflow.includes('Formatter output is not proof of local structural compliance')) {
+  if (
+    !workflow.includes('Before the first push or review request') ||
+    !workflow.includes('closest local style and test guidance plus nearby sibling precedent') ||
+    !workflow.includes('import grouping, blank-line separation, test hierarchy, naming, and focused assertions') ||
+    !workflow.includes('Formatter output is not proof of local structural compliance')
+  ) {
     fail(`${name} must preflight touched files against local structural style before review`);
   }
-  if (!workflow.includes('Make readability an explicit delivery gate') || !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')) {
+  if (
+    !workflow.includes('Make readability an explicit delivery gate') ||
+    !workflow.includes('before reporting `PASS`, name each independent responsibility and its side effects')
+  ) {
     fail(`${name} must make structural readability a PASS condition`);
   }
-  if (!workflow.includes('unstructured accumulation of independent scenarios') || !workflow.includes('repeated mechanics') || !workflow.includes('structure rather than numeric readability proxies')) {
+  if (
+    !workflow.includes('unstructured accumulation of independent scenarios') ||
+    !workflow.includes('repeated mechanics') ||
+    !workflow.includes('structure rather than numeric readability proxies')
+  ) {
     fail(`${name} must review structural readability instead of numeric proxies`);
   }
-  if (!workflow.includes('preserve literal scenario data locally') || !workflow.includes('do not require mechanical splits or generic fixture builders')) {
+  if (
+    !workflow.includes('preserve literal scenario data locally') ||
+    !workflow.includes('do not require mechanical splits or generic fixture builders')
+  ) {
     fail(`${name} must preserve readable scenario fixtures without requiring generic abstractions`);
   }
-  if (!workflow.includes('alphabetized by exported symbol') || !workflow.includes('do not require unrelated barrel-file rewrites')) {
+  if (
+    !workflow.includes('alphabetized by exported symbol') ||
+    !workflow.includes('do not require unrelated barrel-file rewrites')
+  ) {
     fail(`${name} must review changed index re-export ordering`);
   }
   if (!workflow.includes('Review commit scope when relevant')) {
@@ -654,16 +710,25 @@ for (const [name, workflow] of [
   if (!workflow.includes('Check code organization')) {
     fail(`${name} must include an explicit code organization review step`);
   }
-  if (!workflow.includes('oversized file as a signal') || !workflow.includes('mechanical split that preserves the same tangles')) {
+  if (
+    !workflow.includes('oversized file as a signal') ||
+    !workflow.includes('mechanical split that preserves the same tangles')
+  ) {
     fail(`${name} must review oversized mixed-responsibility files without requiring mechanical splits`);
   }
-  if (!workflow.includes('State names should describe represented domain facts') || !workflow.includes('direct derived state')) {
+  if (
+    !workflow.includes('State names should describe represented domain facts') ||
+    !workflow.includes('direct derived state')
+  ) {
     fail(`${name} must review state names and dependency-local ordering`);
   }
   if (!workflow.includes('Check simplicity')) {
     fail(`${name} must keep the Ponytail/YAGNI simplicity review step`);
   }
-  if (!workflow.includes('Flag private helpers that read instance fields') || !workflow.includes('inherently bound to object state')) {
+  if (
+    !workflow.includes('Flag private helpers that read instance fields') ||
+    !workflow.includes('inherently bound to object state')
+  ) {
     fail(`${name} must flag hidden instance dependencies in private helpers without forcing artificial parameters`);
   }
   for (const requiredText of [
@@ -716,19 +781,34 @@ for (const [name, guide] of [
   ['shared commit guide', sharedCommitGuide],
   ['packaged commit guide', packagedCommitGuide],
 ]) {
-  if (!guide.includes('`:art:` — completed quality improvements, cleanups, and refinements that do not fit a narrower semantic category')) {
+  if (
+    !guide.includes(
+      '`:art:` — completed quality improvements, cleanups, and refinements that do not fit a narrower semantic category',
+    )
+  ) {
     fail(`${name} must reserve :art: for completed quality improvements without a narrower category`);
   }
-  if (!guide.includes('`:construction:` — exclusively an explicitly incomplete, application-breaking intermediate migration slice')) {
+  if (
+    !guide.includes(
+      '`:construction:` — exclusively an explicitly incomplete, application-breaking intermediate migration slice',
+    )
+  ) {
     fail(`${name} must reserve :construction: for incomplete application-breaking migration slices`);
   }
-  if (!guide.includes('A completed extraction or refinement with no narrower semantic category uses `:art:`, never `:construction:`.')) {
+  if (
+    !guide.includes(
+      'A completed extraction or refinement with no narrower semantic category uses `:art:`, never `:construction:`.',
+    )
+  ) {
     fail(`${name} must select :art: for a completed extraction or refinement`);
   }
   if (guide.includes(':construction: Nest document routes') || !guide.includes(':recycle: Nest document routes')) {
     fail(`${name} must not use :construction: for completed route refactors`);
   }
-  if (!guide.includes('Run `check-commit-scope` after staging and before committing') || !guide.includes('Application code may share a commit with its directly corresponding tests')) {
+  if (
+    !guide.includes('Run `check-commit-scope` after staging and before committing') ||
+    !guide.includes('Application code may share a commit with its directly corresponding tests')
+  ) {
     fail(`${name} must document the staged file-type boundary check and code-plus-test exception`);
   }
 }
@@ -745,19 +825,24 @@ for (const [name, workflow] of [
   if (!workflow.includes('Warn and stop before creating a `:construction:` commit')) {
     fail(`${name} must warn before an unsupported :construction: commit`);
   }
-  if (!workflow.includes('Run `check-commit-scope` after staging') || !workflow.includes('user confirms that the group is genuinely inseparable')) {
+  if (
+    !workflow.includes('Run `check-commit-scope` after staging') ||
+    !workflow.includes('user confirms that the group is genuinely inseparable')
+  ) {
     fail(`${name} must check and stop on mixed staged file categories`);
   }
   if (
-    !workflow.includes('A standard source-plus-focused-test commit does not use `.commit-scope.json`')
-    || !workflow.includes('Only after the checker reports a mixed file-type boundary and the user confirms that the group is genuinely inseparable')
+    !workflow.includes('A standard source-plus-focused-test commit does not use `.commit-scope.json`') ||
+    !workflow.includes(
+      'Only after the checker reports a mixed file-type boundary and the user confirms that the group is genuinely inseparable',
+    )
   ) {
     fail(`${name} must treat .commit-scope.json as optional exception configuration`);
   }
   if (
-    !workflow.includes('inspect the complete PR diff for the same underlying issue')
-    || !workflow.includes('dedicated `:ok_hand:` commit')
-    || !workflow.includes('PR scope checked')
+    !workflow.includes('inspect the complete PR diff for the same underlying issue') ||
+    !workflow.includes('dedicated `:ok_hand:` commit') ||
+    !workflow.includes('PR scope checked')
   ) {
     fail(`${name} must require a scoped :ok_hand: review correction commit`);
   }
@@ -768,7 +853,10 @@ for (const [name, workflow] of [
   ['authoritative commit workflow', commitWorkflow],
   ['packaged commit workflow', commitFallbackWorkflow],
 ]) {
-  if (!workflow.includes('Keep commits cohesive and homogeneous') && !workflow.includes('Keep commits homogeneous by change type')) {
+  if (
+    !workflow.includes('Keep commits cohesive and homogeneous') &&
+    !workflow.includes('Keep commits homogeneous by change type')
+  ) {
     fail(`${name} must require homogeneous commits`);
   }
   if (!workflow.includes('documentation or workflow-learning')) {
@@ -794,7 +882,8 @@ function resolveFirstWorkflow(projectRoot, skillName) {
   }
 
   const packagedWorkflow = packaged[0]?.uri;
-  if (packagedWorkflow && existsSync(fallbackPath(packagedWorkflow))) return { kind: 'fallback', path: `skill://${packagedWorkflow}` };
+  if (packagedWorkflow && existsSync(fallbackPath(packagedWorkflow)))
+    return { kind: 'fallback', path: `skill://${packagedWorkflow}` };
 
   return { kind: 'missing', path: path.join(projectRoot, local[0]) };
 }
@@ -806,9 +895,10 @@ if (packagedFixture.kind !== 'fallback') {
 }
 const commitPackagedFixture = resolveFirstWorkflow(path.join(root, '.missing-local-workflows-fixture'), 'commit');
 if (commitPackagedFixture.kind !== 'fallback' || commitPackagedFixture.path !== 'skill://commit/workflow.md') {
-  fail(`Commit packaged fallback fixture: expected skill://commit/workflow.md, got ${commitPackagedFixture.kind} (${commitPackagedFixture.path})`);
+  fail(
+    `Commit packaged fallback fixture: expected skill://commit/workflow.md, got ${commitPackagedFixture.kind} (${commitPackagedFixture.path})`,
+  );
 }
-
 
 if (process.env.WRAP_PROJECT) {
   fixtureChecks.push(

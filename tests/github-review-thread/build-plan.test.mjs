@@ -16,25 +16,21 @@ test.after(async () => {
 });
 
 await test('orders resolve dry-run operations around the reaction gate', async () => {
-  const plan = await buildPlan(
-    'resolve',
-    'owner/repo',
-    123,
-    { pr: 456, reaction: '+1' },
-    'owner',
-    'repo',
-  );
+  const plan = await buildPlan('resolve', 'owner/repo', 123, { pr: 456, reaction: '+1' }, 'owner', 'repo');
 
-  assert.deepEqual(plan.map((step) => step.query ?? step.endpoint), [
-    'LocateReviewThread',
-    'user',
-    `${reviewCommentReactionEndpoint('owner/repo', 123)}?per_page=100&page=<n>`,
-    reviewCommentReactionEndpoint('owner/repo', 123),
-    `${reviewCommentReactionEndpoint('owner/repo', 123)}?per_page=100&page=<n>`,
-    'ResolveReviewThread',
-    `${reviewCommentReactionEndpoint('owner/repo', 123)}?per_page=100&page=<n>`,
-    'CheckReviewThreadResolved',
-  ]);
+  assert.deepEqual(
+    plan.map((step) => step.query ?? step.endpoint),
+    [
+      'LocateReviewThread',
+      'user',
+      `${reviewCommentReactionEndpoint('owner/repo', 123)}?per_page=100&page=<n>`,
+      reviewCommentReactionEndpoint('owner/repo', 123),
+      `${reviewCommentReactionEndpoint('owner/repo', 123)}?per_page=100&page=<n>`,
+      'ResolveReviewThread',
+      `${reviewCommentReactionEndpoint('owner/repo', 123)}?per_page=100&page=<n>`,
+      'CheckReviewThreadResolved',
+    ],
+  );
 });
 
 await test('includes literal reply content in a dry-run plan', async () => {

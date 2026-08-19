@@ -133,23 +133,23 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 
 10. If conflicts occur:
 
-   - Resolve only the conflict caused by the requested rewrite.
-   - Run the smallest relevant check for the changed files.
-   - Continue with `git rebase --continue`.
-   - Abort with `git rebase --abort` if the conflict is outside the requested scope or would risk unrelated work.
+- Resolve only the conflict caused by the requested rewrite.
+- Run the smallest relevant check for the changed files.
+- Continue with `git rebase --continue`.
+- Abort with `git rebase --abort` if the conflict is outside the requested scope or would risk unrelated work.
 
 11. Verify the result:
 
-   ```bash
-   git log --oneline --decorate -n 20
-   git status --short
-   ```
+```bash
+git log --oneline --decorate -n 20
+git status --short
+```
 
 12. If the branch was already pushed and the user asked to update the remote:
 
-   ```bash
-   git push --force-with-lease
-   ```
+```bash
+git push --force-with-lease
+```
 
 ## Output Contract
 

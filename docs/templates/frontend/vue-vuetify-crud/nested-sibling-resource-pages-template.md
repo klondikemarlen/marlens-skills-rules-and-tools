@@ -44,13 +44,9 @@ function navigateToParentResourceList() {
   <v-card>
     <v-card-title>Add {ResourceName}</v-card-title>
     <v-card-text>
-      <{ResourceFormComponent}
-        v-if="{ResourceCreatePolicyExpression}"
-        :{parent-resource-name}-id="{parentResourceName}Id"
-        :is-submitting="isSubmitting"
-        @submit="createResource"
-        @cancel="navigateToParentResourceList"
-      />
+      <{ResourceFormComponent} v-if="{ResourceCreatePolicyExpression}"
+      :{parent-resource-name}-id="{parentResourceName}Id" :is-submitting="isSubmitting" @submit="createResource"
+      @cancel="navigateToParentResourceList" />
       <v-alert v-else type="error">You cannot add this {ResourceName}.</v-alert>
     </v-card-text>
   </v-card>
@@ -99,12 +95,8 @@ async function createResource(formValues: Record<string, unknown>) {
 <template>
   <v-progress-linear v-if="isLoading" indeterminate />
   <v-alert v-else-if="errorMessage" type="error">{{ errorMessage }}</v-alert>
-  <{ResourceDetailComponent}
-    v-else-if="{resourceName}"
-    :{resource-name}="{resourceName}"
-    @back="navigateToParentResourceList"
-    @edit="navigateToResourceEditPage"
-  />
+  <{ResourceDetailComponent} v-else-if="{resourceName}" :{resource-name}="{resourceName}"
+  @back="navigateToParentResourceList" @edit="navigateToResourceEditPage" />
 </template>
 
 <script setup lang="ts">
@@ -154,15 +146,14 @@ async function fetchResource() {
 onMounted(fetchResource)
 </script>
 
-## Edit Page Rules
-
-Start from the show-page loading/error flow, gate the form with `{ResourceUpdatePolicyExpression}`, pass both route ids to `{ResourceFormComponent}`, and submit through `{ResourceApiClient}.update`. On success, show `{Toast}` feedback then return to `{ParentResourceListRouteName}` with `{parentResourceName}Id`. On validation or network failure, keep the form and entered values visible with the project-standard error feedback.
-
-## Verification Checklist
-
-- [ ] New, show, and edit pages each receive `{parentResourceName}Id`; show and edit also receive `{resourceName}Id`.
-- [ ] New page creates with `{ParentForeignKey}` from the parent route, never from stale local state.
-- [ ] Show page visibly distinguishes loading, successful detail, and failed fetch states.
-- [ ] Successful create/update returns to the named parent list route with the same parent id.
-- [ ] Failed create/update leaves the page usable and exposes project-standard error feedback.
-- [ ] No page imports parent-tab host components or assumes a parent shell is mounted.
+## Edit Page Rules Start from the show-page loading/error flow, gate the form with `{ResourceUpdatePolicyExpression}`,
+pass both route ids to `{ResourceFormComponent}`, and submit through `{ResourceApiClient}.update`. On success, show
+`{Toast}` feedback then return to `{ParentResourceListRouteName}` with `{parentResourceName}Id`. On validation or
+network failure, keep the form and entered values visible with the project-standard error feedback. ## Verification
+Checklist - [ ] New, show, and edit pages each receive `{parentResourceName}Id`; show and edit also receive
+`{resourceName}Id`. - [ ] New page creates with `{ParentForeignKey}` from the parent route, never from stale local
+state. - [ ] Show page visibly distinguishes loading, successful detail, and failed fetch states. - [ ] Successful
+create/update returns to the named parent list route with the same parent id. - [ ] Failed create/update leaves the page
+usable and exposes project-standard error feedback. - [ ] No page imports parent-tab host components or assumes a parent
+shell is mounted.
+```

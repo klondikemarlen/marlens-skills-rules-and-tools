@@ -3,96 +3,88 @@
 Use when converting or creating a TypeScript API client module that mirrors backend models, serializers, and query options.
 
 ```typescript
-import http from "@/api/http-client"
-import {
-  type FiltersOptions,
-  type Policy,
-  type QueryOptions,
-  type WhereOptions,
-} from "@/api/base-api"
+import http from '@/api/http-client';
+import { type FiltersOptions, type Policy, type QueryOptions, type WhereOptions } from '@/api/base-api';
 
 /** Keep in sync with the backend model. */
 export enum ResourceStatuses {
-  REQUESTED = "Requested",
-  APPROVED = "Approved",
+  REQUESTED = 'Requested',
+  APPROVED = 'Approved',
 }
 
 /** Keep in sync with the backend model. */
 export type Resource = {
-  id: number
-  name: string
-  status: ResourceStatuses
-  createdAt: string
-  updatedAt: string
-}
+  id: number;
+  name: string;
+  status: ResourceStatuses;
+  createdAt: string;
+  updatedAt: string;
+};
 
 /** Keep in sync with the backend index/list serializer. */
-export type ResourceAsIndex = Pick<Resource, "id" | "name" | "status">
+export type ResourceAsIndex = Pick<Resource, 'id' | 'name' | 'status'>;
 
 /** Keep in sync with the backend show/detail serializer. */
 export type ResourceAsShow = Resource & {
-  relatedRecords: ResourceAsReference[]
-}
+  relatedRecords: ResourceAsReference[];
+};
 
 /** Keep in sync with the backend reference serializer. */
-export type ResourceAsReference = Pick<Resource, "id" | "name">
+export type ResourceAsReference = Pick<Resource, 'id' | 'name'>;
 
-export type ResourcePolicy = Policy
+export type ResourcePolicy = Policy;
 
-export type ResourceWhereOptions = WhereOptions<Resource, "id" | "status">
+export type ResourceWhereOptions = WhereOptions<Resource, 'id' | 'status'>;
 
 export type ResourceFiltersOptions = FiltersOptions<{
-  search: string
-}>
+  search: string;
+}>;
 
-export type ResourceQueryOptions = QueryOptions<
-  ResourceWhereOptions,
-  ResourceFiltersOptions
->
+export type ResourceQueryOptions = QueryOptions<ResourceWhereOptions, ResourceFiltersOptions>;
 
 export const resourcesApi = {
   ResourceStatuses,
 
   async list(params: ResourceQueryOptions = {}): Promise<{
-    resources: ResourceAsIndex[]
-    totalCount: number
+    resources: ResourceAsIndex[];
+    totalCount: number;
   }> {
-    const { data } = await http.get("/api/resources", { params })
-    return data
+    const { data } = await http.get('/api/resources', { params });
+    return data;
   },
 
   async get(resourceId: number): Promise<{
-    resource: ResourceAsShow
-    policy: ResourcePolicy
+    resource: ResourceAsShow;
+    policy: ResourcePolicy;
   }> {
-    const { data } = await http.get(`/api/resources/${resourceId}`)
-    return data
+    const { data } = await http.get(`/api/resources/${resourceId}`);
+    return data;
   },
 
   async create(attributes: Partial<Resource>): Promise<{
-    resource: ResourceAsShow
+    resource: ResourceAsShow;
   }> {
-    const { data } = await http.post("/api/resources", attributes)
-    return data
+    const { data } = await http.post('/api/resources', attributes);
+    return data;
   },
 
   async update(
     resourceId: number,
     attributes: Partial<Resource>,
   ): Promise<{
-    resource: ResourceAsShow
-    policy: ResourcePolicy
+    resource: ResourceAsShow;
+    policy: ResourcePolicy;
   }> {
-    const { data } = await http.patch(`/api/resources/${resourceId}`, attributes)
-    return data
+    const { data } = await http.patch(`/api/resources/${resourceId}`, attributes);
+    return data;
   },
 
   async delete(resourceId: number): Promise<void> {
-    await http.delete(`/api/resources/${resourceId}`)
+    await http.delete(`/api/resources/${resourceId}`);
   },
-}
+};
 
-export default resourcesApi
+export default resourcesApi;
 ```
 
 ## Ordering Convention

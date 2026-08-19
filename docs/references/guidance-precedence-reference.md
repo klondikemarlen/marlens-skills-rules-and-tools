@@ -8,7 +8,7 @@ Use this as the canonical placement and precedence rule for this package.
 2. The target project’s local instructions win over this shared package.
 3. This package is the fallback base layer for reusable guidance.
 4. Thin skill entrypoints point to authoritative workflow files; they do not replace them.
-Within the user-authored task scope, a later explicit instruction narrows or supersedes an earlier broad workflow directive; it does not override a higher-precedence source.
+   Within the user-authored task scope, a later explicit instruction narrows or supersedes an earlier broad workflow directive; it does not override a higher-precedence source.
 
 For OMP rules, an installed package's `rules/` files are default guidance. A user or project rule with the same `name` overrides the package rule; differently named local rules extend the active set. Use OMP's `ttsr.disabledRules` setting only for deliberate disablement.
 
@@ -23,17 +23,17 @@ Before applying a workflow from this package, read the target project’s local 
 
 ## Placement
 
-| Guidance type | Canonical home | Use for |
-| --- | --- | --- |
-| Global rules | `AGENTS.md` | Cross-project safety, release, and operating rules loaded by agents. |
-| Shared agent-agnostic rules | `AGENT_RULES.md` | Repo-wide decision rules that are not tied to one agent runtime. |
-| Commit guidance | `COMMITTING.md` | Commit-message and commit-scope conventions. |
-| Workflows | `docs/workflows/` | Reusable task procedures with inputs, steps, and output contracts. |
-| Templates | `docs/templates/` | Copyable end-state shapes for code, docs, or generated artifacts. |
-| References | `docs/references/` | Durable background guidance, policies, concepts, and technique notes. |
-| Plans | `docs/plans/` | Exploratory or multi-phase implementation plans. |
-| Skills | `skills/` | Compatibility entrypoints that route agents to authoritative workflows. |
-| OMP rules | `rules/` | Reusable OMP rule snippets that may be copied or linked into user rules. |
+| Guidance type               | Canonical home     | Use for                                                                  |
+| --------------------------- | ------------------ | ------------------------------------------------------------------------ |
+| Global rules                | `AGENTS.md`        | Cross-project safety, release, and operating rules loaded by agents.     |
+| Shared agent-agnostic rules | `AGENT_RULES.md`   | Repo-wide decision rules that are not tied to one agent runtime.         |
+| Commit guidance             | `COMMITTING.md`    | Commit-message and commit-scope conventions.                             |
+| Workflows                   | `docs/workflows/`  | Reusable task procedures with inputs, steps, and output contracts.       |
+| Templates                   | `docs/templates/`  | Copyable end-state shapes for code, docs, or generated artifacts.        |
+| References                  | `docs/references/` | Durable background guidance, policies, concepts, and technique notes.    |
+| Plans                       | `docs/plans/`      | Exploratory or multi-phase implementation plans.                         |
+| Skills                      | `skills/`          | Compatibility entrypoints that route agents to authoritative workflows.  |
+| OMP rules                   | `rules/`           | Reusable OMP rule snippets that may be copied or linked into user rules. |
 
 ## Rules
 

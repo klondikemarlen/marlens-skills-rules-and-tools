@@ -16,7 +16,9 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     return path.join(root, 'skills', ...uri.split('/'));
   }
 
-  for (const entry of readdirSync(path.join(root, 'skills'), { withFileTypes: true })) {
+  for (const entry of readdirSync(path.join(root, 'skills'), {
+    withFileTypes: true,
+  })) {
     if (!entry.isDirectory()) continue;
 
     const { local, packaged } = skillContract(read, entry.name);
@@ -27,7 +29,8 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     for (let index = 0; index < local.length; index += 2) {
       const preferred = local[index];
       const legacy = local[index + 1];
-      if (!preferred?.startsWith('docs/workflows/')) fail(`${entry.name}: preferred local workflow must use docs/workflows`);
+      if (!preferred?.startsWith('docs/workflows/'))
+        fail(`${entry.name}: preferred local workflow must use docs/workflows`);
       if (!existsSync(path.join(root, preferred))) fail(`${entry.name}: missing preferred workflow ${preferred}`);
       if (legacy !== preferred.replace('docs/workflows/', 'agents/workflows/')) {
         fail(`${entry.name}: legacy local workflow must immediately follow matching docs workflow`);
@@ -81,7 +84,10 @@ export function verifyWorkflowContracts({ root, read, fail }) {
       }
     }
 
-    if (workflow.indexOf('Check existing files and issue history for coverage') > workflow.indexOf('When issue filing is explicitly authorized')) {
+    if (
+      workflow.indexOf('Check existing files and issue history for coverage') >
+      workflow.indexOf('When issue filing is explicitly authorized')
+    ) {
       fail(`${name} must check duplicate coverage before filing code-style insight tickets`);
     }
   }
@@ -132,12 +138,18 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     '../templates/prompt-improvement-template.md',
   );
   if (learnWorkflow !== normalizedLearnFallbackWorkflow) {
-    fail('learn workflow and packaged fallback must stay synchronized except for the packaged prompt-improvement template link');
+    fail(
+      'learn workflow and packaged fallback must stay synchronized except for the packaged prompt-improvement template link',
+    );
   }
   if (!learnWorkflow.includes('repeated code-style correction')) {
     fail('learn workflow must route repeated code-style corrections');
   }
-  if (!learnWorkflow.includes('`klondikemarlen/marlens-skills-rules-and-tools` for shared prompt/workflow/review guidance, or `omp-verifier` for enforceable advisor/runtime/tooling')) {
+  if (
+    !learnWorkflow.includes(
+      '`klondikemarlen/marlens-skills-rules-and-tools` for shared prompt/workflow/review guidance, or `omp-verifier` for enforceable advisor/runtime/tooling',
+    )
+  ) {
     fail('learn workflow must distinguish shared guidance from verifier enforcement');
   }
   if (!learnWorkflow.includes('over-generalized')) {
@@ -157,7 +169,7 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     ['packaged self-improvement workflow', read('skills/self-improvement/workflow.md')],
   ];
   for (const [name, workflow] of selfImprovementWorkflows) {
-    if (!workflow.includes('For this package\'s own checkout, use `npm test`')) {
+    if (!workflow.includes("For this package's own checkout, use `npm test`")) {
       fail(`${name} must use package verification for a package self-improvement run`);
     }
     if (!workflow.includes('node bin/agent-guidance-audit.js --strict <downstream-root>')) {

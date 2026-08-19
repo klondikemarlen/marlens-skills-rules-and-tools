@@ -13,19 +13,29 @@ const verifications = manifest.omp?.verifications;
 assert.ok(Array.isArray(verifications));
 const automaticVerifications = verifications.filter((verification) => verification.pathTriggers !== undefined);
 for (const verification of automaticVerifications) {
-  assert.ok(Array.isArray(verification.pathTriggers) && verification.pathTriggers.length > 0, `${verification.id} must declare automatic path triggers`);
-  assert.ok(verification.pathTriggers.every((trigger) => typeof trigger === 'string' && trigger.length > 0), `${verification.id} path triggers must be non-empty strings`);
+  assert.ok(
+    Array.isArray(verification.pathTriggers) && verification.pathTriggers.length > 0,
+    `${verification.id} must declare automatic path triggers`,
+  );
+  assert.ok(
+    verification.pathTriggers.every((trigger) => typeof trigger === 'string' && trigger.length > 0),
+    `${verification.id} path triggers must be non-empty strings`,
+  );
 }
 
 for (const id of ['marlens-rules:no-envrc-example', 'marlens-rules:no-oversized-source-files']) {
   assert.equal(verifications.find((verification) => verification.id === id)?.pathTriggers, undefined);
 }
 
-const testAlignmentVerification = verifications.find((verification) => verification.id === 'marlens-rules:test-alignment');
+const testAlignmentVerification = verifications.find(
+  (verification) => verification.id === 'marlens-rules:test-alignment',
+);
 assert.ok(Array.isArray(testAlignmentVerification?.pathTriggers) && testAlignmentVerification.pathTriggers.length > 0);
 assert.ok(testAlignmentVerification.pathTriggers.every((trigger) => /test|spec/u.test(trigger)));
 
-const defaultFunctionExportsVerification = verifications.find((verification) => verification.id === 'marlens-rules:default-function-exports');
+const defaultFunctionExportsVerification = verifications.find(
+  (verification) => verification.id === 'marlens-rules:default-function-exports',
+);
 assert.deepEqual(defaultFunctionExportsVerification?.pathTriggers, ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts']);
 
 function createGitProject() {
@@ -59,13 +69,14 @@ try {
   assert.equal(runEntry(path.join(gitProject, 'nested')).status, 'FAIL');
   assert.equal(runEntry(gitProject).status, 'FAIL');
 
-  execFileSync('git', ['rm', '--cached', '--quiet', '.envrc.example'], { cwd: gitProject });
+  execFileSync('git', ['rm', '--cached', '--quiet', '.envrc.example'], {
+    cwd: gitProject,
+  });
   assert.equal(runEntry(path.join(gitProject, 'nested')).status, 'PASS');
   assert.equal(runEntry(gitProject).status, 'PASS');
   assert.equal(runEntry(nonGitProject).status, 'BLOCKED');
 
   console.log('Verification manifest checks passed');
-
 } finally {
   rmSync(gitProject, { recursive: true, force: true });
   rmSync(nonGitProject, { recursive: true, force: true });

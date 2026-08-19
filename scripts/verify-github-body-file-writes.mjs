@@ -20,7 +20,8 @@ const scanRoots = [
   'scripts',
   'skills',
 ];
-const unsafeInlineBody = /(?:^|\s)(?:github-review-thread\s+reply|gh\s+(?:issue|pr)\s+(?:create|edit|comment))[^\n]*--body(?:[=\s])/u;
+const unsafeInlineBody =
+  /(?:^|\s)(?:github-review-thread\s+reply|gh\s+(?:issue|pr)\s+(?:create|edit|comment))[^\n]*--body(?:[=\s])/u;
 const files = [];
 for (const relativePath of scanRoots) {
   await collectFiles(path.join(root, relativePath), files);

@@ -29,6 +29,7 @@ Use when one offloaded OMP task needs one named MCP server that is disabled by d
    ```
 
    For a user-level definition, pass the active profile's `~/.omp/agent/mcp.json` or `~/.omp/profiles/<profile>/agent/mcp.json` instead.
+
 5. Inspect the child result. The helper restores the original config whether the child succeeds or fails.
 6. If the command reports a stale lease, rerun it only after verifying that no previous helper process is still active; stale recovery restores the saved snapshot before starting a new child.
 

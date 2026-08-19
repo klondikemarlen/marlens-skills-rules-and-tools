@@ -9,12 +9,22 @@ export function verifyTestingProcedures({ read, fail }) {
     ['packaged testing instructions workflow', packagedTestingInstructionsWorkflow],
     ['browser QA testing instructions workflow', browserQaTestingInstructionsWorkflow],
   ]) {
-    requireEvery(workflow, ['Start from Gold', 'Use `PASS`, `FAIL`, and `BLOCKED`'], requiredText => `${name} must require ${requiredText}`, fail);
+    requireEvery(
+      workflow,
+      ['Start from Gold', 'Use `PASS`, `FAIL`, and `BLOCKED`'],
+      (requiredText) => `${name} must require ${requiredText}`,
+      fail,
+    );
   }
   for (const [name, workflow] of [
     ['authoritative testing instructions workflow', testingInstructionsWorkflow],
     ['packaged testing instructions workflow', packagedTestingInstructionsWorkflow],
   ]) {
-    requireEvery(workflow, ['## Evidence Ownership', 'Documentation or guidance', "Tura's [contribution guide]"], requiredText => `${name} must include ${requiredText}`, fail);
+    requireEvery(
+      workflow,
+      ['## Evidence Ownership', 'Documentation or guidance', "Tura's [contribution guide]"],
+      (requiredText) => `${name} must include ${requiredText}`,
+      fail,
+    );
   }
 }

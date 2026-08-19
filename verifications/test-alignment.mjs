@@ -62,16 +62,15 @@ function changedTestFiles(root, environment) {
     : [];
   const untracked = git(root, ['ls-files', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean);
 
-  return [...new Set([...committed, ...worktree, ...untracked])]
-    .filter(isTestPath)
-    .sort();
+  return [...new Set([...committed, ...worktree, ...untracked])].filter(isTestPath).sort();
 }
 
 function isTestPath(filePath) {
   const normalized = filePath.replaceAll('\\', '/');
 
-  return /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)/u.test(normalized)
-    || /\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(normalized);
+  return (
+    /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)/u.test(normalized) || /\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(normalized)
+  );
 }
 
 function lineNumber(source, offset) {
@@ -106,11 +105,16 @@ function parseGuidance(source, relativePath) {
 }
 
 function guidanceForTest(root, testPath) {
-  const rules = new Map(BASELINE_DIRECTIVES.map((directive) => [directive, {
-    path: 'shared baseline',
-    line: 1,
-    directive,
-  }]));
+  const rules = new Map(
+    BASELINE_DIRECTIVES.map((directive) => [
+      directive,
+      {
+        path: 'shared baseline',
+        line: 1,
+        directive,
+      },
+    ]),
+  );
   let directory = path.dirname(testPath);
 
   while (directory !== '.' && directory !== path.dirname(directory)) {
@@ -154,7 +158,11 @@ function suppressionScope(value) {
 
 function suppressionExpiry(value) {
   if (value === undefined) return undefined;
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/u.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`))) {
+  if (
+    typeof value !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/u.test(value) ||
+    Number.isNaN(Date.parse(`${value}T00:00:00Z`))
+  ) {
     throw new Error('suppression expiresOn must use YYYY-MM-DD');
   }
 
@@ -201,7 +209,11 @@ function readSuppressions(root) {
   });
 
   for (const suppression of parsedSuppressions) {
-    if (suppression.id === CHECK_ID && suppression.expiresOn && suppression.expiresOn < new Date().toISOString().slice(0, 10)) {
+    if (
+      suppression.id === CHECK_ID &&
+      suppression.expiresOn &&
+      suppression.expiresOn < new Date().toISOString().slice(0, 10)
+    ) {
       throw new Error(`suppression for ${CHECK_ID} at ${suppression.path} expired on ${suppression.expiresOn}`);
     }
   }
@@ -263,7 +275,7 @@ function closingDelimiter(source, openingOffset, openingCharacter, closingCharac
       continue;
     }
 
-    if (character === '\'' || character === '"' || character === '`') {
+    if (character === "'" || character === '"' || character === '`') {
       quote = character;
       continue;
     }
@@ -298,7 +310,10 @@ function testBlocks(source) {
     if (title === null) continue;
 
     const callbackOffset = titleOffset + title[0].length;
-    const callback = /^\s*,\s*(?:(?:async\s+)?function\s*\([^)]*\)|(?:async\s+)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>)\s*\{/u.exec(source.slice(callbackOffset));
+    const callback =
+      /^\s*,\s*(?:(?:async\s+)?function\s*\([^)]*\)|(?:async\s+)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>)\s*\{/u.exec(
+        source.slice(callbackOffset),
+      );
     const openingBrace = callback === null ? -1 : callbackOffset + callback[0].lastIndexOf('{');
     const closing = openingBrace === -1 ? null : closingDelimiter(source, openingBrace, '{', '}');
     const line = lineNumber(source, match.index);
@@ -316,9 +331,7 @@ function testBlocks(source) {
 }
 
 function checkTestName(block) {
-  return /^when\s+.+,\s+.+$/iu.test(block.name)
-    ? null
-    : 'does not use `when [condition], [behavior]` naming';
+  return /^when\s+.+,\s+.+$/iu.test(block.name) ? null : 'does not use `when [condition], [behavior]` naming';
 }
 
 function checkArrangeActAssert(block) {
@@ -378,7 +391,7 @@ function directExpectationCount(source) {
       continue;
     }
 
-    if (character === '\'' || character === '"' || character === '`') {
+    if (character === "'" || character === '"' || character === '`') {
       quote = character;
       continue;
     }
@@ -407,9 +420,7 @@ function checkExpectationCount(block) {
 }
 
 function checkMockCalls(block) {
-  return /\.mock\s*\.calls\b/gu.test(block.body)
-    ? 'asserts against `.mock.calls`'
-    : null;
+  return /\.mock\s*\.calls\b/gu.test(block.body) ? 'asserts against `.mock.calls`' : null;
 }
 
 function describeDepth(source, offset) {
@@ -445,23 +456,43 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   let root;
   try {
     if (!statSync(projectDirectory).isDirectory()) {
-      return result('BLOCKED', 'The active project directory is unavailable.', `Cannot inspect ${projectDirectory}.`, 'Run the check from an accessible project directory.');
+      return result(
+        'BLOCKED',
+        'The active project directory is unavailable.',
+        `Cannot inspect ${projectDirectory}.`,
+        'Run the check from an accessible project directory.',
+      );
     }
 
     root = repositoryRoot(projectDirectory);
   } catch {
-    return result('BLOCKED', 'Git metadata is unavailable for the active project.', 'Cannot determine which changed test files to inspect.', 'Run the check from a Git project.');
+    return result(
+      'BLOCKED',
+      'Git metadata is unavailable for the active project.',
+      'Cannot determine which changed test files to inspect.',
+      'Run the check from a Git project.',
+    );
   }
 
   let testPaths;
   try {
     testPaths = changedTestFiles(root, environment);
   } catch {
-    return result('BLOCKED', 'Changed files could not be inspected.', 'Git returned an unexpected error while reading the configured base diff or worktree diff.', 'Set MARLENS_TEST_ALIGNMENT_BASE to an accessible PR base ref, or confirm Git can inspect the active project.');
+    return result(
+      'BLOCKED',
+      'Changed files could not be inspected.',
+      'Git returned an unexpected error while reading the configured base diff or worktree diff.',
+      'Set MARLENS_TEST_ALIGNMENT_BASE to an accessible PR base ref, or confirm Git can inspect the active project.',
+    );
   }
 
   if (testPaths.length === 0) {
-    return result('PASS', 'No changed test files require alignment review.', 'The worktree diff contains no changed test files.', 'No follow-up check is required.');
+    return result(
+      'PASS',
+      'No changed test files require alignment review.',
+      'The worktree diff contains no changed test files.',
+      'No follow-up check is required.',
+    );
   }
 
   let suppressions;
@@ -506,9 +537,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   }
 
   if (violations.length > 0) {
-    const suppressionEvidence = suppressed.length > 0
-      ? `\nSuppressed ${CHECK_ID} for ${suppressed.join(', ')}.`
-      : '';
+    const suppressionEvidence = suppressed.length > 0 ? `\nSuppressed ${CHECK_ID} for ${suppressed.join(', ')}.` : '';
     return result(
       'FAIL',
       `${violations.length} test-alignment violation(s) found.`,

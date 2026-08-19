@@ -25,11 +25,11 @@ As a `<user or maintainer>`, I want `<capability>`, so that `<user-visible outco
 
 ## Example Fit Matrix
 
-| Example | Expected result | Rule exercised | Fit |
-|---|---|---|---|
-| Good: `<representative success>` | `<what must happen>` | `<rule>` | `<pass/fail>` |
-| Bad / counter-example: `<representative failure>` | `<what must be rejected or preserved>` | `<boundary>` | `<pass/fail>` |
-| Missing: `<ambiguous case>` | `<decision needed>` | `<risk>` | `<resolved/open>` |
+| Example                                           | Expected result                        | Rule exercised | Fit               |
+| ------------------------------------------------- | -------------------------------------- | -------------- | ----------------- |
+| Good: `<representative success>`                  | `<what must happen>`                   | `<rule>`       | `<pass/fail>`     |
+| Bad / counter-example: `<representative failure>` | `<what must be rejected or preserved>` | `<boundary>`   | `<pass/fail>`     |
+| Missing: `<ambiguous case>`                       | `<decision needed>`                    | `<risk>`       | `<resolved/open>` |
 
 ## Project-Pattern Alignment
 
@@ -42,10 +42,10 @@ As a `<user or maintainer>`, I want `<capability>`, so that `<user-visible outco
 
 ## Decision Matrix
 
-| Option | Gold fit | Complexity | Existing pattern | Decision |
-|---|---|---|---|---|
-| `<option A>` | `<fit>` | `<low/medium/high>` | `<reuse or gap>` | `<choose/reject>` |
-| `<option B>` | `<fit>` | `<low/medium/high>` | `<reuse or gap>` | `<choose/reject>` |
+| Option       | Gold fit | Complexity          | Existing pattern | Decision          |
+| ------------ | -------- | ------------------- | ---------------- | ----------------- |
+| `<option A>` | `<fit>`  | `<low/medium/high>` | `<reuse or gap>` | `<choose/reject>` |
+| `<option B>` | `<fit>`  | `<low/medium/high>` | `<reuse or gap>` | `<choose/reject>` |
 
 ## Chosen Tools and Rules
 

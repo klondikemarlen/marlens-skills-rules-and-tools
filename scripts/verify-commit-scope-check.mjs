@@ -26,7 +26,10 @@ function runScopeCheck(files, args = [], { unstagedPaths = [], workingDirectory 
     writeStagedFiles(directory, files);
 
     if (unstagedPaths.length > 0) {
-      execFileSync('git', ['rm', '--cached', '--', ...unstagedPaths], { cwd: directory, stdio: 'ignore' });
+      execFileSync('git', ['rm', '--cached', '--', ...unstagedPaths], {
+        cwd: directory,
+        stdio: 'ignore',
+      });
     }
 
     const cwd = workingDirectory ? path.join(directory, workingDirectory) : directory;
@@ -60,20 +63,33 @@ assert.equal(classifyCommitPath('src/migration-helper.ts'), 'application code');
 assert.equal(classifyCommitPath('.env.local'), 'configuration');
 assert.deepEqual(
   checkCommitScope(['docker-compose.yml', 'docker/Dockerfile'], {
-    composeDockerfilePairs: [{ composePath: 'docker-compose.yml', dockerfilePath: 'docker/Dockerfile' }],
+    composeDockerfilePairs: [
+      {
+        composePath: 'docker-compose.yml',
+        dockerfilePath: 'docker/Dockerfile',
+      },
+    ],
   }).boundaries,
   [],
 );
 assert.match(
   checkCommitScope(['docker-compose.yml', 'docker/Dockerfile', 'src/order.ts'], {
-    composeDockerfilePairs: [{ composePath: 'docker-compose.yml', dockerfilePath: 'docker/Dockerfile' }],
+    composeDockerfilePairs: [
+      {
+        composePath: 'docker-compose.yml',
+        dockerfilePath: 'docker/Dockerfile',
+      },
+    ],
   }).boundaries[0].message,
   /Compose Dockerfile commits must include exactly one directly referenced pair/u,
 );
 assert.match(
   checkCommitScope(['docker-compose.yml', 'docker/Dockerfile', 'compose.yml', 'Dockerfile'], {
     composeDockerfilePairs: [
-      { composePath: 'docker-compose.yml', dockerfilePath: 'docker/Dockerfile' },
+      {
+        composePath: 'docker-compose.yml',
+        dockerfilePath: 'docker/Dockerfile',
+      },
       { composePath: 'compose.yml', dockerfilePath: 'Dockerfile' },
     ],
   }).boundaries[0].message,
@@ -82,22 +98,34 @@ assert.match(
 
 for (const { files, boundary, paths } of [
   {
-    files: { 'src/order.ts': 'export const order = true;\n', 'docs/orders.md': '# Orders\n' },
+    files: {
+      'src/order.ts': 'export const order = true;\n',
+      'docs/orders.md': '# Orders\n',
+    },
     boundary: 'Application code and Documentation must be separate',
     paths: ['src/order.ts', 'docs/orders.md'],
   },
   {
-    files: { 'src/order.ts': 'export const order = true;\n', 'migrations/001-orders.sql': 'create table orders ();\n' },
+    files: {
+      'src/order.ts': 'export const order = true;\n',
+      'migrations/001-orders.sql': 'create table orders ();\n',
+    },
     boundary: 'Application code and Migrations must be separate',
     paths: ['src/order.ts', 'migrations/001-orders.sql'],
   },
   {
-    files: { 'src/order.ts': 'export const order = true;\n', 'scripts/build.js': 'console.log("build");\n' },
+    files: {
+      'src/order.ts': 'export const order = true;\n',
+      'scripts/build.js': 'console.log("build");\n',
+    },
     boundary: 'Application code and Developer tooling must be separate',
     paths: ['src/order.ts', 'scripts/build.js'],
   },
   {
-    files: { 'src/order.ts': 'export const order = true;\n', 'tsconfig.json': '{}\n' },
+    files: {
+      'src/order.ts': 'export const order = true;\n',
+      'tsconfig.json': '{}\n',
+    },
     boundary: 'Configuration and non-configuration changes must be separate',
     paths: ['src/order.ts', 'tsconfig.json'],
   },
@@ -106,18 +134,26 @@ for (const { files, boundary, paths } of [
 
   assert.equal(result.status, 1);
   assert.match(result.output, new RegExp(boundary));
-  for (const filePath of paths) assert.match(result.output, new RegExp(filePath.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')));
+  for (const filePath of paths)
+    assert.match(result.output, new RegExp(filePath.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')));
 }
 
-const allowed = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'test/order.test.ts': 'test("order", () => {});\n' });
+const allowed = runScopeCheck({
+  'src/order.ts': 'export const order = true;\n',
+  'test/order.test.ts': 'test("order", () => {});\n',
+});
 assert.equal(allowed.status, 0);
 assert.match(allowed.output, /Staged files satisfy commit file-type boundaries/u);
 
-const trackedEnvironmentExample = runScopeCheck({ '.envrc.example': 'export TOKEN=local-only\n' });
+const trackedEnvironmentExample = runScopeCheck({
+  '.envrc.example': 'export TOKEN=local-only\n',
+});
 assert.equal(trackedEnvironmentExample.status, 1);
 assert.match(trackedEnvironmentExample.output, /The project tracks \.envrc\.example/u);
 
-const oversizedStagedSource = runScopeCheck({ 'src/large.js': 'line\n'.repeat(1201) });
+const oversizedStagedSource = runScopeCheck({
+  'src/large.js': 'line\n'.repeat(1201),
+});
 assert.equal(oversizedStagedSource.status, 1);
 assert.match(oversizedStagedSource.output, /src\/large\.js \(1201 lines\)/u);
 
@@ -140,7 +176,10 @@ const unrelatedDockerfile = runScopeCheck({
   Dockerfile: 'FROM node:22\n',
 });
 assert.equal(unrelatedDockerfile.status, 1);
-assert.match(unrelatedDockerfile.output, /Compose Dockerfile commits must include exactly one directly referenced pair/u);
+assert.match(
+  unrelatedDockerfile.output,
+  /Compose Dockerfile commits must include exactly one directly referenced pair/u,
+);
 assert.match(unrelatedDockerfile.output, /Dockerfile/u);
 
 const composeWithApplicationCode = runScopeCheck({
@@ -149,7 +188,10 @@ const composeWithApplicationCode = runScopeCheck({
   'src/order.ts': 'export const order = true;\n',
 });
 assert.equal(composeWithApplicationCode.status, 1);
-assert.match(composeWithApplicationCode.output, /Compose Dockerfile commits must include exactly one directly referenced pair/u);
+assert.match(
+  composeWithApplicationCode.output,
+  /Compose Dockerfile commits must include exactly one directly referenced pair/u,
+);
 
 for (const [manifest, lockfile] of [
   ['package.json', 'package-lock.json'],
@@ -168,7 +210,10 @@ for (const [manifest, lockfile] of [
 ]) {
   assert.equal(classifyCommitPath(manifest), classifyCommitPath(lockfile));
 
-  const result = runScopeCheck({ [manifest]: 'manifest\n', [lockfile]: 'lockfile\n' });
+  const result = runScopeCheck({
+    [manifest]: 'manifest\n',
+    [lockfile]: 'lockfile\n',
+  });
   assert.equal(result.status, 0);
   assert.match(result.output, /Staged files satisfy commit file-type boundaries/u);
 }
@@ -206,16 +251,19 @@ const partialAtomicGroup = runScopeCheck(releaseMetadataFiles, [], {
 assert.equal(partialAtomicGroup.status, 1);
 assert.match(partialAtomicGroup.output, /Atomic commit groups must include every member and no other path/u);
 
-const mixedAtomicGroup = runScopeCheck(
-  { ...releaseMetadataFiles, 'tsconfig.json': '{}\n' },
-  [],
-  { unstagedPaths: ['.commit-scope.json'] },
-);
+const mixedAtomicGroup = runScopeCheck({ ...releaseMetadataFiles, 'tsconfig.json': '{}\n' }, [], {
+  unstagedPaths: ['.commit-scope.json'],
+});
 assert.equal(mixedAtomicGroup.status, 1);
 assert.match(mixedAtomicGroup.output, /Atomic commit groups must include every member and no other path/u);
 
-
-const overridden = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 'docs/orders.md': '# Orders\n' }, ['--allow-mixed']);
+const overridden = runScopeCheck(
+  {
+    'src/order.ts': 'export const order = true;\n',
+    'docs/orders.md': '# Orders\n',
+  },
+  ['--allow-mixed'],
+);
 assert.equal(overridden.status, 0);
 assert.match(overridden.output, /Override accepted/u);
 

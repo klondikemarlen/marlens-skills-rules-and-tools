@@ -16,42 +16,72 @@ const projectDirectory = mkdtempSync(path.join(os.tmpdir(), 'marlens-default-fun
 const nonGitProject = mkdtempSync(path.join(os.tmpdir(), 'marlens-default-function-exports-'));
 try {
   execFileSync('git', ['init', '--quiet'], { cwd: projectDirectory });
-  const notConfigured = runVerification(projectDirectory);
-  assert.equal(notConfigured.status, 'PASS');
-  assert.match(notConfigured.summary, /No default-function export convention/u);
-
-  write(projectDirectory, '.marlens-verifications.json', JSON.stringify({
-    defaultFunctionExports: { paths: ['src/**/*.ts'] },
-  }));
-  write(projectDirectory, 'src/request.ts', 'export default function isRequestDatabaseCancellationError() {\n  return false;\n}\n');
+  write(
+    projectDirectory,
+    'src/request.ts',
+    'export default function isRequestDatabaseCancellationError() {\n  return false;\n}\n',
+  );
   write(projectDirectory, 'src/anonymous.ts', 'export default function () {\n  return false;\n}\n');
   write(projectDirectory, 'src/value.ts', 'export default class RequestError {}\n');
-  write(projectDirectory, 'other/ignored.ts', 'export default function ignoredOutsideConfiguredPath() {}\n');
+  write(projectDirectory, 'other/checked.ts', 'export default function checkedOutsideConfiguredPath() {}\n');
 
   const failing = runVerification(projectDirectory);
   assert.equal(failing.status, 'FAIL');
   assert.match(failing.evidence, /src\/request\.ts:1 exports default function isRequestDatabaseCancellationError/u);
   assert.match(failing.evidence, /export function isRequestDatabaseCancellationError/u);
-  assert.doesNotMatch(failing.evidence, /anonymous|RequestError|ignoredOutsideConfiguredPath/u);
+  assert.match(failing.evidence, /other\/checked\.ts:1 exports default function checkedOutsideConfiguredPath/u);
+  assert.doesNotMatch(failing.evidence, /anonymous|RequestError/u);
 
-  write(projectDirectory, 'src/request.ts', 'export function isRequestDatabaseCancellationError() {\n  return false;\n}\n\nexport default isRequestDatabaseCancellationError\n');
+  write(
+    projectDirectory,
+    'src/request.ts',
+    'export function isRequestDatabaseCancellationError() {\n  return false;\n}\n\nexport default isRequestDatabaseCancellationError\n',
+  );
+  write(
+    projectDirectory,
+    'other/checked.ts',
+    'export function checkedOutsideConfiguredPath() {}\n\nexport default checkedOutsideConfiguredPath\n',
+  );
   const passing = runVerification(projectDirectory);
   assert.equal(passing.status, 'PASS');
-  assert.match(passing.evidence, /Inspected 3 configured TypeScript module/u);
+  assert.match(passing.evidence, /Inspected 4 TypeScript module/u);
 
-  write(projectDirectory, '.marlens-verifications.json', JSON.stringify({
-    defaultFunctionExports: { paths: ['../outside/**/*.ts'] },
-  }));
+  write(
+    projectDirectory,
+    '.marlens-verifications.json',
+    JSON.stringify({
+      defaultFunctionExports: false,
+    }),
+  );
+  const optedOut = runVerification(projectDirectory);
+  assert.equal(optedOut.status, 'PASS');
+  assert.match(optedOut.summary, /explicitly disabled/u);
+  write(
+    projectDirectory,
+    'src/request.ts',
+    'export default function isRequestDatabaseCancellationError() {\n  return false;\n}\n',
+  );
+  write(
+    projectDirectory,
+    '.marlens-verifications.json',
+    JSON.stringify({
+      defaultFunctionExports: { paths: ['src/**/*.ts'] },
+    }),
+  );
   const invalid = runVerification(projectDirectory);
   assert.equal(invalid.status, 'BLOCKED');
-  assert.match(invalid.evidence, /must stay inside the project/u);
+  assert.match(invalid.evidence, /must be false to opt out/u);
 
-  write(projectDirectory, '.marlens-verifications.json', JSON.stringify({
-    defaultFunctionExports: { paths: [] },
-  }));
-  const emptyConfiguration = runVerification(projectDirectory);
-  assert.equal(emptyConfiguration.status, 'BLOCKED');
-  assert.match(emptyConfiguration.evidence, /non-empty paths array/u);
+  write(
+    projectDirectory,
+    '.marlens-verifications.json',
+    JSON.stringify({
+      defaultFunctionExports: [],
+    }),
+  );
+  const invalidArray = runVerification(projectDirectory);
+  assert.equal(invalidArray.status, 'BLOCKED');
+  assert.match(invalidArray.evidence, /must be false to opt out/u);
 
   assert.equal(runVerification(nonGitProject).status, 'BLOCKED');
 

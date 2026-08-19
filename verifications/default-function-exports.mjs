@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const CONFIGURATION_FILE = '.marlens-verifications.json';
 const CONFIGURATION_KEY = 'defaultFunctionExports';
+const DEFAULT_PATHS = ['**/*'];
 const TYPESCRIPT_EXTENSIONS = new Set(['.cts', '.mts', '.ts', '.tsx']);
 const DEFAULT_FUNCTION_DECLARATION = /^\s*export\s+default\s+(?:async\s+)?function\s*\*?\s+([A-Za-z_$][\w$]*)/gmu;
 
@@ -28,22 +29,9 @@ function projectRoot(projectDirectory) {
   return git(projectDirectory, ['rev-parse', '--show-toplevel']).trim();
 }
 
-function configuredPathPattern(value) {
-  if (typeof value !== 'string' || value.length === 0) {
-    throw new Error('configured paths must be non-empty strings');
-  }
-
-  const normalized = value.replaceAll('\\', '/');
-  if (path.posix.isAbsolute(normalized) || normalized === '..' || normalized.startsWith('../')) {
-    throw new Error('configured paths must stay inside the project');
-  }
-
-  return normalized;
-}
-
 function configuredPaths(repositoryRoot) {
   const configurationPath = path.join(repositoryRoot, CONFIGURATION_FILE);
-  if (!existsSync(configurationPath)) return null;
+  if (!existsSync(configurationPath)) return DEFAULT_PATHS;
 
   let configuration;
   try {
@@ -57,12 +45,12 @@ function configuredPaths(repositoryRoot) {
   }
 
   const convention = configuration[CONFIGURATION_KEY];
-  if (convention === undefined) return null;
-  if (!convention || Array.isArray(convention) || typeof convention !== 'object' || !Array.isArray(convention.paths) || convention.paths.length === 0) {
-    throw new Error(`${CONFIGURATION_KEY} must contain a non-empty paths array`);
+  if (convention === undefined) return DEFAULT_PATHS;
+  if (convention !== false) {
+    throw new Error(`${CONFIGURATION_KEY} must be false to opt out`);
   }
 
-  return convention.paths.map(configuredPathPattern);
+  return false;
 }
 
 function matchesGlob(filePath, pattern) {
@@ -122,7 +110,7 @@ export function runVerification(projectDirectory = process.cwd()) {
     return result(
       'BLOCKED',
       'Git metadata is unavailable for the active project.',
-      'Cannot inspect configured TypeScript modules.',
+      'Cannot inspect tracked TypeScript modules.',
       'Run the check from a Git project.',
     );
   }
@@ -135,15 +123,15 @@ export function runVerification(projectDirectory = process.cwd()) {
       'BLOCKED',
       'The default-function export convention is invalid.',
       error.message,
-      `Configure ${CONFIGURATION_KEY}.paths with project-relative TypeScript path patterns.`,
+      `Set ${CONFIGURATION_KEY} to false in ${CONFIGURATION_FILE} to opt out, or remove the invalid configuration.`,
     );
   }
 
-  if (patterns === null) {
+  if (patterns === false) {
     return result(
       'PASS',
-      'No default-function export convention is configured.',
-      `Add ${CONFIGURATION_KEY}.paths to ${CONFIGURATION_FILE} to opt in.`,
+      'The default-function export convention is explicitly disabled.',
+      `${CONFIGURATION_KEY} is false in ${CONFIGURATION_FILE}.`,
       'No follow-up check is required.',
     );
   }
@@ -154,7 +142,7 @@ export function runVerification(projectDirectory = process.cwd()) {
   } catch {
     return result(
       'BLOCKED',
-      'Configured TypeScript modules could not be listed.',
+      'Tracked TypeScript modules could not be listed.',
       'Git returned an unexpected error while listing project files.',
       'Confirm Git can inspect the active project and run the check again.',
     );
@@ -170,7 +158,7 @@ export function runVerification(projectDirectory = process.cwd()) {
     } catch {
       return result(
         'BLOCKED',
-        'A configured TypeScript module could not be inspected.',
+        'A tracked TypeScript module could not be inspected.',
         `Cannot read ${relativePath}.`,
         'Restore the file or its permissions, then run the check again.',
       );
@@ -179,11 +167,14 @@ export function runVerification(projectDirectory = process.cwd()) {
 
   if (violations.length > 0) {
     const evidence = violations
-      .map(({ path: relativePath, line, symbol }) => `${relativePath}:${line} exports default function ${symbol}; use \`export function ${symbol}\` and \`export default ${symbol}\`.`)
+      .map(
+        ({ path: relativePath, line, symbol }) =>
+          `${relativePath}:${line} exports default function ${symbol}; use \`export function ${symbol}\` and \`export default ${symbol}\`.`,
+      )
       .join(' ');
     return result(
       'FAIL',
-      `${violations.length} configured default function declaration(s) violate the named-export convention.`,
+      `${violations.length} default function declaration(s) violate the named-export convention.`,
       evidence,
       'Replace each default function declaration with a named function and a matching default export.',
     );
@@ -191,8 +182,8 @@ export function runVerification(projectDirectory = process.cwd()) {
 
   return result(
     'PASS',
-    'Configured TypeScript modules use the named-function default-export convention.',
-    `Inspected ${files.length} configured TypeScript module(s).`,
+    'Tracked TypeScript modules use the named-function default-export convention.',
+    `Inspected ${files.length} TypeScript module(s).`,
     'No follow-up check is required.',
   );
 }
