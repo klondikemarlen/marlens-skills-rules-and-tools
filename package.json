@@ -1,12 +1,16 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "2.10.27",
+  "version": "2.10.28",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
     "test": "node --check bin/github-headless-session && node --check bin/github-review-thread && node --test tests/github-review-thread/*.test.mjs && node scripts/verify-domain-discovery.mjs && node scripts/verify-title-case.mjs && node scripts/verify-github-body-file-writes.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs && node scripts/verify-verifications.mjs && node scripts/verify-default-function-exports.mjs && node scripts/verify-test-alignment.mjs && node scripts/verify-oversized-source-files.mjs && node verifications/no-oversized-source-files.mjs"
   },
-  "keywords": ["omp-plugin", "agent-rules", "skills"],
+  "keywords": [
+    "omp-plugin",
+    "agent-rules",
+    "skills"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/klondikemarlen/marlens-skills-rules-and-tools.git"
@@ -36,58 +40,76 @@
     ".claude-plugin/"
   ],
   "omp": {
-    "extensions": ["./omp-plugin/index.ts"],
-    "skills": ["./skills"],
-    "verifications": [{
-      "id": "marlens-rules:no-envrc-example",
-      "label": "No Tracked Environment Example",
-      "description": "Checks that the active Git project does not track .envrc.example files.",
-      "entry": "./verifications/no-envrc-example.mjs",
-      "timeoutMs": 30000
-    }, {
-      "id": "marlens-rules:no-oversized-source-files",
-      "label": "No Oversized Source Files",
-      "description": "Checks that tracked source files stay within a configurable line-count ceiling.",
-      "entry": "./verifications/no-oversized-source-files.mjs",
-      "timeoutMs": 30000
-    }, {
-      "id": "marlens-rules:default-function-exports",
-      "label": "Default Function Exports",
-      "description": "Checks opt-in TypeScript paths for named functions followed by matching default exports.",
-      "entry": "./verifications/default-function-exports.mjs",
-      "pathTriggers": ["**/*.ts", "**/*.tsx", "**/*.cts", "**/*.mts"],
-      "timeoutMs": 30000
-    }, {
-      "id": "marlens-rules:test-alignment",
-      "label": "Test Alignment",
-      "description": "Checks changed JavaScript and TypeScript tests against a shared baseline and stricter local rules.",
-      "entry": "./verifications/test-alignment.mjs",
-      "pathTriggers": [
-        "test/**",
-        "tests/**",
-        "__tests__/**",
-        "**/*.test.js",
-        "**/*.test.cjs",
-        "**/*.test.mjs",
-        "**/*.test.jsx",
-        "**/*.test.ts",
-        "**/*.test.cts",
-        "**/*.test.mts",
-        "**/*.test.tsx",
-        "**/*.spec.js",
-        "**/*.spec.cjs",
-        "**/*.spec.mjs",
-        "**/*.spec.jsx",
-        "**/*.spec.ts",
-        "**/*.spec.cts",
-        "**/*.spec.mts",
-        "**/*.spec.tsx"
-      ],
-      "timeoutMs": 30000
-    }]
+    "extensions": [
+      "./omp-plugin/index.ts"
+    ],
+    "skills": [
+      "./skills"
+    ],
+    "verifications": [
+      {
+        "id": "marlens-rules:no-envrc-example",
+        "label": "No Tracked Environment Example",
+        "description": "Checks that the active Git project does not track .envrc.example files.",
+        "entry": "./verifications/no-envrc-example.mjs",
+        "timeoutMs": 30000
+      },
+      {
+        "id": "marlens-rules:no-oversized-source-files",
+        "label": "No Oversized Source Files",
+        "description": "Checks that tracked source files stay within a configurable line-count ceiling.",
+        "entry": "./verifications/no-oversized-source-files.mjs",
+        "timeoutMs": 30000
+      },
+      {
+        "id": "marlens-rules:default-function-exports",
+        "label": "Default Function Exports",
+        "description": "Checks TypeScript paths by default for named functions followed by matching default exports; projects may explicitly opt out.",
+        "entry": "./verifications/default-function-exports.mjs",
+        "pathTriggers": [
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.cts",
+          "**/*.mts"
+        ],
+        "timeoutMs": 30000
+      },
+      {
+        "id": "marlens-rules:test-alignment",
+        "label": "Test Alignment",
+        "description": "Checks changed JavaScript and TypeScript tests against a shared baseline and stricter local rules.",
+        "entry": "./verifications/test-alignment.mjs",
+        "pathTriggers": [
+          "test/**",
+          "tests/**",
+          "__tests__/**",
+          "**/*.test.js",
+          "**/*.test.cjs",
+          "**/*.test.mjs",
+          "**/*.test.jsx",
+          "**/*.test.ts",
+          "**/*.test.cts",
+          "**/*.test.mts",
+          "**/*.test.tsx",
+          "**/*.spec.js",
+          "**/*.spec.cjs",
+          "**/*.spec.mjs",
+          "**/*.spec.jsx",
+          "**/*.spec.ts",
+          "**/*.spec.cts",
+          "**/*.spec.mts",
+          "**/*.spec.tsx"
+        ],
+        "timeoutMs": 30000
+      }
+    ]
   },
   "pi": {
-    "extensions": ["./omp-plugin/index.ts"],
-    "skills": ["./skills"]
+    "extensions": [
+      "./omp-plugin/index.ts"
+    ],
+    "skills": [
+      "./skills"
+    ]
   }
 }
