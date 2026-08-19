@@ -22,4 +22,6 @@ Restart the agent after changing global rule files.
 
 Keep rules here only when they are reusable across projects and do not conflict with this package's shared guidance.
 
+Use the [rules and verifications reference](../docs/references/rules-and-verifications-reference.md) to decide whether a reusable concern belongs in a rule, a deterministic verifier, both, or neither.
+
 Keep project-specific rules in the target repo or user-level rules directory. For example, WRAP-specific Vitest/database rules do not belong here.
