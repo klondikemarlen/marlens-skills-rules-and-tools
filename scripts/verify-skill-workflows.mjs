@@ -5,6 +5,7 @@ import { verifyDesignWorkflows } from './verify-skill-workflows-design.mjs';
 import { skillContract, verifyWorkflowContracts } from './verify-skill-workflows-contracts.mjs';
 import { verifyFeatureProcedures } from './verify-skill-workflows-feature-procedures.mjs';
 import { verifyReviewProcedures } from './verify-skill-workflows-review-procedures.mjs';
+import { verifyRoutingProcedures } from './verify-skill-workflows-routing-procedures.mjs';
 import { verifyTestingProcedures } from './verify-skill-workflows-testing-procedures.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -174,6 +175,7 @@ for (const requiredText of [
 
 const { featureWorkflow, packagedFeatureWorkflow } = verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance });
 verifyReviewProcedures({ read, fail });
+verifyRoutingProcedures({ read, fail });
 verifyTestingProcedures({ read, fail });
 
 const administrationTabTemplate = read('docs/templates/frontend/administration-tab-page-template.md');
