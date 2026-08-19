@@ -9,7 +9,7 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { runVerification } from '../verifications/no-oversized-source-files.mjs';
+import { runStagedVerification, runVerification } from '../verifications/no-oversized-source-files.mjs';
 
 function createGitProject() {
   const projectDirectory = mkdtempSync(path.join(os.tmpdir(), 'marlens-source-size-'));
@@ -56,6 +56,17 @@ try {
   assert.match(configured.evidence, /Explicitly allowlisted: src\/large\.js/);
   assert.match(configured.evidence, /Inspected 3 tracked source file/);
 
+  execFileSync('git', ['reset', '--quiet'], { cwd: projectDirectory });
+  execFileSync('git', ['add', 'src/ok.js'], { cwd: projectDirectory });
+  assert.equal(runStagedVerification(projectDirectory, {}).status, 'PASS');
+
+  execFileSync('git', ['add', 'src/large.js'], { cwd: projectDirectory });
+  writeFileSync(path.join(projectDirectory, 'src/large.js'), 'export const nowSmall = true;\n');
+  const staged = runStagedVerification(projectDirectory, {});
+  assert.equal(staged.status, 'FAIL');
+  assert.match(staged.evidence, /src\/large\.js \(1201 lines\)/);
+
+  assert.equal(runStagedVerification(nonGitProject, {}).status, 'BLOCKED');
   assert.equal(runVerification(nonGitProject, {}).status, 'BLOCKED');
   assert.equal(
     runVerification(projectDirectory, { MARLENS_MAX_SOURCE_LINES: '0' }).status,

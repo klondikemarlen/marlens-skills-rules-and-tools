@@ -21,6 +21,9 @@ for (const id of ['marlens-rules:no-envrc-example', 'marlens-rules:no-oversized-
   assert.equal(verifications.find((verification) => verification.id === id)?.pathTriggers, undefined);
 }
 
+const testAlignmentVerification = verifications.find((verification) => verification.id === 'marlens-rules:test-alignment');
+assert.ok(Array.isArray(testAlignmentVerification?.pathTriggers) && testAlignmentVerification.pathTriggers.length > 0);
+assert.ok(testAlignmentVerification.pathTriggers.every((trigger) => /test|spec/u.test(trigger)));
 
 function createGitProject() {
   const projectDirectory = mkdtempSync(path.join(os.tmpdir(), 'marlens-verification-'));

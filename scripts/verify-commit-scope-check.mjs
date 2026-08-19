@@ -113,6 +113,14 @@ const allowed = runScopeCheck({ 'src/order.ts': 'export const order = true;\n', 
 assert.equal(allowed.status, 0);
 assert.match(allowed.output, /Staged files satisfy commit file-type boundaries/u);
 
+const trackedEnvironmentExample = runScopeCheck({ '.envrc.example': 'export TOKEN=local-only\n' });
+assert.equal(trackedEnvironmentExample.status, 1);
+assert.match(trackedEnvironmentExample.output, /The project tracks \.envrc\.example/u);
+
+const oversizedStagedSource = runScopeCheck({ 'src/large.js': 'line\n'.repeat(1201) });
+assert.equal(oversizedStagedSource.status, 1);
+assert.match(oversizedStagedSource.output, /src\/large\.js \(1201 lines\)/u);
+
 const composeFile = `services:
   db:
     build:

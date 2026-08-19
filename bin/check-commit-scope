@@ -4,6 +4,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { checkCommitScope, formatCommitScopeFailures } from '../lib/commit-scope-check.mjs';
+import { runVerification as verifyNoEnvrcExample } from '../verifications/no-envrc-example.mjs';
+import { runStagedVerification as verifyStagedSourceFiles } from '../verifications/no-oversized-source-files.mjs';
 
 function stagedPaths() {
   return execFileSync('git', ['diff', '--cached', '--name-only', '-z'], { encoding: 'utf8' })
@@ -111,11 +113,21 @@ const { boundaries } = checkCommitScope(paths, {
   composeDockerfilePairs: composeDockerfilePairs(paths),
 });
 
+const hygieneFailures = [
+  verifyNoEnvrcExample(),
+  verifyStagedSourceFiles(),
+].filter(({ status }) => status !== 'PASS');
+
 if (boundaries.length === 0) {
   console.log('Staged files satisfy commit file-type boundaries.');
 } else if (process.argv.includes('--allow-mixed')) {
   console.warn(`${formatCommitScopeFailures(boundaries)}\nOverride accepted.`);
 } else {
   console.error(formatCommitScopeFailures(boundaries));
+  process.exitCode = 1;
+}
+
+for (const { summary, evidence } of hygieneFailures) {
+  console.error(`${summary}\n${evidence}`);
   process.exitCode = 1;
 }

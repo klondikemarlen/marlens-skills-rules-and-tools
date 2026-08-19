@@ -92,8 +92,8 @@ function lineCount(contents) {
   return contents[contents.length - 1] === 0x0a ? lines - 1 : lines;
 }
 
-function trackedSourceFiles(repositoryRoot) {
-  const output = execFileSync('git', ['ls-files', '-z'], {
+function sourceFilesFromGit(repositoryRoot, arguments_) {
+  const output = execFileSync('git', arguments_, {
     cwd: repositoryRoot,
     encoding: 'buffer',
     stdio: ['ignore', 'pipe', 'ignore'],
@@ -106,28 +106,35 @@ function trackedSourceFiles(repositoryRoot) {
     .filter(isSourcePath);
 }
 
-export function runVerification(projectDirectory = process.cwd(), environment = process.env) {
-  let repositoryRoot;
-  try {
-    if (!statSync(projectDirectory).isDirectory()) {
-      return result(
-        'BLOCKED',
-        'The active project directory is unavailable.',
-        `Cannot inspect ${projectDirectory}.`,
-        'Run the check from an accessible project directory.',
-      );
-    }
+function trackedSourceFiles(repositoryRoot) {
+  return sourceFilesFromGit(repositoryRoot, ['ls-files', '-z']);
+}
 
-    repositoryRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
-      cwd: projectDirectory,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+function stagedSourceFiles(repositoryRoot) {
+  return sourceFilesFromGit(repositoryRoot, ['diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR']);
+}
+
+function repositoryRoot(projectDirectory) {
+  if (!statSync(projectDirectory).isDirectory()) {
+    throw new Error('Project directory is unavailable.');
+  }
+
+  return execFileSync('git', ['rev-parse', '--show-toplevel'], {
+    cwd: projectDirectory,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
+}
+
+function runSourceVerification(projectDirectory, environment, sourceFiles, readSourceFile, scope) {
+  let root;
+  try {
+    root = repositoryRoot(projectDirectory);
   } catch {
     return result(
       'BLOCKED',
       'Git metadata is unavailable for the active project.',
-      'Cannot determine which tracked source files to inspect.',
+      `Cannot determine which ${scope.toLowerCase()} source files to inspect.`,
       'Run the check from a Git project.',
     );
   }
@@ -145,12 +152,12 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   const allowlist = configuredAllowlist(environment);
   let files;
   try {
-    files = trackedSourceFiles(repositoryRoot);
+    files = sourceFiles(root);
   } catch {
     return result(
       'BLOCKED',
-      'Tracked source files could not be inspected.',
-      'Git returned an unexpected error while listing tracked files.',
+      `${scope} source files could not be inspected.`,
+      'Git returned an unexpected error while listing source files.',
       'Confirm Git can inspect the active project and run the check again.',
     );
   }
@@ -164,13 +171,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
     }
 
     try {
-      const filePath = path.join(repositoryRoot, relativePath);
-      const fileStats = lstatSync(filePath);
-      if (!fileStats.isFile() || fileStats.isSymbolicLink()) {
-        throw new Error('Tracked source path is not a regular file.');
-      }
-
-      const contents = readFileSync(filePath);
+      const contents = readSourceFile(root, relativePath);
       if (contents.includes(0)) {
         continue;
       }
@@ -182,7 +183,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
     } catch {
       return result(
         'BLOCKED',
-        'A tracked source file could not be inspected.',
+        `A ${scope.toLowerCase()} source file could not be inspected.`,
         `Cannot read ${relativePath}.`,
         'Restore the file or its permissions, then run the check again.',
       );
@@ -195,7 +196,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   if (oversized.length > 0) {
     return result(
       'FAIL',
-      `${oversized.length} tracked source file(s) exceed the ${configured.limit}-line limit.`,
+      `${oversized.length} ${scope.toLowerCase()} source file(s) exceed the ${configured.limit}-line limit.`,
       `${oversized.join('; ')}.${allowanceEvidence}`,
       'Split oversized files by cohesive responsibility or document a deliberate exception in MARLENS_SOURCE_SIZE_ALLOWLIST, then run the check again.',
     );
@@ -203,10 +204,36 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
 
   return result(
     'PASS',
-    `Tracked source files stay within the ${configured.limit}-line limit.`,
-    `Inspected ${files.length} tracked source file(s).${allowanceEvidence}`,
+    `${scope} source files stay within the ${configured.limit}-line limit.`,
+    `Inspected ${files.length} ${scope.toLowerCase()} source file(s).${allowanceEvidence}`,
     'No follow-up check is required.',
   );
+}
+
+function trackedSourceContents(repositoryRoot, relativePath) {
+  const filePath = path.join(repositoryRoot, relativePath);
+  const fileStats = lstatSync(filePath);
+  if (!fileStats.isFile() || fileStats.isSymbolicLink()) {
+    throw new Error('Tracked source path is not a regular file.');
+  }
+
+  return readFileSync(filePath);
+}
+
+function stagedSourceContents(repositoryRoot, relativePath) {
+  return execFileSync('git', ['show', `:${relativePath}`], {
+    cwd: repositoryRoot,
+    encoding: 'buffer',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+}
+
+export function runVerification(projectDirectory = process.cwd(), environment = process.env) {
+  return runSourceVerification(projectDirectory, environment, trackedSourceFiles, trackedSourceContents, 'Tracked');
+}
+
+export function runStagedVerification(projectDirectory = process.cwd(), environment = process.env) {
+  return runSourceVerification(projectDirectory, environment, stagedSourceFiles, stagedSourceContents, 'Staged');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
