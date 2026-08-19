@@ -1,14 +1,14 @@
 export function verifyDesignWorkflows(read, fail) {
-  const backwardReasoningWorkflow = read('docs/workflows/backward-reasoning-workflow.md');
-  const backwardReasoningFallback = read('skills/backward-reasoning/workflow.md');
-  const backwardReasoningSkill = read('skills/backward-reasoning/SKILL.md');
-  const backwardReasoningReference = read('docs/references/backward-reasoning-reference.md');
-  const backwardReasoningTemplate = read('docs/templates/backward-reasoning-plan-template.md');
+  const outcomeFirstPlanningWorkflow = read('docs/workflows/outcome-first-planning-workflow.md');
+  const outcomeFirstPlanningFallback = read('skills/outcome-first-planning/workflow.md');
+  const outcomeFirstPlanningSkill = read('skills/outcome-first-planning/SKILL.md');
+  const outcomeFirstPlanningReference = read('docs/references/outcome-first-planning-reference.md');
+  const outcomeFirstPlanningTemplate = read('docs/templates/outcome-first-plan-template.md');
   for (const [name, content] of [
-    ['authoritative backward-reasoning workflow', backwardReasoningWorkflow],
-    ['packaged backward-reasoning workflow', backwardReasoningFallback],
-    ['backward-reasoning reference', backwardReasoningReference],
-    ['backward-reasoning template', backwardReasoningTemplate],
+    ['authoritative outcome-first-planning workflow', outcomeFirstPlanningWorkflow],
+    ['packaged outcome-first-planning workflow', outcomeFirstPlanningFallback],
+    ['outcome-first-planning reference', outcomeFirstPlanningReference],
+    ['outcome-first plan template', outcomeFirstPlanningTemplate],
   ]) {
     for (const requiredText of ['Gold', 'counter-example', 'complexity', 'residual risk']) {
       if (!content.toLowerCase().includes(requiredText.toLowerCase())) {
@@ -17,28 +17,28 @@ export function verifyDesignWorkflows(read, fail) {
     }
   }
   for (const requiredText of [
-    'docs/workflows/backward-reasoning-workflow.md',
-    'agents/workflows/backward-reasoning-workflow.md',
+    'docs/workflows/outcome-first-planning-workflow.md',
+    'agents/workflows/outcome-first-planning-workflow.md',
     'workflow.md',
   ]) {
-    if (!backwardReasoningSkill.includes(requiredText)) {
-      fail(`backward-reasoning skill must include ${requiredText}`);
+    if (!outcomeFirstPlanningSkill.includes(requiredText)) {
+      fail(`outcome-first-planning skill must include ${requiredText}`);
     }
   }
-  if (!read('skills/self-improvement/SKILL.md').includes('backward-reasoning')) {
-    fail('self-improvement skill must route design planning through backward reasoning');
+  if (!read('skills/self-improvement/SKILL.md').includes('outcome-first-planning')) {
+    fail('self-improvement skill must route design planning through outcome-first planning');
   }
-  if (!read('skills/self-improvement/workflow.md').includes('backward-reasoning workflow first')) {
-    fail('packaged self-improvement workflow must route design planning through backward reasoning');
+  if (!read('skills/self-improvement/workflow.md').includes('outcome-first-planning workflow first')) {
+    fail('packaged self-improvement workflow must route design planning through outcome-first planning');
   }
-  if (!read('docs/workflows/hands-off-agentic-coding-workflow.md').includes('backward-reasoning-workflow.md')) {
-    fail('hands-off workflow must point design-heavy tasks to backward reasoning');
+  if (!read('docs/workflows/hands-off-agentic-coding-workflow.md').includes('outcome-first-planning-workflow.md')) {
+    fail('hands-off workflow must point design-heavy tasks to outcome-first planning');
   }
-  if (!read('docs/workflows/README.md').includes('backward-reasoning-workflow.md')) {
-    fail('workflow README must list backward reasoning');
+  if (!read('docs/workflows/README.md').includes('outcome-first-planning-workflow.md')) {
+    fail('workflow README must list outcome-first planning');
   }
-  if (!read('docs/templates/README.md').includes('backward-reasoning-plan-template.md')) {
-    fail('template README must list backward reasoning');
+  if (!read('docs/templates/README.md').includes('outcome-first-plan-template.md')) {
+    fail('template README must list outcome-first planning');
   }
 
   const handsOffWorkflows = [

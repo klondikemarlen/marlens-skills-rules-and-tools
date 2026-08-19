@@ -1,12 +1,12 @@
-# Backward Reasoning Workflow
+# Outcome-First Planning Workflow
 
-Use when a design-heavy request needs a bounded implementation path before coding.
+Use when a request has a material design choice and needs a bounded implementation path before coding.
 
 ## Intent
 
-Backward reasoning starts with the user-visible Gold or invariant, validates examples and constraints, aligns with project patterns, and derives the smallest predictable implementation choice.
+Outcome-first planning starts with the user-visible Gold or invariant, validates examples and constraints, aligns with project patterns, and derives the smallest predictable implementation choice.
 
-This packaged fallback preserves the local workflow contract when a target project does not provide its own `docs/workflows/backward-reasoning-workflow.md`.
+This packaged fallback preserves the local workflow contract when a target project does not provide its own `docs/workflows/outcome-first-planning-workflow.md`.
 
 ## Required Inputs
 
@@ -14,6 +14,8 @@ This packaged fallback preserves the local workflow contract when a target proje
 - **Gold:** the observable end state or invariant that proves success.
 - **Non-goals:** explicitly excluded behavior, integrations, and abstractions.
 - **Constraints:** repository rules, compatibility, security, ownership, and release boundaries.
+
+Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
 
 ## Process
 

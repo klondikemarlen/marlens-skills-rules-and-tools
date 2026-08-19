@@ -1,8 +1,8 @@
-# Backward Reasoning Reference
+# Outcome-First Planning Reference
 
 ## Model
 
-Backward reasoning starts with the required end state and works backward through evidence, constraints, and the smallest implementation choice that can satisfy it.
+Outcome-first planning starts with the required end state and works backward through evidence, constraints, and the smallest implementation choice that can satisfy it.
 
 - **Gold:** the user-visible result or invariant that makes the work successful.
 - **Evidence:** an example, check, or scenario that can distinguish success from a plausible failure.
@@ -10,7 +10,7 @@ Backward reasoning starts with the required end state and works backward through
 - **Fit check:** a comparison of a proposed choice against good examples, counter-examples, existing patterns, and the complexity ceiling.
 - **Residual risk:** uncertainty that remains after the design converges and must be verified during implementation.
 
-Backward reasoning is not permission to plan indefinitely. It is a short alignment loop that makes the first implementation step predictable.
+Outcome-first planning is not permission to plan indefinitely. It is a short alignment loop that makes the first implementation step predictable.
 
 ## Guardrails
 
@@ -48,7 +48,7 @@ Stop planning and run an experiment when the remaining uncertainty is empirical,
 
 ## Sources
 
-- [Tura documentation](https://turaai.net/docs) and [Tura llms.txt](https://turaai.net/llms.txt) — backward reasoning as outcome-first constraint analysis.
+- [Tura documentation](https://turaai.net/docs) and [Tura llms.txt](https://turaai.net/llms.txt) — outcome-first constraint analysis.
 - [Understanding by Design white paper](https://files.ascd.org/staticfiles/ascd/pdf/siteASCD/publications/UbD_WhitePaper0312.pdf) — desired results, evidence, and aligned activities.
 - [UIC backward design guide](https://teaching.uic.edu/cate-teaching-guides/syllabus-course-design/backward-design/) — backward design as an evidence-led planning sequence.
 - [Cucumber Example Mapping](https://cucumber.io/docs/bdd/example-mapping/) — stories, rules, examples, and questions for fit checks.

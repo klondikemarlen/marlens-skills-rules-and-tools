@@ -1,4 +1,4 @@
-# Backward Reasoning Plan Template
+# Outcome-First Plan Template
 
 Use this template for design-heavy requests before implementation. Keep the completed plan short enough to review in one pass.
 
