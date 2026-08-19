@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-
 function read(relativePath) {
   return readFileSync(new URL(relativePath, import.meta.url), 'utf8');
 }
@@ -15,11 +14,12 @@ const packagedSelfImprovement = read('../skills/self-improvement/workflow.md');
 function domainGuidance(workflow) {
   return workflow
     .split('\n')
-    .filter((line) => (
-      line.includes('Before proposing a reorganization')
-      || line.includes('Treat domain discovery as a recurring phase')
-      || line.includes('Revisit domain hypotheses before proposing refactoring')
-    ))
+    .filter(
+      (line) =>
+        line.includes('Before proposing a reorganization') ||
+        line.includes('Treat domain discovery as a recurring phase') ||
+        line.includes('Revisit domain hypotheses before proposing refactoring'),
+    )
     .join('\n')
     .replaceAll('../../docs/references/code-organization-reference.md', 'REFERENCE')
     .replaceAll('../references/code-organization-reference.md', 'REFERENCE')
@@ -27,10 +27,7 @@ function domainGuidance(workflow) {
 }
 
 assert.equal(domainGuidance(authoritativeReview), domainGuidance(packagedReview));
-assert.equal(
-  domainGuidance(authoritativeSelfImprovement),
-  domainGuidance(packagedSelfImprovement),
-);
+assert.equal(domainGuidance(authoritativeSelfImprovement), domainGuidance(packagedSelfImprovement));
 
 assert.match(reference, /## Domain Discovery Checkpoint/);
 assert.match(reference, /repeated change clusters and code churn/);
@@ -89,10 +86,7 @@ const candidate = candidates.find(({ boundary }) => boundary === 'release/paths/
 
 assert.ok(candidate, 'repeated changes should reveal a latent path domain');
 assert.equal(candidate.name, 'github_to_gitlab');
-assert.deepEqual(candidate.evidence, [
-  'folder topology: release/paths/github_to_gitlab',
-  'repeated changes: 6',
-]);
+assert.deepEqual(candidate.evidence, ['folder topology: release/paths/github_to_gitlab', 'repeated changes: 6']);
 assert.deepEqual(candidate.ownedResponsibilities, ['path-specific validation and translation']);
 assert.equal(
   candidate.smallestSafeNextAction,

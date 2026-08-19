@@ -10,7 +10,9 @@ const temp = await mkdtemp(path.join(os.tmpdir(), 'github-session-test-'));
 const fake = path.join(temp, 'fake-chromium.mjs');
 
 await access(path.join(root, 'bin/github-headless-session'), constants.X_OK);
-await writeFile(fake, `#!/usr/bin/env node
+await writeFile(
+  fake,
+  `#!/usr/bin/env node
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 const profile = process.argv.find((arg) => arg.startsWith('--user-data-dir=')).slice(16);
@@ -24,7 +26,8 @@ server.listen(0, '127.0.0.1', async () => {
   if (headless && process.env.FAKE_NORMAL_EXIT) setTimeout(() => server.close(() => process.exit(0)), 200);
 });
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close(() => process.exit(0)));
-`);
+`,
+);
 await chmod(fake, 0o755);
 
 try {
@@ -44,7 +47,13 @@ async function signedInCase(name, { signal, normalExit = false }) {
   const sentinel = path.join(directory, 'continue');
   const child = spawn(process.execPath, launcherArguments(sentinel), {
     cwd: root,
-    env: { ...process.env, CHROMIUM: fake, FAKE_LOG: log, TMPDIR: directory, ...(normalExit ? { FAKE_NORMAL_EXIT: '1' } : {}) },
+    env: {
+      ...process.env,
+      CHROMIUM: fake,
+      FAKE_LOG: log,
+      TMPDIR: directory,
+      ...(normalExit ? { FAKE_NORMAL_EXIT: '1' } : {}),
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const output = capture(child);
@@ -58,7 +67,11 @@ async function signedInCase(name, { signal, normalExit = false }) {
     assert.match(handoff.cdpUrl, /^http:\/\/127\.0\.0\.1:\d+$/);
     assert.equal(handoff.pullRequestUrl, 'https://github.com/owner/repo/pull/1');
     assert.match(output.stderr, /not an authorization boundary/);
-    const [headed, headless] = await waitFor(() => launches(log).then((rows) => rows.length === 2 ? rows : false), name, output);
+    const [headed, headless] = await waitFor(
+      () => launches(log).then((rows) => (rows.length === 2 ? rows : false)),
+      name,
+      output,
+    );
     assert.equal(headed.headless, false);
     assert.equal(headless.headless, true);
     assert.equal(headed.passwordManagerEnabled, false);
@@ -76,7 +89,11 @@ async function missingBrowserCase() {
   const directory = await mkdtemp(path.join(temp, 'missing-browser-'));
   const child = spawn(process.execPath, launcherArguments(path.join(directory, 'continue')), {
     cwd: root,
-    env: { ...process.env, CHROMIUM: path.join(directory, 'missing'), TMPDIR: directory },
+    env: {
+      ...process.env,
+      CHROMIUM: path.join(directory, 'missing'),
+      TMPDIR: directory,
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const output = capture(child);
@@ -97,8 +114,12 @@ function launcherArguments(sentinel) {
 
 function capture(child) {
   const output = { stdout: '', stderr: '' };
-  child.stdout.on('data', (chunk) => { output.stdout += chunk; });
-  child.stderr.on('data', (chunk) => { output.stderr += chunk; });
+  child.stdout.on('data', (chunk) => {
+    output.stdout += chunk;
+  });
+  child.stderr.on('data', (chunk) => {
+    output.stderr += chunk;
+  });
   return output;
 }
 

@@ -26,11 +26,7 @@ function runAudit(...args) {
 }
 
 function expectExit(result, expectedStatus, scenario) {
-  assert.equal(
-    result.status,
-    expectedStatus,
-    `${scenario} exited ${result.status}: ${result.stdout}${result.stderr}`,
-  );
+  assert.equal(result.status, expectedStatus, `${scenario} exited ${result.status}: ${result.stdout}${result.stderr}`);
 }
 
 function failingFindings(scenario, ...args) {
@@ -106,7 +102,11 @@ function testStrictInventoryExamples() {
 
 function testStrictInventoryDrift() {
   const repository = createRepository('strict-inventory-drift');
-  write(repository, 'docs/workflows/README.md', '<!-- agent-guidance-audit: inventory -->\n- `ok-workflow.md`\n- `missing-workflow.md`\n');
+  write(
+    repository,
+    'docs/workflows/README.md',
+    '<!-- agent-guidance-audit: inventory -->\n- `ok-workflow.md`\n- `missing-workflow.md`\n',
+  );
   write(repository, 'docs/workflows/ok-workflow.md', '# OK\n');
   write(repository, 'docs/workflows/unlisted-workflow.md', '# Unlisted\n');
 

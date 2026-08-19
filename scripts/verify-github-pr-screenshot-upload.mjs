@@ -49,11 +49,8 @@ class Page {
   async evaluate(callback, ...args) {
     const document = globalThis.document;
     globalThis.document = {
-      querySelector: (selector) => (
-        selector === `${this.targetSelector} button.js-comment-edit-button`
-          ? this.menuEdit.node
-          : null
-      ),
+      querySelector: (selector) =>
+        selector === `${this.targetSelector} button.js-comment-edit-button` ? this.menuEdit.node : null,
     };
     try {
       return callback(...args.map((arg) => (arg instanceof ElementHandle ? arg.node : arg)));
@@ -79,11 +76,9 @@ class Page {
     assert.equal(selector, this.targetSelector);
     assert.equal(this.persistedMarkup.includes(attachmentUrl), true);
   }
-
 }
 
 function controlNode(label, click, ariaLabel = label) {
-
   return {
     textContent: label,
     click,
@@ -169,22 +164,40 @@ try {
     if (selector === '#issue-123 textarea') return editorOpen ? closedEditorPage.editor : null;
     if (selector === '#issue-123 summary:has(svg[aria-label="Show options"])') {
       return new ElementHandle({
-        click() { detailsOpen = true; },
+        click() {
+          detailsOpen = true;
+        },
         closest() {
-          return { querySelectorAll() { return [closedEditorPage.menuEdit.node]; } };
+          return {
+            querySelectorAll() {
+              return [closedEditorPage.menuEdit.node];
+            },
+          };
         },
       });
     }
-    if (selector === '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]') {
+    if (
+      selector ===
+      '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]'
+    ) {
       return closedEditorPage.menuEdit;
     }
     return originalDollar(selector);
   };
   closedEditorPage.menuEdit = new ElementHandle(
-    controlNode('Edit', () => { editorOpen = true; }, 'Edit comment'),
+    controlNode(
+      'Edit',
+      () => {
+        editorOpen = true;
+      },
+      'Edit comment',
+    ),
   );
   closedEditorPage.$$ = async (selector) => {
-    if (selector === '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]') {
+    if (
+      selector ===
+      '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]'
+    ) {
       return [closedEditorPage.menuEdit];
     }
     return originalDollarDollar(selector);
@@ -210,13 +223,14 @@ try {
   assert.equal(commentPage.submitted, true);
 
   await assert.rejects(
-    () => uploadPullRequestCommentScreenshots({
-      page: buildPage({ authenticated: false }),
-      prUrl: 'https://github.com/owner/repository/pull/123#issue-123',
-      editorSelector: 'textarea',
-      fileInputSelector: 'input[type="file"]',
-      screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
-    }),
+    () =>
+      uploadPullRequestCommentScreenshots({
+        page: buildPage({ authenticated: false }),
+        prUrl: 'https://github.com/owner/repository/pull/123#issue-123',
+        editorSelector: 'textarea',
+        fileInputSelector: 'input[type="file"]',
+        screenshots: [{ filePath: imagePath, placeholder: '<!-- screenshot -->' }],
+      }),
     /not authenticated/,
   );
 } finally {
