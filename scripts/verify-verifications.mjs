@@ -25,6 +25,9 @@ const testAlignmentVerification = verifications.find((verification) => verificat
 assert.ok(Array.isArray(testAlignmentVerification?.pathTriggers) && testAlignmentVerification.pathTriggers.length > 0);
 assert.ok(testAlignmentVerification.pathTriggers.every((trigger) => /test|spec/u.test(trigger)));
 
+const defaultFunctionExportsVerification = verifications.find((verification) => verification.id === 'marlens-rules:default-function-exports');
+assert.deepEqual(defaultFunctionExportsVerification?.pathTriggers, ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts']);
+
 function createGitProject() {
   const projectDirectory = mkdtempSync(path.join(os.tmpdir(), 'marlens-verification-'));
   execFileSync('git', ['init', '--quiet'], { cwd: projectDirectory });

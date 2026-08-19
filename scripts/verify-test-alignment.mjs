@@ -150,6 +150,11 @@ try {
   assert.equal(noTests.status, 'PASS');
   assert.match(noTests.summary, /No changed test files/);
 
+  write(nonTestProject, '.marlens-verifications.json', JSON.stringify({
+    defaultFunctionExports: { paths: ['src/**/*.ts'] },
+  }));
+  assert.equal(runVerification(nonTestProject, { MARLENS_TEST_ALIGNMENT_BASE: 'main' }).status, 'PASS');
+
   write(untrackedTestProject, 'README.md', guidance);
   commit(untrackedTestProject, 'baseline');
   git(untrackedTestProject, ['switch', '--quiet', '-c', 'feature']);

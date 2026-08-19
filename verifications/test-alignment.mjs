@@ -172,11 +172,16 @@ function readSuppressions(root) {
     throw new Error(`${SUPPRESSION_FILE} must contain valid JSON`);
   }
 
-  if (!configuration || Array.isArray(configuration) || !Array.isArray(configuration.suppressions)) {
-    throw new Error(`${SUPPRESSION_FILE} must contain a suppressions array`);
+  if (!configuration || Array.isArray(configuration) || typeof configuration !== 'object') {
+    throw new Error(`${SUPPRESSION_FILE} must contain an object`);
   }
 
-  const suppressions = configuration.suppressions.map((suppression, index) => {
+  const suppressions = configuration.suppressions ?? [];
+  if (!Array.isArray(suppressions)) {
+    throw new Error(`${SUPPRESSION_FILE} suppressions must be an array`);
+  }
+
+  const parsedSuppressions = suppressions.map((suppression, index) => {
     if (!suppression || Array.isArray(suppression) || typeof suppression !== 'object') {
       throw new Error(`suppression ${index + 1} must be an object`);
     }
@@ -195,13 +200,13 @@ function readSuppressions(root) {
     };
   });
 
-  for (const suppression of suppressions) {
+  for (const suppression of parsedSuppressions) {
     if (suppression.id === CHECK_ID && suppression.expiresOn && suppression.expiresOn < new Date().toISOString().slice(0, 10)) {
       throw new Error(`suppression for ${CHECK_ID} at ${suppression.path} expired on ${suppression.expiresOn}`);
     }
   }
 
-  return suppressions;
+  return parsedSuppressions;
 }
 
 function matchingSuppression(suppressions, testPath) {
