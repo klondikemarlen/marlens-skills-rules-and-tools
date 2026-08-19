@@ -1,7 +1,6 @@
 import { requireEvery } from './verify-skill-workflows-assertions.mjs';
 
 export function verifyTestingProcedures({ read, fail }) {
-
   const testingInstructionsWorkflow = read('docs/workflows/testing-instructions-workflow.md');
   const packagedTestingInstructionsWorkflow = read('skills/testing-instructions/workflow.md');
   const browserQaTestingInstructionsWorkflow = read('skills/browser-qa/testing-instructions-workflow.md');
