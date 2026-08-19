@@ -11,7 +11,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Tool-specific caveats.
 - Express Light Rail backend concepts.
 - Code organization, module boundaries, and pattern-selection criteria: [`code-organization-reference.md`](./code-organization-reference.md).
-- Backward-reasoning planning and fit checks: [`backward-reasoning-reference.md`](./backward-reasoning-reference.md).
+- Outcome-first planning and fit checks: [`outcome-first-planning-reference.md`](./outcome-first-planning-reference.md).
 - OMP plugin routine and exact-hash installation policy: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).
 - Shared-baseline test-alignment verifier rules and scoped suppression: [`test-alignment-verifier-reference.md`](./test-alignment-verifier-reference.md).
 - GitHub CLI and metadata editing caveats.

@@ -37,7 +37,7 @@ Examples:
 - `learn-workflow.md`
 - `jira-reporting-workflow.md`
 - `domain-modeling-workflow.md`
-- `backward-reasoning-workflow.md`
+- `outcome-first-planning-workflow.md`
 - `node-express-api-workflow.md`
 - `pull-request-management-workflow.md`
 - `testing-instructions-workflow.md`

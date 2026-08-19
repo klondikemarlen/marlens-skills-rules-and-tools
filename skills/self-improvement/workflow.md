@@ -2,7 +2,7 @@
 
 Use when asked to improve an agent's reusable guidance, prompt flow, or evidence-backed technical debt. Do not use it for vague self-reflection, a one-off project defect, or an unverified preference.
 
-For design-planning requests, run the backward-reasoning workflow first, then return here for evidence-backed guidance improvement.
+For design-planning requests, run the outcome-first-planning workflow first, then return here for evidence-backed guidance improvement.
 
 ## Intent
 

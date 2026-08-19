@@ -7,4 +7,4 @@ description: Use when improving reusable agent guidance, prompt flow, or evidenc
 
 Use the local `docs/workflows/self-improvement-workflow.md`, then `agents/workflows/self-improvement-workflow.md`; otherwise use the [packaged workflow](workflow.md).
 
-For design-planning requests, run the `backward-reasoning` skill/workflow first.
+For design-planning requests, run the `outcome-first-planning` skill/workflow first.

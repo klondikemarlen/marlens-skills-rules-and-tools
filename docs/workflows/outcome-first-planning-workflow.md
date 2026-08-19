@@ -1,6 +1,6 @@
-# Backward Reasoning Workflow
+# Outcome-First Planning Workflow
 
-Use when a design-heavy request needs a bounded implementation path before coding.
+Use when a request has a material design choice and needs a bounded implementation path before coding.
 
 ## Intent
 
@@ -15,6 +15,7 @@ Use when a design-heavy request needs a bounded implementation path before codin
 - Validate examples and counter-examples before choosing an interface.
 - Read project-local guidance and existing patterns before selecting package assets or tools.
 - Prefer the smallest existing workflow, rule, skill, or template that can satisfy the Gold.
+- Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
 - Stop planning when the residual risk is named and the next implementation step is runnable.
 
 ## Required Inputs
@@ -90,9 +91,9 @@ Residual risk: <named remaining risk or none>
 
 ## Related Assets
 
-- Reference: [`../references/backward-reasoning-reference.md`](../references/backward-reasoning-reference.md)
-- Template: [`../templates/backward-reasoning-plan-template.md`](../templates/backward-reasoning-plan-template.md)
-- Skill: [`../../skills/backward-reasoning/SKILL.md`](../../skills/backward-reasoning/SKILL.md)
+- Reference: [`../references/outcome-first-planning-reference.md`](../references/outcome-first-planning-reference.md)
+- Template: [`../templates/outcome-first-plan-template.md`](../templates/outcome-first-plan-template.md)
+- Skill: [`../../skills/outcome-first-planning/SKILL.md`](../../skills/outcome-first-planning/SKILL.md)
 
 ## Verification Checklist
 
