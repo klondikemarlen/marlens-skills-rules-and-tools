@@ -27,6 +27,7 @@
   Checkout membership is resolved as a canonical checkout identity rather than inferred from a directory or branch name.
 - Host-level authorization is limited to external, unresolved, destructive, or genuinely ambiguous targets. It MUST NOT require a duplicate manual `ask` for a resolved same-origin branch push or documented tag/release publication.
 - A later, explicit user instruction narrows or supersedes an earlier broad workflow directive within the user-authored task scope. When the user limits an external-repository task to filing an issue or another specified action, do not recommend or perform implementation, release, installation, pull-request, or other writes in that repository.
+- Do not switch to, create branches in, or mutate a different local checkout without explicit user confirmation. Remote issue authorization does not authorize local work in that checkout.
 
 ## Edits
 

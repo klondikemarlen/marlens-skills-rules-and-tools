@@ -272,6 +272,8 @@ for (const requiredText of [
   'programmatic callers that opt into `createRepositoryBoundaryGuard({ enforce: true })`',
   'Host-level authorization is limited to external, unresolved, destructive, or genuinely ambiguous targets.',
   'MUST NOT require a duplicate manual `ask`',
+  'Do not switch to, create branches in, or mutate a different local checkout without explicit user confirmation.',
+  'Remote issue authorization does not authorize local work in that checkout.',
 ]) {
   if (!globalAgents.includes(requiredText)) {
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
