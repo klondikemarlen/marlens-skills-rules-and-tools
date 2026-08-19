@@ -16,11 +16,13 @@ await test('posts a plain reply body through the GitHub integration', async () =
 
   await github.replyReviewComment('owner/repo', 456, 123, 'Addressed in abc123.\n');
 
-  assert.deepEqual(calls, [{
-    method: 'POST',
-    endpoint: reviewCommentReplyEndpoint('owner/repo', 456, 123),
-    payload: { body: 'Addressed in abc123.\n' },
-  }]);
+  assert.deepEqual(calls, [
+    {
+      method: 'POST',
+      endpoint: reviewCommentReplyEndpoint('owner/repo', 456, 123),
+      payload: { body: 'Addressed in abc123.\n' },
+    },
+  ]);
 });
 
 await test('finds a comment on a later page of a review thread', async () => {
@@ -31,14 +33,19 @@ await test('finds a comment on a later page of a review thread', async () => {
         repository: {
           pullRequest: {
             reviewThreads: {
-              nodes: [{
-                id: 'thread-1',
-                isResolved: false,
-                comments: {
-                  nodes: [{ databaseId: 1 }],
-                  pageInfo: { hasNextPage: true, endCursor: 'comment-cursor-1' },
+              nodes: [
+                {
+                  id: 'thread-1',
+                  isResolved: false,
+                  comments: {
+                    nodes: [{ databaseId: 1 }],
+                    pageInfo: {
+                      hasNextPage: true,
+                      endCursor: 'comment-cursor-1',
+                    },
+                  },
                 },
-              }],
+              ],
               pageInfo: { hasNextPage: false, endCursor: null },
             },
           },
@@ -64,20 +71,28 @@ await test('finds a comment on a later page of a review thread', async () => {
 
   const result = await github.findThreadByCommentId('owner/repo', 456, 123);
 
-  assert.deepEqual({
-    result,
-    calls: calls.map(({ query, variables }) => ({ query, variables })),
-  }, {
-    result: { threadId: 'thread-1', isResolved: false },
-    calls: [
-      {
-        query: graphqlThreadLocatorQuery(),
-        variables: { owner: 'owner', name: 'repo', pullNumber: 456, after: undefined },
-      },
-      {
-        query: graphqlThreadCommentsPageQuery(),
-        variables: { threadId: 'thread-1', after: 'comment-cursor-1' },
-      },
-    ],
-  });
+  assert.deepEqual(
+    {
+      result,
+      calls: calls.map(({ query, variables }) => ({ query, variables })),
+    },
+    {
+      result: { threadId: 'thread-1', isResolved: false },
+      calls: [
+        {
+          query: graphqlThreadLocatorQuery(),
+          variables: {
+            owner: 'owner',
+            name: 'repo',
+            pullNumber: 456,
+            after: undefined,
+          },
+        },
+        {
+          query: graphqlThreadCommentsPageQuery(),
+          variables: { threadId: 'thread-1', after: 'comment-cursor-1' },
+        },
+      ],
+    },
+  );
 });
