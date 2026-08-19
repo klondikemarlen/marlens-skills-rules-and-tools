@@ -1,10 +1,10 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "2.10.21",
+  "version": "2.10.22",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
-    "test": "node --check bin/github-headless-session && node --check bin/github-review-thread && node --test tests/github-review-thread/*.test.mjs && node scripts/verify-domain-discovery.mjs && node scripts/verify-title-case.mjs && node scripts/verify-github-body-file-writes.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs && node scripts/verify-verifications.mjs && node scripts/verify-test-alignment.mjs && node scripts/verify-oversized-source-files.mjs && node verifications/no-oversized-source-files.mjs"
+    "test": "node --check bin/github-headless-session && node --check bin/github-review-thread && node --test tests/github-review-thread/*.test.mjs && node scripts/verify-domain-discovery.mjs && node scripts/verify-title-case.mjs && node scripts/verify-github-body-file-writes.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs && node scripts/verify-verifications.mjs && node scripts/verify-default-function-exports.mjs && node scripts/verify-test-alignment.mjs && node scripts/verify-oversized-source-files.mjs && node verifications/no-oversized-source-files.mjs"
   },
   "keywords": ["omp-plugin", "agent-rules", "skills"],
   "repository": {
@@ -49,6 +49,13 @@
       "label": "No Oversized Source Files",
       "description": "Checks that tracked source files stay within a configurable line-count ceiling.",
       "entry": "./verifications/no-oversized-source-files.mjs",
+      "timeoutMs": 30000
+    }, {
+      "id": "marlens-rules:default-function-exports",
+      "label": "Default Function Exports",
+      "description": "Checks opt-in TypeScript paths for named functions followed by matching default exports.",
+      "entry": "./verifications/default-function-exports.mjs",
+      "pathTriggers": ["**/*.ts", "**/*.tsx", "**/*.cts", "**/*.mts"],
       "timeoutMs": 30000
     }, {
       "id": "marlens-rules:test-alignment",

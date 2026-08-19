@@ -81,7 +81,17 @@ For agents without OMP plugin support, follow the [manual install](#manual-insta
 
 ## Default Verifications
 
-When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is installed, its automatic-selection runtime runs only this package's test-alignment verification for changed test paths. Repository hygiene runs through `check-commit-scope`: it checks the Git index for `.envrc.example` and staged changed source files. The `npm test` gate retains the full-repository source-size check for CI.
+When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is installed, its automatic-selection runtime runs test alignment for changed test paths and checks default function exports for changed TypeScript paths. The latter is opt-in: add this project-root `.marlens-verifications.json` configuration to require a named function followed by its matching default export:
+
+```json
+{
+  "defaultFunctionExports": {
+    "paths": ["api/src/lib/**/*.ts"]
+  }
+}
+```
+
+Repository hygiene runs through `check-commit-scope`: it checks the Git index for `.envrc.example` and staged changed source files. The `npm test` gate retains the full-repository source-size check for CI.
 
 The runtime support is tracked in [`omp-verifier#86`](https://github.com/klondikemarlen/omp-verifier/issues/86). Until that release is installed, invoke verifications explicitly. Extensions add their own manifest entries and triggers; scoped suppression remains visible in verifier output rather than silently disabling a check.
 
