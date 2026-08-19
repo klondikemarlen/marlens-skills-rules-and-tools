@@ -11,14 +11,14 @@ const verificationModule = path.join(root, 'verifications/no-envrc-example.mjs')
 const manifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const verifications = manifest.omp?.verifications;
 assert.ok(Array.isArray(verifications));
-for (const verification of verifications) {
-  assert.ok(Array.isArray(verification.pathTriggers) && verification.pathTriggers.length > 0, `${verification.id} must declare automatic path triggers`);
-  assert.ok(verification.pathTriggers.every((trigger) => typeof trigger === 'string' && trigger.length > 0), `${verification.id} path triggers must be non-empty strings`);
-}
-for (const id of ['marlens-rules:no-envrc-example', 'marlens-rules:no-oversized-source-files']) {
-  assert.deepEqual(verifications.find((verification) => verification.id === id)?.pathTriggers, ['**/*']);
+const noAutomaticVerificationIds = ['marlens-rules:no-envrc-example', 'marlens-rules:no-oversized-source-files'];
+for (const id of noAutomaticVerificationIds) {
+  assert.equal(verifications.find((verification) => verification.id === id)?.pathTriggers, undefined);
 }
 
+const testAlignmentVerification = verifications.find((verification) => verification.id === 'marlens-rules:test-alignment');
+assert.ok(Array.isArray(testAlignmentVerification?.pathTriggers) && testAlignmentVerification.pathTriggers.length > 0);
+assert.ok(testAlignmentVerification.pathTriggers.every((trigger) => /test|spec/u.test(trigger)));
 
 function createGitProject() {
   const projectDirectory = mkdtempSync(path.join(os.tmpdir(), 'marlens-verification-'));
