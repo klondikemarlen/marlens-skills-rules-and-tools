@@ -52,6 +52,12 @@ if (rootReadme.includes('copy or link selected generic rules')) {
   fail('README.md must not describe normal plugin rules as selected opt-ins');
 }
 
+for (const requiredText of ['`verifier [no model]`', 'A UI notification alone is not correction evidence.']) {
+  if (!rootReadme.includes(requiredText)) {
+    fail(`README.md must document advisor correction prerequisites with ${requiredText}`);
+  }
+}
+
 const alwaysLoadedGuidance = read('AGENTS.md');
 for (const requiredText of [
   'independent responsibility clusters',
@@ -303,6 +309,8 @@ for (const [name, workflow] of [
     'composition of positive rules',
     'no path-filtered CI or cache tied to the changed surface',
     'Ordinary source-only changes do not require CI/cache closure, generic CI edits, cache busting, or full-suite reruns.',
+    'A UI notification alone is not correction evidence',
+    'resolved model rather than `[no model]`',
   ]) {
     if (!workflow.includes(requiredText)) {
       fail(`${name} must require ${requiredText}`);

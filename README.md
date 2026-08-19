@@ -93,6 +93,8 @@ When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is install
 
 Repository hygiene runs through `check-commit-scope`: it checks the Git index for `.envrc.example` and staged changed source files. The `npm test` gate retains the full-repository source-size check for CI.
 
+Automatic correction also requires an enabled, model-resolved verifier advisor. After installing or upgrading [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier), restart OMP and run `/advisor status`: `verifier [no model]` means checks cannot reach the agent correction flow. For an advisor-backed release, intentionally trigger one matching verification failure, observe a `verifier` blocker in the primary session, remediate it, and confirm the subsequent check passes. A UI notification alone is not correction evidence.
+
 The runtime support is tracked in [`omp-verifier#86`](https://github.com/klondikemarlen/omp-verifier/issues/86). Until that release is installed, invoke verifications explicitly. Extensions add their own manifest entries and triggers; scoped suppression remains visible in verifier output rather than silently disabling a check.
 
 For local plugin development, link the package root so OMP uses the same plugin path:

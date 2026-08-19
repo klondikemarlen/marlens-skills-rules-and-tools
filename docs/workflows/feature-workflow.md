@@ -31,6 +31,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - For published artifacts, merge first, then perform the project’s documented version/changelog/publish/install verification steps on the release branch.
 - Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference and follow the default branch. Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis; verify the installed version separately.
 - Verify the shipped artifact from the remote source after push, publish, tag, or release; local checks alone do not prove the released version is installed or usable.
+- For an artifact whose automatic behavior depends on an OMP advisor, release QA MUST start a fresh OMP process, confirm `/advisor status` shows the named advisor with a resolved model rather than `[no model]`, then trigger one matching failure and observe a standard advisor `blocker` in the primary session before remediation produces `PASS`. A UI notification alone is not correction evidence; unavailable advisor runtime is `BLOCKED`.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
 ## Requirements Snapshot
