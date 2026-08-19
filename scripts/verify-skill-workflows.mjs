@@ -258,9 +258,8 @@ for (const requiredText of [
   '## Same-Origin GitHub Delivery',
   "current checkout's GitHub issue or feature workflow",
   'linked draft pull request',
-  'one exact retry',
-  'omp-repository-boundary-guard',
-  'repository-boundary guarding for local writes and moves',
+  'omp-soft-boundary-guard',
+  'advisory warnings for recognized local writes and moves',
   'supported `gh issue`/`gh pr`/`gh api` mutations',
   'supported `xd://github` writes',
   'canonical checkout identity',
@@ -270,9 +269,11 @@ for (const requiredText of [
   'push any necessary branch refs directly with `git push`',
   'documented direct `git push` tag command and release-publication command',
   'Do not call `ask` solely to authorize same-origin branch delivery, tag publication, or documented release publication',
-  'one standard OMP Ask before a mutation crosses the active repository boundary',
+  'programmatic callers that opt into `createRepositoryBoundaryGuard({ enforce: true })`',
   'Host-level authorization is limited to external, unresolved, destructive, or genuinely ambiguous targets.',
   'MUST NOT require a duplicate manual `ask`',
+  'Do not switch to, create branches in, or mutate a different local checkout without explicit user confirmation.',
+  'Remote issue authorization does not authorize local work in that checkout.',
 ]) {
   if (!globalAgents.includes(requiredText)) {
     fail(`AGENTS.md must preserve same-origin delivery authorization: ${requiredText}`);
@@ -381,9 +382,9 @@ for (const requiredText of [
 }
 
 for (const requiredText of [
-  'omp-repository-boundary-guard',
-  'omp plugin install github:klondikemarlen/omp-repository-boundary-guard',
-  'Repository-boundary guard for local writes and moves',
+  'omp-soft-boundary-guard',
+  'omp plugin install github:klondikemarlen/omp-soft-boundary-guard',
+  'Advisory repository-boundary warnings for local writes and moves',
   'supported `gh issue`/`gh pr`/`gh api` mutations',
   'supported `xd://github` writes',
   'Routine OMP installs use the generic GitHub reference',

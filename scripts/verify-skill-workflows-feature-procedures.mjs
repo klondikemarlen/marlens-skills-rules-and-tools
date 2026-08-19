@@ -38,7 +38,7 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
       'Run `git worktree prune` and inspect `git worktree list`',
       'Final branch/sync:',
       'Retained worktrees:',
-      "External or unresolved GitHub writes defer to `omp-repository-boundary-guard`'s single standard Ask",
+      'External or unresolved GitHub writes remain subject to `omp-soft-boundary-guard` advisory warnings when installed.',
       'Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference',
       'Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis',
       'Treat GitHub administration as distinct from browser UI validation',
