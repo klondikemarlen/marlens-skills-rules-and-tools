@@ -1,8 +1,8 @@
 ---
 name: omp-not-opencode-target-check
-description: "When the user says OMP, do not write OpenCode docs, config paths, or install instructions into OMP plugin work."
+description: 'When the user says OMP, do not write OpenCode docs, config paths, or install instructions into OMP plugin work.'
 condition: "OpenCode'?s? `plugin` config|opencode\\.ai|~\\/\\.config\\/opencode\\/opencode\\.jsonc?|\\/home\\/[^\\s\"']+\\/\\.config\\/opencode\\/opencode\\.jsonc?"
-scope: "tool"
+scope: 'tool'
 ---
 
 Treat **OMP / Oh My Pi** (`https://omp.sh`) and **OpenCode** (`https://opencode.ai`) as different products with different plugin systems.

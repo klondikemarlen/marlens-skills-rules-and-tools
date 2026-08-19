@@ -6,7 +6,6 @@ Use this when checking downstream repos for stale shared-agent guidance, broken 
 
 The audit is read-only maintainer tooling. It reports findings and never edits downstream repos. It does not gate upstream skill, tool, workflow, or template discovery.
 
-
 ## CLI
 
 From this repo:

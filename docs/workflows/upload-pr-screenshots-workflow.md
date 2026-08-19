@@ -26,9 +26,8 @@ The package exposes `github_markdown_image_upload_helper_path` to OMP. Call the 
 For repeatable uploads, call `github_pr_screenshot_upload_path` and import its returned `file:` URL. The uploader takes a PR URL with an exact `#issue-…` body or `#issuecomment-…` reply fragment, scopes controls and verification to that target, opens its `<details>` menu when needed, uploads every placeholder, submits, and verifies persisted attachment URLs.
 
 ```js
-const { uploadPullRequestCommentScreenshots } = await import(
-  '<file: URL returned by github_pr_screenshot_upload_path>',
-);
+const { uploadPullRequestCommentScreenshots } =
+  await import('<file: URL returned by github_pr_screenshot_upload_path>');
 
 const results = await uploadPullRequestCommentScreenshots({
   page,
@@ -49,9 +48,8 @@ Use the installed `file:` URL, not a `raw.githubusercontent.com` URL. It is vers
 Top priority: editing an existing PR body with lots of text. Put explicit screenshot placeholders in the PR body first, then pass that exact placeholder as `insertAt` so the helper replaces only the target screenshot slot and leaves surrounding PR text unchanged.
 
 ```js
-const { addImageToGitHubMarkdownEditor } = await import(
-  '<file: URL returned by github_markdown_image_upload_helper_path>',
-);
+const { addImageToGitHubMarkdownEditor } =
+  await import('<file: URL returned by github_markdown_image_upload_helper_path>');
 
 const result = await addImageToGitHubMarkdownEditor({
   page,

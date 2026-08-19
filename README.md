@@ -49,15 +49,15 @@ The Claude adapter is manifest-only: `.claude-plugin/plugin.json` lets Claude Co
 
 This package is the default base layer for doctrine, rules, task skills, workflows, and the thin OMP adapter. Companion runtime plugins remain separate opt-ins with independent release cycles; install only the runtime capabilities your workflow needs.
 
-| Plugin | Adds | Install | Skip when |
-| --- | --- | --- | --- |
-| [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) | Evidence-first guardrails and local verifier scaffolding for hands-off agent runs. Routine installs follow the default branch; use an exact tag or hash only for artifact verification. | `omp plugin install github:klondikemarlen/omp-verifier` | You do not want verifier-enforced evidence gates or local verifier scaffolding. |
-| [`omp-soft-boundary-guard`](https://github.com/klondikemarlen/omp-soft-boundary-guard) | Advisory repository-boundary warnings for local writes and moves, `git push`, supported `gh issue`/`gh pr`/`gh api` mutations, and supported `xd://github` writes. Routine installs follow the default branch; use an exact tag or hash only for artifact verification. | `omp plugin install github:klondikemarlen/omp-soft-boundary-guard` | You do not need advisory repository-boundary visibility for local or GitHub writes. |
-| [`omp-vscode-context`](https://github.com/klondikemarlen/omp-vscode-context) | Two-part VS Code extension plus OMP plugin bridge for richer editor/context handoff into OMP. | `code --install-extension klondikemarlen.omp-vscode-context --force`<br>`omp plugin install github:klondikemarlen/omp-vscode-context` | You do not use VS Code or do not need editor-state context in OMP. |
-| [`omp-developer-cost-status`](https://github.com/klondikemarlen/omp-developer-cost-status) | A developer attention/cost status meter for longer sessions. | `omp plugin install github:klondikemarlen/omp-developer-cost-status` | You do not want cost or attention telemetry in your statusline. |
-| [`omp-auto-retitle`](https://github.com/klondikemarlen/omp-auto-retitle) | Automatic session title cleanup for long or multi-thread OMP work. | `omp plugin install github:klondikemarlen/omp-auto-retitle` | You prefer manual session titles or your client already handles title hygiene. |
-| [`omp-exit-command`](https://github.com/klondikemarlen/omp-exit-command) | Exit ergonomics for ending OMP sessions intentionally. | `omp plugin install github:klondikemarlen/omp-exit-command` | Your current exit flow is already fast enough. |
-| [`omp-learner`](https://github.com/klondikemarlen/omp-learner) | Optional durable-feedback watchdog that can turn high-confidence shared-guidance and project-knowledge proposals into reviewable GitHub issues. | `omp plugin install github:klondikemarlen/omp-learner` | You do not want an opt-in learner watchdog or GitHub issue backlog. |
+| Plugin                                                                                     | Adds                                                                                                                                                                                                                                                                    | Install                                                                                                                               | Skip when                                                                           |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier)                           | Evidence-first guardrails and local verifier scaffolding for hands-off agent runs. Routine installs follow the default branch; use an exact tag or hash only for artifact verification.                                                                                 | `omp plugin install github:klondikemarlen/omp-verifier`                                                                               | You do not want verifier-enforced evidence gates or local verifier scaffolding.     |
+| [`omp-soft-boundary-guard`](https://github.com/klondikemarlen/omp-soft-boundary-guard)     | Advisory repository-boundary warnings for local writes and moves, `git push`, supported `gh issue`/`gh pr`/`gh api` mutations, and supported `xd://github` writes. Routine installs follow the default branch; use an exact tag or hash only for artifact verification. | `omp plugin install github:klondikemarlen/omp-soft-boundary-guard`                                                                    | You do not need advisory repository-boundary visibility for local or GitHub writes. |
+| [`omp-vscode-context`](https://github.com/klondikemarlen/omp-vscode-context)               | Two-part VS Code extension plus OMP plugin bridge for richer editor/context handoff into OMP.                                                                                                                                                                           | `code --install-extension klondikemarlen.omp-vscode-context --force`<br>`omp plugin install github:klondikemarlen/omp-vscode-context` | You do not use VS Code or do not need editor-state context in OMP.                  |
+| [`omp-developer-cost-status`](https://github.com/klondikemarlen/omp-developer-cost-status) | A developer attention/cost status meter for longer sessions.                                                                                                                                                                                                            | `omp plugin install github:klondikemarlen/omp-developer-cost-status`                                                                  | You do not want cost or attention telemetry in your statusline.                     |
+| [`omp-auto-retitle`](https://github.com/klondikemarlen/omp-auto-retitle)                   | Automatic session title cleanup for long or multi-thread OMP work.                                                                                                                                                                                                      | `omp plugin install github:klondikemarlen/omp-auto-retitle`                                                                           | You prefer manual session titles or your client already handles title hygiene.      |
+| [`omp-exit-command`](https://github.com/klondikemarlen/omp-exit-command)                   | Exit ergonomics for ending OMP sessions intentionally.                                                                                                                                                                                                                  | `omp plugin install github:klondikemarlen/omp-exit-command`                                                                           | Your current exit flow is already fast enough.                                      |
+| [`omp-learner`](https://github.com/klondikemarlen/omp-learner)                             | Optional durable-feedback watchdog that can turn high-confidence shared-guidance and project-knowledge proposals into reviewable GitHub issues.                                                                                                                         | `omp plugin install github:klondikemarlen/omp-learner`                                                                                | You do not want an opt-in learner watchdog or GitHub issue backlog.                 |
 
 `omp-learner` is the standalone replacement for the removed bundled learner runtime. After installing it, restart OMP if needed, then explicitly target this repository:
 
@@ -81,13 +81,11 @@ For agents without OMP plugin support, follow the [manual install](#manual-insta
 
 ## Default Verifications
 
-When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is installed, its automatic-selection runtime runs test alignment for changed test paths and checks default function exports for changed TypeScript paths. The latter is opt-in: add this project-root `.marlens-verifications.json` configuration to require a named function followed by its matching default export:
+When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is installed, its automatic-selection runtime runs test alignment for changed test paths and checks every tracked TypeScript path for default function exports. To disable the export verification deliberately, add this project-root `.marlens-verifications.json` configuration:
 
 ```json
 {
-  "defaultFunctionExports": {
-    "paths": ["api/src/lib/**/*.ts"]
-  }
+  "defaultFunctionExports": false
 }
 ```
 
@@ -109,24 +107,24 @@ After reinstalling the plugin or changing skill names, restart OMP before retest
 
 Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common routes:
 
-| Task | Start here |
-| --- | --- |
-| Implement a repo issue or feature request | [`docs/workflows/feature-workflow.md`](docs/workflows/feature-workflow.md) |
-| Open, update, or merge a pull request | [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md) |
-| Resolve PR review comments | [`docs/workflows/pull-request-comment-resolution-workflow.md`](docs/workflows/pull-request-comment-resolution-workflow.md) |
-| Commit scoped changes | [`COMMITTING.md`](COMMITTING.md) and [`docs/workflows/commit-workflow.md`](docs/workflows/commit-workflow.md) |
-| Edit older commits safely | [`docs/workflows/git-rebase-workflow.md`](docs/workflows/git-rebase-workflow.md) and `git-edit-commit` |
-| Add Express Light Rail backend code | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
-| Add full-stack admin CRUD scaffolding | [`docs/workflows/full-stack-admin-crud-workflow.md`](docs/workflows/full-stack-admin-crud-workflow.md) and [`docs/templates/backend/express-sequelize-crud/`](docs/templates/backend/express-sequelize-crud/) |
-| Add frontend or backend reusable scaffolding | [`docs/templates/`](docs/templates/) |
-| Layer route-based UI flows | [`docs/workflows/layered-page-orchestration-workflow.md`](docs/workflows/layered-page-orchestration-workflow.md) |
-| Upload PR screenshots | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md) |
-| Decide where guidance belongs | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md) |
-| Audit downstream agent guidance | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit` |
-| Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md) |
-| Mine session insights and route durable lessons | [`docs/workflows/session-insight-mining-workflow.md`](docs/workflows/session-insight-mining-workflow.md) |
-| Draft or file Jira reports | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting` |
-| Run one task with a temporarily enabled MCP server | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md) |
+| Task                                                                      | Start here                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Implement a repo issue or feature request                                 | [`docs/workflows/feature-workflow.md`](docs/workflows/feature-workflow.md)                                                                                                                                      |
+| Open, update, or merge a pull request                                     | [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md)                                                                                                      |
+| Resolve PR review comments                                                | [`docs/workflows/pull-request-comment-resolution-workflow.md`](docs/workflows/pull-request-comment-resolution-workflow.md)                                                                                      |
+| Commit scoped changes                                                     | [`COMMITTING.md`](COMMITTING.md) and [`docs/workflows/commit-workflow.md`](docs/workflows/commit-workflow.md)                                                                                                   |
+| Edit older commits safely                                                 | [`docs/workflows/git-rebase-workflow.md`](docs/workflows/git-rebase-workflow.md) and `git-edit-commit`                                                                                                          |
+| Add Express Light Rail backend code                                       | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
+| Add full-stack admin CRUD scaffolding                                     | [`docs/workflows/full-stack-admin-crud-workflow.md`](docs/workflows/full-stack-admin-crud-workflow.md) and [`docs/templates/backend/express-sequelize-crud/`](docs/templates/backend/express-sequelize-crud/)   |
+| Add frontend or backend reusable scaffolding                              | [`docs/templates/`](docs/templates/)                                                                                                                                                                            |
+| Layer route-based UI flows                                                | [`docs/workflows/layered-page-orchestration-workflow.md`](docs/workflows/layered-page-orchestration-workflow.md)                                                                                                |
+| Upload PR screenshots                                                     | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md)                                                                                                          |
+| Decide where guidance belongs                                             | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md)                                                                                                          |
+| Audit downstream agent guidance                                           | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit`                                                       |
+| Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md)                                                                                                                    |
+| Mine session insights and route durable lessons                           | [`docs/workflows/session-insight-mining-workflow.md`](docs/workflows/session-insight-mining-workflow.md)                                                                                                        |
+| Draft or file Jira reports                                                | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting`                                                                                                   |
+| Run one task with a temporarily enabled MCP server                        | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md)                                                                                                                |
 
 ## Feature and Issue Workflow
 
@@ -152,7 +150,6 @@ Use semantic versioning with cumulative release judgment:
 - Bump **patch** for compatible fixes, clarifications, and narrow maintenance.
 
 There is no numeric patch threshold. Promote to a minor release before a long run of compatible changes becomes misleading; use the size and public significance of the accumulated work rather than a mechanical counter. Do not rewrite historical versions.
-
 
 ## Manual Install
 

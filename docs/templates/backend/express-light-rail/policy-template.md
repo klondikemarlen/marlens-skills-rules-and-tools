@@ -6,24 +6,24 @@ Use for explicit authorization decisions.
 
 ```ts
 export function canReadProject(userId: string, project: ProjectLike) {
-  if (project.ownerId === userId) return true
+  if (project.ownerId === userId) return true;
 
-  return false
+  return false;
 }
 
 export function canCreateProject(userId: string) {
-  return Boolean(userId)
+  return Boolean(userId);
 }
 
 export function canUpdateProject(userId: string, project: ProjectLike) {
-  if (project.ownerId === userId) return true
+  if (project.ownerId === userId) return true;
 
-  return false
+  return false;
 }
 
 type ProjectLike = {
-  ownerId: string
-}
+  ownerId: string;
+};
 ```
 
 ## Checklist

@@ -3,6 +3,7 @@
 Use when writing or updating pull request testing instructions.
 
 ## Process
+
 1. Read the PR body, diff, and any existing testing section.
 2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs.
 3. Identify behavior a reviewer can actually verify.

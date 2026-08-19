@@ -28,11 +28,8 @@ Use this when a Vue administration detail layout already owns the parent shell, 
 
 ```vue
 <template>
-  <{RelatedResourceNames}FilterableDataTableServer
-    :where="where"
-    route-query-suffix="{RouteQuerySuffix}"
-    {optional-hide-parent-column}
-  />
+  <{RelatedResourceNames}FilterableDataTableServer :where="where" route-query-suffix="{RouteQuerySuffix}"
+  {optional-hide-parent-column} />
 </template>
 
 <script setup lang="ts">

@@ -11,6 +11,7 @@ do not infer important decision rules from examples or prior chat.
 and output contracts.
 
 **Decision Rules:**
+
 - **Workflow shape:** Start each workflow with an `Intent` section that states why it exists, what it
   produces, and the key decision rules.
 - **Specificity:** Keep project-specific details out of generic workflows. If a workflow is

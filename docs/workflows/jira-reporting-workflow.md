@@ -19,6 +19,7 @@ Use when filing or drafting Jira Bugs, features, or general reports from user re
 - Embed supplied screenshots when the target supports media embeds. Do not invent source links from email message IDs or opaque identifiers; link a real remote source only when one exists.
 
 - Link related Jira issues with the relationship that matches the evidence: use a dependency only when one issue blocks or requires the other, otherwise keep the relationship independent.
+
 ## Process
 
 1. Read the project-local Jira workflow, comparable tickets, and target field requirements.

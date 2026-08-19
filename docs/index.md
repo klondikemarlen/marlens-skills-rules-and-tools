@@ -14,7 +14,6 @@ This package is the fallback base layer. Project-local instructions win.
 
 For the canonical precedence and placement rules, read [`references/guidance-precedence-reference.md`](./references/guidance-precedence-reference.md).
 
-
 ## Directory Structure
 
 ```text
@@ -35,7 +34,6 @@ docs/
 5. Keep exploratory or multi-phase implementation plans in `plans/`.
 6. Prefer descriptive filenames: `verb-noun-workflow.md`, `noun-template.md`, or `topic-reference.md`.
 7. Prefer discovery over long duplicated inventories.
-
 
 ## Workflow Entry Points
 
