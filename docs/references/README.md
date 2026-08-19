@@ -14,6 +14,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Outcome-first planning and fit checks: [`outcome-first-planning-reference.md`](./outcome-first-planning-reference.md).
 - OMP plugin routine and exact-hash installation policy: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).
 - Shared-baseline test-alignment verifier rules and scoped suppression: [`test-alignment-verifier-reference.md`](./test-alignment-verifier-reference.md).
+- Rule versus verification selection and current package classification: [`rules-and-verifications-reference.md`](./rules-and-verifications-reference.md).
 - GitHub CLI and metadata editing caveats.
 - Development tooling portability decisions.
 - Cross-workflow conventions.

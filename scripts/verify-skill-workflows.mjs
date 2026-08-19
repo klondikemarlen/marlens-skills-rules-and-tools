@@ -29,8 +29,31 @@ if (!packageJson.scripts?.test?.includes('node verifications/no-oversized-source
 
 const rootReadme = read('README.md');
 const rulesReadme = read('rules/README.md');
+const ruleVerificationReference = read('docs/references/rules-and-verifications-reference.md');
+for (const requiredText of [
+  'Rules and verifications are complementary',
+  'Both are true',
+  'Advisor or review guidance',
+]) {
+  if (!ruleVerificationReference.includes(requiredText)) {
+    fail(`rules and verifications reference must explain ${requiredText}`);
+  }
+}
+
+for (const verification of packageJson.omp.verifications) {
+  const verificationName = path.basename(verification.entry, '.mjs');
+  if (!ruleVerificationReference.includes(`\`${verificationName}\``)) {
+    fail(`rules and verifications reference must classify ${verificationName}`);
+  }
+}
 const packagedRules = readdirSync(path.join(root, 'rules'), { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md');
+for (const rule of packagedRules) {
+  const ruleName = path.basename(rule.name, '.md');
+  if (!ruleVerificationReference.includes(`\`${ruleName}\``)) {
+    fail(`rules and verifications reference must classify ${ruleName}`);
+  }
+}
 
 if (!packageJson.files.includes('rules/')) {
   fail('package.json must package reusable OMP rules');
@@ -165,7 +188,7 @@ for (const requiredText of [
   'exactly one blank line',
   'Do not use consecutive blank lines',
   'default cross-project rules',
-  'does not relax this baseline',
+  'Project-local guidance overrides this default',
   'user explicitly directs it',
 ]) {
   if (!whitespaceRule.includes(requiredText)) {
