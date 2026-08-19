@@ -1,18 +1,18 @@
-import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
+import type { ExtensionAPI } from '@oh-my-pi/pi-coding-agent';
 declare const process: {
   env: { PATH?: string };
   platform: string;
 };
 
-const packageBinUrl = new URL("../bin", import.meta.url);
+const packageBinUrl = new URL('../bin', import.meta.url);
 const packageBinPath = decodeURIComponent(
-  process.platform === "win32"
-    ? packageBinUrl.pathname.replace(/^\/([A-Za-z]:)/u, "$1").replace(/\//gu, "\\")
+  process.platform === 'win32'
+    ? packageBinUrl.pathname.replace(/^\/([A-Za-z]:)/u, '$1').replace(/\//gu, '\\')
     : packageBinUrl.pathname,
 );
-const pathDelimiter = process.platform === "win32" ? ";" : ":";
+const pathDelimiter = process.platform === 'win32' ? ';' : ':';
 
-export default function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
+export function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
   const { z } = pi.zod;
 
   if (!process.env.PATH?.split(pathDelimiter).includes(packageBinPath)) {
@@ -20,38 +20,36 @@ export default function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
   }
 
   pi.registerTool({
-    name: "github_markdown_image_upload_helper_path",
-    label: "GitHub Markdown Image Upload Helper Path",
-    description: "Returns the installed helper URL for OMP Browser screenshot uploads.",
+    name: 'github_markdown_image_upload_helper_path',
+    label: 'GitHub Markdown Image Upload Helper Path',
+    description: 'Returns the installed helper URL for OMP Browser screenshot uploads.',
     parameters: z.object({}),
     async execute() {
-      const helperUrl = new URL(
-        "../lib/github-markdown-image-upload-helper.mjs",
-        import.meta.url,
-      ).href;
+      const helperUrl = new URL('../lib/github-markdown-image-upload-helper.mjs', import.meta.url).href;
 
       return {
-        content: [{ type: "text", text: helperUrl }],
+        content: [{ type: 'text', text: helperUrl }],
         details: { helperUrl },
       };
     },
   });
 
   pi.registerTool({
-    name: "github_pr_screenshot_upload_path",
-    label: "GitHub PR Screenshot Upload Path",
-    description: "Returns the installed uploader URL for OMP Browser PR-body screenshot uploads.",
+    name: 'github_pr_screenshot_upload_path',
+    label: 'GitHub PR Screenshot Upload Path',
+    description: 'Returns the installed uploader URL for OMP Browser PR-body screenshot uploads.',
     parameters: z.object({}),
     async execute() {
-      const uploaderUrl = new URL("../lib/github-pr-screenshot-upload.mjs", import.meta.url).href;
+      const uploaderUrl = new URL('../lib/github-pr-screenshot-upload.mjs', import.meta.url).href;
 
       return {
-        content: [{ type: "text", text: uploaderUrl }],
+        content: [{ type: 'text', text: uploaderUrl }],
         details: { uploaderUrl },
       };
     },
   });
 
   pi.setLabel("Marlen's Skills, Rules, and Tools");
-
 }
+
+export default marlensSkillsRulesAndTools;
