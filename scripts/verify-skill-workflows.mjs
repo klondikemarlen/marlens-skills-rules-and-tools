@@ -3,7 +3,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyDesignWorkflows } from './verify-skill-workflows-design.mjs';
 import { skillContract, verifyWorkflowContracts } from './verify-skill-workflows-contracts.mjs';
-import { verifyWorkflowProcedures } from './verify-skill-workflows-procedures.mjs';
+import { verifyFeatureProcedures } from './verify-skill-workflows-feature-procedures.mjs';
+import { verifyReviewProcedures } from './verify-skill-workflows-review-procedures.mjs';
+import { verifyTestingProcedures } from './verify-skill-workflows-testing-procedures.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -170,7 +172,9 @@ for (const requiredText of [
   }
 }
 
-const { featureWorkflow, packagedFeatureWorkflow } = verifyWorkflowProcedures({ read, fail, alwaysLoadedGuidance });
+const { featureWorkflow, packagedFeatureWorkflow } = verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance });
+verifyReviewProcedures({ read, fail });
+verifyTestingProcedures({ read, fail });
 
 const administrationTabTemplate = read('docs/templates/frontend/administration-tab-page-template.md');
 const frontendTemplatesIndex = read('docs/templates/frontend/README.md');
