@@ -18,7 +18,7 @@ A verification must declare a concrete input scope, fail condition, evidence, an
 | Asset | Layer | Why |
 | --- | --- | --- |
 | `whitespace-matters` | Rule | Formatting and sibling grouping require project-local tools and structure judgment. |
-| `no-envrc-example-commits` and `no-envrc-example` | Both | The rule prevents secret-pattern exposure; the staged check catches missed tracked files. |
+| `no-envrc-example-commits` and `no-envrc-example` | Both | The rule prevents staging; the verifier backstops tracked repository state. |
 | `omp-not-opencode-target-check` | Rule | Product identity depends on the user request and target package. |
 | `use-dev-wrapper-for-development-compose` | Rule | Wrapper availability and command intent require repository context. |
 | `no-oversized-source-files` | Verification | Tracked source paths and line ceilings are deterministic. |
