@@ -31,6 +31,8 @@ function createFakePi() {
   }
 }
 
+process.env.PATH = [path.dirname(process.execPath), "/usr/bin", "/bin"].join(path.delimiter)
+
 const pi = createFakePi()
 marlensSkillsRulesAndTools(pi)
 
