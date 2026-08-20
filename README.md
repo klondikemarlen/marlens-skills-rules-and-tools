@@ -4,7 +4,7 @@ Reusable agent skills, rules, and tool helpers, plus thin OMP and Claude Code pl
 
 ## Stability
 
-The v1 contract defines this package's stable public surfaces: installable package metadata, skill entrypoints, reusable `docs/` workflows/templates/references, `rules/`, packaged `bin/` helpers, the OMP command adapter, and Claude plugin manifests. Runtime behavior from optional companion plugins, downstream project configuration, browser automation, project test dependencies, and removed bundled learner behavior stays outside this package's v1 contract.
+The v1 contract defines this package's stable public surfaces: installable package metadata, skill entrypoints, reusable `docs/` workflows/templates/references, outcome-oriented `examples/`, `rules/`, packaged `bin/` helpers, the OMP command adapter, and Claude plugin manifests. Runtime behavior from optional companion plugins, downstream project configuration, browser automation, project test dependencies, and removed bundled learner behavior stays outside this package's v1 contract.
 
 ## OMP Plugin Install
 
@@ -117,6 +117,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Add Express Light Rail backend code                                       | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
 | Add full-stack admin CRUD scaffolding                                     | [`docs/workflows/full-stack-admin-crud-workflow.md`](docs/workflows/full-stack-admin-crud-workflow.md) and [`docs/templates/backend/express-sequelize-crud/`](docs/templates/backend/express-sequelize-crud/)   |
 | Add frontend or backend reusable scaffolding                              | [`docs/templates/`](docs/templates/)                                                                                                                                                                            |
+| Compare before/after guidance outcomes                                    | [`examples/`](examples/)                                                                                                                                                                                        |
 | Layer route-based UI flows                                                | [`docs/workflows/layered-page-orchestration-workflow.md`](docs/workflows/layered-page-orchestration-workflow.md)                                                                                                |
 | Upload PR screenshots                                                     | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md)                                                                                                          |
 | Decide where guidance belongs                                             | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md)                                                                                                          |
@@ -198,6 +199,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `AGENT_RULES.md` - agent-agnostic shared decision rules
 - `COMMITTING.md` - reusable commit-message guidance
 - `docs/` - authoritative generic workflow, template, reference, and plan discovery docs
+- `examples/` - compact before/after outcomes for packaged skills, rules, and tools
 - `skills/` - thin skill aliases that point at authoritative workflows under `docs/workflows/`
 - `rules/` - reusable OMP rule files that can be copied or linked into `~/.omp/agent/rules`
 - `lib/` - Ruby implementation for shared package binaries such as `dev`
