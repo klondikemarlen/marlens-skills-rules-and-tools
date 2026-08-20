@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "2.10.28",
+  "version": "2.10.29",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -111,5 +111,9 @@
     "skills": [
       "./skills"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.8.3",
+    "prettier-plugin-embed": "^0.4.15"
   }
 }
