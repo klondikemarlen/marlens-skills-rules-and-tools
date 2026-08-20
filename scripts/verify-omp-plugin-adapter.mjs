@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from "node:child_process"
 import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
 
 function fail(message) {
   throw new Error(message)
@@ -38,8 +39,17 @@ marlensSkillsRulesAndTools(pi)
 
 const temporaryRepository = mkdtempSync(path.join(os.tmpdir(), "omp-plugin-bin-"))
 
-const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+const packageRoot = path.dirname(fileURLToPath(new URL("../package.json", import.meta.url)))
+const packageBinPath = path.join(packageRoot, "bin")
+const packageJson = JSON.parse(readFileSync(path.join(packageRoot, "package.json"), "utf8"))
 for (const command of Object.keys(packageJson.bin)) {
+  const resolvedPath = execFileSync("/bin/sh", ["-c", 'command -v "$1"', "sh", command], {
+    encoding: "utf8",
+  }).trim()
+  const expectedPath = path.join(packageBinPath, command)
+  if (resolvedPath !== expectedPath) {
+    fail(`published command ${command} resolved to ${resolvedPath} instead of ${expectedPath}`)
+  }
   const result = spawnSync(command, ["--help"], {
     cwd: temporaryRepository,
     encoding: "utf8",
