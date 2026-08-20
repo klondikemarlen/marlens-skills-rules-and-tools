@@ -51,7 +51,25 @@ function repositoryRoot(projectDirectory) {
   return git(projectDirectory, ["rev-parse", "--show-toplevel"]).trim()
 }
 
+function automaticTestPaths(root, environment) {
+  const value = environment.OMP_VERIFIER_CHANGED_PATHS
+  if (value === undefined) return undefined
+
+  const paths = JSON.parse(value)
+  if (!Array.isArray(paths) || paths.some((filePath) => typeof filePath !== "string")) {
+    throw new Error("OMP_VERIFIER_CHANGED_PATHS must be a JSON array of paths")
+  }
+
+  return [...new Set(paths)]
+    .filter(isTestPath)
+    .filter((filePath) => existsSync(path.join(root, filePath)))
+    .sort()
+}
+
 function changedTestFiles(root, environment) {
+  const automaticPaths = automaticTestPaths(root, environment)
+  if (automaticPaths) return automaticPaths
+
   const base = environment.MARLENS_TEST_ALIGNMENT_BASE
   const comparison = base
     ? ["diff", "--name-only", "-z", "--diff-filter=ACMR", `${base}...HEAD`]

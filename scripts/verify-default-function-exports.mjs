@@ -48,6 +48,19 @@ try {
   assert.doesNotMatch(failing.evidence, /anonymous|RequestError/u)
   assert.doesNotMatch(failing.evidence, /node_modules|dependencyDeclaration/u)
 
+  const scopedPassing = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["src/value.ts", "removed.ts"]),
+  })
+  assert.equal(scopedPassing.status, "PASS")
+  assert.match(scopedPassing.evidence, /Inspected 1 TypeScript module/u)
+
+  const scopedFailing = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["src/request.ts"]),
+  })
+  assert.equal(scopedFailing.status, "FAIL")
+  assert.match(scopedFailing.evidence, /src\/request\.ts:1/u)
+  assert.doesNotMatch(scopedFailing.evidence, /other\/checked\.ts/u)
+
   write(
     projectDirectory,
     "src/request.ts",

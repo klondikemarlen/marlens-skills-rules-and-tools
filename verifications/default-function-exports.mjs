@@ -79,7 +79,19 @@ function matchesGlob(filePath, pattern) {
   return new RegExp(`${expression}$`, "u").test(filePath)
 }
 
-function typescriptProjectFiles(repositoryRoot, patterns) {
+function automaticPaths(environment) {
+  const value = environment.OMP_VERIFIER_CHANGED_PATHS
+  if (value === undefined) return undefined
+
+  const paths = JSON.parse(value)
+  if (!Array.isArray(paths) || paths.some((filePath) => typeof filePath !== "string")) {
+    throw new Error("OMP_VERIFIER_CHANGED_PATHS must be a JSON array of paths")
+  }
+
+  return new Set(paths)
+}
+
+function typescriptProjectFiles(repositoryRoot, patterns, changedPaths) {
   return git(
     repositoryRoot,
     ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
@@ -91,6 +103,7 @@ function typescriptProjectFiles(repositoryRoot, patterns) {
     .filter((filePath) => !NODE_MODULES_PATH.test(filePath))
     .filter((filePath) => TYPESCRIPT_EXTENSIONS.has(path.extname(filePath).toLowerCase()))
     .filter((filePath) => patterns.some((pattern) => matchesGlob(filePath, pattern)))
+    .filter((filePath) => !changedPaths || changedPaths.has(filePath))
 }
 
 function lineNumber(source, offset) {
@@ -109,7 +122,7 @@ function defaultFunctionDeclarations(source) {
   }))
 }
 
-export function runVerification(projectDirectory = process.cwd()) {
+export function runVerification(projectDirectory = process.cwd(), environment = process.env) {
   let repositoryRoot
   try {
     repositoryRoot = projectRoot(projectDirectory)
@@ -145,7 +158,7 @@ export function runVerification(projectDirectory = process.cwd()) {
 
   let files
   try {
-    files = typescriptProjectFiles(repositoryRoot, patterns)
+    files = typescriptProjectFiles(repositoryRoot, patterns, automaticPaths(environment))
   } catch {
     return result(
       "BLOCKED",
