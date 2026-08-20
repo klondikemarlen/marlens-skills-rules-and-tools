@@ -67,6 +67,7 @@ const untrackedTestProject = createProject()
 const exemptionProject = createProject()
 const suppressionProject = createProject()
 const invalidSuppressionProject = createProject()
+const automaticScopeProject = createProject()
 try {
   write(project, "tests/README.md", guidance)
   write(project, "tests/widget.test.ts", alignedTest)
@@ -80,6 +81,23 @@ try {
   })
   assert.equal(aligned.status, "PASS")
   assert.match(aligned.evidence, /tests\/widget\.test\.ts/)
+
+  write(automaticScopeProject, "tests/README.md", guidance)
+  write(automaticScopeProject, "tests/current.test.ts", alignedTest)
+  write(automaticScopeProject, "tests/legacy.test.ts", "test('legacy test', () => { expect(true).toEqual(true) })\n")
+
+  const scopedPassing = runVerification(automaticScopeProject, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/current.test.ts"]),
+  })
+  assert.equal(scopedPassing.status, "PASS")
+  assert.match(scopedPassing.evidence, /tests\/current\.test\.ts/u)
+
+  const scopedFailing = runVerification(automaticScopeProject, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/legacy.test.ts"]),
+  })
+  assert.equal(scopedFailing.status, "FAIL")
+  assert.match(scopedFailing.evidence, /tests\/legacy\.test\.ts/u)
+  assert.doesNotMatch(scopedFailing.evidence, /tests\/current\.test\.ts/u)
 
   write(
     project,
@@ -342,4 +360,5 @@ try {
   rmSync(exemptionProject, { recursive: true, force: true })
   rmSync(suppressionProject, { recursive: true, force: true })
   rmSync(invalidSuppressionProject, { recursive: true, force: true })
+  rmSync(automaticScopeProject, { recursive: true, force: true })
 }
