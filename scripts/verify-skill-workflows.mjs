@@ -205,9 +205,9 @@ for (const requiredText of [
   "import groups contiguous",
   "exactly one blank line",
   "Do not use consecutive blank lines",
-  "default cross-project rules",
-  "Project-local guidance overrides this default",
-  "user explicitly directs it",
+  "Project-local guidance may refine grouping order",
+  "does not weaken these defaults",
+  "only explicit user direction",
 ]) {
   if (!whitespaceRule.includes(requiredText)) {
     fail(`whitespace review rule must require ${requiredText}`)
