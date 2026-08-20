@@ -11,4 +11,4 @@ Before presenting a changed file as ready:
 2. Keep import groups contiguous and separate each group with exactly one blank line. Use the project’s documented group order when it has one; otherwise group standard-library, third-party, then project-local imports.
 3. Use exactly one blank line between top-level declarations and unrelated logical sibling blocks. Do not use consecutive blank lines. Keep tightly coupled statements and one logical import group together.
 4. Keep whitespace-only edits scoped to the changed area.
-   These are default cross-project rules. Project-local guidance overrides this default; otherwise depart only when the user explicitly directs it.
+   Project-local guidance may refine grouping order but does not weaken these defaults; only explicit user direction permits a departure.
