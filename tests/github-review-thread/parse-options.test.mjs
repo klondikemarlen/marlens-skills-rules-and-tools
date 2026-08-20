@@ -1,31 +1,66 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+import assert from "node:assert/strict"
+import test from "node:test"
 
-import { normalizeOptionName } from '../../lib/github-review-thread/normalize-option-name.js';
-import { normalizeRepository } from '../../lib/github-review-thread/normalize-repository.js';
-import { parseOptions } from '../../lib/github-review-thread/parse-options.js';
-import { parseReaction } from '../../lib/github-review-thread/parse-reaction.js';
+import { normalizeOptionName } from "../../lib/github-review-thread/normalize-option-name.js"
+import { normalizeRepository } from "../../lib/github-review-thread/normalize-repository.js"
+import { parseOptions } from "../../lib/github-review-thread/parse-options.js"
+import { parseReaction } from "../../lib/github-review-thread/parse-reaction.js"
 
-await test('normalizes dashed option names', () => {
-  assert.equal(normalizeOptionName('dry-run'), 'dryRun');
-});
+await test("when an option uses dashes, normalizes it to camel case", () => {
+  // Arrange
+  const optionName = "dry-run"
 
-await test('parses boolean and value options', () => {
-  assert.deepEqual(parseOptions(['--dry-run=false', '--repo', 'OWNER/Repo', '--comment-id=42']), {
+  // Act
+  const normalizedOptionName = normalizeOptionName(optionName)
+
+  // Assert
+  assert.equal(normalizedOptionName, "dryRun")
+})
+
+await test("when options include values, parses each option", () => {
+  // Arrange
+  const argumentsList = ["--dry-run=false", "--repo", "OWNER/Repo", "--comment-id=42"]
+
+  // Act
+  const options = parseOptions(argumentsList)
+
+  // Assert
+  assert.deepEqual(options, {
     dryRun: false,
-    repo: 'OWNER/Repo',
-    commentId: '42',
-  });
-});
+    repo: "OWNER/Repo",
+    commentId: "42",
+  })
+})
 
-await test('normalizes repository names', () => {
-  assert.equal(normalizeRepository('OWNER/Repo-ONE'), 'owner/repo-one');
-});
+await test("when a repository name has uppercase characters, normalizes it", () => {
+  // Arrange
+  const repository = "OWNER/Repo-ONE"
 
-await test('rejects a missing resolve reaction', () => {
-  assert.throws(() => parseReaction({}), /requires --reaction \+1 or --reaction -1/u);
-});
+  // Act
+  const normalizedRepository = normalizeRepository(repository)
 
-await test('accepts a rejected-feedback reaction', () => {
-  assert.equal(parseReaction({ reaction: '-1' }), '-1');
-});
+  // Assert
+  assert.equal(normalizedRepository, "owner/repo-one")
+})
+
+await test("when a resolve reaction is missing, rejects it", () => {
+  // Arrange
+  const options = {}
+
+  // Act
+  const parseMissingReaction = () => parseReaction(options)
+
+  // Assert
+  assert.throws(parseMissingReaction, /requires --reaction \+1 or --reaction -1/u)
+})
+
+await test("when feedback is rejected, accepts the rejection reaction", () => {
+  // Arrange
+  const options = { reaction: "-1" }
+
+  // Act
+  const reaction = parseReaction(options)
+
+  // Assert
+  assert.equal(reaction, "-1")
+})
