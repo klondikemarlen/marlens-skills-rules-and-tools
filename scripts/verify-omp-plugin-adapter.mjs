@@ -1,6 +1,6 @@
 import marlensSkillsRulesAndTools from "../omp-plugin/index.ts"
-import { execFileSync } from "node:child_process"
-import { mkdtempSync, rmSync } from "node:fs"
+import { execFileSync, spawnSync } from "node:child_process"
+import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
 
@@ -35,6 +35,18 @@ const pi = createFakePi()
 marlensSkillsRulesAndTools(pi)
 
 const temporaryRepository = mkdtempSync(path.join(os.tmpdir(), "omp-plugin-bin-"))
+
+const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+for (const command of Object.keys(packageJson.bin)) {
+  const result = spawnSync(command, ["--help"], {
+    cwd: temporaryRepository,
+    encoding: "utf8",
+  })
+
+  if (result.error?.code === "ENOENT") {
+    fail(`published command ${command} is unavailable from the OMP adapter PATH`)
+  }
+}
 try {
   execFileSync("git", ["init", "--quiet"], { cwd: temporaryRepository })
   const output = execFileSync("check-commit-scope", [], {
