@@ -43,6 +43,7 @@ Use when creating or updating a pull request.
 - Before creating or updating a GitHub issue or pull request, run `check-title-case --title "<final title>"`; pass exact identifiers with `--preserve`, then re-read the created title through GitHub and run the same final check.
 - Write PR titles in title case. Read the first available title casing reference: local `docs/references/title-casing-reference.md`, then packaged `skill://pull-request-management/title-casing.md`.
 - Keep actionable inline review comments incomplete until the expected `+1`/`-1` reaction and `reviewThread.isResolved: true` have been verified through GitHub.
+- When a corrective branch needs an explicit CI rerun and its workflow supports `workflow_dispatch`, run `gh workflow run <workflow> --ref <branch>`, identify the new run, verify its branch and head SHA match the intended commit, then watch that exact run. Do not report a stale branch run as current evidence.
 - For UI changes, include screenshots or explain why screenshots do not apply.
 - When screenshots are required, use the packaged `../../docs/workflows/upload-pr-screenshots-workflow.md` workflow for upload and PR body formatting.
 - If a project has a local PR template or workflow, follow it over this generic workflow.
