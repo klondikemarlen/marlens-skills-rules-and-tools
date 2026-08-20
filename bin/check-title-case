@@ -1,31 +1,36 @@
 #!/usr/bin/env node
-import process from 'node:process';
+import process from "node:process"
 
-import { isTitleCase } from '../lib/title-case.js';
+import { isTitleCase } from "../lib/title-case.js"
 
-const options = parseOptions(process.argv.slice(2));
-if (options.help || options.title === undefined) usage(options.title === undefined ? 1 : 0);
-if (!isTitleCase(options.title, options.preserve.length > 0 ? { preserve: options.preserve } : undefined)) {
-  console.error(`Title is not title case: ${options.title}`);
-  process.exit(1);
+const options = parseOptions(process.argv.slice(2))
+if (options.help || options.title === undefined) usage(options.title === undefined ? 1 : 0)
+if (
+  !isTitleCase(
+    options.title,
+    options.preserve.length > 0 ? { preserve: options.preserve } : undefined
+  )
+) {
+  console.error(`Title is not title case: ${options.title}`)
+  process.exit(1)
 }
 
-console.log(`Title case OK: ${options.title}`);
+console.log(`Title case OK: ${options.title}`)
 
 function parseOptions(args) {
-  const options = { preserve: [] };
+  const options = { preserve: [] }
   for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg === '--help' || arg === '-h') options.help = true;
-    else if (arg === '--title') options.title = args[++index];
-    else if (arg === '--preserve') options.preserve.push(args[++index]);
-    else usage(1, `Unknown option: ${arg}`);
+    const arg = args[index]
+    if (arg === "--help" || arg === "-h") options.help = true
+    else if (arg === "--title") options.title = args[++index]
+    else if (arg === "--preserve") options.preserve.push(args[++index])
+    else usage(1, `Unknown option: ${arg}`)
   }
-  return options;
+  return options
 }
 
 function usage(exitCode, message) {
-  if (message) console.error(message);
-  console.error('Usage: check-title-case --title TITLE [--preserve EXACT_WORD]');
-  process.exit(exitCode);
+  if (message) console.error(message)
+  console.error("Usage: check-title-case --title TITLE [--preserve EXACT_WORD]")
+  process.exit(exitCode)
 }

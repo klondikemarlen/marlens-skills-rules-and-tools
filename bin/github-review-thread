@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import process from 'node:process';
+import process from "node:process"
 
-import { runCli } from '../lib/github-review-thread/run-cli.js';
+import { runCli } from "../lib/github-review-thread/run-cli.js"
 
-process.exitCode = await runCli(process.argv.slice(2), process.cwd(), process.env);
+process.exitCode = await runCli(process.argv.slice(2), process.cwd(), process.env)
