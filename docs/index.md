@@ -1,12 +1,12 @@
 # Agent Workflows and References
 
-This directory contains reusable, agent-readable workflows, templates, references, and plans.
+This directory contains reusable, agent-readable workflows, templates, references, and plans. Top-level [`examples/`](../examples/) contains concise before/after outcome cases.
 
 ## Important
 
 Directory READMEs under `docs/` are discovery documents. Use them to find relevant workflows, templates, or plans, then read the underlying files directly. The individual workflow/template/plan files are the source of truth for task-specific instructions.
 
-Top-level `skills/` are compatibility entry points. Keep authoritative procedures in `workflows/`, copyable examples in `templates/`, and durable background in `references/`; each skill selects project-local guidance first, then uses its behavior-preserving packaged fallback.
+Top-level `skills/` are compatibility entry points. Keep authoritative procedures in `workflows/`, copyable end-state templates in `templates/`, durable background in `references/`, and evidence cases in top-level [`examples/`](../examples/); each skill selects project-local guidance first, then uses its behavior-preserving packaged fallback.
 
 ## Customization and Precedence
 
@@ -23,7 +23,12 @@ docs/
 ├── templates/   # reusable output/code/document templates
 ├── references/  # durable background guidance
 └── plans/       # implementation or migration plans
+
 ```
+
+## Evidence Examples
+
+Top-level [`examples/`](../examples/) demonstrates the smallest observable difference made by a packaged skill, rule, or tool. Each case names a task, contrasts the unguided and guided approach, explains the boundary, and names its check.
 
 ## Best Practices
 
