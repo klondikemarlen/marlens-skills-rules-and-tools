@@ -5,18 +5,18 @@ Use for Express router wiring.
 ## Template
 
 ```ts
-import { Router } from 'express';
+import { Router } from "express"
 
-import { createProject, getProject, listProjects, updateProject } from './projects.controller';
-import { requireAuth } from '../middleware/require-auth';
+import { createProject, getProject, listProjects, updateProject } from "./projects.controller"
+import { requireAuth } from "../middleware/require-auth"
 
-export const projectsRouter = Router();
+export const projectsRouter = Router()
 
-projectsRouter.use(requireAuth);
-projectsRouter.get('/', listProjects);
-projectsRouter.post('/', createProject);
-projectsRouter.get('/:projectId', getProject);
-projectsRouter.patch('/:projectId', updateProject);
+projectsRouter.use(requireAuth)
+projectsRouter.get("/", listProjects)
+projectsRouter.post("/", createProject)
+projectsRouter.get("/:projectId", getProject)
+projectsRouter.patch("/:projectId", updateProject)
 ```
 
 ## Checklist

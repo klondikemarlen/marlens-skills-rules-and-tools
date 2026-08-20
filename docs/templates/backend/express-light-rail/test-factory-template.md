@@ -5,22 +5,22 @@ Use for minimal valid backend test data. Adapt to the project’s existing facto
 ## Template
 
 ```ts
-let sequence = 0;
+let sequence = 0
 
 export function buildProject(overrides: Partial<ProjectFactoryAttrs> = {}) {
-  sequence += 1;
+  sequence += 1
 
   return {
     name: `Project ${sequence}`,
     ownerId: `user-${sequence}`,
     ...overrides,
-  };
+  }
 }
 
 type ProjectFactoryAttrs = {
-  name: string;
-  ownerId: string;
-};
+  name: string
+  ownerId: string
+}
 ```
 
 ## Checklist

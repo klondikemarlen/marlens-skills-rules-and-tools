@@ -6,12 +6,12 @@ Use for the data-access rail. Keep this ORM-neutral and copy the target project�
 
 ```ts
 export type ProjectRecord = {
-  id: string;
-  name: string;
-  ownerId: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+  id: string
+  name: string
+  ownerId: string
+  createdAt: Date
+  updatedAt: Date
+}
 
 export async function findProjectById(projectId: string) {
   // Use the project’s existing ORM/query-builder/repository convention.
@@ -21,7 +21,7 @@ export async function listProjectsByOwner(ownerId: string, query: unknown) {
   // Apply pagination/filter/order using sibling endpoint helpers.
 }
 
-export async function createProject(attributes: Pick<ProjectRecord, 'name' | 'ownerId'>) {
+export async function createProject(attributes: Pick<ProjectRecord, "name" | "ownerId">) {
   // Use the project’s model/repository create pattern.
 }
 ```

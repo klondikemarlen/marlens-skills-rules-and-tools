@@ -44,15 +44,15 @@ For `default-function-exports`, inspect all tracked TypeScript modules by defaul
 Name the domain policy when it deserves a reusable boundary:
 
 ```ts
-const sourceActivity = source.activity;
+const sourceActivity = source.activity
 
 function normalizeActivity(activity: typeof sourceActivity) {
-  if (activity === 'unlabelled') return '';
+  if (activity === "unlabelled") return ""
 
-  return normalizeNote(activity);
+  return normalizeNote(activity)
 }
 
-const activity = normalizeActivity(sourceActivity);
+const activity = normalizeActivity(sourceActivity)
 ```
 
 This remains advisor or review guidance unless the project defines an objective policy and transformation contract. A verifier for this pattern would need to prove that `"unlabelled"` returns `""`, ordinary values receive `normalizeNote`, and the normalizer is not called for the sentinel. Without that contract, a syntax-only failure would be a false-positive style gate.

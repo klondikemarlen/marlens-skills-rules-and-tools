@@ -1,8 +1,8 @@
 ---
 name: whitespace-matters
-description: 'Before presenting a change as ready, enforce clean-code whitespace defaults and mechanical whitespace checks unless the user explicitly overrides them.'
-condition: 'git (commit|push)|pull request|PR|ready for review|review'
-scope: 'tool:bash'
+description: "Before presenting a change as ready, enforce clean-code whitespace defaults and mechanical whitespace checks unless the user explicitly overrides them."
+condition: "git (commit|push)|pull request|PR|ready for review|review"
+scope: "tool:bash"
 ---
 
 Before presenting a changed file as ready:

@@ -27,20 +27,20 @@ For repeatable uploads, call `github_pr_screenshot_upload_path` and import its r
 
 ```js
 const { uploadPullRequestCommentScreenshots } =
-  await import('<file: URL returned by github_pr_screenshot_upload_path>');
+  await import("<file: URL returned by github_pr_screenshot_upload_path>")
 
 const results = await uploadPullRequestCommentScreenshots({
   page,
-  prUrl: 'https://github.com/owner/repository/pull/123#issue-456',
-  editorSelector: 'textarea',
+  prUrl: "https://github.com/owner/repository/pull/123#issue-456",
+  editorSelector: "textarea",
   fileInputSelector: 'input[type="file"]',
   screenshots: [
     {
-      filePath: '<browser-readable screenshot path>',
-      placeholder: '<!-- screenshot: overview -->',
+      filePath: "<browser-readable screenshot path>",
+      placeholder: "<!-- screenshot: overview -->",
     },
   ],
-});
+})
 ```
 
 Use the installed `file:` URL, not a `raw.githubusercontent.com` URL. It is version-matched to the installed plugin, requires no remote-code fetch, and keeps the browser-runtime API local. Use the lower-level helper below only when the caller needs to control an individual upload or defer PR-body submission.
@@ -49,15 +49,15 @@ Top priority: editing an existing PR body with lots of text. Put explicit screen
 
 ```js
 const { addImageToGitHubMarkdownEditor } =
-  await import('<file: URL returned by github_markdown_image_upload_helper_path>');
+  await import("<file: URL returned by github_markdown_image_upload_helper_path>")
 
 const result = await addImageToGitHubMarkdownEditor({
   page,
-  editorSelector: '<PR body editor selector>',
-  fileInputSelector: '<scoped file input selector>',
-  filePath: '<local screenshot path>',
-  insertAt: '<!-- screenshot placeholder -->',
-});
+  editorSelector: "<PR body editor selector>",
+  fileInputSelector: "<scoped file input selector>",
+  filePath: "<local screenshot path>",
+  insertAt: "<!-- screenshot placeholder -->",
+})
 
 // result.markdown: '<img ... src="https://github.com/user-attachments/assets/..." />'
 // result.attachmentUrl: 'https://github.com/user-attachments/assets/...'

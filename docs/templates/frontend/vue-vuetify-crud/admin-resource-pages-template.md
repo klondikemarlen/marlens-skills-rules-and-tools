@@ -19,7 +19,11 @@ Use this when a Vue 3 + Vuetify admin area needs list, show, and form pages for 
     <v-card-title class="d-flex align-center">
       <span>{ResourceNames}</span>
       <v-spacer />
-      <v-btn color="primary" @click="goTo{ResourceName}NewPage">Add {ResourceName}</v-btn>
+      <v-btn
+        color="primary"
+        @click="goTo{ResourceName}NewPage"
+        >Add {ResourceName}</v-btn
+      >
     </v-card-title>
 
     <v-card-text>
