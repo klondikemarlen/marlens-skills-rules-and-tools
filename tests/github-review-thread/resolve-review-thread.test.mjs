@@ -7,7 +7,10 @@ import { graphqlThreadVerifyQuery } from "../../lib/github-review-thread/graphql
 import { GitHubReviewIntegration } from "../../lib/github-review-thread/github-review-integration.js"
 import { reviewCommentReactionEndpoint } from "../../lib/github-review-thread/review-comment-reaction-endpoint.js"
 
-await test("creates the expected reaction before resolving and verifies both states", async () => {
+await test("when feedback is rejected, creates the reaction before resolving and verifies both states", async () => {
+  // Arrange
+  // Act
+  // Assert
   const restCalls = []
   const graphCalls = []
   const restResponses = [
@@ -119,7 +122,10 @@ await test("creates the expected reaction before resolving and verifies both sta
   )
 })
 
-await test("repairs a missing reaction on an already-resolved thread without resolving twice", async () => {
+await test("when a resolved thread lacks its reaction, repairs it without resolving twice", async () => {
+  // Arrange
+  // Act
+  // Assert
   const restCalls = []
   const graphCalls = []
   const restResponses = [
@@ -187,7 +193,10 @@ await test("repairs a missing reaction on an already-resolved thread without res
   )
 })
 
-await test("rejects completion when the final reaction check is missing", async () => {
+await test("when the final reaction check is missing, rejects completion", async () => {
+  // Arrange
+  // Act
+  // Assert
   const restResponses = [
     { id: 42 },
     [],

@@ -6,7 +6,8 @@ import { graphqlThreadCommentsPageQuery } from "../../lib/github-review-thread/g
 import { graphqlThreadLocatorQuery } from "../../lib/github-review-thread/graphql-thread-locator-query.js"
 import { reviewCommentReplyEndpoint } from "../../lib/github-review-thread/review-comment-reply-endpoint.js"
 
-await test("posts a plain reply body through the GitHub integration", async () => {
+await test("when posting a plain reply body, sends it through the GitHub integration", async () => {
+  // Arrange
   const calls = []
   const callRest = async (method, endpoint, payload) => {
     calls.push({ method, endpoint, payload })
@@ -14,8 +15,10 @@ await test("posts a plain reply body through the GitHub integration", async () =
   }
   const github = new GitHubReviewIntegration("token", { callRest })
 
+  // Act
   await github.replyReviewComment("owner/repo", 456, 123, "Addressed in abc123.\n")
 
+  // Assert
   assert.deepEqual(calls, [
     {
       method: "POST",
@@ -25,7 +28,8 @@ await test("posts a plain reply body through the GitHub integration", async () =
   ])
 })
 
-await test("finds a comment on a later page of a review thread", async () => {
+await test("when a review-thread comment is on a later page, finds it", async () => {
+  // Arrange
   const calls = []
   const responses = [
     {
@@ -69,7 +73,10 @@ await test("finds a comment on a later page of a review thread", async () => {
   }
   const github = new GitHubReviewIntegration("token", { callGraphql })
 
+  // Act
   const result = await github.findThreadByCommentId("owner/repo", 456, 123)
+
+  // Assert
 
   assert.deepEqual(
     {

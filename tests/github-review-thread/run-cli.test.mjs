@@ -8,7 +8,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const bin = path.join(root, "bin/github-review-thread")
 const repository = "klondikemarlen/marlens-skills-rules-and-tools"
 
-await test("rejects an external repository before any dry-run plan", () => {
+await test("when a repository is external, rejects it before any dry-run plan", () => {
+  // Arrange
+  // Act
+  // Assert
   const result = spawnSync(
     process.execPath,
     [
@@ -37,7 +40,10 @@ await test("rejects an external repository before any dry-run plan", () => {
   )
 })
 
-await test("requires the reaction gate in resolve dry runs", () => {
+await test("when resolving in dry-run mode, requires the reaction gate", () => {
+  // Arrange
+  // Act
+  // Assert
   const result = spawnSync(
     process.execPath,
     [bin, "resolve", "--repo", repository, "--pr", "456", "--comment-id", "123", "--dry-run"],
@@ -53,7 +59,10 @@ await test("requires the reaction gate in resolve dry runs", () => {
   )
 })
 
-await test("previews accepted feedback with the final verification operations", () => {
+await test("when feedback is accepted, previews the final verification operations", () => {
+  // Arrange
+  // Act
+  // Assert
   const result = spawnSync(
     process.execPath,
     [
@@ -89,7 +98,10 @@ await test("previews accepted feedback with the final verification operations", 
   )
 })
 
-await test("previews rejected feedback with the matching reaction", () => {
+await test("when feedback is rejected, previews the matching reaction", () => {
+  // Arrange
+  // Act
+  // Assert
   const result = spawnSync(
     process.execPath,
     [

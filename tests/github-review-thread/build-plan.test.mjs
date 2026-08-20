@@ -15,7 +15,9 @@ test.after(async () => {
   await rm(temp, { recursive: true, force: true })
 })
 
-await test("orders resolve dry-run operations around the reaction gate", async () => {
+await test("when resolving in dry-run mode, orders operations around the reaction gate", async () => {
+  // Arrange
+  // Act
   const plan = await buildPlan(
     "resolve",
     "owner/repo",
@@ -25,6 +27,7 @@ await test("orders resolve dry-run operations around the reaction gate", async (
     "repo"
   )
 
+  // Assert
   assert.deepEqual(
     plan.map((step) => step.query ?? step.endpoint),
     [
@@ -40,8 +43,11 @@ await test("orders resolve dry-run operations around the reaction gate", async (
   )
 })
 
-await test("includes literal reply content in a dry-run plan", async () => {
+await test("when a reply body file is provided, includes its literal content in the dry-run plan", async () => {
+  // Arrange
+  // Act
   const plan = await buildPlan("reply", "owner/repo", 123, { pr: 456, bodyFile }, "owner", "repo")
 
+  // Assert
   assert.equal(plan[0].body.body, "Addressed in abc123.\n")
 })
