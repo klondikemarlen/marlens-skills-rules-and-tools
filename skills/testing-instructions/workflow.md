@@ -43,6 +43,7 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 - Do not include credentials, secrets, or local-only state values.
 - If something was not verified, say so explicitly.
 - Use `PASS`, `FAIL`, and `BLOCKED` from `AGENT_RULES.md` when reporting verification outcomes.
+- For asynchronous integration tests, use [Real Async Runtime Barriers in Integration Tests](../../docs/references/engineering-techniques-reference.md#real-async-runtime-barriers-in-integration-tests): name the observable condition and unique marker instead of prescribing a delay.
 
 ## Output Shape
 

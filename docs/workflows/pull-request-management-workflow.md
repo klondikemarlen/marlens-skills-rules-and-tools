@@ -34,6 +34,17 @@ Use when creating or updating a pull request.
 12. Keep the PR `BLOCKED` while repository- or platform-enforced review requirements, review feedback, QA, or required checks are unresolved by default. If the user explicitly requests a waiver, drop, or cleanup instead, follow that disposition, record the missing evidence and do not claim verification that did not occur.
 13. After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default. Wait only for specifically required end-user testing the agent cannot perform. If the user explicitly requests a waiver, drop, or cleanup, record the missing evidence and do not claim the result was verified.
 
+## Stacked Pull Request Merge
+
+Use this only when a pull request is stacked or the ordinary merge endpoint returns the stacked-merge `403`.
+
+1. Re-read the pull request and capture its current head SHA and required merge method.
+2. Submit `PUT /pulls/{number}/merge-async` with that expected head SHA and merge method.
+3. Save the returned operation UUID and poll `/merge-async/{uuid}` to a terminal result; stop if the head changes or the operation fails.
+4. Re-read the pull request, verify its merged state, merge commit, and base branch, then fetch remote refs before branch cleanup.
+
+See [GitHub Asynchronous Merge for PR Stacks](../references/engineering-techniques-reference.md#github-asynchronous-merge-for-pr-stacks) for the safety boundary.
+
 ## Decision Rules
 
 - Preserve existing `Fixes`, `Closes`, or issue-link semantics unless asked to change them.

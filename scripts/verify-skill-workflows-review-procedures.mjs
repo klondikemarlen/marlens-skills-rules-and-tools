@@ -15,6 +15,10 @@ function normalizePullRequestWorkflow(workflow) {
       "`docs/workflows/upload-pr-screenshots-workflow.md` workflow for upload",
       "`docs/workflows/upload-pr-screenshots-workflow.md` for upload"
     )
+    .replace(
+      "../../docs/references/engineering-techniques-reference.md",
+      "../references/engineering-techniques-reference.md"
+    )
 }
 
 export function verifyReviewProcedures({ read, fail }) {
