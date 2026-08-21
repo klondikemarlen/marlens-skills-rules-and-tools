@@ -102,6 +102,18 @@ for (const requiredText of [
   }
 }
 
+for (const requiredText of [
+  "## Complexity Standards",
+  "self-contained solution",
+  "observable contract",
+  "`ceiling:` comment",
+  "observable upgrade trigger",
+]) {
+  if (!alwaysLoadedGuidance.includes(requiredText)) {
+    fail(`AGENTS.md must keep durable complexity guidance with ${requiredText}`)
+  }
+}
+
 if (existsSync(path.join(root, "agents"))) {
   fail("top-level agents/ is reserved for plugin agents; use docs/ for shared guidance")
 }
@@ -779,7 +791,7 @@ for (const [name, workflow] of [
     fail(`${name} must review state names and dependency-local ordering`)
   }
   if (!workflow.includes("Check simplicity")) {
-    fail(`${name} must keep the Ponytail/YAGNI simplicity review step`)
+    fail(`${name} must keep the complexity review step`)
   }
   if (
     !workflow.includes("Flag private helpers that read instance fields") ||
