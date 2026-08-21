@@ -635,6 +635,89 @@ for (const requiredText of [
   }
 }
 
+const engineeringTechniquesReference = read("docs/references/engineering-techniques-reference.md")
+for (const requiredText of [
+  "Evidence Status and Limits",
+  "Established technique",
+  "Upstream limitation",
+  "Speculative extension",
+  "Safe Worktree Cleanup in Dockerized Projects",
+  "Preserve the primary checkout and user-owned untracked files",
+  "GitHub Asynchronous Merge for PR Stacks",
+  "merge-async",
+  "expected head SHA",
+  "Keyed Frontend Request Coalescing",
+  "canonical argument key",
+  "independently owned fulfilled values",
+  "Caller-owned `AbortSignal`",
+  "Real Async Runtime Barriers in Integration Tests",
+  "observable runtime condition",
+  "unique marker per test",
+  "TypeScript Declaration Ownership and Loading",
+  "package-shaped `typeRoots` entries",
+  "lazy runtime entrypoints",
+  "Evidence-Backed Upstream Limitations",
+  "installed dependency source",
+]) {
+  if (!engineeringTechniquesReference.includes(requiredText)) {
+    fail(`engineering techniques reference must document ${requiredText}`)
+  }
+}
+if (!referencesIndex.includes("engineering-techniques-reference.md")) {
+  fail("references index must list the engineering techniques reference")
+}
+for (const [name, workflow, anchor] of [
+  [
+    "feature workflow",
+    read("docs/workflows/feature-workflow.md"),
+    "safe-worktree-cleanup-in-dockerized-projects",
+  ],
+  [
+    "packaged feature workflow",
+    read("skills/feature/workflow.md"),
+    "safe-worktree-cleanup-in-dockerized-projects",
+  ],
+  [
+    "pull request workflow",
+    read("docs/workflows/pull-request-management-workflow.md"),
+    "github-asynchronous-merge-for-pr-stacks",
+  ],
+  [
+    "packaged pull request workflow",
+    read("skills/pull-request-management/workflow.md"),
+    "github-asynchronous-merge-for-pr-stacks",
+  ],
+  [
+    "testing workflow",
+    read("docs/workflows/testing-instructions-workflow.md"),
+    "real-async-runtime-barriers-in-integration-tests",
+  ],
+  [
+    "packaged testing workflow",
+    read("skills/testing-instructions/workflow.md"),
+    "real-async-runtime-barriers-in-integration-tests",
+  ],
+  [
+    "TypeScript workflow",
+    read("docs/workflows/typescript-migration-slice-workflow.md"),
+    "typescript-declaration-ownership-and-loading",
+  ],
+  [
+    "code review workflow",
+    read("docs/workflows/code-review-workflow.md"),
+    "keyed-frontend-request-coalescing",
+  ],
+  [
+    "packaged code review workflow",
+    read("skills/code-review/workflow.md"),
+    "keyed-frontend-request-coalescing",
+  ],
+]) {
+  if (!workflow.includes(`engineering-techniques-reference.md#${anchor}`)) {
+    fail(`${name} must link to its engineering techniques reference section`)
+  }
+}
+
 const codeReviewWorkflow = read("docs/workflows/code-review-workflow.md")
 const codeReviewFallbackWorkflow = read("skills/code-review/workflow.md")
 for (const [name, workflow] of [

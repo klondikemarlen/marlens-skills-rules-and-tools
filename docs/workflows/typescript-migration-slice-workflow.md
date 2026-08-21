@@ -15,6 +15,7 @@ Use when planning and executing one batch of JavaScript-to-TypeScript migration 
 - Read backend/API/model/serializer contracts before inventing frontend types.
 - Preserve runtime behavior first; improve types without changing semantics unless the issue explicitly asks for behavior changes.
 - Remove stale `.js` imports and barrels as part of the same slice.
+- For declaration ownership and runtime-loader checks, use [TypeScript Declaration Ownership and Loading](../references/engineering-techniques-reference.md#typescript-declaration-ownership-and-loading).
 
 ## Slice Template
 

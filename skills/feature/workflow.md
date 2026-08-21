@@ -33,6 +33,18 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - For an artifact whose automatic behavior depends on an OMP advisor, release QA MUST start a fresh OMP process, confirm `/advisor status` shows the named advisor with a resolved model rather than `[no model]`, then trigger one matching failure and observe a standard advisor `blocker` in the primary session before remediation produces `PASS`. A UI notification alone is not correction evidence; unavailable advisor runtime is `BLOCKED`.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
+## Dockerized Worktree Cleanup
+
+Use this procedure only when an agent-owned Dockerized worktree must be removed.
+
+1. Verify the target branch, pull request, worktree owner, and local changes; preserve the primary checkout and user-owned untracked files.
+2. Stop only the target worktree's services through its documented wrapper.
+3. Remove only explicitly allowlisted Docker-owned generated artifacts from inside those project containers.
+4. Run `git worktree remove <path>`. If its metadata disappears but the directory remains, re-check `git worktree list` before treating the directory as orphaned.
+5. Verify the target directory, worktree registry, branch, and primary checkout state afterward.
+
+See [Safe Worktree Cleanup in Dockerized Projects](../../docs/references/engineering-techniques-reference.md#safe-worktree-cleanup-in-dockerized-projects) for ownership and safety boundaries.
+
 ## Requirements Snapshot
 
 For ambiguous or cross-cutting feature work, add a lightweight requirements snapshot to the issue or planning artifact that already owns the work:
