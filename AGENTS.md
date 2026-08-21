@@ -44,15 +44,16 @@
 - Keep project-specific architecture, schema, auth, and formatting rules in the project's local docs.
 - Before reporting a Markdown draft or email edit complete, review user-visible headings and subjects for title case unless an explicit local style guide says otherwise. Preserve exact code identifiers, resource names, commands, and acronyms.
 
-## Ponytail Standards
+## Complexity Standards
 
+- Prefer a self-contained solution whose ownership, state, and failure behavior remain clear to the next developer; do not optimize for line count.
 - Prefer the option that lowers net owned complexity—deletion, reuse, standard library, native platform features, installed dependencies, or a well-maintained library—before writing custom code.
 - Avoid speculative abstractions, boilerplate, scaffolding, and configuration for values that do not vary.
 - When a source file grows across independent responsibility clusters, stop adding behavior until you name the owners, side effects, dependency direction, and smallest cohesive seam; do not split mechanically by line count.
 - Fix bugs at the shared root and check sibling callers before patching one path.
-- Leave the smallest runnable check for non-trivial logic; skip test scaffolding that does not protect behavior.
+- For non-trivial logic, leave a focused runnable check that proves the observable contract; skip test scaffolding that does not protect behavior.
 - When a target repository documents an `npm test` gate, run it for source-file changes; in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when the required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
-- Mark deliberate shortcuts with a `ponytail:` comment that names the ceiling and upgrade path.
+- Document a deliberate limitation only when it informs future work, using a `ceiling:` comment that names the current bound and observable upgrade trigger.
 
 ## Agent Architecture
 

@@ -10,6 +10,7 @@ const examples = [
   "factory-traits-and-service-shape.md",
   "agent-guidance-audit.md",
   "rules-and-verifications.md",
+  "complexity-standards.md",
 ]
 
 function read(relativePath) {
