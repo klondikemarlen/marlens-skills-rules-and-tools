@@ -169,19 +169,25 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   }
 
   const violations = []
+  let inspectedFileCount = 0
   for (const relativePath of files) {
+    let source
     try {
-      const source = readFileSync(path.join(repositoryRoot, relativePath), "utf8")
-      for (const declaration of defaultFunctionDeclarations(source)) {
-        violations.push({ path: relativePath, ...declaration })
-      }
-    } catch {
+      source = readFileSync(path.join(repositoryRoot, relativePath), "utf8")
+    } catch (error) {
+      if (error.code === "ENOENT" || error.code === "ENOTDIR") continue
+
       return result(
         "BLOCKED",
         "A tracked TypeScript module could not be inspected.",
         `Cannot read ${relativePath}.`,
         "Restore the file or its permissions, then run the check again."
       )
+    }
+    inspectedFileCount += 1
+
+    for (const declaration of defaultFunctionDeclarations(source)) {
+      violations.push({ path: relativePath, ...declaration })
     }
   }
 
@@ -203,7 +209,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   return result(
     "PASS",
     "Tracked TypeScript modules use the named-function default-export convention.",
-    `Inspected ${files.length} TypeScript module(s).`,
+    `Inspected ${inspectedFileCount} TypeScript module(s).`,
     "No follow-up check is required."
   )
 }
