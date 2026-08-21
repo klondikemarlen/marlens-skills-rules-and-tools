@@ -1,8 +1,9 @@
 import assert from "node:assert/strict"
 import { execFileSync } from "node:child_process"
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
+
 import { runVerification } from "../verifications/default-function-exports.mjs"
 
 function write(projectDirectory, relativePath, contents) {
@@ -60,6 +61,54 @@ try {
   assert.equal(scopedFailing.status, "FAIL")
   assert.match(scopedFailing.evidence, /src\/request\.ts:1/u)
   assert.doesNotMatch(scopedFailing.evidence, /other\/checked\.ts/u)
+
+  write(
+    projectDirectory,
+    "api/tests/@types/vitest/index.d.ts",
+    "export type VitestContext = unknown\n"
+  )
+  execFileSync("git", ["add", "api/tests/@types/vitest/index.d.ts"], { cwd: projectDirectory })
+  execFileSync(
+    "git",
+    [
+      "-c",
+      "user.email=verification@example.test",
+      "-c",
+      "user.name=Verification",
+      "commit",
+      "--quiet",
+      "-m",
+      "Track deleted verification fixture",
+    ],
+    { cwd: projectDirectory }
+  )
+  rmSync(path.join(projectDirectory, "api/tests/@types/vitest/index.d.ts"))
+  write(projectDirectory, "api/tests/@types/vitest.d.ts", "export type VitestContext = unknown\n")
+
+  const deletedPathScopedPassing = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify([
+      "api/tests/@types/vitest/index.d.ts",
+      "api/tests/@types/vitest.d.ts",
+    ]),
+  })
+  assert.equal(deletedPathScopedPassing.status, "PASS")
+  assert.match(deletedPathScopedPassing.evidence, /Inspected 1 TypeScript module/u)
+
+  rmSync(path.join(projectDirectory, "api/tests/@types/vitest.d.ts"))
+
+  const unreadableRelativePath = "api/tests/@types/unreadable.d.ts"
+  const unreadablePath = path.join(projectDirectory, unreadableRelativePath)
+  mkdirSync(path.join(projectDirectory, "api/tests/@types/unreadable-target"))
+  symlinkSync("unreadable-target", unreadablePath)
+
+  const unreadable = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify([unreadableRelativePath]),
+  })
+  assert.equal(unreadable.status, "BLOCKED")
+  assert.match(unreadable.evidence, /Cannot read api\/tests\/@types\/unreadable\.d\.ts/u)
+
+  rmSync(unreadablePath)
+  rmSync(path.join(projectDirectory, "api/tests/@types/unreadable-target"), { recursive: true })
 
   write(
     projectDirectory,
