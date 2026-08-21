@@ -107,9 +107,13 @@ Co-locate focused unit tests with the pure policy, parser, or small domain opera
 
 ## Project-Root Imports and Paths
 
-Prefer configured project-root imports for dependencies across features or modules when they make the dependency direction clearer than `../../..` traversal. The root must be a project-defined source root or alias that every supported compiler, test runner, bundler, and editor/language server resolves identically.
+Use one project-root import convention for dependencies across features or modules when it makes the dependency direction clearer than `../../..` traversal. Prefer `@/…` when every supported compiler, test runner, bundler, and editor/language server resolve it identically. Keep a short relative import for an immediately co-located sibling when it better expresses that the files form one local unit.
 
-Keep a short relative import for an immediately co-located sibling when it better expresses that the files form one local unit. Use the package name—not a project-root alias—for public package/library imports. Do not use a root import for external, generated, or vendor code. Where the language/toolchain lacks supported project-root resolution, consider adding it when recurring cross-module traversal warrants the setup and every supported environment can resolve the same root; otherwise retain the established local convention.
+When raw Node runs ESM source directly, prefer Node's native `#/…` package-import namespace instead of `@/…`, which Node treats as an external package. Map it through `package.json` `"imports"` as `"#/*": "./*"`, and require Node v24.14.0 or later, which supports `#/` subpath imports. If a supported Node version cannot use `#/…`, use a documented valid named `#` namespace or the established compatible convention.
+
+When a directory such as `tests` is a sibling of the source root, give it an explicit root-alias mapping instead of implying that it lives under source. With `@` mapped to `src`, map `@/tests` to `tests`; with Node's package-root import map, use `#/tests/…`.
+
+Use the package name—not a project-root alias—for public package/library imports. Do not use a root import for external, generated, or vendor code. Where the language/toolchain lacks supported project-root resolution, consider adding it when recurring cross-module traversal warrants the setup and every supported environment can resolve the same root; otherwise retain the established local convention.
 
 For runtime file paths, define one application/source root and derive paths from it instead of traversing from each caller. In Ruby/Rails, use framework-managed autoloaded constants instead of relative `require` traversal, and use `Rails.root.join` for application-root file paths. Do not treat a runtime path constant as module-resolution configuration: each environment still needs its own supported import resolver.
 
