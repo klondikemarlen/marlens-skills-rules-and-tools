@@ -53,5 +53,5 @@ Prefer an existing upstream issue over filing a duplicate. A private field, a pr
 ## Sources
 
 - [Issue #390](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/390) — curated cross-project evidence and acceptance boundary.
-- [WRAP PR #583: Workflow Search Cancellation](https://github.com/icefoganalytics/wrap/pull/583) — worktree cleanup, asynchronous merge, request coalescing, runtime barriers, and declaration-loading evidence.
+- [WRAP PR #583: Workflow Search Cancellation](https://github.com/icefoganalytics/wrap/pull/583) — request-coalescing review, runtime-barrier test, and declaration-loading evidence.
 - [Sequelize issue #14247](https://github.com/sequelize/sequelize/issues/14247) — current query-cancellation limitation context.
