@@ -20,7 +20,7 @@ Use the target project's documented wrapper to stop only services belonging to t
 
 First detect a stacked pull request or the standard merge endpoint's stacked-merge `403`; ordinary pull requests use the normal merge path.
 
-For the asynchronous path, submit `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async` with the current expected head SHA and requested merge method. A `pending` or `enqueued` result carries `details.uuid`; poll `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}` to a terminal result, and stop on an unexpected head change or failed operation.
+For the asynchronous path, submit `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async` with the current expected head SHA and requested merge method. A `pending` or `enqueued` result carries `details.uuid`; poll `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}` to a terminal result with a bounded timeout, and stop on an unexpected head change or failed operation.
 
 After a successful operation, re-read the pull request and verify its merged state, merge commit, base branch, and fetched remote refs before deleting an agent-owned branch.
 

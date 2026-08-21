@@ -134,6 +134,8 @@ export function verifyReviewProcedures({ read, fail }) {
         "enqueued",
         "merged",
         "failed",
+        "max_attempts=60",
+        "Last response",
       ],
       (requiredText) =>
         `${name} must provide executable asynchronous stacked-merge guidance: ${requiredText}`,

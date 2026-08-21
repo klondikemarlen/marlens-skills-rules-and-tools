@@ -51,20 +51,31 @@ Use this only when a pull request is stacked or the ordinary merge endpoint retu
      -f merge_method="$method" \
      -f merge_action=default)"
    status="$(jq -r .status <<<"$result")"
+   attempts=0
+   max_attempts=60
 
    if [ "$status" = pending ] || [ "$status" = enqueued ]; then
      uuid="$(jq -r .details.uuid <<<"$result")"
      while [ "$status" = pending ] || [ "$status" = enqueued ]; do
+       [ "$attempts" -lt "$max_attempts" ] || break
        sleep 2
        result="$(gh api "repos/$repo/pulls/$number/merge-async/$uuid")"
        status="$(jq -r .status <<<"$result")"
+       attempts=$((attempts + 1))
      done
    fi
 
-   [ "$status" = merged ] || {
-     jq -r '.details.message // "Asynchronous merge failed."' <<<"$result"
-     false
-   }
+   case "$status" in
+     merged) ;;
+     failed)
+       printf 'Asynchronous merge failed after %s polls. Last response:\n%s\n' "$attempts" "$result" >&2
+       false
+       ;;
+     *)
+       printf 'Asynchronous merge ended as %s after %s polls. Last response:\n%s\n' "$status" "$attempts" "$result" >&2
+       false
+       ;;
+   esac
    ```
 
 3. Re-read the pull request, verify its merged state, merge commit, and base branch, then fetch remote refs before branch cleanup.
