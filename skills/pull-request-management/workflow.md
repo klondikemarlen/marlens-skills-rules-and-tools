@@ -40,9 +40,46 @@ Use when creating or updating a pull request.
 Use this only when a pull request is stacked or the ordinary merge endpoint returns the stacked-merge `403`.
 
 1. Re-read the pull request and capture its current head SHA and required merge method.
-2. Submit `PUT /pulls/{number}/merge-async` with that expected head SHA and merge method.
-3. Save the returned operation UUID and poll `/merge-async/{uuid}` to a terminal result; stop if the head changes or the operation fails.
-4. Re-read the pull request, verify its merged state, merge commit, and base branch, then fetch remote refs before branch cleanup.
+2. Use this authenticated `gh` and `jq` procedure; replace the uppercase values and select the repository's required merge method.
+
+   ```bash
+   repo=OWNER/REPO
+   number=PULL_NUMBER
+   method=merge
+   head_sha="$(gh pr view "$number" --repo "$repo" --json headRefOid --jq .headRefOid)"
+   result="$(gh api --method PUT "repos/$repo/pulls/$number/merge-async" \
+     -f sha="$head_sha" \
+     -f merge_method="$method" \
+     -f merge_action=default)"
+   status="$(jq -r .status <<<"$result")"
+   attempts=0
+   max_attempts=60
+
+   if [ "$status" = pending ] || [ "$status" = enqueued ]; then
+     uuid="$(jq -r .details.uuid <<<"$result")"
+     while [ "$status" = pending ] || [ "$status" = enqueued ]; do
+       [ "$attempts" -lt "$max_attempts" ] || break
+       sleep 2
+       result="$(gh api "repos/$repo/pulls/$number/merge-async/$uuid")"
+       status="$(jq -r .status <<<"$result")"
+       attempts=$((attempts + 1))
+     done
+   fi
+
+   case "$status" in
+     merged) ;;
+     failed)
+       printf 'Asynchronous merge failed after %s polls. Last response:\n%s\n' "$attempts" "$result" >&2
+       false
+       ;;
+     *)
+       printf 'Asynchronous merge ended as %s after %s polls. Last response:\n%s\n' "$status" "$attempts" "$result" >&2
+       false
+       ;;
+   esac
+   ```
+
+3. Re-read the pull request, verify its merged state, merge commit, and base branch, then fetch remote refs before branch cleanup.
 
 See [GitHub Asynchronous Merge for PR Stacks](../../docs/references/engineering-techniques-reference.md#github-asynchronous-merge-for-pr-stacks) for the safety boundary.
 
