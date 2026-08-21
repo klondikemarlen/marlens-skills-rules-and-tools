@@ -121,6 +121,25 @@ export function verifyReviewProcedures({ read, fail }) {
       (requiredText) => `${name} must require ${requiredText}`,
       fail
     )
+    requireEvery(
+      workflow,
+      [
+        "gh api --method PUT",
+        "pulls/$number/merge-async",
+        '-f sha="$head_sha"',
+        '-f merge_method="$method"',
+        "-f merge_action=default",
+        "details.uuid",
+        "pending",
+        "enqueued",
+        "merged",
+        "failed",
+      ],
+      (requiredText) =>
+        `${name} must provide executable asynchronous stacked-merge guidance: ${requiredText}`,
+      fail
+    )
+
     if (workflow.includes("Keep the PR `BLOCKED` and do not merge while")) {
       fail(`${name} must not impose an unconditional blocked merge gate`)
     }
