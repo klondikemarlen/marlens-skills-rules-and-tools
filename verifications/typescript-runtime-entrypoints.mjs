@@ -174,11 +174,13 @@ function configuredEntrypoints(repositoryRoot) {
         typeof declaration === "object" &&
         typeof declaration.path === "string" &&
         isProjectRelativePath(repositoryRoot, declaration.path) &&
-        (declaration.kind === "global" || declaration.kind === "local")
+        (declaration.kind === "global" ||
+          declaration.kind === "local" ||
+          declaration.kind === "ambient")
     )
   ) {
     throw new Error(
-      `${CONFIGURATION_KEY}.declarations entries must name a path and kind of global or local.`
+      `${CONFIGURATION_KEY}.declarations entries must name a path and kind of global, local, or ambient.`
     )
   }
   if (
@@ -301,7 +303,9 @@ function declarationEvidence(declarations) {
     .map((declaration) =>
       declaration.kind === "global"
         ? `${declaration.path} is a package-shaped global declaration.`
-        : `${declaration.path} is configured as local; keep it as an imported local/intersection type.`
+        : declaration.kind === "ambient"
+          ? `${declaration.path} is an ambient include declaration.`
+          : `${declaration.path} is configured as local; keep it as an imported local/intersection type.`
     )
     .join(" ")
 }
@@ -374,6 +378,9 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   const globalDeclarations = configured.declarations.filter(
     (declaration) => declaration.kind === "global"
   )
+  const ambientDeclarations = configured.declarations.filter(
+    (declaration) => declaration.kind === "ambient"
+  )
   if (globalDeclarations.length > 0) {
     let typeRoots
     try {
@@ -431,6 +438,15 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
         configured.timeoutMs,
         environment
       )
+      if (fullTypecheck.success && ambientDeclarations.length > 0) {
+        return result(
+          "FAIL",
+          "Lazy TypeScript runtime compilation misses ambient include declarations.",
+          `${entrypoint.name ?? command[0]} failed while the configured full type-check passed. ${declarationEvidence(ambientDeclarations)} Runtime output: ${commandResult.output}`,
+          "Move the shared declaration to a package-shaped typeRoots entry or replace it with an imported local/intersection type."
+        )
+      }
+
       if (fullTypecheck.success && globalDeclarations.length > 0) {
         return result(
           "FAIL",
