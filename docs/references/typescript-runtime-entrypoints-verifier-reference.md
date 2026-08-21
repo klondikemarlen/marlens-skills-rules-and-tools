@@ -42,6 +42,8 @@ A `local` declaration is an imported local or intersection type owned by its mod
 
 When a configured runtime command fails while `fullTypecheck` passes, the verifier reports the package-shaped global declaration as a likely lazy-runtime loading mismatch. A side-effect import that only forces a configured declaration to load fails as a likely workaround.
 
+Use `kind: "ambient"` only to diagnose a legacy declaration included by full-project `tsc` but missed by the lazy runtime. A runtime failure with a passing `fullTypecheck` reports that mismatch; correct it by using one of the global or local ownership forms above.
+
 ## Scope and Limits
 
 - The verifier invokes only package-owned `.mjs` code and argv arrays beginning with tracked project wrappers.
