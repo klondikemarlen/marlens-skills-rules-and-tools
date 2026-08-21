@@ -23,6 +23,7 @@ A verification must declare a concrete input scope, fail condition, evidence, an
 | `use-dev-wrapper-for-development-compose`         | Rule         | Wrapper availability and command intent require repository context.                 |
 | `no-oversized-source-files`                       | Verification | Tracked source paths and line ceilings are deterministic.                           |
 | `default-function-exports`                        | Verification | TypeScript paths are checked by default; projects may explicitly opt out.           |
+| `typescript-runtime-entrypoints`                  | Verification | Finite runtime compiler commands expose lazy declaration-loading mismatches.        |
 | `test-alignment`                                  | Verification | Changed tests can be checked against defined baseline and local rules.              |
 
 ## Default-Enabled Package Policies

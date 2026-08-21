@@ -16,6 +16,7 @@ Use when planning and executing one batch of JavaScript-to-TypeScript migration 
 - Preserve runtime behavior first; improve types without changing semantics unless the issue explicitly asks for behavior changes.
 - Remove stale `.js` imports and barrels as part of the same slice.
 - For declaration ownership and runtime-loader checks, use [TypeScript Declaration Ownership and Loading](../references/engineering-techniques-reference.md#typescript-declaration-ownership-and-loading).
+- For finite lazy-runtime compilation and declaration ownership verification, use [TypeScript Runtime Entrypoints Verifier](../references/typescript-runtime-entrypoints-verifier-reference.md).
 
 ## Slice Template
 

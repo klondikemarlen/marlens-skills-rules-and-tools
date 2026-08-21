@@ -50,6 +50,12 @@ assert.deepEqual(defaultFunctionExportsVerification?.pathTriggers, [
   "**/*.cts",
   "**/*.mts",
 ])
+const typescriptRuntimeEntrypointsVerification = verifications.find(
+  (verification) => verification.id === "marlens-rules:typescript-runtime-entrypoints"
+)
+assert.equal(typescriptRuntimeEntrypointsVerification?.timeoutMs, 60000)
+assert.ok(typescriptRuntimeEntrypointsVerification?.pathTriggers.includes("package.json"))
+assert.ok(typescriptRuntimeEntrypointsVerification?.pathTriggers.includes("**/*.ts"))
 
 function createGitProject() {
   const projectDirectory = mkdtempSync(path.join(os.tmpdir(), "marlens-verification-"))
