@@ -43,6 +43,7 @@ Top-level [`examples/`](../examples/) demonstrates the smallest observable diffe
 ## Workflow Entry Points
 
 - Session insight mining: [`workflows/session-insight-mining-workflow.md`](workflows/session-insight-mining-workflow.md)
+- Worktree creation: [`workflows/worktree-creation-workflow.md`](workflows/worktree-creation-workflow.md)
 
 ## Agent-Specific Documents
 

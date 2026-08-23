@@ -18,11 +18,11 @@ Use direct install instead of the marketplace flow when you want both the packag
 
 Routine OMP installs use the generic GitHub reference and follow the repository's default branch. An exact full-commit reference with `--force` is exceptional: use it only to reproduce an exact artifact or diagnose stale plugin-cache state. See [`docs/references/omp-plugin-install-reference.md`](docs/references/omp-plugin-install-reference.md).
 
-This installs task-oriented OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, session insight mining, temporary MCP tasks, and testing instructions. Invoke a skill when its task applies; skills and workflows do not attach to unrelated turns.
+This installs task-oriented OMP skill prompts for browser QA, code review, commits, Express Light Rail backend work, feature workflow, hands-off agentic coding, layered page orchestration, Node Express API compatibility, rebases, learning, pull request management, release notes, self-improvement, session insight mining, temporary MCP tasks, testing instructions, and worktree creation. Invoke a skill when its task applies; skills and workflows do not attach to unrelated turns.
 
 Every reusable OMP rule in [`rules/`](rules/) loads by default through OMP plugin discovery. Project and user rules can override a package rule by reusing its name or extend it with a new name; see [local customization](#local-customization).
 
-This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper and `bin/agent-rebase-edit.js` remain available for project-local shims and scripted history edits.
+This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper, `bin/agent-rebase-edit.js`, and `bin/agent-worktree.js` remain available for project-local shims and scripted Git worktree setup.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
