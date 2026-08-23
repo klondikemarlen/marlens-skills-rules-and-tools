@@ -5,9 +5,10 @@ import {
   constants as fsConstants,
   copyFileSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
-  statSync,
+  realpathSync,
 } from "node:fs"
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path"
 import process from "node:process"
@@ -129,6 +130,7 @@ function parseCopyPaths(repositoryRoot) {
 }
 
 function resolveCopyFiles(repositoryRoot, copyPaths, baseCommit) {
+  const realRepositoryRoot = realpathSync(repositoryRoot)
   return copyPaths.flatMap((copyPath) => {
     const sourcePath = resolve(repositoryRoot, copyPath)
     const sourceRelativePath = relative(repositoryRoot, sourcePath)
@@ -145,8 +147,23 @@ function resolveCopyFiles(repositoryRoot, copyPaths, baseCommit) {
 
     if (!existsSync(sourcePath)) return []
 
-    if (!statSync(sourcePath).isFile()) {
+    if (lstatSync(sourcePath).isSymbolicLink()) {
+      throw new Error(`Copy paths must not be symbolic links: ${copyPath}`)
+    }
+
+    if (!lstatSync(sourcePath).isFile()) {
       throw new Error(`Copy paths must name files: ${copyPath}`)
+    }
+
+    const realSourcePath = realpathSync(sourcePath)
+    const realSourceRelativePath = relative(realRepositoryRoot, realSourcePath)
+    if (
+      !realSourceRelativePath ||
+      realSourceRelativePath === ".." ||
+      realSourceRelativePath.startsWith(`..${sep}`) ||
+      isAbsolute(realSourceRelativePath)
+    ) {
+      throw new Error(`Copy paths must resolve inside the repository: ${copyPath}`)
     }
 
     const existsInBase = runGit(["ls-tree", "--name-only", baseCommit, "--", sourceRelativePath], {

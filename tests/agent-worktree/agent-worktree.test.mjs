@@ -7,6 +7,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs"
 import { tmpdir } from "node:os"
@@ -106,6 +107,47 @@ test("when local environment configuration is present, creates a conventional wo
     )
     assert.equal(existsSync(path.join(worktreePath, ".env")), false)
     assert.equal(readFileSync(direnvMarker, "utf8"), worktreePath)
+  })
+})
+
+test("when .envrc is a symlink, rejects it before creating a worktree", () => {
+  withRepository(({ repository, temporaryDirectory }) => {
+    // Arrange
+    const externalEnvrc = path.join(temporaryDirectory, "external-envrc")
+    const worktreePath = path.join(temporaryDirectory, "wrap-worktrees", "symlinked-envrc")
+    writeFileSync(externalEnvrc, "export EXTERNAL=1\n")
+    symlinkSync(externalEnvrc, path.join(repository, ".envrc"))
+
+    // Act
+    const result = runCommand(repository, ["symlinked-envrc"])
+
+    // Assert
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /Copy paths must not be symbolic links/)
+    assert.equal(existsSync(worktreePath), false)
+  })
+})
+
+test("when a configured path crosses a symlinked directory, rejects it before copying", () => {
+  withRepository(({ repository, temporaryDirectory }) => {
+    // Arrange
+    const externalDirectory = path.join(temporaryDirectory, "external")
+    const worktreePath = path.join(temporaryDirectory, "wrap-worktrees", "symlinked-directory")
+    mkdirSync(externalDirectory)
+    writeFileSync(path.join(externalDirectory, "development.env"), "EXTERNAL=1\n")
+    symlinkSync(externalDirectory, path.join(repository, "linked-local"))
+    writeFileSync(
+      path.join(repository, ".agent-worktree.json"),
+      JSON.stringify({ copy: ["linked-local/development.env"] })
+    )
+
+    // Act
+    const result = runCommand(repository, ["symlinked-directory"])
+
+    // Assert
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /Copy paths must resolve inside the repository/)
+    assert.equal(existsSync(worktreePath), false)
   })
 })
 
