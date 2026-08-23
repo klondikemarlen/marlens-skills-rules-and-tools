@@ -130,6 +130,32 @@ test("when branch options are provided, preserves the conventional worktree layo
   })
 })
 
+test("when a worktree name is a single dot, rejects it before creating a worktree", () => {
+  withRepository(({ repository }) => {
+    // Arrange
+
+    // Act
+    const result = runCommand(repository, ["."])
+
+    // Assert
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /Worktree names must be a single path segment/)
+  })
+})
+
+test("when a worktree name is a double dot, rejects it before creating a worktree", () => {
+  withRepository(({ repository }) => {
+    // Arrange
+
+    // Act
+    const result = runCommand(repository, [".."])
+
+    // Assert
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /Worktree names must be a single path segment/)
+  })
+})
+
 test("when a worktree name escapes its path segment, rejects it before creating a worktree", () => {
   withRepository(({ repository }) => {
     // Arrange

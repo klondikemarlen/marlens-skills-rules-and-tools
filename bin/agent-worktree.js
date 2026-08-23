@@ -73,7 +73,7 @@ function parseArgs(args) {
 }
 
 function validateWorktreeName(name) {
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) {
+  if (name === "." || name === ".." || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) {
     throw new Error(
       "Worktree names must be a single path segment containing letters, numbers, dots, underscores, or hyphens."
     )
@@ -232,10 +232,10 @@ function createWorktree(options) {
   const records = worktreeRecords(repositoryRoot)
   const primaryWorktree = findPrimaryWorktree(records)
   const worktreeRoot = join(dirname(primaryWorktree), `${basename(primaryWorktree)}-worktrees`)
-  const worktreePath = resolve(worktreeRoot, options.name)
 
   validateWorktreeName(options.name)
 
+  const worktreePath = resolve(worktreeRoot, options.name)
   if (existingWorktree(records, worktreePath, options.branch)) return worktreePath
   if (existsSync(worktreePath)) throw new Error(`Worktree path already exists: ${worktreePath}`)
 
