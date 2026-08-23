@@ -53,7 +53,7 @@ It deliberately does not copy `.env`, `.env.development`, or other secret-bearin
 }
 ```
 
-Each configured path must resolve inside the repository and name a file. Missing files are skipped. Files already present in the selected base commit are not overwritten.
+Each configured path must resolve inside the repository and name a regular file. Direct symbolic links and paths whose resolved target leaves the repository are rejected. Missing files are skipped. Files already present in the selected base commit are not overwritten.
 
 Do not add `.envrc.example`; environment and token setup remain local unless a user explicitly requests a versioned example file.
 
