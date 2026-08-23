@@ -8,17 +8,21 @@ Create an issue worktree without guessing its layout or forgetting the repositor
 
 ## Command
 
-From any directory in the repository, run:
+From any directory in the target repository, resolve the installed package binary and run:
 
 ```bash
-if worktree_path=$(agent-worktree wrapx-243); then
+agent_rebase_edit=$(command -v agent-rebase-edit) || exit 1
+agent_worktree="$(dirname "$agent_rebase_edit")/agent-worktree"
+[ -x "$agent_worktree" ] || exit 1
+
+if worktree_path=$("$agent_worktree" wrapx-243); then
   cd "$worktree_path"
 else
   exit 1
 fi
 ```
 
-The command prints only the absolute worktree path to standard output. It writes diagnostics to standard error so the guarded `cd` is safe.
+The resolved executable keeps the target repository as its current directory. It prints only the absolute worktree path to standard output and writes diagnostics to standard error, so the guarded `cd` is safe.
 
 For primary checkout `./wrap`, the default result is:
 
@@ -29,7 +33,10 @@ For primary checkout `./wrap`, the default result is:
 It creates branch `wrapx-243` from the current `HEAD`. A project with a different branch convention can supply it explicitly:
 
 ```bash
-agent-worktree wrapx-243 --branch issue/243-wrap --base origin/main
+agent_rebase_edit=$(command -v agent-rebase-edit) || exit 1
+agent_worktree="$(dirname "$agent_rebase_edit")/agent-worktree"
+[ -x "$agent_worktree" ] || exit 1
+"$agent_worktree" wrapx-243 --branch issue/243-wrap --base origin/main
 ```
 
 The worktree name must be one safe path segment. The command refuses existing paths and branches rather than overwriting user data. Re-running it for the same registered path and branch returns that path.
