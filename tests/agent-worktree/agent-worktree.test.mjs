@@ -109,6 +109,29 @@ test("when local environment configuration is present, creates a conventional wo
   })
 })
 
+test("when the requested branch worktree already exists, returns its path", () => {
+  withRepository(({ repository, temporaryDirectory }) => {
+    // Arrange
+    const worktreePath = path.join(temporaryDirectory, "wrap-worktrees", "wrapx-244")
+
+    // Act
+    const created = runCommand(repository, ["wrapx-244"])
+    const reused = runCommand(repository, ["wrapx-244"])
+
+    // Assert
+    assert.deepEqual(
+      {
+        created: { status: created.status, stdout: created.stdout, stderr: created.stderr },
+        reused: { status: reused.status, stdout: reused.stdout, stderr: reused.stderr },
+      },
+      {
+        created: { status: 0, stdout: `${worktreePath}\n`, stderr: "" },
+        reused: { status: 0, stdout: `${worktreePath}\n`, stderr: "" },
+      }
+    )
+  })
+})
+
 test("when branch options are provided, preserves the conventional worktree layout", () => {
   withRepository(({ repository, temporaryDirectory }) => {
     // Arrange
