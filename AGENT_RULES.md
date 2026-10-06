@@ -42,7 +42,7 @@ durable prefix patterns over one-off command strings.
 
 ### Evidence-First Verification
 
-Start from Gold before judging implementation quality: name the behavior, invariant, or regression risk that the work must prove.
+Start from the success condition before judging implementation quality: name the behavior, invariant, or regression risk that the work must prove.
 
 Report verification outcomes with this vocabulary:
 

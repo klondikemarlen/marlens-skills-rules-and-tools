@@ -10,11 +10,11 @@ Use when a request has a material design choice and needs a bounded implementati
 
 **Decision Rules:**
 
-- Start from the user-visible Gold or invariant, not from a preferred implementation.
+- Start from the user-visible success condition or invariant, not from a preferred implementation.
 - Treat non-goals and constraints as binding boundaries.
 - Validate examples and counter-examples before choosing an interface.
 - Read project-local guidance and existing patterns before selecting package assets or tools.
-- Prefer the smallest existing workflow, rule, skill, or template that can satisfy the Gold.
+- Prefer the smallest existing workflow, rule, skill, or template that can satisfy the success condition.
 - Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
 - Stop planning when the residual risk is named and the next implementation step is runnable.
 
@@ -23,7 +23,7 @@ Use when a request has a material design choice and needs a bounded implementati
 Capture these before planning:
 
 - **User story:** who needs what and why.
-- **Gold:** the observable end state or invariant that proves success.
+- **Success condition:** the observable end state or invariant that proves success.
 - **Non-goals:** explicitly excluded behavior, integrations, and abstractions.
 - **Constraints:** repository rules, compatibility, security, ownership, and release boundaries.
 
@@ -61,7 +61,7 @@ Choose the smallest applicable set from:
 - `rules/` for reusable always-on constraints.
 - Existing hands-off, self-improvement, testing, and feature workflows for cross-links.
 
-Do not add runtime orchestration when guidance assets satisfy the Gold.
+Do not add runtime orchestration when guidance assets satisfy the success condition.
 
 ### 5. Bound the Interface
 
@@ -71,7 +71,7 @@ Prefer a simple, predictable interface. Name the public inputs, outputs, and sto
 
 Repeat the fit check and pattern alignment after each design change. Stop when either:
 
-- the Gold is covered by examples and a runnable verification gate, and residual risk is named; or
+- the success condition is covered by examples and a runnable verification gate, and residual risk is named; or
 - the remaining uncertainty requires an implementation experiment rather than more planning.
 
 Do not continue planning solely to remove all uncertainty.
@@ -79,10 +79,10 @@ Do not continue planning solely to remove all uncertainty.
 ## Output Contract
 
 ```text
-Purpose: <user-visible outcome and Gold>
+Purpose: <user-visible outcome and success condition>
 Constraints: <non-goals, compatibility, security, ownership, release boundaries>
 Decision matrix:
-| Option | Gold fit | Complexity | Existing pattern | Decision |
+| Option | Success condition fit | Complexity | Existing pattern | Decision |
 |---|---|---|---|---|
 Chosen tools/rules: <skills, workflows, references, templates, rules, and why>
 Verification gate: <smallest runnable proof>
@@ -97,7 +97,7 @@ Residual risk: <named remaining risk or none>
 
 ## Verification Checklist
 
-- Gold is observable and not an implementation preference.
+- The success condition is observable and not an implementation preference.
 - At least one good, bad, and ambiguous example was fit-checked.
 - Local guidance and sibling patterns were read before adding assets.
 - Non-goals and complexity ceiling are explicit.

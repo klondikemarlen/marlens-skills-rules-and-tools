@@ -10,7 +10,7 @@ export function verifyDesignWorkflows(read, fail) {
     ["outcome-first-planning reference", outcomeFirstPlanningReference],
     ["outcome-first plan template", outcomeFirstPlanningTemplate],
   ]) {
-    for (const requiredText of ["Gold", "counter-example", "complexity", "residual risk"]) {
+    for (const requiredText of ["Success condition", "counter-example", "complexity", "residual risk"]) {
       if (!content.toLowerCase().includes(requiredText.toLowerCase())) {
         fail(`${name} must include ${requiredText}`)
       }
@@ -112,6 +112,8 @@ export function verifyDesignWorkflows(read, fail) {
       "Next action:",
       "Tura's documented task-status",
       "in this package that gate includes `node scripts/verify-oversized-source-files.mjs`",
+      "first runnable prototype",
+      "ordinary test failures are iteration, not a new plan",
     ]) {
       if (!workflow.includes(requiredText)) {
         fail(`${name} must include ${requiredText}`)

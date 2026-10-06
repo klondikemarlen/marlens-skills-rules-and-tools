@@ -37,7 +37,7 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 
 ```text
 Purpose: <target role and public boundary>
-Gold: <observable invariant or risk removed>
+Success condition: <observable invariant or risk removed>
 Evidence: <audit/check and exact result>
 Findings:
 - <evidence> -> <classification> -> <owner/action>

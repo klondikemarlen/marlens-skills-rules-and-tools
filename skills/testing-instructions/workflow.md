@@ -7,7 +7,7 @@ Use when writing or updating pull request testing instructions.
 1. Read the PR body, diff, and any existing testing section.
 2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs.
 3. Identify behavior a reviewer can actually verify.
-4. Start from Gold: name the behavior, invariant, or regression risk each scenario must prove.
+4. Start from the success condition: name the behavior, invariant, or regression risk each scenario must prove.
 5. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
 6. Write steps in the order a reviewer should perform them.
 7. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter.
@@ -15,7 +15,7 @@ Use when writing or updating pull request testing instructions.
 
 ## Evidence Ownership
 
-Choose the smallest owning evidence layer that can prove the Gold. Move outward only when the changed behavior crosses a boundary.
+Choose the smallest owning evidence layer that can prove the success condition. Move outward only when the changed behavior crosses a boundary.
 
 | Change surface                                | Primary evidence                                                                                                            |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |

@@ -898,7 +898,7 @@ for (const [name, workflow] of [
     )
   }
   for (const requiredText of [
-    "Start from Gold",
+    "Start from the success condition",
     "Flag cramped adjacent sibling logical blocks",
     "Report evidence-sensitive checks as `PASS`, `FAIL`, or `BLOCKED`",
   ]) {

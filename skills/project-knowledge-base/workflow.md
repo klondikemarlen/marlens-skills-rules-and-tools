@@ -16,7 +16,7 @@ It produces a project-local docs entry point, only the knowledge sections with c
 
 ## Process
 
-1. State the reader problem, Gold, non-goals, audiences, and whether publication is in scope.
+1. State the reader problem, success condition, non-goals, audiences, and whether publication is in scope.
 2. Read existing docs and nearby code guidance. Classify relevant information as domain, product, architecture, decision, QA scenario, task workflow, template, reference, plan, or implementation-local detail.
 3. Add a root `docs/README.md` or `docs/index.md` discovery entry point and only the sections with current readers. Do not create empty directories or impose a fixed tree.
 4. Keep durable project knowledge in sections such as `docs/domain/`, `docs/product/`, `docs/architecture/`, `docs/decisions/`, and `docs/qa-scenarios/`. Keep task procedures, reusable shapes, background guidance, and plans in `docs/workflows/`, `docs/templates/`, `docs/references/`, and `docs/plans/`.
@@ -30,7 +30,7 @@ It produces a project-local docs entry point, only the knowledge sections with c
 
 ```text
 Purpose: <knowledge gap and intended readers>
-Gold: <what a reader can now find and trust>
+Success condition: <what a reader can now find and trust>
 Sections: <created or retained docs sections and why>
 Authority: <domain/product, code, and QA/test sources>
 Publication boundary: <repository visibility and explicit documentation-site policy>

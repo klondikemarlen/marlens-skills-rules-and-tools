@@ -27,7 +27,7 @@ Use when establishing or materially revising a repository-local `docs/` knowledg
 
 ## Process
 
-1. **Frame the outcome.** State which readers cannot currently find which durable knowledge. Name the Gold, non-goals, audiences, and whether the work is documentation-only or includes a future publication decision.
+1. **Frame the outcome.** State which readers cannot currently find which durable knowledge. Name the success condition, non-goals, audiences, and whether the work is documentation-only or includes a future publication decision.
 2. **Inventory before organizing.** Read existing docs and the nearest source-adjacent guidance. Classify each relevant item as domain, product, architecture, decision, QA scenario, task workflow, template, reference, plan, or implementation-local detail. Preserve a project convention that already serves the same role.
 3. **Choose only needed sections.** Use the vocabulary in [`project-knowledge-base-reference.md`](../references/project-knowledge-base-reference.md) to select sections with a current reader. Add a root `docs/README.md` or `docs/index.md` discovery entry point using [`project-knowledge-base-template.md`](../templates/project-knowledge-base-template.md); remove template rows for unused sections.
 4. **Write authority boundaries.** Identify the source for each class of claim: domain/product documentation for intent, code for current behavior, and tests or QA scenarios for observed evidence. A code/document mismatch becomes a cited finding with an owner and a decision request.
@@ -40,7 +40,7 @@ Use when establishing or materially revising a repository-local `docs/` knowledg
 
 ```text
 Purpose: <knowledge gap and intended readers>
-Gold: <what a reader can now find and trust>
+Success condition: <what a reader can now find and trust>
 Sections: <created or retained docs sections and why>
 Authority: <domain/product, code, and QA/test sources>
 Publication boundary: <repository visibility and explicit documentation-site policy>

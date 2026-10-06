@@ -4,14 +4,14 @@ Use when a request has a material design choice and needs a bounded implementati
 
 ## Intent
 
-Outcome-first planning starts with the user-visible Gold or invariant, validates examples and constraints, aligns with project patterns, and derives the smallest predictable implementation choice.
+Outcome-first planning starts with the user-visible success condition or invariant, validates examples and constraints, aligns with project patterns, and derives the smallest predictable implementation choice.
 
 This packaged fallback preserves the local workflow contract when a target project does not provide its own `docs/workflows/outcome-first-planning-workflow.md`.
 
 ## Required Inputs
 
 - **User story:** who needs what and why.
-- **Gold:** the observable end state or invariant that proves success.
+- **Success condition:** the observable end state or invariant that proves success.
 - **Non-goals:** explicitly excluded behavior, integrations, and abstractions.
 - **Constraints:** repository rules, compatibility, security, ownership, and release boundaries.
 
@@ -19,20 +19,20 @@ Do not use this workflow for an obvious local or mechanical change; read the loc
 
 ## Process
 
-1. **Frame the outcome.** State the Gold, unacceptable outcome, and complexity ceiling before naming implementation files.
+1. **Frame the outcome.** State the success condition, unacceptable outcome, and complexity ceiling before naming implementation files.
 2. **Fit-check examples.** Record good, bad, and ambiguous examples with expected results; resolve counter-examples before choosing an interface.
 3. **Align with local patterns.** Read project guidance, setup/test/release docs, sibling workflows, skills, references, templates, rules, callers, and verifiers before adding assets.
 4. **Map tools and rules.** Choose the smallest applicable existing skills, workflows, references, templates, or rules. Do not add runtime orchestration for a guidance problem.
 5. **Bound the interface.** Name public inputs, outputs, stop conditions, and rejected speculative flexibility.
-6. **Converge.** Stop when the Gold is covered by examples and a runnable verification gate exists with residual risk named. Ask only when an unresolved decision materially changes ownership, security, compatibility, or the public interface; otherwise run an experiment.
+6. **Converge.** Stop when the success condition is covered by examples and a runnable verification gate exists with residual risk named. Ask only when an unresolved decision materially changes ownership, security, compatibility, or the public interface; otherwise run an experiment.
 
 ## Output Contract
 
 ```text
-Purpose: <user-visible outcome and Gold>
+Purpose: <user-visible outcome and success condition>
 Constraints: <non-goals, compatibility, security, ownership, release boundaries>
 Decision matrix:
-| Option | Gold fit | Complexity | Existing pattern | Decision |
+| Option | Success condition fit | Complexity | Existing pattern | Decision |
 |---|---|---|---|---|
 Chosen tools/rules: <skills, workflows, references, templates, and rules>
 Verification gate: <smallest runnable proof>
@@ -41,7 +41,7 @@ Residual risk: <named remaining risk or none>
 
 ## Verification Checklist
 
-- Gold is observable.
+- The success condition is observable.
 - Good, bad, and ambiguous examples have expected outcomes.
 - Local guidance and sibling patterns were read.
 - Non-goals and the complexity ceiling are explicit.
