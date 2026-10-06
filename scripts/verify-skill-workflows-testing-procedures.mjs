@@ -13,7 +13,7 @@ export function verifyTestingProcedures({ read, fail }) {
   ]) {
     requireEvery(
       workflow,
-      ["Start from Gold", "Use `PASS`, `FAIL`, and `BLOCKED`"],
+      ["Start from the success condition", "Use `PASS`, `FAIL`, and `BLOCKED`"],
       (requiredText) => `${name} must require ${requiredText}`,
       fail
     )
