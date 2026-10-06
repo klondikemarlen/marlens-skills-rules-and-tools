@@ -30,6 +30,7 @@ if (!packageJson.scripts?.test?.includes("node verifications/no-oversized-source
 const rootReadme = read("README.md")
 const rulesReadme = read("rules/README.md")
 const ruleVerificationReference = read("docs/references/rules-and-verifications-reference.md")
+const testAlignmentReference = read("docs/references/test-alignment-verifier-reference.md")
 const currentPackageClassification = ruleVerificationReference.slice(
   ruleVerificationReference.indexOf("## Current Package Classification"),
   ruleVerificationReference.indexOf("## Code-Style Advice")
@@ -41,6 +42,15 @@ for (const requiredText of [
 ]) {
   if (!ruleVerificationReference.includes(requiredText)) {
     fail(`rules and verifications reference must explain ${requiredText}`)
+  }
+}
+for (const requiredText of [
+  "status and body are independently observable contracts",
+  "bury a status mismatch in a large response-body diff",
+  "expect({ status: response.status, body: response.body }).toEqual(...)",
+]) {
+  if (!testAlignmentReference.includes(requiredText)) {
+    fail(`test alignment reference must preserve focused controller response assertions`)
   }
 }
 
@@ -754,9 +764,14 @@ for (const [name, workflow] of [
     !workflow.includes(
       "Assert mock calls separately only when they are independently observable and important"
     ) ||
-    !workflow.includes("response.status` and `response.body")
+    !workflow.includes("Controller responses are a common exemption") ||
+    !workflow.includes("response.status` and `response.body") ||
+    !workflow.includes(
+      "response bodies are often large enough to hide a status failure inside an aggregate diff"
+    ) ||
+    !workflow.includes("expect({ status: response.status, body: response.body })")
   ) {
-    fail(`${name} must allow independently observable assertions`)
+    fail(`${name} must preserve focused controller response assertions`)
   }
   if (
     !workflow.includes("For changed test files, inspect the nearest test-directory README") ||

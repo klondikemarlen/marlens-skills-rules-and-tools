@@ -36,7 +36,7 @@ To exempt one test with independently observable contracts, put this comment in 
 // marlens-test-alignment: allow-multiple-expects -- status and body are independent observable contracts.
 ```
 
-The exemption applies only to `one-direct-expect`; every other configured directive still applies. It requires text after `--`, so a bare waiver is not supported.
+The exemption applies only to `one-direct-expect`; every other configured directive still applies. It requires text after `--`, so a bare waiver is not supported. For a controller response, use it only when status and body are independently observable contracts and a synthetic aggregate would bury a status mismatch in a large response-body diff. Preserve direct `expect(response.status)` and `expect(response.body)` assertions; do not replace them with `expect({ status: response.status, body: response.body }).toEqual(...)` merely to satisfy `one-direct-expect`.
 
 ## Scoped Suppression
 
