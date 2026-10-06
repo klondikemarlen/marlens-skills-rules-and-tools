@@ -11,7 +11,7 @@ Use when reviewing a branch, pull request, or local diff.
 **Decision Rules:**
 
 - Lead with behavior, contracts, data safety, security, and missing verification.
-- Start from Gold: name the behavior, invariant, or regression risk that must be proven before judging implementation quality.
+- Start from the success condition: name the behavior, invariant, or regression risk that must be proven before judging implementation quality.
 - Treat style as worth raising only when it affects clarity, consistency, or future safety.
 - Flag cramped adjacent sibling logical blocks when local precedent separates them: top-level functions/classes/modules, class methods, helper sections, and test cases/groups should usually have one blank line between siblings for scanability.
 - Use project-local rules first: `AGENTS.md`, `README.md`, `COMMITTING.md`, `bin/README.md`, and local `docs/` docs.

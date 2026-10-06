@@ -40,7 +40,7 @@ For design-planning requests, run the outcome-first-planning workflow first, the
 
 ```text
 Purpose: <target role and public boundary>
-Gold: <observable invariant or risk removed>
+Success condition: <observable invariant or risk removed>
 Evidence: <audit/check and exact result>
 Findings:
 - <evidence> -> <classification> -> <owner/action>

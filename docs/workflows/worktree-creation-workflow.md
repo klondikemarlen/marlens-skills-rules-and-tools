@@ -15,7 +15,7 @@ agent_rebase_edit=$(command -v agent-rebase-edit) || exit 1
 agent_worktree="$(dirname "$agent_rebase_edit")/agent-worktree"
 [ -x "$agent_worktree" ] || exit 1
 
-if worktree_path=$("$agent_worktree" wrapx-243); then
+if worktree_path=$("$agent_worktree" wrap-243-correct-pagination); then
   cd "$worktree_path"
 else
   exit 1
@@ -27,19 +27,19 @@ The resolved executable keeps the target repository as its current directory. It
 For primary checkout `./wrap`, the default result is:
 
 ```text
-../wrap-worktrees/wrapx-243
+../wrap-worktrees/wrap-243-correct-pagination
 ```
 
-It creates branch `wrapx-243` from the current `HEAD`. A project with a different branch convention can supply it explicitly:
+It creates branch `wrap-243-correct-pagination` from the current `HEAD`. A project with a different branch convention can supply it explicitly:
 
 ```bash
 agent_rebase_edit=$(command -v agent-rebase-edit) || exit 1
 agent_worktree="$(dirname "$agent_rebase_edit")/agent-worktree"
 [ -x "$agent_worktree" ] || exit 1
-"$agent_worktree" wrapx-243 --branch issue/243-wrap --base origin/main
+"$agent_worktree" wrap-243-correct-pagination --branch issue/243-correct-pagination --base origin/main
 ```
 
-The worktree name must be one safe path segment. The command refuses existing paths and branches rather than overwriting user data. Re-running it for the same registered path and branch returns that path.
+The worktree name must be one safe path segment. Use the project convention plus a concise, meaningful outcome slug; never use opaque abbreviations or a bare issue number. The command refuses existing paths and branches rather than overwriting user data. Re-running it for the same registered path and branch returns that path.
 
 ## Local Environment
 

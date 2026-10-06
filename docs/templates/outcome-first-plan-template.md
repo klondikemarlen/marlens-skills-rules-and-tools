@@ -6,7 +6,7 @@ Use this template for design-heavy requests before implementation. Keep the comp
 
 As a `<user or maintainer>`, I want `<capability>`, so that `<user-visible outcome>`.
 
-## Gold
+## Success Condition
 
 `<observable end state or invariant that proves success>`
 
@@ -42,7 +42,7 @@ As a `<user or maintainer>`, I want `<capability>`, so that `<user-visible outco
 
 ## Decision Matrix
 
-| Option       | Gold fit | Complexity          | Existing pattern | Decision          |
+| Option       | Success condition fit | Complexity          | Existing pattern | Decision          |
 | ------------ | -------- | ------------------- | ---------------- | ----------------- |
 | `<option A>` | `<fit>`  | `<low/medium/high>` | `<reuse or gap>` | `<choose/reject>` |
 | `<option B>` | `<fit>`  | `<low/medium/high>` | `<reuse or gap>` | `<choose/reject>` |
@@ -74,7 +74,7 @@ Proof artifact: `<test output, fixture, rendered result, or API state>`
 
 ## Convergence Check
 
-- [ ] Gold is observable.
+- [ ] The success condition is observable.
 - [ ] Good, bad, and missing examples have expected outcomes.
 - [ ] Existing patterns and constraints are recorded.
 - [ ] The chosen interface is bounded.

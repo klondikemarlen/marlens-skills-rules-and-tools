@@ -135,7 +135,7 @@ Preferred flow for repo issues and feature requests:
 In this repo only, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing the scoped files for that workflow. Keep the broader global git safety block in place for other repositories.
 
 1. Create or identify the GitHub issue with the user story and acceptance criteria.
-2. Branch from current `main` using the issue number and short slug before editing when possible; if the scoped work already exists locally, create the issue-named branch before committing.
+2. Branch from current `main` using the issue number and concise, meaningful outcome slug before editing when possible; never use opaque abbreviations or a bare issue number. If the scoped work already exists locally, create the issue-named branch before committing.
 3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
 4. Bump `package.json` for every change before opening the release PR.
 5. Open a draft PR with `docs/workflows/pull-request-management-workflow.md`; link the issue, include the checks run, and mark it ready only after verification. PR creation is part of the release workflow, but not the release itself.

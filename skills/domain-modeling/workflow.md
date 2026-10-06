@@ -19,7 +19,7 @@ Use when a feature, bug fix, or refactor needs clearer domain concepts, invarian
 
 ## Process
 
-1. State the **Gold**: the user-visible action or domain invariant that must remain true. Record non-goals and the complexity ceiling.
+1. State the **success condition**: the user-visible action or domain invariant that must remain true. Record non-goals and the complexity ceiling.
 2. Inspect the target topology, cohesive concepts, lifecycles, repeated change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling-domain conventions.
 3. Name the smallest useful domain concepts and actions. Prefer intention-revealing names over generic `manager`, `processor`, `helper`, or `utils` names.
 4. Classify each boundary and its owner:
@@ -35,7 +35,7 @@ Use when a feature, bug fix, or refactor needs clearer domain concepts, invarian
    - **Bad:** a one-line local handoff is wrapped in a `PreparedResult` object only to avoid multiple assignment; use named locals or direct values.
    - **Ambiguous:** a repository around an ORM may isolate duplicated, heavy queries, but is unnecessary when the existing model/query rail is already clear and unique.
 7. Record the chosen boundary, owned responsibilities, exact values crossing it, dependency direction, and the smallest safe implementation step. If no current reason survives, keep the code together or delete the proposed abstraction.
-8. Implement the smallest model that satisfies the Gold. Make the owning behavior checkable at the narrowest evidence layer, then run that check before broad cleanup or reorganization.
+8. Implement the smallest model that satisfies the success condition. Make the owning behavior checkable at the narrowest evidence layer, then run that check before broad cleanup or reorganization.
 
 ## Verification Gate
 
@@ -45,7 +45,7 @@ The design is ready when a maintainer can answer, from the model and its public 
 - What exact values cross each boundary, and where are they parsed or validated?
 - Which side effects, transaction, persistence, and external details have one visible owner?
 - Why is each new abstraction needed now, and what simpler option was rejected?
-- What focused runnable check proves the Gold and catches a plausible modeling mistake?
+- What focused runnable check proves the success condition and catches a plausible modeling mistake?
 
 ## Output Contract
 

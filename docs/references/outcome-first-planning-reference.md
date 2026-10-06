@@ -4,7 +4,7 @@
 
 Outcome-first planning starts with the required end state and works backward through evidence, constraints, and the smallest implementation choice that can satisfy it.
 
-- **Gold:** the user-visible result or invariant that makes the work successful.
+- **Success condition:** the user-visible result or invariant that makes the work successful.
 - **Evidence:** an example, check, or scenario that can distinguish success from a plausible failure.
 - **Constraint:** a binding boundary such as compatibility, ownership, security, repository convention, or release policy.
 - **Fit check:** a comparison of a proposed choice against good examples, counter-examples, existing patterns, and the complexity ceiling.
@@ -14,7 +14,7 @@ Outcome-first planning is not permission to plan indefinitely. It is a short ali
 
 ## Guardrails
 
-1. State the Gold before naming files, tools, or abstractions.
+1. State the success condition before naming files, tools, or abstractions.
 2. Include non-goals so a technically successful implementation cannot silently expand scope.
 3. Use examples and counter-examples to test the behavior boundary, not to decorate the plan.
 4. Prefer an existing project pattern over a second convention.
@@ -26,7 +26,7 @@ Outcome-first planning is not permission to plan indefinitely. It is a short ali
 
 Stop planning and implement when:
 
-- the Gold is observable;
+- the success condition is observable;
 - representative good, bad, and ambiguous examples have expected outcomes;
 - the relevant project patterns and constraints are recorded;
 - the chosen interface is smaller or clearer than the alternatives; and
@@ -38,13 +38,13 @@ Stop planning and run an experiment when the remaining uncertainty is empirical,
 
 ## Anti-Patterns
 
-- **Implementation-first planning:** choosing a library, file, or abstraction before stating the Gold.
+- **Implementation-first planning:** choosing a library, file, or abstraction before stating the success condition.
 - **Example theater:** collecting examples without expected outcomes or counter-examples.
 - **Pattern bypass:** adding a new workflow or skill beside an existing one without explaining the gap.
 - **Complexity creep:** turning a bounded guidance request into a planner, task runner, or orchestration runtime.
 - **Interface hedging:** adding speculative options, aliases, or compatibility shims instead of choosing one clear contract.
 - **False convergence:** declaring a plan complete while residual risk or the verification gate is unnamed.
-- **Infinite alignment:** continuing to compare alternatives after one option satisfies the Gold and the remaining question belongs to implementation.
+- **Infinite alignment:** continuing to compare alternatives after one option satisfies the success condition and the remaining question belongs to implementation.
 
 ## Sources
 
