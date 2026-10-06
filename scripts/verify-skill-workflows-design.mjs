@@ -49,6 +49,53 @@ export function verifyDesignWorkflows(read, fail) {
     fail("template README must list outcome-first planning")
   }
 
+  const projectKnowledgeBaseWorkflow = read(
+    "docs/workflows/project-knowledge-base-workflow.md"
+  )
+  const projectKnowledgeBaseFallback = read("skills/project-knowledge-base/workflow.md")
+  const projectKnowledgeBaseSkill = read("skills/project-knowledge-base/SKILL.md")
+  const projectKnowledgeBaseReference = read(
+    "docs/references/project-knowledge-base-reference.md"
+  )
+  const projectKnowledgeBaseTemplate = read(
+    "docs/templates/project-knowledge-base-template.md"
+  )
+  for (const [name, workflow] of [
+    ["authoritative project knowledge base workflow", projectKnowledgeBaseWorkflow],
+    ["packaged project knowledge base workflow", projectKnowledgeBaseFallback],
+  ]) {
+    for (const requiredText of [
+      "docs/domain/workflows/",
+      "docs/workflows/",
+      "empty directories",
+      "public repository",
+      "allowlist",
+    ]) {
+      if (!workflow.includes(requiredText)) {
+        fail(`${name} must distinguish documentation namespaces and public access`)
+      }
+    }
+  }
+  for (const [name, content] of [
+    ["project knowledge base reference", projectKnowledgeBaseReference],
+    ["project knowledge base template", projectKnowledgeBaseTemplate],
+  ]) {
+    for (const requiredText of ["public repository", "allowlist"]) {
+      if (!content.includes(requiredText)) {
+        fail(`${name} must preserve the public repository publication boundary`)
+      }
+    }
+  }
+  for (const requiredText of [
+    "docs/workflows/project-knowledge-base-workflow.md",
+    "agents/workflows/project-knowledge-base-workflow.md",
+    "workflow.md",
+  ]) {
+    if (!projectKnowledgeBaseSkill.includes(requiredText)) {
+      fail(`project-knowledge-base skill must include ${requiredText}`)
+    }
+  }
+
   const handsOffWorkflows = [
     [
       "authoritative hands-off workflow",

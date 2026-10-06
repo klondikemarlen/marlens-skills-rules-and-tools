@@ -44,6 +44,7 @@ Top-level [`examples/`](../examples/) demonstrates the smallest observable diffe
 
 - Session insight mining: [`workflows/session-insight-mining-workflow.md`](workflows/session-insight-mining-workflow.md)
 - Worktree creation: [`workflows/worktree-creation-workflow.md`](workflows/worktree-creation-workflow.md)
+- Project knowledge base: [`workflows/project-knowledge-base-workflow.md`](workflows/project-knowledge-base-workflow.md), [`references/project-knowledge-base-reference.md`](references/project-knowledge-base-reference.md), and [`templates/project-knowledge-base-template.md`](templates/project-knowledge-base-template.md)
 
 ## Agent-Specific Documents
 
