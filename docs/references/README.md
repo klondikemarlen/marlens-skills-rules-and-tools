@@ -12,6 +12,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Express Light Rail backend concepts.
 - Code organization, module boundaries, and pattern-selection criteria: [`code-organization-reference.md`](./code-organization-reference.md).
 - Outcome-first planning and fit checks: [`outcome-first-planning-reference.md`](./outcome-first-planning-reference.md).
+- Project knowledge base taxonomy, authority boundaries, and publication safety: [`project-knowledge-base-reference.md`](./project-knowledge-base-reference.md).
 - OMP plugin routine and exact-hash installation policy: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).
 - Engineering techniques with evidence status and safety boundaries: [`engineering-techniques-reference.md`](./engineering-techniques-reference.md).
 - Finite lazy TypeScript runtime verification and declaration ownership: [`typescript-runtime-entrypoints-verifier-reference.md`](./typescript-runtime-entrypoints-verifier-reference.md).
