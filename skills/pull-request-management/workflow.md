@@ -16,6 +16,71 @@ Use when creating or updating a pull request.
 3. Create PRs as drafts. Before pushing changes to an existing open PR, convert it back to draft unless the user asks to keep it ready for review.
    After follow-up work resolves review comments, verify every addressed thread is resolved, restore ready-for-review status unless the PR was intentionally left draft, and re-check the remote PR state before reporting it ready.
    Before correcting accepted review feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
+
+### Repository Metadata
+
+Before requesting review, reconcile any ownership, label, and reviewer-request metadata required by
+the target repository:
+
+Set the repository and PR number once for these commands:
+
+```bash
+repo=OWNER/REPO
+number=PULL_NUMBER
+```
+
+- **Local policy:** Read the repository's local guidance first. It decides whether metadata is
+  required, who owns the PR, which labels are appropriate, and who may request review.
+- **Current PR state:** Inspect existing assignees, labels, and review requests before changing
+  them. Reconcile only the metadata required by local policy:
+
+  ```bash
+  gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests
+  ```
+
+- **Assignee:** When local policy assigns the authenticated GitHub user, derive and assign that user
+  rather than hard-coding an account:
+
+  ```bash
+  assignee="$(gh api user --jq .login)"
+  gh api "repos/$repo/issues/$number/assignees" -X POST \
+    -f "assignees[]=$assignee"
+  ```
+
+- **Available labels:** Query the repository's current label taxonomy with an explicit limit.
+  If it returns 100 labels, rerun it with a higher limit before selection:
+
+  ```bash
+  gh label list --repo "$repo" --limit 100
+  ```
+
+- **Addition:** Add every applicable label without discarding unrelated labels:
+
+  ```bash
+  # Include every applicable current label.
+  applicable_labels=(
+    "<existing-label-1>"
+    "<existing-label-2>"
+  )
+  label_fields=()
+  for label in "${applicable_labels[@]}"; do
+    label_fields+=(-f "labels[]=$label")
+  done
+  gh api "repos/$repo/issues/$number/labels" -X POST "${label_fields[@]}"
+  ```
+
+  `POST` adds the selected labels. Use `PUT` only when local policy explicitly owns the complete
+  label set, because `PUT` replaces the entire label set.
+
+- **Confirmation:** After any metadata update, run the current PR state command again and confirm it
+  matches local policy:
+
+  ```bash
+  gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests
+  ```
+
+- **Review requests:** Do not request reviewers unless the user or repository-local policy explicitly directs it.
+
 4. Write a reviewer-focused PR body with these sections when applicable:
    - Related links
    - Context: why the change exists.
