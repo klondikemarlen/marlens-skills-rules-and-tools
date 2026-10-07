@@ -1,5 +1,7 @@
 # Marlen's Skills, Rules, and Tools
 
+**Official acronym:** MSSRT — pronounced “em-ess-ess-are-tee” (“EM-ess-ess-are-TEE”).
+
 Reusable agent skills, rules, and tool helpers, plus thin OMP and Claude Code plugin adapters.
 
 ## Stability
