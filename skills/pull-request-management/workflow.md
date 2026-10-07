@@ -47,8 +47,8 @@ number=PULL_NUMBER
     -f "assignees[]=$assignee"
   ```
 
-- **Available labels:** Query the repository's current label taxonomy before selection with an
-  explicit limit. Increase the limit when repository labels exceed this baseline:
+- **Available labels:** Query the repository's current label taxonomy with an explicit limit.
+  If it returns 100 labels, rerun it with a higher limit before selection:
 
   ```bash
   gh label list --repo "$repo" --limit 100
@@ -71,6 +71,13 @@ number=PULL_NUMBER
 
   `POST` adds the selected labels. Use `PUT` only when local policy explicitly owns the complete
   label set, because `PUT` replaces the entire label set.
+
+- **Confirmation:** After any metadata update, run the current PR state command again and confirm it
+  matches local policy:
+
+  ```bash
+  gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests
+  ```
 
 - **Review requests:** Do not request reviewers unless the user or repository-local policy explicitly directs it.
 
