@@ -125,6 +125,7 @@ export function verifyReviewProcedures({ read, fail }) {
       workflow,
       [
         "### Repository Metadata",
+        'gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests',
         "gh api user --jq .login",
         'gh label list --repo "$repo" --limit 100',
         "applicable_labels=(",

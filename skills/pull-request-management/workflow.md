@@ -31,6 +31,13 @@ number=PULL_NUMBER
 
 - **Local policy:** Read the repository's local guidance first. It decides whether metadata is
   required, who owns the PR, which labels are appropriate, and who may request review.
+- **Current PR state:** Inspect existing assignees, labels, and review requests before changing
+  them. Reconcile only the metadata required by local policy:
+
+  ```bash
+  gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests
+  ```
+
 - **Assignee:** When local policy assigns the authenticated GitHub user, derive and assign that user
   rather than hard-coding an account:
 
@@ -40,8 +47,8 @@ number=PULL_NUMBER
     -f "assignees[]=$assignee"
   ```
 
-- **Labels:** Query current labels before selection with an explicit limit. Increase the limit when
-  repository labels exceed this baseline:
+- **Available labels:** Query the repository's current label taxonomy before selection with an
+  explicit limit. Increase the limit when repository labels exceed this baseline:
 
   ```bash
   gh label list --repo "$repo" --limit 100
