@@ -124,6 +124,21 @@ export function verifyReviewProcedures({ read, fail }) {
     requireEvery(
       workflow,
       [
+        "### Repository Metadata",
+        "gh api user --jq .login",
+        'gh label list --repo "$repo" --limit 100',
+        "applicable_labels=(",
+        "labels[]=$label",
+        "`POST` adds the selected labels",
+        "`PUT` replaces the entire label set",
+        "Do not request reviewers unless the user or repository-local policy explicitly directs it.",
+      ],
+      (requiredText) => `${name} must provide repository metadata guidance: ${requiredText}`,
+      fail
+    )
+    requireEvery(
+      workflow,
+      [
         "gh api --method PUT",
         "pulls/$number/merge-async",
         '-f sha="$head_sha"',

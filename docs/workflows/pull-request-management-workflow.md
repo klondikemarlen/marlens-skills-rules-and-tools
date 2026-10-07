@@ -16,6 +16,57 @@ Use when creating or updating a pull request.
 3. Create PRs as drafts. Before pushing changes to an existing open PR, convert it back to draft unless the user asks to keep it ready for review.
    When the follow-up work resolves review comments, use `docs/workflows/pull-request-comment-resolution-workflow.md` and restore ready-for-review status after resolved thread state is verified unless the PR was intentionally left draft.
    Before correcting accepted review feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
+
+### Repository Metadata
+
+Before requesting review, reconcile any ownership, label, and reviewer-request metadata required by
+the target repository:
+
+Set the repository and PR number once for these commands:
+
+```bash
+repo=OWNER/REPO
+number=PULL_NUMBER
+```
+
+- **Local policy:** Read the repository's local guidance first. It decides whether metadata is
+  required, who owns the PR, which labels are appropriate, and who may request review.
+- **Assignee:** When local policy assigns the authenticated GitHub user, derive and assign that user
+  rather than hard-coding an account:
+
+  ```bash
+  assignee="$(gh api user --jq .login)"
+  gh api "repos/$repo/issues/$number/assignees" -X POST \
+    -f "assignees[]=$assignee"
+  ```
+
+- **Labels:** Query current labels before selection with an explicit limit. Increase the limit when
+  repository labels exceed this baseline:
+
+  ```bash
+  gh label list --repo "$repo" --limit 100
+  ```
+
+- **Addition:** Add every applicable label without discarding unrelated labels:
+
+  ```bash
+  # Include every applicable current label.
+  applicable_labels=(
+    "<existing-label-1>"
+    "<existing-label-2>"
+  )
+  label_fields=()
+  for label in "${applicable_labels[@]}"; do
+    label_fields+=(-f "labels[]=$label")
+  done
+  gh api "repos/$repo/issues/$number/labels" -X POST "${label_fields[@]}"
+  ```
+
+  `POST` adds the selected labels. Use `PUT` only when local policy explicitly owns the complete
+  label set, because `PUT` replaces the entire label set.
+
+- **Review requests:** Do not request reviewers unless the user or repository-local policy explicitly directs it.
+
 4. Write a reviewer-focused PR body with these sections when applicable:
    - Related links
    - Context: why the change exists.
