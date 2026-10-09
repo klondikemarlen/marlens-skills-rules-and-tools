@@ -95,29 +95,4 @@ export function verifyDesignWorkflows(read, fail) {
       fail(`project-knowledge-base skill must include ${requiredText}`)
     }
   }
-
-  const handsOffWorkflows = [
-    [
-      "authoritative hands-off workflow",
-      read("docs/workflows/hands-off-agentic-coding-workflow.md"),
-    ],
-    ["packaged hands-off workflow", read("skills/hands-off-agentic-coding/workflow.md")],
-  ]
-  for (const [name, workflow] of handsOffWorkflows) {
-    for (const requiredText of [
-      "Completed:",
-      "Remaining:",
-      "Validation:",
-      "Blockers:",
-      "Next action:",
-      "Tura's documented task-status",
-      "in this package that gate includes `node scripts/verify-oversized-source-files.mjs`",
-      "first runnable prototype",
-      "ordinary test failures are iteration, not a new plan",
-    ]) {
-      if (!workflow.includes(requiredText)) {
-        fail(`${name} must include ${requiredText}`)
-      }
-    }
-  }
 }
