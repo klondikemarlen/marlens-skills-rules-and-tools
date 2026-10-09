@@ -13,9 +13,12 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 - Start with the target's declared purpose, public surface, and local guidance. This package supplies reusable rules, workflows, templates, and thin adapters; it is not an orchestration runtime.
 - Project-local guidance wins. Keep project-specific practices in the target project; change shared guidance only for a cross-project, repeatable need.
 - Technical debt is actionable only when observed evidence shows a current correctness, maintainability, safety, discoverability, or verification risk. Do not refactor for style, imagined future flexibility, or generic cleanup.
+- When newer models motivate a pass, inspect demonstrated instruction conflicts, duplicate artifacts, and unnecessary handoffs before adding guidance. Simplify the existing owner rather than layering another checklist or always-on rule. Model capability alone is not evidence of a defect or a measured speedup.
+- Keep safety, repository boundaries, required review, behavioral verification, and release/install gates intact. Make ceremony proportional to the work; do not make correctness depend on a claimed model intelligence level.
 - Run the smallest existing read-only audit and behavior check relevant to the finding before proposing a change. For this package's own checkout, use `npm test`; it verifies package-owned workflow, audit, and adapter behavior. Use `node bin/agent-guidance-audit.js --strict <downstream-root>` only for the downstream repositories that tool audits.
 - Classify every finding once: **fix now**, **scoped feature or bug**, **verifier/runtime proposal**, **already covered**, or **no action**. Route runtime enforcement needs to `omp-verifier`; do not create runtime machinery here.
 - For prompt, command-injection, or agent-identity findings, use [`docs/templates/prompt-improvement-template.md`](../templates/prompt-improvement-template.md). A prompt change needs an observed trigger and an owner, not just a better-sounding instruction.
+- For guidance findings, compare representative consumer decisions before and after the change: a small solo task, non-trivial iteration, and actual transfer when relevant. Check that overhead is removed without losing ownership or proof; matching phrases alone does not prove compliance.
 
 - Treat domain discovery as a recurring phase, not a one-time planning step. Before each refactoring or organization proposal, revisit topology, cohesive concepts, change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling-domain conventions. Keep weak signals as hypotheses and record candidate evidence before choosing the smallest safe action.
 - Follow existing issue-filing authorization rules. Do not file an external issue without authorization for that target.
@@ -32,6 +35,8 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 6. Implement only **fix now** findings already authorized by the request. Keep changes in the existing placement: workflow for procedure, template for repeatable shape, reference for durable background, skill for a thin entrypoint.
 7. For a **scoped feature or bug**, draft or file an issue only when authorized. For a **verifier/runtime proposal**, name the specific missing enforcement rather than adding a local workaround.
 8. Verify the changed behavior with the predeclared narrow check. For package changes, update release metadata and follow the feature workflow.
+
+Stop when the scoped acceptance criteria are verified and findings are classified. Do not expand into unrelated housekeeping or reopen settled choices without new evidence.
 
 ## Output Contract
 
