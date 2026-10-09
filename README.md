@@ -130,6 +130,12 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Draft or file Jira reports                                                | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting`                                                                                                   |
 | Run one task with a temporarily enabled MCP server                        | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md)                                                                                                                |
 
+## Task-Proportionate Execution
+
+The [hands-off workflow](docs/workflows/hands-off-agentic-coding-workflow.md) keeps small solo diffs on a read → patch → proof path. Non-trivial work uses one bounded plan and evidence-driven iteration, reusing the issue's outcome and constraints. Context handoffs are for actual delegation or resumption, not a mandatory artifact for every task.
+
+The [self-improvement workflow](docs/workflows/self-improvement-workflow.md) prioritizes demonstrated instruction conflicts and unnecessary ceremony before adding guidance. More capable models do not waive safety, review, QA, or release gates, and workflow changes are not measured speedups without comparative evidence.
+
 ## Feature and Issue Workflow
 
 Preferred flow for repo issues and feature requests:
