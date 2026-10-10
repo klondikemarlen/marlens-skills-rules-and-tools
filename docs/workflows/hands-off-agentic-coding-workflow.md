@@ -44,6 +44,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
    - preserve required self-review and repository review gates whether or not a separate reviewer is useful.
 5. Implement the first runnable prototype:
    - reuse existing project patterns;
+   - keep tests focused on one observable outcome, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles; preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for coupled invariants and examples;
    - delete obsolete paths instead of adding compatibility shims;
    - avoid new abstractions, options, dependencies, or runtime machinery unless the current task needs them.
 6. Exercise the proof and iterate:

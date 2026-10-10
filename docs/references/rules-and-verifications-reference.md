@@ -13,22 +13,24 @@ Rules and verifications are complementary enforcement layers, not interchangeabl
 
 A verification must declare a concrete input scope, fail condition, evidence, and remediation. Do not add one merely because a rule exists. A rule must explain the decision an agent must make; do not replace that explanation with a script name.
 
+For cross-project responsibility and promotion of prose into checks, use [`quality-ownership-reference.md`](quality-ownership-reference.md). This package owns reusable check policy/implementation; OMP Verifier owns discovery, execution, and correction, while OMP Learner owns eligible feedback and proposal routing.
+
 ## Current Package Classification
 
-| Asset                                             | Layer        | Why                                                                                 |
-| ------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
-| `whitespace-matters`                              | Rule         | Formatting and sibling grouping require project-local tools and structure judgment. |
-| `no-envrc-example-commits` and `no-envrc-example` | Both         | The rule prevents staging; the verifier backstops tracked repository state.         |
-| `omp-not-opencode-target-check`                   | Rule         | Product identity depends on the user request and target package.                    |
-| `use-dev-wrapper-for-development-compose`         | Rule         | Wrapper availability and command intent require repository context.                 |
-| `no-oversized-source-files`                       | Verification | Tracked source paths and line ceilings are deterministic.                           |
-| `default-function-exports`                        | Verification | TypeScript paths are checked by default; projects may explicitly opt out.           |
-| `typescript-runtime-entrypoints`                  | Verification | Finite runtime compiler commands expose lazy declaration-loading mismatches.        |
-| `test-alignment`                                  | Verification | Changed tests can be checked against defined baseline and local rules.              |
+| Asset                                             | Layer        | Why                                                                                                             |
+| ------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------- |
+| `whitespace-matters`                              | Rule         | Formatting and sibling grouping require project-local tools and structure judgment.                             |
+| `no-envrc-example-commits` and `no-envrc-example` | Both         | The rule prevents staging; the verifier backstops tracked repository state.                                     |
+| `omp-not-opencode-target-check`                   | Rule         | Product identity depends on the user request and target package.                                                |
+| `use-dev-wrapper-for-development-compose`         | Rule         | Wrapper availability and command intent require repository context.                                             |
+| `no-oversized-source-files`                       | Verification | Tracked source paths and line ceilings are deterministic.                                                       |
+| `default-function-exports`                        | Verification | TypeScript paths are checked by default; projects may explicitly opt out.                                       |
+| `typescript-runtime-entrypoints`                  | Verification | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                    |
+| `test-alignment`                                  | Verification | Changed tests follow naming/structure rules plus explicit local policies; assertion quality still needs review. |
 
 ## Default-Enabled Package Policies
 
-Every policy and verification proposed by this package is enabled by default. A consuming project may explicitly opt out only where its documented configuration supports it; it must not need to discover and opt in to a package policy.
+Shared package policies and manifest verifications are available by default; a consuming project may explicitly opt out only where documented configuration supports it. Automatic execution still requires OMP Verifier and a matching trigger. Test-alignment's explicit local additions, including assertion-count limits, are project-selected conventions rather than shared defaults.
 
 For `default-function-exports`, inspect all tracked TypeScript modules by default. Add the following to `.marlens-verifications.json` only to disable that verification:
 

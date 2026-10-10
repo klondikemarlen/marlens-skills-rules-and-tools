@@ -18,6 +18,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Finite lazy TypeScript runtime verification and declaration ownership: [`typescript-runtime-entrypoints-verifier-reference.md`](./typescript-runtime-entrypoints-verifier-reference.md).
 - Shared-baseline test-alignment verifier rules and scoped suppression: [`test-alignment-verifier-reference.md`](./test-alignment-verifier-reference.md).
 - Rule versus verification selection and current package classification: [`rules-and-verifications-reference.md`](./rules-and-verifications-reference.md).
+- Quality ownership across MSSRT, Verifier, and Learner: [`quality-ownership-reference.md`](./quality-ownership-reference.md).
 - GitHub CLI and metadata editing caveats.
 - Development tooling portability decisions.
 - Cross-workflow conventions.
