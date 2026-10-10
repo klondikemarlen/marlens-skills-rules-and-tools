@@ -53,3 +53,4 @@ Top-level [`examples/`](../examples/) demonstrates the smallest observable diffe
 ## Maintainer Tools
 
 - Downstream agent guidance audit: [`references/downstream-agent-guidance-audit-reference.md`](./references/downstream-agent-guidance-audit-reference.md)
+- Cross-project quality ownership, integration contracts, and evidence limits: [`references/quality-ownership-reference.md`](references/quality-ownership-reference.md)

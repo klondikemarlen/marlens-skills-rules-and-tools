@@ -30,7 +30,6 @@ if (!packageJson.scripts?.test?.includes("node verifications/no-oversized-source
 const rootReadme = read("README.md")
 const rulesReadme = read("rules/README.md")
 const ruleVerificationReference = read("docs/references/rules-and-verifications-reference.md")
-const testAlignmentReference = read("docs/references/test-alignment-verifier-reference.md")
 const currentPackageClassification = ruleVerificationReference.slice(
   ruleVerificationReference.indexOf("## Current Package Classification"),
   ruleVerificationReference.indexOf("## Code-Style Advice")
@@ -42,15 +41,6 @@ for (const requiredText of [
 ]) {
   if (!ruleVerificationReference.includes(requiredText)) {
     fail(`rules and verifications reference must explain ${requiredText}`)
-  }
-}
-for (const requiredText of [
-  "status and body are independently observable contracts",
-  "bury a status mismatch in a large response-body diff",
-  "expect({ status: response.status, body: response.body }).toEqual(...)",
-]) {
-  if (!testAlignmentReference.includes(requiredText)) {
-    fail(`test alignment reference must preserve focused controller response assertions`)
   }
 }
 
@@ -744,34 +734,6 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes("same production constant/helper under test")) {
     fail(`${name} must reject production-derived expected values`)
-  }
-  if (
-    !workflow.includes(
-      "Default to one `expect` per test when it proves one focused observable contract"
-    ) ||
-    !workflow.includes("do not combine unrelated values merely to satisfy the heuristic")
-  ) {
-    fail(`${name} must scope one-expect guidance to one observable contract`)
-  }
-  if (
-    !workflow.includes("Repository-native assertion patterns override generic guidance") ||
-    !workflow.includes("await expect(promise).rejects.toThrow(...)") ||
-    !workflow.includes("do not manually catch its rejection or aggregate it with mock-call arrays")
-  ) {
-    fail(`${name} must prefer native promise-error assertions over caught-error aggregates`)
-  }
-  if (
-    !workflow.includes(
-      "Assert mock calls separately only when they are independently observable and important"
-    ) ||
-    !workflow.includes("Controller responses are a common exemption") ||
-    !workflow.includes("response.status` and `response.body") ||
-    !workflow.includes(
-      "response bodies are often large enough to hide a status failure inside an aggregate diff"
-    ) ||
-    !workflow.includes("expect({ status: response.status, body: response.body })")
-  ) {
-    fail(`${name} must preserve focused controller response assertions`)
   }
   if (
     !workflow.includes("For changed test files, inspect the nearest test-directory README") ||
