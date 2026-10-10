@@ -186,7 +186,6 @@ try {
   assert.match(baseline.evidence, /shared baseline:1/)
   assert.match(baseline.evidence, /marlens-test-alignment: test-name-when/)
   assert.match(baseline.evidence, /marlens-test-alignment: arrange-act-assert/)
-  assert.match(baseline.evidence, /marlens-test-alignment: one-direct-expect/)
 
   write(nonTestProject, "src/widget.ts", "export const widget = 1;\n")
   commit(nonTestProject, "baseline")
@@ -231,45 +230,61 @@ try {
   assert.equal(untracked.status, "FAIL")
   assert.match(untracked.evidence, /tests\/untracked\.test\.ts:1/)
 
-  write(exemptionProject, "README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
+  write(exemptionProject, "README.md", "# Assertion policy scope\n")
   commit(exemptionProject, "baseline")
   git(exemptionProject, ["switch", "--quiet", "-c", "feature"])
-  write(
-    exemptionProject,
-    "tests/controller.test.ts",
-    `describe('controller', () => {
-  it('when recording a request, keeps the diagnostic local', () => {
-    // Arrange
-    const diagnostic = 'expect(';
+  const coupledInvariantTest = `test('when a transfer fails, rolls back both balances', async () => {
+  // Arrange
+  const sourceAccount = await createAccount({ balance: 10 });
+  const destinationAccount = await createAccount({ balance: 20 });
 
-    // Act
-    recordRequest();
+  // Act
+  await failTransfer(sourceAccount, destinationAccount);
 
-    // Assert
-    void diagnostic;
-  });
-
-  test('when the response succeeds, returns the response', () => {
-    // Arrange
-    const response = fetchResponse();
-
-    // Act
-    recordResponse(response);
-
-    // Assert
-    // marlens-test-alignment: allow-multiple-expects -- status and body are independent observable contracts.
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({ saved: true });
-  });
+  // Assert
+  expect(await reload(sourceAccount)).toEqual({ balance: 10 });
+  expect(await reload(destinationAccount)).toEqual({ balance: 20 });
 });
 `
-  )
+  write(exemptionProject, "tests/transfer.test.ts", coupledInvariantTest)
 
+  const defaultPolicy = runVerification(exemptionProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+  })
+  assert.equal(defaultPolicy.status, "PASS")
+
+  write(exemptionProject, "tests/README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
+  const localPolicy = runVerification(exemptionProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+  })
+  assert.equal(localPolicy.status, "FAIL")
+  assert.match(localPolicy.evidence, /source tests\/README\.md:1/)
+
+  write(
+    exemptionProject,
+    "tests/transfer.test.ts",
+    coupledInvariantTest.replace(
+      "  // Assert",
+      "  // Assert\n  // marlens-test-alignment: allow-multiple-expects -- Both balances prove atomic rollback."
+    )
+  )
   const exempt = runVerification(exemptionProject, {
     MARLENS_TEST_ALIGNMENT_BASE: "main",
   })
   assert.equal(exempt.status, "PASS")
-  assert.match(exempt.evidence, /tests\/controller\.test\.ts/)
+
+  write(
+    exemptionProject,
+    "tests/transfer.test.ts",
+    coupledInvariantTest.replace(
+      "  // Assert",
+      "  // Assert\n  // marlens-test-alignment: allow-multiple-expects"
+    )
+  )
+  assert.equal(
+    runVerification(exemptionProject, { MARLENS_TEST_ALIGNMENT_BASE: "main" }).status,
+    "FAIL"
+  )
 
   write(
     suppressionProject,

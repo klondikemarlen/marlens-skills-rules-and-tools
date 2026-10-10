@@ -17,7 +17,8 @@ const DIRECTIVES = {
   "one-direct-expect": {
     summary: "Tests contain at most one direct `expect(...)` call.",
     check: checkExpectationCount,
-    remediation: "Keep one direct `expect(...)` call unless an explicit exemption applies.",
+    remediation:
+      "Split independent outcomes into separate tests; document a local exemption only for a coupled invariant.",
   },
   "no-mock-calls": {
     summary: "Tests do not assert against bundled `.mock.calls` objects.",
@@ -31,7 +32,7 @@ const DIRECTIVES = {
   },
 }
 
-const BASELINE_DIRECTIVES = ["test-name-when", "arrange-act-assert", "one-direct-expect"]
+const BASELINE_DIRECTIVES = ["test-name-when", "arrange-act-assert"]
 const CHECK_ID = "marlens-rules:test-alignment"
 const SUPPRESSION_FILE = ".marlens-verifications.json"
 
