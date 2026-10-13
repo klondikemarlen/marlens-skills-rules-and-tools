@@ -16,4 +16,6 @@ Use when validating user-visible behavior in a browser.
 - This package does not install browser automation dependencies. Use OMP's browser tool or the target project's documented browser QA setup; do not add browser automation solely for QA unless requested.
 - Do not rely on logs or database state as proof of UI behavior.
 - Keep screenshots out of the repository unless explicitly requested.
-- If authentication or an external service blocks automation, state the blocker and what remains unverified.
+- If authentication or an external service blocks automation, state the exact blocker and what remains unverified without including local paths or profile/session details.
+- Keep personal usernames, absolute home paths, local browser profile/session paths, credentials/tokens, and workstation-specific locations out of all published GitHub QA records, including issue/review/QA comments and screenshot contents, filenames, and metadata. Keep local operational paths and profile/session details in local notes only; legitimate repository-relative source/test paths and reviewer-facing app routes may remain.
+- Before publishing a screenshot, inspect its contents and use a neutral filename and reviewer-facing caption. For screenshot upload and public-safe examples, follow [Upload Pull Request Screenshots](../../docs/workflows/upload-pr-screenshots-workflow.md).

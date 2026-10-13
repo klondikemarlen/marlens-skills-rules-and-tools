@@ -39,6 +39,18 @@ Use when the user explicitly says `learn`, asks the agent to remember a correcti
 8. Route verifier-related lessons to guidance/rules for prompt behavior or to a proposed upstream feature request for command/runtime support.
 9. Report what was remembered, changed, proposed, or intentionally skipped.
 
+## Reconciling Accepted Corrections
+
+When a user correction or accepted design change changes a durable project contract, reconcile existing memory before adding anything:
+
+1. Use `xd://recall` to find relevant working facts, then read each full `memory://<id>` candidate before editing; a clipped recall preview is not sufficient. Compare the facts against the accepted decision, not against each other.
+2. Anchor the current contract to an authoritative reviewed or merged source. Preserve facts that are true only for a named branch, version, deployment, or historical period; do not relabel those as universally stale.
+3. If a suitable canonical fact already states the accepted contract, leave it unchanged and report it as already-current. Otherwise use `xd://memory_edit` with `op: "update"` and the complete revised content; create one canonical fact only when none exists. Do not add duplicate repo guidance when current guidance already expresses the accepted contract.
+4. Use `xd://memory_edit` to invalidate conflicting obsolete working facts, preferably with `replacement_id` pointing to the canonical fact. Use the native operation supported for the entry; prefer invalidation over deletion. Never rewrite historical transcripts.
+5. If a recalled `[facts]` entry is read-only or an edit reports `not_editable`, leave it unchanged and report that reconciliation was unavailable; do not claim it was corrected or superseded. If the read-only entry is the canonical fact and it conflicts with the accepted contract, do not create a competing fact. Report corrected, superseded, and already-current entries separately, including any blocked read-only conflict.
+
+Do not treat a failed or unavailable memory operation as successful persistence. Report the exact outcome and source so a later correction can finish the reconciliation.
+
 ## Learner Issue Triage
 
 Use this path for GitHub issues titled or labeled as `learner:` proposals in this shared package, including requests like "implement new tickets" when the open tickets are learner-generated proposals.

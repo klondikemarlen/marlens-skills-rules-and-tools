@@ -22,6 +22,8 @@ Use after the requested work is complete when a session contains corrections, ad
 - Store personal preferences and durable project facts in memory only when they are specific and likely to help future work.
 - File issues only when issue filing is authorized by the current task or repository workflow.
 
+For a mined user correction or accepted decision that changes a durable contract, use [Learn’s Reconciling Accepted Corrections procedure](../learn/workflow.md#reconciling-accepted-corrections) before persisting it. This replaces the ordinary duplicate check for that finding: reconcile relevant working facts against an authoritative reviewed/merged source, preserve legitimate branch/version distinctions and historical transcripts, and report corrected, superseded, already-current, and any read-only/unavailable outcomes separately. Do not add a competing “final” memory or guidance entry.
+
 ## Process
 
 1. Wait until the requested implementation, verification, and release work is complete.

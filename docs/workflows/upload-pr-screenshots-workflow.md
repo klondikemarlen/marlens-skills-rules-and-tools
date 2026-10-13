@@ -6,7 +6,7 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 1. Identify reviewer-relevant UI states from the diff or PR body.
 2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
-3. Store temporary screenshots outside the repository, then copy each upload image to `~/Downloads` and verify that exact staged copy is readable before Browser upload. Do not rely on `/tmp`.
+3. Store temporary screenshots outside the repository, then copy each upload image to `~/Downloads` and verify that exact staged copy is readable before Browser upload. Do not rely on `/tmp`. Keep the operational local path out of GitHub reports.
 4. Add one stable HTML-comment placeholder per screenshot to the existing PR body.
 5. Open the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
 6. Call `github_markdown_image_upload_helper_path`, then dynamically import its returned `file:` URL in OMP Browser `run` code.
@@ -78,25 +78,28 @@ Helper behavior:
 - Do not commit temporary screenshots by default.
 - Redact secrets, credentials, personal data, and tokens.
 - Do not save the PR/comment until the helper returns a generated `user-attachments/assets/...` URL and you have reviewed the body.
-- Keep QA logs, local file paths, and internal verification evidence out of the PR body.
-- If screenshot upload is blocked, leave a captioned placeholder that names the exact local screenshot file and explains the blocker.
+- Keep QA logs and internal verification evidence out of GitHub content.
+- Keep personal usernames, absolute home paths, local browser profile/session paths, credentials/tokens, and workstation-specific locations out of every published GitHub record, including PR bodies and issue/review/QA comments, as well as screenshot contents, filenames, and metadata. Keep operational local paths in local notes only; legitimate repository-relative source/test paths and reviewer-facing app routes are useful and may remain.
+- Before uploading a new screenshot, inspect its contents and use a neutral filename and reviewer-facing caption. When correcting metadata on an existing GitHub record, preserve its generated attachment URLs, captions, surrounding text, and existing/user-uploaded images; change only the affected metadata.
+- If screenshot upload is blocked, replace the hidden editor placeholder with visible reviewer-facing text that uses a neutral filename and caption and states the exact blocker and what remains unverified; never put a local path in the public text.
 
 ## PR Body Pattern
 
 Use this shape for each screenshot:
 
 1. short reviewer-facing description
-2. local app URL when applicable
-3. GitHub-generated `<img ... user-attachments/assets/...>` tag, or a captioned manual-upload placeholder naming the exact local screenshot file when upload is blocked
+2. reviewer-facing app route when applicable
+3. GitHub-generated `<img ... user-attachments/assets/...>` tag, or a visible captioned placeholder with a neutral filename and the exact blocker when upload is blocked
 
 ```markdown
 # Screenshots
 
-Description
+Billing settings (`billing-settings.png`)
 http://localhost:8080/some-route
-<img width="..." height="..." alt="Description" src="https://github.com/user-attachments/assets/..." />
+<img width="..." height="..." alt="Billing settings" src="https://github.com/user-attachments/assets/<generated-attachment-id>" />
 
-Description
+Billing settings screenshot (`billing-settings.png`)
 http://localhost:8080/some-route
-<!-- Upload blocked: upload <local screenshot path> in GitHub and paste the generated <img ...> tag here. -->
+
+> **Upload blocked:** GitHub requires an authenticated browser session; the screenshot is not attached, so its rendering in the PR remains unverified. Upload `billing-settings.png` after authentication.
 ```
