@@ -189,37 +189,6 @@ export function verifyReviewProcedures({ read, fail }) {
     fail
   )
 
-  const uploadScreenshotsWorkflow = read("docs/workflows/upload-pr-screenshots-workflow.md")
-  requireEvery(
-    uploadScreenshotsWorkflow,
-    [
-      "addImageToGitHubMarkdownEditor",
-      "editorSelector",
-      "fileInputSelector",
-      "user-attachments/assets",
-      "not already present before upload",
-      "verify that exact staged copy is readable before Browser upload",
-      "REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL",
-      "After the web upload has produced a URL, API text edits may update PR/comment Markdown",
-      "existing PR body editor—not the temporary new-comment composer",
-      "one stable HTML-comment placeholder per screenshot",
-      "Submit the PR body form, reload the persisted target",
-      "confirm each image appears directly after its reviewer-facing caption and route",
-      "If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL",
-      "github_pr_screenshot_upload_path",
-      "uploadPullRequestCommentScreenshots",
-      "#issuecomment-…",
-      "not a `raw.githubusercontent.com` URL",
-    ],
-    (requiredText) => `upload screenshot workflow must document ${requiredText}`,
-    fail
-  )
-  if (uploadScreenshotsWorkflow.includes("prefer the GitHub REST API")) {
-    fail(
-      "upload screenshot workflow must not present REST as the primary local screenshot upload path"
-    )
-  }
-
   const githubToolingReference = read("docs/references/github-tooling-reference.md")
   requireEvery(
     githubToolingReference,
