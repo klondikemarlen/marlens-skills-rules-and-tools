@@ -11,13 +11,7 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
       workflow,
       [
         "Open a draft pull request",
-        "Self-review the complete PR diff",
-        "Run targeted QA for the user-visible changed behavior",
         "in this package that gate includes `node scripts/verify-oversized-source-files.mjs`",
-        "material findings, decisions, limitations, fixups, blockers",
-        "concise status in the PR body",
-        "one clearly labeled PR comment or linked traceable artifact",
-        "preserving `PASS`, `FAIL`, and `BLOCKED` outcomes",
         "Resolve every actionable review finding or comment",
         "After a fixup, repeat the complete self-review and targeted QA",
         "Merge verified pull requests by default with a merge commit",
