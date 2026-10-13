@@ -100,6 +100,16 @@ number=PULL_NUMBER
 13. Keep the PR `BLOCKED` while repository- or platform-enforced review requirements, review feedback, QA, or required checks are unresolved by default. If the user explicitly requests a waiver, drop, or cleanup instead, follow that disposition, record the missing evidence and do not claim verification that did not occur.
 14. After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default. Wait only for specifically required end-user testing the agent cannot perform. If the user explicitly requests a waiver, drop, or cleanup, record the missing evidence and do not claim the result was verified.
 
+## Public GitHub Records
+
+Before posting or updating any GitHub record—including issue descriptions or comments, PR bodies or comments, review comments, and QA reports—review its text and attachments for public-safe content:
+
+- Never include personal usernames, absolute home paths, local browser profile/session paths, credentials/tokens, or workstation-specific locations. Keep operational local paths and profile/session details in local notes only.
+- Legitimate repository-relative source/test paths and reviewer-facing app routes may remain. Use neutral screenshot filenames and captions; if an upload is blocked, state the exact blocker and what remains unverified without exposing local paths.
+- When correcting existing record metadata, change only the affected metadata. Preserve generated attachment URLs, captions, surrounding text, and existing/user-uploaded images.
+
+For screenshot-upload steps and safe successful-upload/blocked-auth examples, use the screenshot upload workflow linked in the Decision Rules.
+
 ## Stacked Pull Request Merge
 
 Use this only when a pull request is stacked or the ordinary merge endpoint returns the stacked-merge `403`.
