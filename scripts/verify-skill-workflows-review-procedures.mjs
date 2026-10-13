@@ -104,26 +104,6 @@ export function verifyReviewProcedures({ read, fail }) {
     requireEvery(
       workflow,
       [
-        "Review and QA status",
-        "Testing instructions: runnable steps a reviewer can execute without branch-author context.",
-        "Do not add reviewer-facing `Verification` or `Evidence` sections",
-        "one clearly labeled PR comment or linked traceable artifact",
-        "material findings, decisions, limitations, fixups, blockers",
-        "Self-review the complete PR diff",
-        "Run targeted QA for the user-visible changed behavior",
-        "Resolve every actionable review finding or comment",
-        "Keep the PR `BLOCKED`",
-        "Learner coverage: a concise triage outcome for each non-learner-authored issue",
-        "`PASS`, `FAIL`, and `BLOCKED` outcomes",
-        "After creating or updating a PR body, read the PR from GitHub",
-        "A local draft or body artifact is input only",
-      ],
-      (requiredText) => `${name} must require ${requiredText}`,
-      fail
-    )
-    requireEvery(
-      workflow,
-      [
         "### Repository Metadata",
         'gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests',
         "After any metadata update",

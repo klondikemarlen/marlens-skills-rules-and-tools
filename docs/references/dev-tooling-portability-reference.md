@@ -4,9 +4,35 @@ Use when deciding whether a project-local executable helper belongs in this shar
 
 ## Shared Dev Wrapper Pattern
 
-Use the shared Ruby `dev` binary for generic Docker Compose commands and project-local `bin/dev` shims for local customization. Keep service names, command overrides, ports, profiles, and environment details in `dev.config.rb`.
+Start from the ordinary repository-root setup: install the documented Ruby/runtime and project dependencies, provide required local configuration, then run `bin/dev` from the project root. The shared Ruby `dev` executable owns generic Docker Compose commands and project-local `bin/dev` shims select the local config path and pass caller arguments through unchanged. Keep service names, command overrides, ports, profiles, and environment details in `dev.config.rb`.
 
 The shared wrapper should own behavior that is consistent across repositories: compose passthrough, `up`, `down`, `logs`, `ps`, `run`, `exec`, service shells, test dispatch, and type-check dispatch. Local projects should own the names and commands that vary.
+
+On the documented path, required prerequisites should be present. If a required editor, configuration value, executable, or integration prerequisite is absent, fail with a direct actionable error; do not add fallback startup branches merely to make an unsupported setup appear to work. Keep the check at the boundary that owns the prerequisite.
+
+### Thin Entry Points and Values
+
+Forward caller options verbatim and let the underlying command own its option semantics. For example, `bin/dev up -d --wait` should reach Compose as supplied; do not parse a local `--wait` or `--wait=true` and synthesize `-d`. A documented upstream limitation is not by itself reason to build a project-specific compatibility parser.
+
+Use ordinary Bundler and repository configuration. Avoid custom `BUNDLE_GEMFILE` discovery or repeated configuration calls when standard setup and one clear default suffice. Keep required bind/exposure configuration explicit; do not invent credentials, editor commands, or unrelated defaults.
+
+Use descriptive names for values and helpers. For dynamic environment passed to a Ruby API that accepts a hash, use one builder (for example, `dynamic_environment_variables`) and keep native hash values until the shell boundary requires serialization. Avoid duplicate builders, dual-format flags, and indirection that merely renames a direct operation.
+
+### Before and After
+
+Before: a shim detects `--wait`/`--wait=true`, edits arguments to inject `-d`, checks whether an editor exists, then silently starts without editor integration if absent. This duplicates upstream option handling and hides a missing prerequisite.
+
+After: `exec dev --config dev.config.rb "$@"` forwards the invocation unchanged; `dev up -d --wait` requests detached startup with Compose's own flags. The normal setup supplies required editor/configuration, and a missing editor fails explicitly with an actionable message. This follows the project's existing shim/config split; it does not remove real integration prerequisites or adapter-owned cleanup.
+
+Review criteria: reject fallback branches, local argument normalization, repeated configuration, duplicate environment builders, and generic helper indirection unless a concrete current invariant or integration boundary requires them. Keep necessary safety/lifecycle contracts and enable optional integrations only on paths that supply their prerequisites (for example, do not activate a mounted Vite plugin for a one-off container that lacks its module).
+
+## Ownership Boundary
+
+The shared wrapper and any future reusable helpers own cross-project command mechanics and reusable adapter behavior. A project owns its entrypoint, configuration, service and command names, Compose files, ports, credentials, deployment assumptions, and opt-in integrations. Reuse the existing shim, `dev.config.rb`, and plugin extension points; do not turn the shared layer into an exhaustive compatibility framework or require a universal DSL.
+
+The examples and criteria above reflect reviewed corrections and observed QA in [Travel Authorization PR #406](https://github.com/icefoganalytics/travel-authorization/pull/406): [thin-helper and detached-startup correction](https://github.com/icefoganalytics/travel-authorization/pull/406#issuecomment-6149477228), [happy-path/configuration correction](https://github.com/icefoganalytics/travel-authorization/pull/406#issuecomment-6150213633), and [mounted-plugin prerequisite failure](https://github.com/icefoganalytics/travel-authorization/pull/406#discussion_r4239465373). These sources support the behavioral examples, not a claim that shared gem APIs or artifacts exist.
+
+For the bounded, conditional evolution path from current shim/config/plugin seams to a separately released artifact, see the [composable dev-helper gem adoption plan](../plans/composable-dev-helper-gem-adoption-plan.md).
 
 ## Default
 
