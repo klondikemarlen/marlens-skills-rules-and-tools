@@ -9,6 +9,7 @@ Use when validating user-visible behavior in a browser.
 3. Use backend shortcuts only when the user explicitly approves them or the task is not UI validation.
 4. Verify labels and controls from the browser or source before writing QA notes.
 5. Record exact scenarios exercised, visible outcomes, screenshots if useful, and blockers.
+6. When captured screenshots are intended for a PR, follow [Upload Pull Request Screenshots](../../docs/workflows/upload-pr-screenshots-workflow.md) for authentication/session discovery, installed batch upload, saved-body/rendered-placement checks, and owned-session cleanup. Screenshots remain optional when project-local guidance makes them optional.
 
 ## Rules
 

@@ -168,7 +168,7 @@ See [GitHub Asynchronous Merge for PR Stacks](../references/engineering-techniqu
 - Keep actionable inline review comments incomplete until the expected `+1`/`-1` reaction and `reviewThread.isResolved: true` have been verified through GitHub.
 - When a corrective branch needs an explicit CI rerun and its workflow supports `workflow_dispatch`, run `gh workflow run <workflow> --ref <branch>`, identify the new run, verify its branch and head SHA match the intended commit, then watch that exact run. Do not report a stale branch run as current evidence.
 - For UI changes, include screenshots or explain why screenshots do not apply.
-- When screenshots are required, use `docs/workflows/upload-pr-screenshots-workflow.md` for upload and PR body formatting.
+- When screenshots are required or supplied for a PR, use `docs/workflows/upload-pr-screenshots-workflow.md` for upload and PR body formatting, including browser authentication/session bootstrap, installed batch uploads, saved/rendered verification, and cleanup. Preserve project-local screenshot optionality.
 - If a project has a local PR template or workflow, follow it over this generic workflow.
 - When creating a PR from code changes, use the local or shared code-review workflow before finalizing the PR body unless the user explicitly asks to skip review.
 - Do not stop at PR body drafting: include or update testing instructions unless the user explicitly says not to.
