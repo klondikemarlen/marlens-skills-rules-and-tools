@@ -177,6 +177,61 @@ Extraction is warranted when the helper name captures a cohesive domain decision
 
 Extraction is not warranted for a trivial one-line transform, direct delegation, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
 
+## Guarded Computations
+
+When one predicate gates multiple related computed fields, or a multi-line computation, prefer a descriptively named helper with an early return for the excluded or exceptional case when that makes the normal path easier to follow and removes repeated conditions or nested/multi-line ternaries.
+
+Keep the predicate's exact boundary, result shape, evaluation order, side effects, and excluded-case behavior unchanged. This is a readability heuristic, not a demand to extract every conditional: concise scalar ternaries remain clear, and extraction is not useful when it merely moves a short expression behind an indirect helper call.
+
+For example, a fuzzy-search term may only be expanded up to a length bound. The same limit gates both generated fields:
+
+```ts
+const MAX_FUZZY_TERM_LENGTH = 8
+
+interface FuzzyQueryTerm {
+  trigrams: string[]
+  transpositions: string[]
+}
+
+function trigramsFor(term: string): string[] {
+  const padded = `  ${term} `
+  return Array.from({ length: Math.max(0, padded.length - 2) }, (_, index) =>
+    padded.slice(index, index + 3)
+  )
+}
+
+function adjacentTranspositionsFor(term: string): string[] {
+  return Array.from(
+    { length: Math.max(0, term.length - 1) },
+    (_, index) => `${term.slice(0, index)}${term[index + 1]}${term[index]}${term.slice(index + 2)}`
+  )
+}
+
+// Before: the same length predicate and excluded result are repeated.
+function buildFuzzyQueryTermBefore(term: string): FuzzyQueryTerm {
+  return {
+    trigrams: term.length <= MAX_FUZZY_TERM_LENGTH ? trigramsFor(term) : [],
+    transpositions: term.length <= MAX_FUZZY_TERM_LENGTH ? adjacentTranspositionsFor(term) : [],
+  }
+}
+
+// After: one named decision owns both related computations.
+function buildFuzzyQueryTerm(term: string): FuzzyQueryTerm {
+  if (term.length > MAX_FUZZY_TERM_LENGTH) {
+    return { trigrams: [], transpositions: [] }
+  }
+
+  return {
+    trigrams: trigramsFor(term),
+    transpositions: adjacentTranspositionsFor(term),
+  }
+}
+```
+
+The strict `>` guard preserves the inclusive `<= 8` boundary. The helper returns the same object shape, computes trigrams before transpositions on included inputs as the object literal did, and skips both computations when excluded.
+
+A concise scalar branch such as `isEnabled ? "Enabled" : "Disabled"` remains clear inline. Flag the repeated-field or multi-line gated shape only when a helper reduces duplicate gating or nesting; do not introduce an extraction merely to remove a `?` token.
+
 ## Private Helper Inputs
 
 Prefer a private functional helper that accepts every value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its real inputs and makes the behavior harder to reason about or test.

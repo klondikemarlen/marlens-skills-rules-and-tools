@@ -54,6 +54,10 @@ Report verification outcomes with this vocabulary:
 
 Use plain terms in user-facing summaries, PR bodies, and final reports. Define domain terms once when they are useful; otherwise choose clearer phrases so maintainers and reviewers do not need glossary context.
 
+### Guarded Computations
+
+When one predicate gates multiple related computed fields, or a multi-line computation, prefer a descriptively named helper with an early return if it reduces repeated conditions or nesting. Keep concise scalar ternaries inline when extraction adds indirection; see [Guarded Computations](docs/references/code-organization-reference.md#guarded-computations) for the scope and example.
+
 ### End-User Preferences
 
 Expose end-user preferences as a boolean, number, or string. Do not make users author JSON objects or arrays; model structured settings as separate scalar preferences instead.
