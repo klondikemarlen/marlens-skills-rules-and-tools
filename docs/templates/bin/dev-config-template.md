@@ -1,6 +1,6 @@
 # Dev Config Template
 
-Use this when a project wants to customize the shared Ruby `dev` wrapper without forking the wrapper itself.
+Use this when a project wants to customize the shared Ruby `dev` wrapper without forking the wrapper itself. Start from normal repository-root dependency setup; keep required local configuration explicit and report missing prerequisites rather than silently choosing reduced behavior.
 
 Create `dev.config.rb` in the project root:
 
@@ -22,6 +22,12 @@ Create `dev.config.rb` in the project root:
   }
 }
 ```
+
+## Configuration and Extension Boundaries
+
+Prefer ordinary Bundler setup and one obvious configuration default over custom Gemfile discovery or repeated configuration calls. Keep configuration values in their native Ruby types when passed to a Ruby API that accepts them. For dynamic environment values, use one descriptively named builder (such as `dynamic_environment_variables`); convert values to shell strings only at the subprocess/shell boundary.
+
+The project owns its service/command names, Compose files, ports, credentials, deployment assumptions, and opt-in integrations. Use `commands`, `plugins`, or `plugin_files` for small project-specific extensions. Keep any prerequisite checks and adapter cleanup with the integration that owns them; do not enable an integration on a path that lacks its required dependencies.
 
 ## Common Overrides
 
