@@ -26,13 +26,18 @@ class Page {
   constructor({ authenticated = true, targetSelector }) {
     this.authenticated = authenticated
     this.targetSelector = targetSelector
-    this.persistedMarkup = ""
+    this.persistedMarkdown = ""
     this.submitted = false
-    this.urls = []
+    this.editorVisible = true
   }
 
   async goto(url) {
     this.url = url
+
+    if (this.submitted) {
+      this.editor.node.value = this.persistedMarkdown
+      this.editorVisible = true
+    }
   }
 
   async $(selector) {
@@ -49,10 +54,7 @@ class Page {
   async evaluate(callback, ...args) {
     const document = globalThis.document
     globalThis.document = {
-      querySelector: (selector) =>
-        selector === `${this.targetSelector} button.js-comment-edit-button`
-          ? this.menuEdit.node
-          : null,
+      querySelector: (selector) => (selector === this.targetSelector ? this.target.node : null),
     }
     try {
       return callback(...args.map((arg) => (arg instanceof ElementHandle ? arg.node : arg)))
@@ -62,31 +64,17 @@ class Page {
   }
 
   async waitForSelector(selector, options) {
-    if (selector.includes(".js-comment-edit-button")) {
-      assert.equal(options.visible, true)
-      return this.menuEdit || this.editor
+    if (selector === this.targetSelector) return this.target
+
+    if (selector !== `${this.targetSelector} textarea`) {
+      throw new Error("Target editor is not present.")
     }
-    if (selector === this.targetSelector && options.visible) return this.target
-    assert.equal(selector, `${this.targetSelector} textarea`)
-    if (options.visible) return this.editor
-    assert.equal(options.hidden, true)
-    assert.equal(this.submitted, true)
-  }
 
-  async waitForFunction(_callback, options, selector, attachmentUrl) {
-    assert.equal(options.timeout, 60_000)
-    assert.equal(selector, this.targetSelector)
-    assert.equal(this.persistedMarkup.includes(attachmentUrl), true)
-  }
-}
+    if (options.hidden && this.editorVisible) {
+      throw new Error("Target editor is still visible.")
+    }
 
-function controlNode(label, click, ariaLabel = label) {
-  return {
-    textContent: label,
-    click,
-    getAttribute(name) {
-      return name === "aria-label" ? ariaLabel : null
-    },
+    return this.editor
   }
 }
 
@@ -96,7 +84,8 @@ function buildPage({ authenticated = true, targetSelector = "#issue-123" } = {})
     disabled: false,
     click() {
       page.submitted = true
-      page.persistedMarkup = page.urls.join("\n")
+      page.persistedMarkdown = editor.value
+      page.editorVisible = false
     },
   }
   const form = {
@@ -106,12 +95,15 @@ function buildPage({ authenticated = true, targetSelector = "#issue-123" } = {})
     querySelectorAll() {
       return [submit]
     },
-  }
-  const target = {
-    get innerHTML() {
-      return page.persistedMarkup
+    querySelector() {
+      return {
+        click() {
+          page.editorVisible = false
+        },
+      }
     },
   }
+  const target = {}
   const editor = {
     value: "<!-- screenshot -->",
     selectionStart: 0,
@@ -132,7 +124,6 @@ function buildPage({ authenticated = true, targetSelector = "#issue-123" } = {})
     onUpload() {
       const markdown = '<img src="https://github.com/user-attachments/assets/test-upload" />'
       editor.value = `${editor.value.slice(0, editor.selectionStart)}${markdown}${editor.value.slice(editor.selectionEnd)}`
-      page.urls.push("https://github.com/user-attachments/assets/test-upload")
     },
   }
   page.target = new ElementHandle(target)
@@ -147,82 +138,41 @@ try {
   writeFileSync(imagePath, "png")
 
   const page = buildPage()
-  const result = await uploadPullRequestCommentScreenshots({
+  page.editor.node.value =
+    '# Upload QA\n<img src="https://github.com/user-attachments/assets/existing-image" />\n<!-- screenshot -->\nOriginal footer'
+  await uploadPullRequestCommentScreenshots({
     page,
     prUrl: "https://github.com/owner/repository/pull/123#issue-123",
     editorSelector: "textarea",
     fileInputSelector: 'input[type="file"]',
     screenshots: [{ filePath: imagePath, placeholder: "<!-- screenshot -->" }],
   })
-  assert.equal(result[0].attachmentUrl, "https://github.com/user-attachments/assets/test-upload")
-  assert.equal(page.url, "https://github.com/owner/repository/pull/123")
-
-  const closedEditorPage = buildPage()
-  let editorOpen = false
-  let detailsOpen = false
-  const originalDollar = closedEditorPage.$.bind(closedEditorPage)
-  const originalDollarDollar = closedEditorPage.$$.bind(closedEditorPage)
-  closedEditorPage.$ = async (selector) => {
-    if (selector === "#issue-123 textarea") return editorOpen ? closedEditorPage.editor : null
-    if (selector === '#issue-123 summary:has(svg[aria-label="Show options"])') {
-      return new ElementHandle({
-        click() {
-          detailsOpen = true
-        },
-        closest() {
-          return {
-            querySelectorAll() {
-              return [closedEditorPage.menuEdit.node]
-            },
-          }
-        },
-      })
-    }
-    if (
-      selector ===
-      '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]'
-    ) {
-      return closedEditorPage.menuEdit
-    }
-    return originalDollar(selector)
-  }
-  closedEditorPage.menuEdit = new ElementHandle(
-    controlNode(
-      "Edit",
-      () => {
-        editorOpen = true
-      },
-      "Edit comment"
-    )
+  assert.equal(
+    page.persistedMarkdown,
+    '# Upload QA\n<img src="https://github.com/user-attachments/assets/existing-image" />\n<img src="https://github.com/user-attachments/assets/test-upload" />\nOriginal footer'
   )
-  closedEditorPage.$$ = async (selector) => {
-    if (
-      selector ===
-      '#issue-123 details-menu .js-comment-edit-button, #issue-123 details-menu [aria-label="Edit comment"]'
-    ) {
-      return [closedEditorPage.menuEdit]
-    }
-    return originalDollarDollar(selector)
-  }
-  await uploadPullRequestCommentScreenshots({
-    page: closedEditorPage,
-    prUrl: "https://github.com/owner/repository/pull/123#issue-123",
-    editorSelector: "textarea",
-    fileInputSelector: 'input[type="file"]',
-    screenshots: [{ filePath: imagePath, placeholder: "<!-- screenshot -->" }],
-  })
-  assert.equal(editorOpen, true)
-  assert.equal(detailsOpen, true)
 
-  const commentPage = buildPage({ targetSelector: "#issuecomment-456" })
-  await uploadPullRequestCommentScreenshots({
-    page: commentPage,
-    prUrl: "https://github.com/owner/repository/pull/123#issuecomment-456",
-    editorSelector: "textarea",
-    fileInputSelector: 'input[type="file"]',
-    screenshots: [{ filePath: imagePath, placeholder: "<!-- screenshot -->" }],
-  })
-  assert.equal(commentPage.submitted, true)
+  const missingAttachmentPage = buildPage()
+  const navigate = missingAttachmentPage.goto.bind(missingAttachmentPage)
+  missingAttachmentPage.goto = async (url) => {
+    await navigate(url)
+
+    if (missingAttachmentPage.submitted) {
+      missingAttachmentPage.editor.node.value = "Saved body without the uploaded attachment."
+    }
+  }
+
+  await assert.rejects(
+    () =>
+      uploadPullRequestCommentScreenshots({
+        page: missingAttachmentPage,
+        prUrl: "https://github.com/owner/repository/pull/123#issue-123",
+        editorSelector: "textarea",
+        fileInputSelector: 'input[type="file"]',
+        screenshots: [{ filePath: imagePath, placeholder: "<!-- screenshot -->" }],
+      }),
+    /missing from persisted target Markdown/
+  )
 
   await assert.rejects(
     () =>
