@@ -4,48 +4,137 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 ## Process
 
-1. Identify reviewer-relevant UI states from the diff or PR body.
+1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional.
 2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
-3. Store temporary screenshots outside the repository, then copy each upload image to `~/Downloads` and verify that exact staged copy is readable before Browser upload. Do not rely on `/tmp`. Keep the operational local path out of GitHub reports.
-4. Add one stable HTML-comment placeholder per screenshot to the existing PR body.
-5. Open the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
-6. Call `github_markdown_image_upload_helper_path`, then dynamically import its returned `file:` URL in OMP Browser `run` code.
-7. Call `addImageToGitHubMarkdownEditor` once per screenshot with `page`, the PR-body textarea selector, its browser-readable file path, and that screenshot's exact placeholder as `insertAt`.
-8. Require each result to contain a new `user-attachments/assets/...` URL and confirm it replaced the intended placeholder.
-9. Submit the PR body form, reload the persisted target, and confirm every expected attachment URL is present.
-10. In the rendered target, confirm each image appears directly after its reviewer-facing caption and route.
-11. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
-12. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
+3. Store temporary screenshots outside the repository, then copy each upload image to `~/Downloads` and verify that exact staged copy is readable before Browser upload. Do not rely on `/tmp`. Use neutral filenames and keep operational local paths out of GitHub reports.
+4. Check GitHub browser authentication before declaring the screenshots upload-ready. Reuse an explicitly authorized authenticated browser when available; otherwise use **Authenticated Session Bootstrap** below. A signed-in `gh` CLI does not authenticate the browser.
+5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images.
+6. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
+7. Call `github_pr_screenshot_upload_path` and use the complete **Browser Helper** invocation below. The batch uploader opens that target editor, replaces every exact placeholder, submits once, reloads, and verifies persisted attachment URLs. Use `addImageToGitHubMarkdownEditor` only for individual uploads or deferred submission.
+8. Require a new `user-attachments/assets/...` URL for every screenshot. Read the saved PR body through `gh pr view --json body`, confirm each placeholder was replaced in its intended slot, and compare surrounding text and existing image URLs with the pre-upload body.
+9. In the rendered target, confirm each image appears directly after its reviewer-facing caption and route. Persisted URLs alone do not prove rendered placement.
+10. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
+11. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
+12. Release the owned tab and stop the owned session process even after failure, as described below.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 
+## Authenticated Session Bootstrap
+
+Discover the existing `github-headless-session` command with `command -v github-headless-session`; it is packaged by this plugin, not a separate screenshot-uploader binary. If unavailable, inspect the installed package and its `bin/README.md` before declaring the route unavailable.
+
+Use only a browser session the user explicitly authorized for this repository. Do not adopt an unrelated signed-in tab, transfer cookies or credentials, use `gh` tokens as browser authentication, or automate passwords/2FA.
+
+When genuinely signed out:
+
+1. Create an owned temporary directory outside the repository; choose a continuation filename inside it that does not exist yet. Keep the directory, session/profile locations, and CDP endpoint local.
+2. Start this command as an owned long-lived process and retain its PID or tool-process handle:
+
+   ```bash
+   github-headless-session --repo OWNER/REPOSITORY --pr NUMBER --continue-file "<local absent continuation file>"
+   ```
+
+   It opens headed Chromium on the existing PR with a disposable profile. **The user must perform the initial interactive GitHub sign-in.** Use a dedicated test account with repository-only access. The loopback CDP endpoint is not an authorization boundary: its consumer has the signed-in account’s normal GitHub permissions.
+
+   Manual sign-in waits for caller continuation, browser exit, or cancellation; it has no fixed five-minute deadline. Keep ownership of the process and cancel it explicitly when the user cannot proceed.
+
+   The CLI allocates its disposable profile under `~/Downloads`, which is shared with sandboxed Chromium. This keeps prepared password-manager settings and profile cleanup on the browser’s actual files rather than a separate private `/tmp`. The profile remains local and is removed on session exit.
+
+3. After the user confirms sign-in, the caller—not the user—signals continuation:
+
+   ```bash
+   touch "<same local continuation file>"
+   ```
+
+   The CLI closes headed Chromium, relaunches headless with the same disposable profile, and prints one JSON object containing `cdpUrl` and `pullRequestUrl`. Read those values from that owned process; do not guess a port or publish them.
+
+4. Attach OMP Browser with `browser.open({ name: "pr-screenshots", app: { cdp_url: cdpUrl } })`, using the emitted `cdpUrl` as the variable value. Navigate to `pullRequestUrl` and check the browser session again for a sign-in link. If it is still signed out, stop and report that precise blocker.
+5. After authentication, the agent performs the uploads and saved/rendered checks below; do not ask the user to drag files or paste attachment Markdown.
+
+Close the owned OMP tab after QA. For a bootstrap session, then send `SIGTERM` to only the owned CLI process and wait for exit; the CLI stops Chromium and removes its disposable profile. Remove the owned continuation directory and staged screenshots after their evidence is no longer needed. For a reused browser, release the tab without terminating the user’s browser or deleting its profile. Do not persist authentication, secrets, or session files in tracked files.
+
+Manual upload is a last resort only when the explicitly authorized browser/session route is unavailable. State the exact missing prerequisite, keep the public blocked placeholder neutral, and give the actual file location only to the user locally. Do not describe manual upload as the normal signed-out path.
+
 ## Browser Helper
 
-The package exposes `github_markdown_image_upload_helper_path` to OMP. Call the tool first; then use its returned `file:` URL in OMP Browser `run` code. This avoids browser-run package resolution and keeps the Puppeteer `page` handle in its own runtime.
+Call `github_pr_screenshot_upload_path` first and retain its returned installed `file:` URL. The batch uploader takes a PR URL with an exact `#issue-…` body or `#issuecomment-…` reply fragment, scopes controls and verification to that target, opens its `<details>` menu when needed, uploads every placeholder, submits, and verifies persisted attachment URLs. For PR evidence use the body fragment, not a reply.
 
-For repeatable uploads, call `github_pr_screenshot_upload_path` and import its returned `file:` URL. The uploader takes a PR URL with an exact `#issue-…` body or `#issuecomment-…` reply fragment, scopes controls and verification to that target, opens its `<details>` menu when needed, uploads every placeholder, submits, and verifies persisted attachment URLs.
+Persisted verification reopens the saved editor, checks the original generated attachment URLs in its Markdown, then cancels that read-only edit. GitHub may render images through signed proxy URLs; comparing original attachment URLs with rendered HTML can falsely report failure. Verify loaded images and caption placement separately, and never publish signed proxy URLs instead of the generated attachment URLs.
+
+For a bootstrap session, use the emitted `cdpUrl` and `pullRequestUrl`. For an explicitly authorized existing session, reuse its tab instead of opening a second bootstrap session. Verify the live selectors; the uploader scopes the supplied `textarea` and `input[type="file"]` to the exact fragment.
 
 ```js
-const { uploadPullRequestCommentScreenshots } =
-  await import("<file: URL returned by github_pr_screenshot_upload_path>")
-
-const results = await uploadPullRequestCommentScreenshots({
-  page,
-  prUrl: "https://github.com/owner/repository/pull/123#issue-456",
-  editorSelector: "textarea",
-  fileInputSelector: 'input[type="file"]',
-  screenshots: [
-    {
-      filePath: "<browser-readable screenshot path>",
-      placeholder: "<!-- screenshot: overview -->",
-    },
-  ],
+const tab = await browser.open({
+  name: "pr-screenshots",
+  url: pullRequestUrl,
+  app: { cdp_url: cdpUrl },
 })
+
+try {
+  if (await tab.count('a[href^="/login"]')) {
+    throw new Error("GitHub browser session is still signed out after manual sign-in.")
+  }
+
+  const results = await tab.run(
+    async ({ page }, { uploaderUrl, prUrl }) => {
+      const { access, stat } = await import("node:fs/promises")
+      const { constants } = await import("node:fs")
+      const { homedir } = await import("node:os")
+      const path = await import("node:path")
+      const { uploadPullRequestCommentScreenshots } = await import(uploaderUrl)
+      const screenshots = [
+        {
+          filePath: path.join(homedir(), "Downloads", "billing-overview.png"),
+          placeholder: "<!-- screenshot: billing-overview -->",
+        },
+        {
+          filePath: path.join(homedir(), "Downloads", "billing-settings.png"),
+          placeholder: "<!-- screenshot: billing-settings -->",
+        },
+      ]
+
+      for (const { filePath } of screenshots) {
+        await access(filePath, constants.R_OK)
+        const image = await stat(filePath)
+
+        if (!image.isFile() || image.size === 0) {
+          throw new Error("A staged screenshot is missing or empty.")
+        }
+      }
+
+      return uploadPullRequestCommentScreenshots({
+        page,
+        prUrl,
+        editorSelector: "textarea",
+        fileInputSelector: 'input[type="file"]',
+        screenshots,
+      })
+    },
+    {
+      args: [
+        {
+          uploaderUrl: "<file: URL returned by github_pr_screenshot_upload_path>",
+          prUrl: "https://github.com/owner/repository/pull/123#issue-456",
+        },
+      ],
+    }
+  )
+
+  console.log(results.map(({ attachmentUrl }) => attachmentUrl))
+  await tab.observe({ selector: "#issue-456", includeAll: true })
+  await tab.screenshot({ selector: "#issue-456" })
+} finally {
+  await tab.close()
+}
 ```
+
+Replace the sample PR URL/body fragment, captions, and neutral filenames with the observed target and actual staged images. The exact placeholders passed to the uploader must already appear under their corresponding headings in the existing body. `tab.run` supplies its own Puppeteer `page`; outer variables are passed through `args`, not captured.
+
+Compare the browser observation/screenshot with the intended caption/heading order; obtaining a screenshot alone is not a placement assertion. Use the observed fragment in all selectors. Keep the returned URLs as local operational results until the saved body and rendered placement are verified.
 
 Use the installed `file:` URL, not a `raw.githubusercontent.com` URL. It is version-matched to the installed plugin, requires no remote-code fetch, and keeps the browser-runtime API local. Use the lower-level helper below only when the caller needs to control an individual upload or defer PR-body submission.
 
-Top priority: editing an existing PR body with lots of text. Put explicit screenshot placeholders in the PR body first, then pass that exact placeholder as `insertAt` so the helper replaces only the target screenshot slot and leaves surrounding PR text unchanged.
+For individual uploads, call `github_markdown_image_upload_helper_path` and import its returned installed `file:` URL inside `tab.run`, where `page` is supplied. Put explicit screenshot placeholders in the PR body first, then pass the exact placeholder as `insertAt` so the helper replaces only the target slot and leaves surrounding text unchanged.
 
 ```js
 const { addImageToGitHubMarkdownEditor } =
