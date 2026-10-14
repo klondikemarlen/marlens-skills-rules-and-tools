@@ -1,6 +1,6 @@
 # Worktree Creation Workflow
 
-Use this workflow before starting issue work in a separate Git worktree.
+Use this workflow before starting issue work in a separate Git worktree, or when continuing work in an explicitly selected existing worktree.
 
 ## Goal
 
@@ -40,6 +40,22 @@ agent_worktree="$(dirname "$agent_rebase_edit")/agent-worktree"
 ```
 
 The worktree name must be one safe path segment. Use the project convention plus a concise, meaningful outcome slug; never use opaque abbreviations or a bare issue number. The command refuses existing paths and branches rather than overwriting user data. Re-running it for the same registered path and branch returns that path.
+
+## Target the Selected Checkout
+
+For a new worktree, use the command's verified returned path. For an existing worktree, identify its registered path and branch before continuing; do not recreate it or change an unrelated checkout.
+
+A shell's cwd and file tools' workspace roots can be independent. A successful `cd`/`pwd` proves that shell's location, not an all-tool workspace switch. Use each tool's supported workspace/cwd selector when available; otherwise qualify file/search/edit paths with the selected checkout. Relative paths remain valid when that tool's root is known and verified.
+
+For example, after discovering a source path inside the selected checkout:
+
+```text
+bash(cwd="<selected-checkout>", command="git status --short --branch")
+read(path="<selected-checkout>/src/feature.ts")
+grep(path="<selected-checkout>/src", pattern="expectedSymbol")
+```
+
+Replace the example file with the discovered path; do not infer that a PR file is absent from an unexpected empty/missing relative result. Check the selected checkout and the file tool's root first, then retry with the verified qualified path. Keep the primary checkout and unrelated worktrees untouched.
 
 ## Local Environment
 

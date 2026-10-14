@@ -18,6 +18,16 @@ Use when establishing or materially revising a repository-local `docs/` knowledg
 - Local workflow and template overlays supplement shared guidance; they do not copy the generic body.
 - Establishing a docs tree does not select a static-site generator or authorize site publication. Repository visibility controls access: confidential material MUST NOT be committed to a public repository.
 
+## Selecting Documentation Content
+
+Before editing repository documentation:
+
+1. Name the durable reader question or architectural contract that changed. Update its existing durable owner only when the current knowledge no longer answers that question or describes the contract.
+2. If the knowledge remains correct, record documentation as intentionally unchanged; do not invent a README section to satisfy a generic cleanup request.
+3. Keep PR-specific change lists, transient execution state, migration rollout summaries, and verification reports in their owning PR, issue, or release record.
+4. Retain historical context when it explains a current decision, invariant, compatibility constraint, or operator procedure, and make that relevance clear.
+5. Preserve actual documentation needs and project-local changelog, release-metadata, verification, and publishing requirements. Do not attribute an unverified instruction to this workflow or package; if its actual owner is established, reconcile it there separately.
+
 ## Required Inputs
 
 - The project’s local documentation, agent, and contribution guidance.
