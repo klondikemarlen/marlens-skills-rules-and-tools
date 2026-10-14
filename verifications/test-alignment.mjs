@@ -373,8 +373,11 @@ function checkArrangeActAssert(block) {
   const arrange = block.body.search(/(?:\/\/|\/\*)\s*Arrange\b/u)
   const act = block.body.search(/(?:\/\/|\/\*)\s*Act\b/u)
   const assert = block.body.search(/(?:\/\/|\/\*)\s*Assert\b/u)
+  const combined = block.body.search(/(?:\/\/|\/\*)\s*Act\s*(?:\/|and)\s*Assert\b/u)
+  const orderedSeparatePhases = arrange !== -1 && act > arrange && assert > act
+  const orderedCombinedPhases = arrange !== -1 && combined > arrange
 
-  return arrange !== -1 && act > arrange && assert > act
+  return orderedSeparatePhases || orderedCombinedPhases
     ? null
     : "does not contain ordered Arrange, Act, and Assert comments"
 }
