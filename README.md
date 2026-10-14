@@ -26,6 +26,8 @@ Every reusable OMP rule in [`rules/`](rules/) loads by default through OMP plugi
 
 This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper, `bin/agent-rebase-edit.js`, and `bin/agent-worktree.js` remain available for project-local shims and scripted Git worktree setup.
 
+For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install it as a project development dependency and register it in your test setup; OMP installation alone does not configure a project's test runner.
+
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
 ## Claude Code Plugin Install
@@ -126,7 +128,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Upload PR screenshots                                                     | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md)                                                                                                          |
 | Decide where guidance belongs                                             | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md)                                                                                                          |
 | Audit downstream agent guidance                                           | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit`                                                       |
-| Establish a project-local documentation knowledge base                   | [`docs/workflows/project-knowledge-base-workflow.md`](docs/workflows/project-knowledge-base-workflow.md)                                                                                                        |
+| Establish a project-local documentation knowledge base                    | [`docs/workflows/project-knowledge-base-workflow.md`](docs/workflows/project-knowledge-base-workflow.md)                                                                                                        |
 | Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md)                                                                                                                    |
 | Mine session insights and route durable lessons                           | [`docs/workflows/session-insight-mining-workflow.md`](docs/workflows/session-insight-mining-workflow.md)                                                                                                        |
 | Draft or file Jira reports                                                | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting`                                                                                                   |
