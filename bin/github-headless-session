@@ -2,7 +2,7 @@
 import { spawn } from "node:child_process"
 import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { constants } from "node:fs"
-import { tmpdir } from "node:os"
+import { homedir } from "node:os"
 import path from "node:path"
 import process from "node:process"
 
@@ -26,7 +26,10 @@ if (
 )
   throw new Error("--continue-file must not exist before manual sign-in.")
 
-const profile = await mkdtemp(path.join(tmpdir(), "github-headless-session-"))
+// Sandboxed Chromium has a private temp directory; Downloads is shared with the launcher.
+const profileDirectory = path.join(homedir(), "Downloads")
+await mkdir(profileDirectory, { recursive: true })
+const profile = await mkdtemp(path.join(profileDirectory, "github-headless-session-"))
 const pullRequestUrl = `https://github.com/${repository}/pull/${pullRequest}`
 let browser
 let browserExited
@@ -133,8 +136,9 @@ async function endpoint() {
   }
   throw new Error(`Chromium did not expose a local CDP endpoint. ${stderr}`)
 }
+
 async function waitForContinuation() {
-  for (let attempt = 0; attempt < 1200; attempt += 1) {
+  while (true) {
     if (launchError) throw launchError
     if (!browser || !browserRunning)
       throw new Error("Chromium closed before manual sign-in confirmation.")
@@ -147,8 +151,8 @@ async function waitForContinuation() {
       return
     await delay(250)
   }
-  throw new Error("Timed out waiting for sign-in confirmation.")
 }
+
 async function stopBrowser() {
   const child = browser
   const exited = browserExited

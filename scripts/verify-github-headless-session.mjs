@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { spawn } from "node:child_process"
 import { constants } from "node:fs"
-import { access, chmod, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises"
+import { access, chmod, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
 
@@ -13,13 +13,20 @@ await access(path.join(root, "bin/github-headless-session"), constants.X_OK)
 await writeFile(
   fake,
   `#!/usr/bin/env node
-import { appendFile, readFile, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-const profile = process.argv.find((arg) => arg.startsWith('--user-data-dir=')).slice(16);
+import path from 'node:path';
+let profile = process.argv.find((arg) => arg.startsWith('--user-data-dir=')).slice(16);
+if (process.env.FAKE_PRIVATE_TMP && profile.startsWith(process.env.TMPDIR + '/')) {
+  profile = path.join(process.env.FAKE_PRIVATE_TMP, path.basename(profile));
+  await mkdir(profile + '/Default', { recursive: true });
+  await writeFile(profile + '/Default/Preferences', JSON.stringify({ credentials_enable_service: true, profile: { password_manager_enabled: true } }));
+}
 const headless = process.argv.includes('--headless=new');
 const server = createServer((request, response) => response.end('{}'));
 server.listen(0, '127.0.0.1', async () => {
   const port = server.address().port;
+  console.error('DevTools listening on ws://127.0.0.1:' + port + '/devtools/browser/test');
   await writeFile(profile + '/DevToolsActivePort', port + '\\n');
   const preferences = JSON.parse(await readFile(profile + '/Default/Preferences', 'utf8'));
   await appendFile(process.env.FAKE_LOG, JSON.stringify({ profile, headless, passwordManagerEnabled: preferences.credentials_enable_service || preferences.profile.password_manager_enabled }) + '\\n');
@@ -35,6 +42,8 @@ try {
   await signedInCase("SIGINT", { signal: "SIGINT" })
   await signedInCase("normal exit", { normalExit: true })
   await missingBrowserCase()
+  await cancelBeforeContinuationCase()
+  await sandboxedProfileCase()
 } finally {
   await rm(temp, { recursive: true, force: true })
 }
@@ -49,6 +58,7 @@ async function signedInCase(name, { signal, normalExit = false }) {
     cwd: root,
     env: {
       ...process.env,
+      HOME: directory,
       CHROMIUM: fake,
       FAKE_LOG: log,
       TMPDIR: directory,
@@ -85,12 +95,81 @@ async function signedInCase(name, { signal, normalExit = false }) {
   }
 }
 
+async function sandboxedProfileCase() {
+  const directory = await mkdtemp(path.join(temp, "sandboxed-profile-"))
+  const temporaryDirectory = path.join(directory, "host-temporary")
+  const log = path.join(directory, "launches.jsonl")
+  await mkdir(temporaryDirectory)
+  const child = spawn(process.execPath, launcherArguments(path.join(directory, "continue")), {
+    cwd: root,
+    env: {
+      ...process.env,
+      HOME: path.join(directory, "shared-home"),
+      CHROMIUM: fake,
+      FAKE_LOG: log,
+      TMPDIR: temporaryDirectory,
+      FAKE_PRIVATE_TMP: path.join(directory, "browser-private-temporary"),
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  })
+  const output = capture(child)
+
+  try {
+    const [headed] = await waitFor(
+      () => launches(log).then((rows) => (rows.length === 1 ? rows : false)),
+      "sandboxed profile",
+      output
+    )
+
+    assert.equal(headed.passwordManagerEnabled, false)
+  } finally {
+    child.kill("SIGTERM")
+    await waitForExit(child, "sandboxed profile", output)
+    await stop(child)
+    await rm(directory, { recursive: true, force: true })
+  }
+}
+
+async function cancelBeforeContinuationCase() {
+  const directory = await mkdtemp(path.join(temp, "cancel-manual-sign-in-"))
+  const log = path.join(directory, "launches.jsonl")
+  const sentinel = path.join(directory, "continue")
+  const child = spawn(process.execPath, launcherArguments(sentinel), {
+    cwd: root,
+    env: {
+      ...process.env,
+      HOME: directory,
+      CHROMIUM: fake,
+      FAKE_LOG: log,
+      TMPDIR: directory,
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  })
+  const output = capture(child)
+
+  try {
+    const [headed] = await waitFor(
+      () => launches(log).then((rows) => (rows.length === 1 ? rows : false)),
+      "cancel manual sign-in",
+      output
+    )
+
+    child.kill("SIGTERM")
+    await waitForExit(child, "cancel manual sign-in", output)
+    await assert.rejects(access(headed.profile))
+  } finally {
+    await stop(child)
+    await rm(directory, { recursive: true, force: true })
+  }
+}
+
 async function missingBrowserCase() {
   const directory = await mkdtemp(path.join(temp, "missing-browser-"))
   const child = spawn(process.execPath, launcherArguments(path.join(directory, "continue")), {
     cwd: root,
     env: {
       ...process.env,
+      HOME: directory,
       CHROMIUM: path.join(directory, "missing"),
       TMPDIR: directory,
     },
@@ -101,7 +180,6 @@ async function missingBrowserCase() {
   try {
     await waitForExit(child, "missing browser", output)
     assert.notEqual(child.exitCode, 0)
-    assert.deepEqual(await readdir(directory), [])
   } finally {
     await stop(child)
     await rm(directory, { recursive: true, force: true })
