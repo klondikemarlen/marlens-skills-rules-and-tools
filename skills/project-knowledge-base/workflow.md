@@ -8,6 +8,16 @@ A project knowledge base gives readers one discoverable home for durable knowled
 
 It produces a project-local docs entry point, only the knowledge sections with current consumers, explicit authority boundaries, and a publication boundary that can later support a documentation site.
 
+## Selecting Documentation Content
+
+Before editing repository documentation:
+
+1. Name the durable reader question or architectural contract that changed. Update its existing durable owner only when the current knowledge no longer answers that question or describes the contract.
+2. If the knowledge remains correct, record documentation as intentionally unchanged; do not invent a README section to satisfy a generic cleanup request.
+3. Keep PR-specific change lists, transient execution state, migration rollout summaries, and verification reports in their owning PR, issue, or release record.
+4. Retain historical context when it explains a current decision, invariant, compatibility constraint, or operator procedure, and make that relevance clear.
+5. Preserve actual documentation needs and project-local changelog, release-metadata, verification, and publishing requirements. Do not attribute an unverified instruction to this workflow or package; if its actual owner is established, reconcile it there separately.
+
 ## Required Inputs
 
 - Project-local instructions, README, source-adjacent READMEs, existing docs, and contribution guidance.

@@ -232,6 +232,79 @@ The strict `>` guard preserves the inclusive `<= 8` boundary. The helper returns
 
 A concise scalar branch such as `isEnabled ? "Enabled" : "Disabled"` remains clear inline. Flag the repeated-field or multi-line gated shape only when a helper reduces duplicate gating or nesting; do not introduce an extraction merely to remove a `?` token.
 
+## Guard Clauses and Exceptional Responses
+
+In generated or touched JavaScript and TypeScript, use a multiline braced block for an early `if` exit rather than an inline `if (...) throw` or `if (...) return`. Leave one blank line between the closing brace and the next sibling statement; keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
+
+Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
+
+```ts
+// Before
+if (composable === undefined) throw new Error("Expected workflow composable scope.")
+await flushPromises()
+
+// After (when Lodash is already available)
+if (isUndefined(composable)) {
+  throw new Error("Expected workflow composable scope.")
+}
+
+await flushPromises()
+```
+
+When an error condition requires an exceptional response, return it in an explicit guard and leave the ordinary error response on the normal path. Do not choose between exceptional and ordinary status/message values with a ternary and funnel both through one response branch. Preserve existing behavior unless a correction is requested; apply an accepted correction to all matching in-scope cases, not untouched consumers.
+
+```ts
+// Before
+return response.status(error instanceof ServiceUnavailableError ? 503 : 500).json({
+  message: error instanceof ServiceUnavailableError ? "Service is unavailable." : "Request failed.",
+})
+
+// After
+if (error instanceof ServiceUnavailableError) {
+  return response.status(503).json({ message: "Service is unavailable." })
+}
+
+return response.status(500).json({ message: "Request failed." })
+```
+
+This is a rule about exceptional control flow, not all ternaries: a concise scalar choice such as `isEnabled ? "Enabled" : "Disabled"` remains clear inline.
+
+## Cleanup Necessity
+
+Before retaining or relocating test cleanup, name the resource, isolation requirement, or observable invariant that requires it. An intentionally pending in-memory mock promise with no I/O or timer does not need to be settled merely to make the test body look complete, especially when existing scope teardown disposes it. Remove unnecessary settlement and its unused fixtures; do not move it to `finally` or a test hook. Keep assertions of pending state pending—do not resolve early, manufacture a snapshot, or weaken coverage.
+
+```tsx
+// The framework already tears down this view; the deferred mock has no timer or I/O.
+const request = deferred()
+const { getByRole } = render(<PendingView load={() => request.promise} />)
+expect(getByRole("status")).toHaveTextContent("Loading")
+// Do not add request.resolve(...) or a settlement hook after the pending-state assertion.
+```
+
+By contrast, dispose resources that remain live beyond the assertion, such as timers, I/O, or subscriptions. Reuse automatic teardown where it already provides the required disposal. Keep explicit disposal when disposal itself is under test or when it protects a demonstrated isolation invariant.
+
+```ts
+// Necessary: the interval remains live after this assertion.
+const timer = setInterval(refresh, 1_000)
+
+try {
+  expect(refresh).not.toHaveBeenCalled()
+} finally {
+  clearInterval(timer)
+}
+```
+
+An explicit unmount regression is also appropriate when the test observes that unmounting releases a subscription; the cleanup is then the behavior under test, not cosmetic teardown.
+
+```tsx
+const unsubscribe = vi.fn()
+const { unmount } = render(<SubscribedView subscribe={() => unsubscribe} />)
+unmount()
+expect(unsubscribe).toHaveBeenCalledOnce()
+```
+
+When automatic framework teardown already unmounts each rendered component, do not add another explicit unmount solely for completeness.
+
 ## Private Helper Inputs
 
 Prefer a private functional helper that accepts every value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its real inputs and makes the behavior harder to reason about or test.

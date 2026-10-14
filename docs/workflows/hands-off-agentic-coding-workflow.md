@@ -37,12 +37,14 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 3. Gate implementation on verification:
    - name the command or scenario before coding;
    - if no runnable evidence is reachable, record `BLOCKED` with the exact missing prerequisite before changing behavior.
+   - when checking configuration prerequisites, use [Safe Configuration Diagnostics](#safe-configuration-diagnostics) rather than broad value dumps.
 4. Delegate only where it buys coverage:
    - keep work inline when a separate agent would only repeat context gathering or perform a small local edit;
    - use independent substantial slices or a specific design, test, or review risk to justify delegation; agent availability alone is not a reason;
    - before transfer or resumption, provide the recipient's scope, ownership, relevant observed context, proof, remaining work, and next action;
    - preserve required self-review and repository review gates whether or not a separate reviewer is useful.
 5. Implement the first runnable prototype:
+   - before changing policy, use [Verify Existing Behavior Before Policy Changes](#verify-existing-behavior-before-policy-changes) to establish the actual gap; an already-satisfied request may need no production-policy diff.
    - reuse existing project patterns;
    - keep tests focused on one observable outcome, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles; preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for coupled invariants and examples;
    - delete obsolete paths instead of adding compatibility shims;
@@ -56,6 +58,28 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
    - changed files and links;
    - final `PASS`, `FAIL`, or `BLOCKED` evidence;
    - residual risks or missing evidence, if any.
+
+## Verify Existing Behavior Before Policy Changes
+
+For a review request that could change defaults, fallback behavior, precedence, or opt-outs:
+
+1. Trace the accepted outcome through the existing branch, relevant callers, and selecting configuration. Distinguish a selection/catalog change from a missing policy implementation.
+2. Name the actual behavioral gap. If the distinction is uncertain, run the smallest existing or throwaway scenario that separates the relevant paths; do not require a truth table or broad rerun for a mechanical edit.
+3. If the current path already satisfies the request, preserve it and explain the source and observed result. Do not add stricter-looking gates, renamed helpers, or tests merely to bless an unrequested semantic change.
+4. If the maintainer intends a genuine policy change, state the changed default, precedence, or opt-out contract and verify it explicitly. Resolve ambiguous intent from source, the issue, and maintainer review instead of inferring a stricter default.
+
+For example, removing an event from a configuration catalog may select an existing unconditional default branch. A small scenario with disabled global settings and empty channel selection can show that the original path already delivers. Retire the catalog entry without adding channel/global guards unless that policy change was accepted. Add a permanent regression only for a real consumer-visible gap; an unchanged accepted contract keeps its original expectations.
+
+## Safe Configuration Diagnostics
+
+Use when diagnosing local configuration or environment prerequisites:
+
+1. Prefer the project's documented wrapper and selective runtime queries. Inspect structure/key names without values by default; do not read an arbitrary env-file range, run unrestricted `printenv`, or dump complete Compose configuration into tool output.
+2. Retrieve only the settings explicitly needed and confirmed safe to disclose in this context. Hosts, usernames, URLs, and database names are not inherently public. If a needed value is sensitive, return an appropriate comparison/status without echoing it.
+3. For credential availability or validity, emit presence or verified status only—not values, fragments, hashes, or connection strings. Presence is not proof of validity; preserve the actual probe outcome.
+4. Keep sensitive output out of the initial tool result and subsequent transcripts, memories, issue/PR reports, and screenshots. Necessary local access is not permission to echo credentials. This is selective inspection, not a blanket ban on env files or a new redaction runtime.
+
+For example, a synthetic fixture containing mode/port settings and a token can emit only the context-approved mode and port plus `tokenPresent: true`. Do not include the token or assume that those key names are always safe in a real project. Existing public-report privacy and environment-example rules retain their separate boundaries.
 
 ## Context Handoff Template
 

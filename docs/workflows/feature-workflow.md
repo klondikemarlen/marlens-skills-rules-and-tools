@@ -11,6 +11,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 **Decision Rules:**
 
 - Project-local release and contribution docs win over this generic workflow.
+- Before editing repository documentation, follow [Selecting Documentation Content](project-knowledge-base-workflow.md#selecting-documentation-content) to name the changed durable reader question or contract and decide whether a docs change is needed.
 - Create or update a GitHub issue before coding user-facing work unless the user explicitly says not to use issues.
 - An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation; do not ask again solely for that delivery. External or unresolved GitHub writes remain subject to `omp-soft-boundary-guard` advisory warnings when installed. A standard OMP Ask applies only when a caller explicitly uses the guard's strict programmatic API; do not add another confirmation. Preserve destructive or ambiguous Git-operation safeguards.
 - Name issue branches with the project's issue convention and a concise, meaningful outcome slug; never use opaque abbreviations or a bare issue number. Give pull requests an equally meaningful outcome-focused title and link the issue in the body.
