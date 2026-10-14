@@ -36,6 +36,10 @@ When genuinely signed out:
 
    It opens headed Chromium on the existing PR with a disposable profile. **The user must perform the initial interactive GitHub sign-in.** Use a dedicated test account with repository-only access. The loopback CDP endpoint is not an authorization boundary: its consumer has the signed-in account’s normal GitHub permissions.
 
+   Manual sign-in waits for caller continuation, browser exit, or cancellation; it has no fixed five-minute deadline. Keep ownership of the process and cancel it explicitly when the user cannot proceed.
+
+   The CLI allocates its disposable profile under `~/Downloads`, which is shared with sandboxed Chromium. This keeps prepared password-manager settings and profile cleanup on the browser’s actual files rather than a separate private `/tmp`. The profile remains local and is removed on session exit.
+
 3. After the user confirms sign-in, the caller—not the user—signals continuation:
 
    ```bash
@@ -54,6 +58,8 @@ Manual upload is a last resort only when the explicitly authorized browser/sessi
 ## Browser Helper
 
 Call `github_pr_screenshot_upload_path` first and retain its returned installed `file:` URL. The batch uploader takes a PR URL with an exact `#issue-…` body or `#issuecomment-…` reply fragment, scopes controls and verification to that target, opens its `<details>` menu when needed, uploads every placeholder, submits, and verifies persisted attachment URLs. For PR evidence use the body fragment, not a reply.
+
+Persisted verification reopens the saved editor, checks the original generated attachment URLs in its Markdown, then cancels that read-only edit. GitHub may render images through signed proxy URLs; comparing original attachment URLs with rendered HTML can falsely report failure. Verify loaded images and caption placement separately, and never publish signed proxy URLs instead of the generated attachment URLs.
 
 For a bootstrap session, use the emitted `cdpUrl` and `pullRequestUrl`. For an explicitly authorized existing session, reuse its tab instead of opening a second bootstrap session. Verify the live selectors; the uploader scopes the supplied `textarea` and `input[type="file"]` to the exact fragment.
 
