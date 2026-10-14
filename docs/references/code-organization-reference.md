@@ -99,6 +99,42 @@ Verification code should expose each independently observable contract through a
 
 Use a fresh fixture when a scenario needs a different starting state. A failing scenario must not be mutated into a clean scenario, because that couples independent behavior and obscures the clean contract.
 
+## Input-Heavy Utility Tests
+
+For input-heavy utilities, property-based or metamorphic tests can complement literal examples when they check a meaningful invariant across varied inputs. Keep the invariant independent of the implementation; use a seeded run that can be replayed, retain shrinking/minimized failures as literal regression examples, and bound the generated run budget so it remains a focused check. Preserve representative literal examples and known regressions. This is useful for utilities with broad input spaces, not a demand for exhaustive business matrices or an automatic dependency installation.
+
+For example, if a normalizer's contract requires idempotence, `normalize(normalize(value))` must equal `normalize(value)`. That relation alone is insufficient: an implementation that always returns an empty string also passes. Retain literal examples with independently specified expected results. Prefer a straightforward input/output table when the important edge cases are small and enumerable; do not install a property-testing dependency automatically.
+
+[fast-check's getting-started guide](https://fast-check.dev/docs/introduction/getting-started/) describes property-based generation, seeds, and shrinking. [Metamorphic testing](https://www.hillelwayne.com/post/metamorphic-testing/) is useful when a transformed input should have a related output even when a direct oracle is awkward. Choose only relations that are domain-meaningful.
+
+## Bounded Mutation Spot-Checks
+
+When a critical test's sensitivity is uncertain, a bounded mutation spot-check can expose a weak assertion: make one plausible fault in a controlled, disposable test copy, such as changing `>=` to `>` or removing an opt-out or permission check, then verify the intended focused test fails for that behavior rather than a setup error. Restore the clean implementation and confirm the same check passes, then discard the copy; never leave mutation edits in production source. This is a diagnostic pilot, not a global mutation-score gate. Do not chase mutants whose observable behavior is genuinely equivalent under the accepted contract; survival alone does not establish equivalence and may expose missing coverage.
+
+See [Stryker's mutation-testing documentation](https://stryker-mutator.io/docs/) for the technique and [Equivalent Mutants](https://stryker-mutator.io/docs/mutation-testing-elements/equivalent-mutants/) for why some mutations cannot be distinguished by tests.
+
+## Tagged Unions for Exclusive States
+
+When states are mutually exclusive, represent the alternatives as a discriminated union rather than independent flags that can describe impossible combinations. For example:
+
+```ts
+type LoadState<T> =
+  { status: "loading" } | { status: "success"; data: T } | { status: "failure"; error: Error }
+
+function renderLoadState(state: LoadState<string[]>): string {
+  switch (state.status) {
+    case "loading":
+      return "Loading"
+    case "success":
+      return state.data.join(", ")
+    case "failure":
+      return state.error.message
+  }
+}
+```
+
+The `status` tag narrows each branch to the fields valid for that state, so no value can simultaneously be loading and failed or claim success without data. Use an exhaustive check when it improves safety as the union grows. This is a small type-modeling technique, not a framework or class requirement, and it does not replace runtime validation of untrusted input. See the [TypeScript narrowing handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
+
 ## Domain-Oriented Modules and Tests
 
 Split a growing module by the domain action or external integration it owns—not into generic `helpers`, `utils`, `services`, or `tests` buckets. Each module should have one narrow responsibility: parse or validate a boundary, make a policy decision, coordinate one action, or adapt one external system. Keep parsers and policies pure where practical; let orchestration depend on those decisions; keep filesystem, HTTP, database, framework, and extension state at the outer adapter boundary. Classes earn their cost only when they own meaningful state or a lifecycle; otherwise use a function.

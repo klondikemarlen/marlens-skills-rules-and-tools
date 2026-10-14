@@ -68,6 +68,7 @@ const exemptionProject = createProject()
 const suppressionProject = createProject()
 const invalidSuppressionProject = createProject()
 const automaticScopeProject = createProject()
+const combinedPhaseProject = createProject()
 try {
   write(project, "tests/README.md", guidance)
   write(project, "tests/widget.test.ts", alignedTest)
@@ -84,7 +85,11 @@ try {
 
   write(automaticScopeProject, "tests/README.md", guidance)
   write(automaticScopeProject, "tests/current.test.ts", alignedTest)
-  write(automaticScopeProject, "tests/legacy.test.ts", "test('legacy test', () => { expect(true).toEqual(true) })\n")
+  write(
+    automaticScopeProject,
+    "tests/legacy.test.ts",
+    "test('legacy test', () => { expect(true).toEqual(true) })\n"
+  )
 
   const scopedPassing = runVerification(automaticScopeProject, {
     OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/current.test.ts"]),
@@ -366,6 +371,33 @@ try {
   assert.equal(invalidSuppression.status, "BLOCKED")
   assert.match(invalidSuppression.evidence, /reason must be a non-empty string/)
 
+  write(
+    combinedPhaseProject,
+    "tests/README.md",
+    "<!-- marlens-test-alignment: one-direct-expect -->\n"
+  )
+  for (const [phases, expectedStatus] of [
+    ["// Arrange\nconst response = makeResponse();\n// Act / Assert", "PASS"],
+    ["// Arrange\nconst response = makeResponse();\n// Act and Assert", "PASS"],
+    ["// Arrange\nconst response = makeResponse();\n// Act\n// Assert", "PASS"],
+    ["// Act / Assert\nconst response = makeResponse();\n// Arrange", "FAIL"],
+    ["// Arrange\nconst response = makeResponse();\n// Act", "FAIL"],
+  ]) {
+    write(
+      combinedPhaseProject,
+      "tests/response.test.ts",
+      `test("when the response matches, accepts the HTTP contract", () => {
+${phases}
+expect(response).toHaveHttpResponse(200, { id: 7 });
+});
+`
+    )
+    const result = runVerification(combinedPhaseProject, {
+      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/response.test.ts"]),
+    })
+    assert.equal(result.status, expectedStatus, result.evidence)
+  }
+
   console.log("Test alignment verification checks passed")
 } finally {
   rmSync(project, { recursive: true, force: true })
@@ -376,4 +408,5 @@ try {
   rmSync(suppressionProject, { recursive: true, force: true })
   rmSync(invalidSuppressionProject, { recursive: true, force: true })
   rmSync(automaticScopeProject, { recursive: true, force: true })
+  rmSync(combinedPhaseProject, { recursive: true, force: true })
 }

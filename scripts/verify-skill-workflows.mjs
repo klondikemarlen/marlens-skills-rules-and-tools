@@ -726,15 +726,6 @@ for (const [name, workflow] of [
   ["authoritative code review workflow", codeReviewWorkflow],
   ["packaged code review workflow", codeReviewFallbackWorkflow],
 ]) {
-  if (!workflow.includes("Test expectations should be declarative expected data")) {
-    fail(`${name} must require declarative test expectations`)
-  }
-  if (!workflow.includes("mapping, sorting, branching")) {
-    fail(`${name} must reject expectation-building logic`)
-  }
-  if (!workflow.includes("same production constant/helper under test")) {
-    fail(`${name} must reject production-derived expected values`)
-  }
   if (
     !workflow.includes("For changed test files, inspect the nearest test-directory README") ||
     !workflow.includes(

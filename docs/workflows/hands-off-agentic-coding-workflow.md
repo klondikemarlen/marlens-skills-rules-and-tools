@@ -46,7 +46,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 5. Implement the first runnable prototype:
    - before changing policy, use [Verify Existing Behavior Before Policy Changes](#verify-existing-behavior-before-policy-changes) to establish the actual gap; an already-satisfied request may need no production-policy diff.
    - reuse existing project patterns;
-   - keep tests focused on one observable outcome, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles; preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for coupled invariants and examples;
+   - keep tests focused on one observable contract, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles. HTTP status and body together form one response contract; prefer a native or meaningful matcher such as [`toHaveHttpResponse`](../references/http-response-matcher-reference.md), and use two direct assertions only as a narrow, reasoned fallback where no suitable matcher exists and local policy permits it. Keep independent persistence effects separate. Preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for examples and verifier limits;
    - delete obsolete paths instead of adding compatibility shims;
    - avoid new abstractions, options, dependencies, or runtime machinery unless the current task needs them.
 6. Exercise the proof and iterate:
