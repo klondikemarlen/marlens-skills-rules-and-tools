@@ -213,6 +213,10 @@ Extraction is warranted when the helper name captures a cohesive domain decision
 
 Extraction is not warranted for a trivial one-line transform, direct delegation, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
 
+For an ordinary collection read, prefer the mapped model's normal query API, such as `findAll`, over a service that merely wraps the query. Keep required batching orchestration separate; retain a service when it owns a meaningful action or orchestration rather than forwarding alone. Name a collection-returning service with `List`, not `Load`—for example, `ListDocumentsService` rather than `LoadDocumentsService`.
+
+When refactoring a query through an ORM, preserve its existing projection, predicates (including cancellation and deleted-record filtering), ordering, and batching semantics. Verify the returned records and exclusions, not just that the replacement query runs. This preference does not authorize changing a downstream table mapping or unrelated query behavior.
+
 In service classes whose constructor stores values for an action, keep reads of those constructor-backed instance attributes in `perform`; pass required IDs, models, and actor context explicitly to private functional helpers. Direct expressions such as `this.currentUser` passed from `perform` are fine; do not add local aliases just to pass them along. Keep stateful helpers that own or coordinate object state separate from functional helpers, and do not invent parameters for state inherently bound to the object.
 
 Treat required caller-loaded associations as developer preconditions: check them at the start of `perform`, before queries, transactions, or mutations, so broken controller/include setup fails immediately. Keep these guards distinct from business-state validation. If the helper would only inspect an already-loaded association and throw when absent, inline that guard at its call site rather than naming it as an async loader.
