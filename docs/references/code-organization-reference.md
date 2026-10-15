@@ -103,6 +103,8 @@ Name raw fixture/input attribute collections with an `Attributes` suffix, such a
 
 Assert fetched or returned collections directly against expanded literal expected arrays/objects and supported matchers such as `expect.objectContaining`. Do not put `map`, `filter`, `reduce`, or another projection inside `expect` merely to reshape the actual result; use the project's native model representation and compliant sibling patterns. Preserve legitimate async API assertions, native promise-rejection assertions, and matcher API calls.
 
+Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
+
 ## Input-Heavy Utility Tests
 
 For input-heavy utilities, property-based or metamorphic tests can complement literal examples when they check a meaningful invariant across varied inputs. Keep the invariant independent of the implementation; use a seeded run that can be replayed, retain shrinking/minimized failures as literal regression examples, and bound the generated run budget so it remains a focused check. Preserve representative literal examples and known regressions. This is useful for utilities with broad input spaces, not a demand for exhaustive business matrices or an automatic dependency installation.
