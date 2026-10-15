@@ -18,6 +18,14 @@ Use ordinary Bundler and repository configuration. Avoid custom `BUNDLE_GEMFILE`
 
 Use descriptive names for values and helpers. For dynamic environment passed to a Ruby API that accepts a hash, use one builder (for example, `dynamic_environment_variables`) and keep native hash values until the shell boundary requires serialization. Avoid duplicate builders, dual-format flags, and indirection that merely renames a direct operation.
 
+### Dependency Release Selection
+
+When adopting or integrating a dependency, honor an explicit request for its latest published release: at the adoption decision, inspect the authoritative package registry and that release's public API and changelog. Reuse a sibling project's responsibility boundaries and organization, but do not treat its older dependency pin as a constraint that overrides the request. Prefer documented capabilities and defaults of the requested release over plumbing needed only by an older reference, while preserving necessary integration and safety boundaries.
+
+Before removing consumer setup, check the caller's settings and the release's changed defaults, security implications, and compatibility with the project's dependency constraints. If an evidenced incompatibility or release constraint prevents adoption, state the evidence and the materially different choice before reducing scope. Without an upgrade request, leave intentional pins unchanged; stylistic alignment alone does not authorize an upgrade.
+
+Verify the chosen version in the manifest and lockfile, confirm the installed artifact version, and exercise the changed consumer path. Do not claim a version is latest based on an earlier check in the conversation. Registry inspection is an adoption-time decision, not a repeated query on every tool turn or an automatic-upgrade policy.
+
 ### Before and After
 
 Before: a shim detects `--wait`/`--wait=true`, edits arguments to inject `-d`, checks whether an editor exists, then silently starts without editor integration if absent. This duplicates upstream option handling and hides a missing prerequisite.

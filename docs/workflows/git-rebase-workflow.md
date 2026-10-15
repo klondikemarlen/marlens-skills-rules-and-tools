@@ -17,6 +17,14 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 - Avoid opening an editor. Use helper modes or `GIT_SEQUENCE_EDITOR=true` for autosquash fallback rebases when the generated todo is sufficient.
 - After rewriting commits that were already pushed, use `git push --force-with-lease`, never plain force.
 
+## Restoring Deleted Features
+
+When restoring previously tracked behavior, inspect the removal commits and their parents before recreating code. Prefer scoped native recovery that preserves provenance when it fits the accepted current contract. For example, `git revert --no-commit <removal-commit>` recovers the inverse into both the index and worktree: exclude out-of-scope inverse changes from both before committing, and inspect the complete staged diff. Selective `git add` alone does not unstage the other reverted changes. Cite the removal commit hashes in the restoration commit message. A removal commit may also retire controls or contain unrelated changes: do not blanket-revert those deltas. Resolve recovered code against current callers and contracts; obsolete tests from the old implementation are not restoration requirements.
+
+If provenance can be retained only by rewriting an already-verified branch, keep a backup ref first, replay later fixes, compare the full final tree with the previously verified head, and use `git range-diff` to confirm the later commit range was preserved. Content parity can reuse existing behavioral evidence, but does not prove behavior on the rewritten head or replace required CI there. Rewrite published history only with explicit authorization for that branch; otherwise make a forward restoration commit. When authorized to update a published branch, use an exact expected-remote-SHA lease, such as `git push --force-with-lease=refs/heads/<branch>:<expected-remote-sha>`, never an unqualified force push. A PR's net Changes view may show restored files as added; that display alone does not establish whether restoration provenance was retained.
+
+Keep restoration scoped to the requested behavior; do not add a new restoration workflow or assume every restoration requires reverting history.
+
 ## Process
 
 1. Inspect branch and worktree state:
