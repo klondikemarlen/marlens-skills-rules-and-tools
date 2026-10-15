@@ -190,6 +190,10 @@ For related visibility props, preserve the established show/hide polarity. Besid
 
 Name a UI router-navigation handler after its destination and effect. Prefer `goToTemplateWorkflowsPage` or `goToCategoryWorkflowNewPage`; avoid trigger-oriented (`select...`, `open...`) or imprecise names that hide the route change. An established project convention wins.
 
+## Derived Resource Identifiers
+
+When deriving a resource identifier from configuration, make non-obvious normalization or naming policy visible rather than embedding a transform chain inside an otherwise declarative definition. Prefer the smallest local expression of the rule, such as a descriptively named intermediate value before the definition. Preserve resulting identifiers and existing input behavior unless a naming-policy change is explicitly requested; verify representative before/after names. Do not mandate a helper or new configuration setting, or rewrite already-clear direct values.
+
 ## Boundary Vocabulary
 
 Use these terms as review vocabulary, not as mandatory layers:
