@@ -26,7 +26,7 @@ Every reusable OMP rule in [`rules/`](rules/) loads by default through OMP plugi
 
 This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper, `bin/agent-rebase-edit.js`, and `bin/agent-worktree.js` remain available for project-local shims and scripted Git worktree setup.
 
-For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install it as a project development dependency and register it in your test setup; OMP installation alone does not configure a project's test runner.
+For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install the focused standalone package as a project development dependency; do not install MSSRT for a matcher. See its [installation](https://github.com/klondikemarlen/expect-http-response#installation) and [TypeScript](https://github.com/klondikemarlen/expect-http-response#typescript) guidance.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
