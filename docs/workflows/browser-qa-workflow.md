@@ -15,6 +15,7 @@ Use when validating user-visible behavior in a browser.
 
 - Do not print credentials or secrets.
 - This package does not install browser automation dependencies. Use OMP's browser tool or the target project's documented browser QA setup; do not add browser automation solely for QA unless requested.
+- For manual interactive sign-in, prefer an explicitly authorized existing browser/profile with the user's password-manager extension; see [Interactive Sign-In Preference](upload-pr-screenshots-workflow.md#interactive-sign-in-preference). This does not change project-managed headless application-QA requirements.
 - Do not rely on logs or database state as proof of UI behavior.
 - Before the first screenshot, allocate one private run directory under `/tmp/omp-pr-screenshots/` and keep all captures and image variants there. Follow [Screenshot Staging](upload-pr-screenshots-workflow.md#screenshot-staging) for capture-tool output relocation, the scoped sandbox exception, and owned-directory cleanup. Keep screenshots out of the repository unless explicitly requested.
 - If authentication or an external service blocks automation, state the exact blocker and what remains unverified without including local paths or profile/session details.
