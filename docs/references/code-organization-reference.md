@@ -80,6 +80,12 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+### Component-Owned Support Modules
+
+For a pure TypeScript helper that operates on component/editor-specific concepts owned by that component, prefer a descriptive sibling `.ts` module in the component directory over a global `utils` module. Such a support module need not define a Vue component. Keep the helper pure and test its behavior separately from rendering using the project's test layout; do not introduce a model class or composable solely to relocate it.
+
+Choose the home by concept ownership, not single-caller count: a generic or domain-owned helper keeps its actual owner even with one component caller. Promote component support code to a shared feature/domain home when genuinely shared ownership emerges, not merely because another caller appears. Preserve project-local directory conventions; real reactive state or lifecycle needs remain independent reasons to use a composable.
+
 ## Oversized Responsibility Clusters
 
 Treat a large source file as a review signal, not an automatic split mandate. Inspect whether it combines independently changing responsibilities such as boundary parsing, state/persistence, external adapters, policy decisions, orchestration, and CLI or transport wiring.
