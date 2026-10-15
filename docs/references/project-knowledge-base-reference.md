@@ -10,11 +10,11 @@ It is a project-local documentation model. This package provides the vocabulary 
 
 ## Documentation Layers
 
-| Layer | Home | Owns |
-| --- | --- | --- |
-| Knowledge | `docs/domain/`, `docs/product/`, `docs/architecture/`, `docs/decisions/`, `docs/qa-scenarios/` | Meaning, user-visible behavior, system shape, decisions, and known risks. |
-| Operating guidance | `docs/workflows/`, `docs/templates/`, `docs/references/`, `docs/plans/` | How people and agents perform work, reusable shapes, background techniques, and time-bounded planning. |
-| Source-adjacent guidance | Nearest code README | Implementation details whose ownership is one component or directory. |
+| Layer                    | Home                                                                                           | Owns                                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Knowledge                | `docs/domain/`, `docs/product/`, `docs/architecture/`, `docs/decisions/`, `docs/qa-scenarios/` | Meaning, user-visible behavior, system shape, decisions, and known risks.                              |
+| Operating guidance       | `docs/workflows/`, `docs/templates/`, `docs/references/`, `docs/plans/`                        | How people and agents perform work, reusable shapes, background techniques, and time-bounded planning. |
+| Source-adjacent guidance | Nearest code README                                                                            | Folder or layer purpose, architectural responsibilities, boundaries, and links to durable knowledge.   |
 
 Use a root `docs/README.md` or `docs/index.md` as the discovery entry point. Section READMEs are indexes; the document they link to is authoritative for its subject.
 
@@ -22,13 +22,13 @@ Use a root `docs/README.md` or `docs/index.md` as the discovery entry point. Sec
 
 Create only sections with a current consumer. Do not scaffold empty directories.
 
-| Section | Use for | Do not use for |
-| --- | --- | --- |
-| `docs/domain/` | Glossary terms, business rules, domain workflows, sourced regulations. | Developer task procedures. |
-| `docs/product/` | Feature behavior, user roles, permissions, and operator-facing semantics. | Code-level implementation notes. |
-| `docs/architecture/` | System boundaries, data flow, integration contracts, and current system shape. | A replacement for source code. |
-| `docs/decisions/` | Durable decisions, context, alternatives, and consequences. | A work-in-progress checklist. |
-| `docs/qa-scenarios/` | Known regression risks and reproducible manual pathways. | Vague testing aspirations. |
+| Section              | Use for                                                                        | Do not use for                   |
+| -------------------- | ------------------------------------------------------------------------------ | -------------------------------- |
+| `docs/domain/`       | Glossary terms, business rules, domain workflows, sourced regulations.         | Developer task procedures.       |
+| `docs/product/`      | Feature behavior, user roles, permissions, and operator-facing semantics.      | Code-level implementation notes. |
+| `docs/architecture/` | System boundaries, data flow, integration contracts, and current system shape. | A replacement for source code.   |
+| `docs/decisions/`    | Durable decisions, context, alternatives, and consequences.                    | A work-in-progress checklist.    |
+| `docs/qa-scenarios/` | Known regression risks and reproducible manual pathways.                       | Vague testing aspirations.       |
 
 `docs/domain/workflows/` describes an operator or product process. `docs/workflows/` describes a developer or agent procedure. Keep them separate even when both use the word "workflow".
 
@@ -53,7 +53,13 @@ Before adding material, read the nearest relevant existing document and classify
 - QA scenario;
 - operating workflow, template, reference, or plan.
 
-Update the narrowest existing document when it already owns the concept. Create a document only for a durable, independently discoverable concept. Keep implementation-local explanations beside their source when moving them to `docs/` would widen ownership without adding discovery value.
+Update the narrowest existing document when it already owns the concept. Create a document only for a durable, independently discoverable concept. Keep non-obvious implementation rationale beside its source; do not duplicate method inventories, algorithm walkthroughs, or SQL mechanics in a source-directory README. That README explains the folder or layer's architectural purpose, responsibilities, boundaries, and dependency direction. Durable human-level domain concepts and architecture knowledge belong in the knowledge base, linked from source-adjacent guidance when useful.
+
+## Repository Documentation References
+
+Prefer repo-root `/docs/...` references over deep `../` chains in repository Markdown and source-comment `@see` references. For example, `/docs/references/code-organization-reference.md#service-orchestration-readability` names one stable repository target without encoding the referring file's depth.
+
+These are documentation references, not TypeScript import aliases or runtime filesystem paths. Validate the referenced file and heading fragment. Markdown, JSDoc, editors, and documentation-site renderers may interpret a leading slash differently; verify the intended surface before claiming clickability, and retain an evidenced project-specific constraint where needed. This preference does not authorize changing module-resolution configuration or bulk-rewriting unrelated references.
 
 ## Publication Boundary
 
@@ -61,7 +67,7 @@ Repository visibility and documentation-site publication are separate. Markdown 
 
 If a project later renders Markdown with VitePress, VuePress, or another generator:
 
-1. retain portable Markdown, relative links, stable headings, and clear indexes;
+1. retain stable headings and clear indexes; verify repo-root documentation references on the intended site renderer;
 2. choose site input explicitly through an allowlist, audience metadata, or separate public build input;
 3. verify the generated site contains only the intended audience material.
 
