@@ -330,7 +330,9 @@ A concise scalar ternary may remain when it is genuinely clearer than branching,
 
 ## Guard Clauses and Exceptional Responses
 
-In generated or touched JavaScript and TypeScript, use a multiline braced block for an early `if` exit rather than an inline `if (...) throw` or `if (...) return`. Leave one blank line between the closing brace and the next sibling statement; keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
+By default, in generated or touched JavaScript and TypeScript, use a multiline braced block for an early `if` exit rather than an inline `if (...) throw` or `if (...) return`. Leave one blank line between the closing brace and the next sibling statement; keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
+
+In a review restoration, retain original simple single-line nil-return guards such as `if (isNil(value)) return` when the user explicitly prefers them. Do not mechanically expand those accepted guards or change their nil-check semantics. This bounded exception does not make inline throws, complex guards, or all early returns the default.
 
 Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
 
