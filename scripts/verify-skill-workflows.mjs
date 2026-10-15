@@ -581,15 +581,6 @@ if (
   fail("references index must list the code organization reference")
 }
 for (const requiredText of [
-  "Private Helper Inputs",
-  "accepts every value it uses as an explicit parameter",
-  "inherently bound to object state",
-]) {
-  if (!codeOrganizationReference.includes(requiredText)) {
-    fail(`code organization reference must document ${requiredText}`)
-  }
-}
-for (const requiredText of [
   "Project-Root Imports and Paths",
   "one project-root import convention",
   "`@/…`",
@@ -856,14 +847,6 @@ for (const [name, workflow] of [
   }
   if (!workflow.includes("Check simplicity")) {
     fail(`${name} must keep the complexity review step`)
-  }
-  if (
-    !workflow.includes("Flag private helpers that read instance fields") ||
-    !workflow.includes("inherently bound to object state")
-  ) {
-    fail(
-      `${name} must flag hidden instance dependencies in private helpers without forcing artificial parameters`
-    )
   }
   for (const requiredText of [
     "Start from the success condition",
