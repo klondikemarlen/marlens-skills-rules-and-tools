@@ -7,7 +7,7 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional.
 2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
 3. Keep every image for the run in that directory, use it as the default upload source, and verify the exact selected upload files are readable. Use only the scoped sandbox exception below when necessary; do not scatter working copies.
-4. Check GitHub browser authentication before declaring the screenshots upload-ready. Reuse an explicitly authorized authenticated browser when available; otherwise use **Authenticated Session Bootstrap** below. A signed-in `gh` CLI does not authenticate the browser.
+4. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. For manual sign-in, follow **Interactive Sign-In Preference** below. Use **Authenticated Session Bootstrap** only as an explicit fallback when the preferred authorized route is unavailable.
 5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images.
 6. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
 7. Call `github_pr_screenshot_upload_path` and use the complete **Browser Helper** invocation below. The batch uploader opens that target editor, replaces every exact placeholder, submits once, reloads, and verifies persisted attachment URLs. Use `addImageToGitHubMarkdownEditor` only for individual uploads or deferred submission.
@@ -38,6 +38,14 @@ Upload directly from that directory by default. Only when the selected browser h
 
 Keep filenames neutral and local directory paths out of published GitHub records. After QA (and saved/rendered verification for uploaded evidence), remove only the owned run directories once the evidence is no longer needed; see the cleanup procedure below for blocked uploads.
 
+## Interactive Sign-In Preference
+
+For manual interactive sign-in, prefer an existing browser/profile that the user has explicitly authorized for this repository and that has the user's password-manager extension available. Use Firefox where the available browser tooling supports it. If the task requires Chromium/CDP, prefer a compatible, explicitly authorized existing profile with the extension rather than defaulting immediately to an extension-free disposable profile. Do not assume the current CLI can load arbitrary browser profiles or promise Firefox support in a Chromium/CDP-only route.
+
+Do not silently reuse an unrelated personal session, export or transfer cookies or credentials, or bypass MFA. This preference applies to interactive sign-in only; it does not change a project's managed headless application-QA contract. If the preferred authorized route is unavailable, the owned disposable bootstrap below remains the explicit fallback and retains its sign-in, process, profile, and cleanup requirements.
+
+When an authorized existing browser/profile is reused, release only the owned tab; do not terminate the user's browser or delete its profile.
+
 ## Authenticated Session Bootstrap
 
 Discover the existing `github-headless-session` command with `command -v github-headless-session`; it is packaged by this plugin, not a separate screenshot-uploader binary. If unavailable, inspect the installed package and its `bin/README.md` before declaring the route unavailable.
@@ -57,7 +65,7 @@ When genuinely signed out:
 
    Manual sign-in waits for caller continuation, browser exit, or cancellation; it has no fixed five-minute deadline. Keep ownership of the process and cancel it explicitly when the user cannot proceed.
 
-   The CLI allocates its disposable profile under `~/Downloads`, which is shared with sandboxed Chromium. This keeps prepared password-manager settings and profile cleanup on the browser’s actual files rather than a separate private `/tmp`. The profile remains local and is removed on session exit.
+   The CLI allocates and owns a disposable profile under `~/Downloads`, which is shared with sandboxed Chromium. Do not assume this profile includes the user's password-manager extension or can load an arbitrary existing profile. The profile remains local and is removed on session exit.
 
 3. After the user confirms sign-in, the caller—not the user—signals continuation:
 
