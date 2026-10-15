@@ -99,6 +99,10 @@ Verification code should expose each independently observable contract through a
 
 Use a fresh fixture when a scenario needs a different starting state. A failing scenario must not be mutated into a clean scenario, because that couples independent behavior and obscures the clean contract.
 
+Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
+
+Assert fetched or returned collections directly against expanded literal expected arrays/objects and supported matchers such as `expect.objectContaining`. Do not put `map`, `filter`, `reduce`, or another projection inside `expect` merely to reshape the actual result; use the project's native model representation and compliant sibling patterns. Preserve legitimate async API assertions, native promise-rejection assertions, and matcher API calls.
+
 ## Input-Heavy Utility Tests
 
 For input-heavy utilities, property-based or metamorphic tests can complement literal examples when they check a meaningful invariant across varied inputs. Keep the invariant independent of the implementation; use a seeded run that can be replayed, retain shrinking/minimized failures as literal regression examples, and bound the generated run budget so it remains a focused check. Preserve representative literal examples and known regressions. This is useful for utilities with broad input spaces, not a demand for exhaustive business matrices or an automatic dependency installation.
@@ -164,6 +168,8 @@ Keep each query or composable result adjacent to its direct derived state. Put b
 
 This is a review heuristic, not an alphabetical rule. Preserve an existing stronger project convention when one exists.
 
+For related visibility props, preserve the established show/hide polarity. Beside an existing `hideOrganization`, prefer `hideUsageCount` over mixing in `showUsageCount`. When renaming an in-scope prop, update every caller, invert defaults and predicates together, and verify identical visible behavior for both values and the omitted-prop case. Do not rename unrelated established APIs solely for this preference.
+
 ## UI Navigation Handler Names
 
 Name a UI router-navigation handler after its destination and effect. Prefer `goToTemplateWorkflowsPage` or `goToCategoryWorkflowNewPage`; avoid trigger-oriented (`select...`, `open...`) or imprecise names that hide the route change. An established project convention wins.
@@ -228,6 +234,8 @@ Prefer CRUD-style operation names for new or refactored services when they accur
 ## Query Names and Cohesive Projections
 
 For SQL aliases and query variables, prefer descriptive entity-and-role names over generic or terse labels. Name the records represented (for example, SQL aliases `pending_workflow_search_document_changes` and `processed_workflow_search_document_changes`) and apply accepted naming changes consistently across the affected query scope without changing predicates or behavior.
+
+Name model scopes and similar query abstractions for their filtering or projection effect, not their caller, trigger, or downstream operation, and match established sibling naming conventions. A scope that projects a search document might be `withSearchDocument`, not `forSearchIndex`; the concrete name belongs to the project. Keep a shared scope when it has real reuse; inline a one-off query when that removes needless indirection without duplicating a shared contract.
 
 Keep closely related projections under one cohesive query scope—for example, include related organization and personal ranking projections in a suggestion-ranking scope—rather than requiring callers to compose a separate scope for each dimension. Keep genuinely different concerns, such as administrator usage analytics, separate.
 

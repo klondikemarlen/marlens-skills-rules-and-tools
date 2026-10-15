@@ -6,3 +6,4 @@ These outcome cases show the smallest useful difference made by one packaged ski
 - [`complexity-standards.md`](./complexity-standards.md) — self-contained, well-owned solutions instead of line-count optimization.
 - [`agent-guidance-audit.md`](./agent-guidance-audit.md) — deterministic downstream guidance auditing instead of manual document inspection.
 - [`rules-and-verifications.md`](./rules-and-verifications.md) — contextual guidance paired with a deterministic release backstop.
+- [`project-aware-test-review.md`](./project-aware-test-review.md) — replayable semantic review of complete changed tests against local conventions and compliant siblings.
