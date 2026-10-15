@@ -14,7 +14,7 @@ It is a project-local documentation model. This package provides the vocabulary 
 | ------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Knowledge                | `docs/domain/`, `docs/product/`, `docs/architecture/`, `docs/decisions/`, `docs/qa-scenarios/` | Meaning, user-visible behavior, system shape, decisions, and known risks.                              |
 | Operating guidance       | `docs/workflows/`, `docs/templates/`, `docs/references/`, `docs/plans/`                        | How people and agents perform work, reusable shapes, background techniques, and time-bounded planning. |
-| Source-adjacent guidance | Nearest code README                                                                            | Folder or layer purpose, architectural responsibilities, boundaries, and links to durable knowledge.   |
+| Source-adjacent guidance | Nearest code README                                                                            | Folder/layer purpose, boundaries, service-authoring guidance, and links to durable knowledge.          |
 
 Use a root `docs/README.md` or `docs/index.md` as the discovery entry point. Section READMEs are indexes; the document they link to is authoritative for its subject.
 
@@ -53,7 +53,7 @@ Before adding material, read the nearest relevant existing document and classify
 - QA scenario;
 - operating workflow, template, reference, or plan.
 
-Update the narrowest existing document when it already owns the concept. Create a document only for a durable, independently discoverable concept. Keep non-obvious implementation rationale beside its source; do not duplicate method inventories, algorithm walkthroughs, or SQL mechanics in a source-directory README. That README explains the folder or layer's architectural purpose, responsibilities, boundaries, and dependency direction. Durable human-level domain concepts and architecture knowledge belong in the knowledge base, linked from source-adjacent guidance when useful.
+Update the narrowest existing document when it already owns the concept. Create a document only for a durable, independently discoverable concept. Keep non-obvious implementation rationale beside its source; do not duplicate method inventories, algorithm walkthroughs, or SQL mechanics in a source-directory README. That README explains the folder or layer's architectural purpose, responsibilities, boundaries, and dependency direction. For service layers, help humans and agents understand when to use the service and how to author services at that boundary, without repeating implementation specifics from code. Durable human-level domain concepts and architecture knowledge belong in the knowledge base, linked from source-adjacent guidance when useful.
 
 ## Repository Documentation References
 
