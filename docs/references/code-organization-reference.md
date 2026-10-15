@@ -61,6 +61,12 @@ Before adding a helper, service, class, repository, value object, adapter, folde
 
 If none apply, inline it, delete it, or follow the existing local pattern.
 
+## Simplification After Scope Changes
+
+When a feature is deferred or removed, remove its supporting abstractions if accepted work no longer needs them. Prefer restoring the original simple code shape over retaining a behavior-equivalent refactor solely from the deferred feature. Keep refactors required by accepted work and preserve unrelated changes.
+
+When a computed or similar reactive wrapper no longer reads reactive dependencies, remove it and now-unused imports if the existing consumer supports a plain value. Pass a fixed literal directly rather than keeping a one-use wrapper or alias. Retain reactivity when inputs still change or the consumer requires a ref; preserve type checking and the consumer's value/identity contract.
+
 ## Module Decomposition
 
 A useful module, file, or folder boundary should satisfy at least one of these checks:
@@ -77,6 +83,8 @@ Co-locate code until there is a real change axis, invariant boundary, duplicated
 ## Oversized Responsibility Clusters
 
 Treat a large source file as a review signal, not an automatic split mandate. Inspect whether it combines independently changing responsibilities such as boundary parsing, state/persistence, external adapters, policy decisions, orchestration, and CLI or transport wiring.
+
+For service files, generally prefer staying under roughly 500 lines as a soft organizational guideline. Weigh cohesion and readability when choosing whether to inline or extract helpers; do not pad, compress, or mechanically fragment code to meet a size target. Crossing that rough bound prompts responsibility review, not an automatic split or rejection of an otherwise cohesive service.
 
 When the signal is present, record:
 
@@ -242,6 +250,8 @@ For SQL aliases and query variables, prefer descriptive entity-and-role names ov
 Name model scopes and similar query abstractions for their filtering or projection effect, not their caller, trigger, or downstream operation, and match established sibling naming conventions. A scope that projects a search document might be `withSearchDocument`, not `forSearchIndex`; the concrete name belongs to the project. Keep a shared scope when it has real reuse; inline a one-off query when that removes needless indirection without duplicating a shared contract.
 
 Keep closely related projections under one cohesive query scope—for example, include related organization and personal ranking projections in a suggestion-ranking scope—rather than requiring callers to compose a separate scope for each dimension. Keep genuinely different concerns, such as administrator usage analytics, separate.
+
+For multi-property query/options object arguments, put each property on its own line even when the object fits the print width. Preserve option values and behavior, apply the correction consistently within the affected review scope, and leave unrelated objects alone. Project-local formatting conventions still win.
 
 ## Explanatory Comments
 
