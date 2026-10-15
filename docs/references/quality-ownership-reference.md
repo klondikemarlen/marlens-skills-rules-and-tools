@@ -14,6 +14,8 @@ Use this reference to place a quality improvement without duplicating policy, ex
 
 The boundary separates **what should be checked**, **how a check runs**, and **what durable lesson merits retention or a proposal**. A package-owned `.mjs` verification is policy implementation, not a second verifier runtime. The target project's local guidance wins over shared advice.
 
+Standalone application and test libraries belong in focused packages with their own implementation and release boundaries. Shared examples and authoring guidance may reference those packages, but must not require installing a doctrine or plugin bundle wholesale to obtain one helper.
+
 ## Integration Handoffs
 
 - MSSRT declares checks in `package.json` under `omp.verifications`; each entry implements its own bounded policy and reports `status`, `summary`, `evidence`, and `nextCheck`.

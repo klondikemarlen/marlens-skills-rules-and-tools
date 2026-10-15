@@ -17,7 +17,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Engineering techniques with evidence status and safety boundaries: [`engineering-techniques-reference.md`](./engineering-techniques-reference.md).
 - Finite lazy TypeScript runtime verification and declaration ownership: [`typescript-runtime-entrypoints-verifier-reference.md`](./typescript-runtime-entrypoints-verifier-reference.md).
 - Shared-baseline test-alignment verifier rules and scoped suppression: [`test-alignment-verifier-reference.md`](./test-alignment-verifier-reference.md).
-- One-expect HTTP response contracts and opt-in Jest/Vitest installation: [`http-response-matcher-reference.md`](./http-response-matcher-reference.md).
+- One-expect HTTP response contracts and the focused standalone matcher package: [`http-response-matcher-reference.md`](./http-response-matcher-reference.md).
 - Rule versus verification selection and current package classification: [`rules-and-verifications-reference.md`](./rules-and-verifications-reference.md).
 - Quality ownership across MSSRT, Verifier, and Learner: [`quality-ownership-reference.md`](./quality-ownership-reference.md).
 - GitHub CLI and metadata editing caveats.
