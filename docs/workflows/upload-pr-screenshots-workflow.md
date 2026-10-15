@@ -5,8 +5,8 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 ## Process
 
 1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional.
-2. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
-3. Store temporary screenshots outside the repository, then copy each upload image to `~/Downloads` and verify that exact staged copy is readable before Browser upload. Do not rely on `/tmp`. Use neutral filenames and keep operational local paths out of GitHub reports.
+2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
+3. Keep every image for the run in that directory, use it as the default upload source, and verify the exact selected upload files are readable. Use only the scoped sandbox exception below when necessary; do not scatter working copies.
 4. Check GitHub browser authentication before declaring the screenshots upload-ready. Reuse an explicitly authorized authenticated browser when available; otherwise use **Authenticated Session Bootstrap** below. A signed-in `gh` CLI does not authenticate the browser.
 5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images.
 6. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
@@ -18,6 +18,25 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 12. Release the owned tab and stop the owned session process even after failure, as described below.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
+
+## Screenshot Staging
+
+Before the first capture, allocate one private, unique directory under `/tmp/omp-pr-screenshots/`. Use it for all screenshots and cropped/redacted variants from that QA run, including rendered-PR verification screenshots. Keep the same directory throughout retries; separate concurrent runs. Configure the capture tool's destination where supported. If it assigns its own output location, relocate only the newly created, agent-owned image into this directory immediately and update the local reference; do not leave duplicate working copies scattered elsewhere.
+
+For example, run this once in the agent's persistent JavaScript runtime and retain the returned paths for the capture and upload steps:
+
+```js
+const { mkdir, mkdtemp } = await import("node:fs/promises")
+const path = await import("node:path")
+const screenshotRoot = "/tmp/omp-pr-screenshots"
+await mkdir(screenshotRoot, { recursive: true, mode: 0o700 })
+const screenshotDirectory = await mkdtemp(path.join(screenshotRoot, "run-"))
+let uploadDirectory = screenshotDirectory
+```
+
+Upload directly from that directory by default. Only when the selected browser has an evidenced sandbox/file-access limitation that hides host `/tmp`, create a matching private run directory at `~/Downloads/omp-pr-screenshots/<same-run-name>/`, copy only the intended upload images there without overwriting existing files, and set `uploadDirectory` to that directory. Do not copy to loose `~/Downloads` filenames or probe unrelated directories. Host-side readability alone does not prove browser access; verify the exact files reach the browser's file input. This exception concerns image transfer, not browser profile storage or authentication.
+
+Keep filenames neutral and local directory paths out of published GitHub records. After QA (and saved/rendered verification for uploaded evidence), remove only the owned run directories once the evidence is no longer needed; see the cleanup procedure below for blocked uploads.
 
 ## Authenticated Session Bootstrap
 
@@ -51,7 +70,7 @@ When genuinely signed out:
 4. Attach OMP Browser with `browser.open({ name: "pr-screenshots", app: { cdp_url: cdpUrl } })`, using the emitted `cdpUrl` as the variable value. Navigate to `pullRequestUrl` and check the browser session again for a sign-in link. If it is still signed out, stop and report that precise blocker.
 5. After authentication, the agent performs the uploads and saved/rendered checks below; do not ask the user to drag files or paste attachment Markdown.
 
-Close the owned OMP tab after QA. For a bootstrap session, then send `SIGTERM` to only the owned CLI process and wait for exit; the CLI stops Chromium and removes its disposable profile. Remove the owned continuation directory and staged screenshots after their evidence is no longer needed. For a reused browser, release the tab without terminating the user’s browser or deleting its profile. Do not persist authentication, secrets, or session files in tracked files.
+Close the owned OMP tab after QA. For a bootstrap session, then send `SIGTERM` to only the owned CLI process and wait for exit; the CLI stops Chromium and removes its disposable profile. Remove the owned continuation directory and both screenshot run directories, if a browser staging copy was needed, after saved-body and rendered-image verification and once local evidence is no longer needed. On a blocked upload, retain only the needed owned run directory, report its path and reason locally, and clean it up when resolved. Never delete a staging root, another run's files, or existing user screenshots. For a reused browser, release the tab without terminating the user's browser or deleting its profile. Do not persist authentication, secrets, or session files in tracked files.
 
 Manual upload is a last resort only when the explicitly authorized browser/session route is unavailable. State the exact missing prerequisite, keep the public blocked placeholder neutral, and give the actual file location only to the user locally. Do not describe manual upload as the normal signed-out path.
 
@@ -61,7 +80,7 @@ Call `github_pr_screenshot_upload_path` first and retain its returned installed 
 
 Persisted verification reopens the saved editor, checks the original generated attachment URLs in its Markdown, then cancels that read-only edit. GitHub may render images through signed proxy URLs; comparing original attachment URLs with rendered HTML can falsely report failure. Verify loaded images and caption placement separately, and never publish signed proxy URLs instead of the generated attachment URLs.
 
-For a bootstrap session, use the emitted `cdpUrl` and `pullRequestUrl`. For an explicitly authorized existing session, reuse its tab instead of opening a second bootstrap session. Verify the live selectors; the uploader scopes the supplied `textarea` and `input[type="file"]` to the exact fragment.
+Use the `uploadDirectory` selected in **Screenshot Staging** above, not unrelated capture locations or loose Downloads files. For a bootstrap session, use the emitted `cdpUrl` and `pullRequestUrl`. For an explicitly authorized existing session, reuse its tab instead of opening a second bootstrap session. Verify the live selectors; the uploader scopes the supplied `textarea` and `input[type="file"]` to the exact fragment. The `access`/`stat` checks in this example verify the agent's filesystem view, not the browser sandbox's view.
 
 ```js
 const tab = await browser.open({
@@ -76,19 +95,18 @@ try {
   }
 
   const results = await tab.run(
-    async ({ page }, { uploaderUrl, prUrl }) => {
+    async ({ page }, { uploaderUrl, prUrl, uploadDirectory }) => {
       const { access, stat } = await import("node:fs/promises")
       const { constants } = await import("node:fs")
-      const { homedir } = await import("node:os")
       const path = await import("node:path")
       const { uploadPullRequestCommentScreenshots } = await import(uploaderUrl)
       const screenshots = [
         {
-          filePath: path.join(homedir(), "Downloads", "billing-overview.png"),
+          filePath: path.join(uploadDirectory, "billing-overview.png"),
           placeholder: "<!-- screenshot: billing-overview -->",
         },
         {
-          filePath: path.join(homedir(), "Downloads", "billing-settings.png"),
+          filePath: path.join(uploadDirectory, "billing-settings.png"),
           placeholder: "<!-- screenshot: billing-settings -->",
         },
       ]
@@ -113,6 +131,7 @@ try {
     {
       args: [
         {
+          uploadDirectory,
           uploaderUrl: "<file: URL returned by github_pr_screenshot_upload_path>",
           prUrl: "https://github.com/owner/repository/pull/123#issue-456",
         },
@@ -122,7 +141,16 @@ try {
 
   console.log(results.map(({ attachmentUrl }) => attachmentUrl))
   await tab.observe({ selector: "#issue-456", includeAll: true })
-  await tab.screenshot({ selector: "#issue-456" })
+  await tab.run(
+    async ({ page }, { screenshotDirectory }) => {
+      const path = await import("node:path")
+      await page.screenshot({
+        path: path.join(screenshotDirectory, "pr-rendered.png"),
+        fullPage: true,
+      })
+    },
+    { args: [{ screenshotDirectory }] }
+  )
 } finally {
   await tab.close()
 }
@@ -164,7 +192,7 @@ Helper behavior:
 
 ## Rules
 
-- Do not commit temporary screenshots by default.
+- Keep captures, cropped/redacted variants, and upload inputs in the owned run directories described in **Screenshot Staging**. Do not scatter images in the checkout, current working directory, Desktop, or loose `~/Downloads` files. Do not commit temporary screenshots by default.
 - Redact secrets, credentials, personal data, and tokens.
 - Do not save the PR/comment until the helper returns a generated `user-attachments/assets/...` URL and you have reviewed the body.
 - Keep QA logs and internal verification evidence out of GitHub content.
