@@ -213,11 +213,33 @@ Extraction is warranted when the helper name captures a cohesive domain decision
 
 Extraction is not warranted for a trivial one-line transform, direct delegation, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
 
+In service classes whose constructor stores values for an action, keep reads of those constructor-backed instance attributes in `perform`; pass required IDs, models, and actor context explicitly to private functional helpers. Direct expressions such as `this.currentUser` passed from `perform` are fine; do not add local aliases just to pass them along. Keep stateful helpers that own or coordinate object state separate from functional helpers, and do not invent parameters for state inherently bound to the object.
+
+Treat required caller-loaded associations as developer preconditions: check them at the start of `perform`, before queries, transactions, or mutations, so broken controller/include setup fails immediately. Keep these guards distinct from business-state validation. If the helper would only inspect an already-loaded association and throw when absent, inline that guard at its call site rather than naming it as an async loader.
+
+Preserve the caller's loaded association graph when returning an updated instance. Avoid an unnecessary reload followed by manually restoring one association. If reload is necessary, use the normal loading contract with the complete required include graph; restoring one parent association does not preserve nested or sibling preloads.
+
+Prefer CRUD-style operation names for new or refactored services when they accurately describe the action; use `Update...Service` over `Set...Service` for changes to existing state. Do not force unrelated domain actions into misleading CRUD names. For search-index lifecycle services, explicitly include `Index` in the class and file name (for example, `UpdateIndexService` and `update-index-service.ts`), even when a containing directory already names the index. Do not apply index naming to unrelated document or workflow operations.
+
+## Query Names and Cohesive Projections
+
+For SQL aliases and query variables, prefer descriptive entity-and-role names over generic or terse labels. Name the records represented (for example, SQL aliases `pending_workflow_search_document_changes` and `processed_workflow_search_document_changes`) and apply accepted naming changes consistently across the affected query scope without changing predicates or behavior.
+
+Keep closely related projections under one cohesive query scope—for example, include related organization and personal ranking projections in a suggestion-ranking scope—rather than requiring callers to compose a separate scope for each dimension. Keep genuinely different concerns, such as administrator usage analytics, separate.
+
+## Explanatory Comments
+
+For explanatory comments, prefer JSDoc-style blocks that explain the mechanism and rationale, especially for non-obvious lifecycle state or invariants. State the actual captured boundary, when it is captured, what it gates, and why that gate or cache exists; describe lazy first-use behavior accurately rather than calling it startup. This does not require converting short inline comments or Arrange/Act/Assert markers.
+
+## Shared Content and Presentation Contracts
+
+When content requirements appear to conflict with a shared field limit or sanitizer, inspect the field's semantics, storage capacity, original constraint rationale, and sanitization contract plus all consumers before proposing an exception. Prefer a consistent contract across event types over an event-specific bypass. Distinguish stored content from compact presentation, and separate their policies when the existing model supports it. Do not assume a new field or universal UI-only truncation is required without inspecting the model and rendering surfaces.
+
 ## Guarded Computations
 
-When one predicate gates multiple related computed fields, or a multi-line computation, prefer a descriptively named helper with an early return for the excluded or exceptional case when that makes the normal path easier to follow and removes repeated conditions or nested/multi-line ternaries.
+When one predicate gates multiple related computed fields or a multi-line computation, prefer explicit branching with a descriptively named helper and early return when that makes the normal path easier to follow and removes repeated conditions or nesting.
 
-Keep the predicate's exact boundary, result shape, evaluation order, side effects, and excluded-case behavior unchanged. This is a readability heuristic, not a demand to extract every conditional: concise scalar ternaries remain clear, and extraction is not useful when it merely moves a short expression behind an indirect helper call.
+Keep the predicate's exact boundary, result shape, evaluation order, side effects, and excluded-case behavior unchanged. Avoid ternaries when a clear branch or guard expresses the control flow; do not extract a wrapper solely to eliminate a ternary or `?` token.
 
 For example, a fuzzy-search term may only be expanded up to a length bound. The same limit gates both generated fields:
 
@@ -266,13 +288,15 @@ function buildFuzzyQueryTerm(term: string): FuzzyQueryTerm {
 
 The strict `>` guard preserves the inclusive `<= 8` boundary. The helper returns the same object shape, computes trigrams before transpositions on included inputs as the object literal did, and skips both computations when excluded.
 
-A concise scalar branch such as `isEnabled ? "Enabled" : "Disabled"` remains clear inline. Flag the repeated-field or multi-line gated shape only when a helper reduces duplicate gating or nesting; do not introduce an extraction merely to remove a `?` token.
+A concise scalar ternary may remain when it is genuinely clearer than branching, but explicit branching is the preferred default when control flow reads more clearly. Flag repeated-field or multi-line gated shapes only when a branch or helper reduces duplicate gating or nesting; do not introduce a wrapper merely to remove ternary syntax.
 
 ## Guard Clauses and Exceptional Responses
 
 In generated or touched JavaScript and TypeScript, use a multiline braced block for an early `if` exit rather than an inline `if (...) throw` or `if (...) return`. Leave one blank line between the closing brace and the next sibling statement; keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
 
 Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
+
+Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
 
 ```ts
 // Before
@@ -303,7 +327,7 @@ if (error instanceof ServiceUnavailableError) {
 return response.status(500).json({ message: "Request failed." })
 ```
 
-This is a rule about exceptional control flow, not all ternaries: a concise scalar choice such as `isEnabled ? "Enabled" : "Disabled"` remains clear inline.
+Prefer an explicit guard for exceptional control flow. Elsewhere, choose branching or a guard when it makes the decision clearer; a concise ternary may remain when it is genuinely the clearest form. This is a readability preference, not a mechanical rewrite rule.
 
 ## Cleanup Necessity
 
@@ -343,9 +367,9 @@ When automatic framework teardown already unmounts each rendered component, do n
 
 ## Private Helper Inputs
 
-Prefer a private functional helper that accepts every value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its real inputs and makes the behavior harder to reason about or test.
+For a private functional helper, accept each value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its inputs and makes behavior harder to reason about or test.
 
-Pass values explicitly when the caller already has them or the helper's result can be described from its arguments. Keep reads through `this` when the helper is inherently bound to object state, such as coordinating the instance lifecycle, mutating owned state, or using a cache whose identity belongs to the object. Do not add artificial parameters that merely restate that bound identity.
+Pass values explicitly when the caller already has them or the helper's result can be described from its arguments. Keep reads through `this` when the helper is inherently bound to object state, such as coordinating the instance lifecycle, mutating owned state, or using a cache whose identity belongs to the object. Do not add artificial parameters that merely restate that bound identity. For service-class conventions, see [Service Orchestration Readability](#service-orchestration-readability).
 
 ## Pattern Selection
 
