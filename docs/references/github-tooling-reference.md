@@ -21,6 +21,12 @@ gh pr list --json number,title,headRefName,state,isDraft
 gh pr view 456 --json title,body,state,isDraft,mergeStateStatus,url
 ```
 
+## Upstream Issue Participation
+
+Read the main issue and current discussion before commenting. Keep upstream issue comments brief and human: add only new evidence or useful context, such as a distinct reproduction or an observed constraint, rather than restating the report. Link supporting detail when needed instead of repeating a long report.
+
+For agreement without additional information, use a `+1` reaction on the main issue rather than a comment. If the same actor has already reacted, do not add a duplicate reaction. Existing repository-write authorization still applies to comments and reactions; agreement is not permission to write to an external repository.
+
 ## Metadata Updates
 
 For issue or pull request body/title changes, prefer the high-level commands and verify with `gh issue view` or `gh pr view`:
