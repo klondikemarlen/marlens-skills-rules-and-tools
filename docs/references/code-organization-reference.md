@@ -231,6 +231,8 @@ Preserve the caller's loaded association graph when returning an updated instanc
 
 Prefer CRUD-style operation names for new or refactored services when they accurately describe the action; use `Update...Service` over `Set...Service` for changes to existing state. Do not force unrelated domain actions into misleading CRUD names. For search-index lifecycle services, explicitly include `Index` in the class and file name (for example, `UpdateIndexService` and `update-index-service.ts`), even when a containing directory already names the index. Do not apply index naming to unrelated document or workflow operations.
 
+Group service barrel exports with standard CRUD services first, special actions next, and bundled namespaces last. Alphabetize exported symbols within each group, not globally across the groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Add another meaningful category when needed rather than forcing unrelated operations into a group or rewriting unrelated established barrels.
+
 ## Query Names and Cohesive Projections
 
 For SQL aliases and query variables, prefer descriptive entity-and-role names over generic or terse labels. Name the records represented (for example, SQL aliases `pending_workflow_search_document_changes` and `processed_workflow_search_document_changes`) and apply accepted naming changes consistently across the affected query scope without changing predicates or behavior.
