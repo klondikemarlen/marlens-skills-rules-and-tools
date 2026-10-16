@@ -161,6 +161,10 @@ function renderLoadState(state: LoadState<string[]>): string {
 
 The `status` tag narrows each branch to the fields valid for that state, so no value can simultaneously be loading and failed or claim success without data. Use an exhaustive check when it improves safety as the union grows. This is a small type-modeling technique, not a framework or class requirement, and it does not replace runtime validation of untrusted input. See the [TypeScript narrowing handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
 
+## Initialization Safety
+
+Prefer initialization that TypeScript can verify over definite-assignment assertions such as `let callback!: () => void`. For asynchronous coordination, use directly initialized values or appropriate standard synchronization primitives supported by the project runtime. Do not replace the assertion with casts, dummy callbacks, or optional calls that conceal missing initialization or silently discard a signal. Preserve pending-state behavior, signal delivery, ownership, lifecycle, and failure behavior. This is not a requirement to use `EventEmitter` everywhere or a blanket ban on unrelated TypeScript syntax.
+
 ## SDK Configuration Types
 
 When an SDK configuration object's intended contract is the SDK type, prefer a named constant with an explicit type annotation over an inline `satisfies` expression. If the configuration is nested in an application wrapper, type that configuration constant itself and retain the wrapper's own fields; do not annotate the whole wrapper with the nested SDK type or add `Partial` without an actually partial contract. Preserve `satisfies` when narrower inferred literals or keys are required by a real consumer; this is not a blanket ban on it.
@@ -178,6 +182,8 @@ Use one project-root import convention for dependencies across features or modul
 For production callers, prefer named imports from the deepest matching supported domain/module entry point rather than a broad root barrel plus a namespace alias, especially when the caller belongs to that domain. A domain barrel is a valid entry point; this does not require bypassing its public API for an individual implementation file. Preserve package export boundaries and existing module resolution, and leave unrelated imports alone.
 
 In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions; a deeper private implementation path is not automatically a valid subject import.
+
+Model barrels are an exception to the dependency-bundle preference: export models only. Import a model-owned constant or enum directly from that model's module instead of expanding the model barrel. This does not change service-barrel grouping or permit bypassing public package/export boundaries. Explicit project-local conventions remain authoritative.
 
 Preserve the positions and order of unchanged imports when editing unrelated behavior. Do not move them merely to tidy or alphabetize a touched file; retain required new imports and intentional import changes. Review the full PR diff for equivalent incidental moves and remove them. Explicitly requested import cleanup and changes required by project tooling remain valid.
 
