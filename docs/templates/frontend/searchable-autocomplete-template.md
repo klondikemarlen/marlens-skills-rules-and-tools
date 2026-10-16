@@ -2,6 +2,8 @@
 
 Use this when a Vue 3 + Vuetify form or filter needs a remote reference lookup without loading an entire table into the browser.
 
+Use [Loading and Disabled State](../../references/vue-component-authoring-reference.md#loading-and-disabled-state) for supported loading and disabled bindings.
+
 ## Placeholders
 
 - `{ResourceName}` / `{ResourceNames}`: PascalCase singular/plural.
