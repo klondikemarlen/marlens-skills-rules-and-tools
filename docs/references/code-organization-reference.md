@@ -179,6 +179,8 @@ For production callers, prefer named imports from the deepest matching supported
 
 In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions; a deeper private implementation path is not automatically a valid subject import.
 
+Model barrels are an exception to the dependency-bundle preference: export models only. Import a model-owned constant or enum directly from that model's module instead of expanding the model barrel. This does not change service-barrel grouping or permit bypassing public package/export boundaries. Explicit project-local conventions remain authoritative.
+
 Preserve the positions and order of unchanged imports when editing unrelated behavior. Do not move them merely to tidy or alphabetize a touched file; retain required new imports and intentional import changes. Review the full PR diff for equivalent incidental moves and remove them. Explicitly requested import cleanup and changes required by project tooling remain valid.
 
 When raw Node runs ESM source directly, prefer Node's native `#/…` package-import namespace instead of `@/…`, which Node treats as an external package. Map it through `package.json` `"imports"` as `"#/*": "./*"`, and require Node v24.14.0 or later, which supports `#/` subpath imports. If a supported Node version cannot use `#/…`, map the package root as `#root/…` through `"#root/*": "./*"`, and map a sibling `tests` root as `#tests/…` through `"#tests/*": "./tests/*"`.
