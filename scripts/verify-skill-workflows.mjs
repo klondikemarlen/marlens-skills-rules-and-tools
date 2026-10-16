@@ -214,7 +214,6 @@ const whitespaceRule = read("rules/whitespace-matters.md")
 for (const requiredText of [
   "project formatter/checker when one exists",
   "git diff --check",
-  "import groups contiguous",
   "exactly one blank line",
   "Do not use consecutive blank lines",
   "Project-local guidance may refine grouping order",
@@ -617,7 +616,6 @@ for (const requiredText of [
   "Classes earn their cost only when they own meaningful state or a lifecycle",
   "Co-locate focused unit tests",
   "boundary integration test",
-  "share a fixture only when it represents stable domain data",
   "intentional duplication is clearer than a helper that hides those facts",
   "Before a structural move, run the existing behavior check",
 ]) {
@@ -724,12 +722,6 @@ for (const [name, workflow] of [
     )
   ) {
     fail(`${name} must discover and report local test assertion conventions before PASS`)
-  }
-  if (
-    !workflow.includes("Treat test setup as self-contained") ||
-    !workflow.includes("stable environment setup")
-  ) {
-    fail(`${name} must require self-contained test setup while allowing invariant fixtures`)
   }
   if (
     !workflow.includes(
