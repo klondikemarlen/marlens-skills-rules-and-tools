@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "3.3.3",
+  "version": "3.4.0",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -121,6 +121,23 @@
           "**/*.spec.tsx"
         ],
         "timeoutMs": 30000
+      },
+      {
+        "id": "marlens-rules:module-boundary-alignment",
+        "label": "Module Boundary Alignment",
+        "description": "Evaluates changed modules against the accepted module-boundary standard.",
+        "mode": "agentic",
+        "contract": "./verifications/module-boundary-alignment.json",
+        "pathTriggers": [
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.mjs",
+          "**/*.cjs",
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.mts",
+          "**/*.cts"
+        ]
       }
     ]
   },
