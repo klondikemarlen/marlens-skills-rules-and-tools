@@ -39,6 +39,26 @@ Write the desired end state in user-visible terms. Name the unacceptable outcome
 
 List representative good examples, bad examples, and one missing or ambiguous example. For each, state the expected result and the rule it exercises. Resolve counter-examples before committing to an interface.
 
+#### Interaction-Contract Activation
+
+Revisit the whole relevant interaction contract **before the next gesture patch** when a correction changes coupled interaction behavior, or when corrective UX feedback shows that adjacent behaviors were conflated or missed. Do not plan extensively for isolated wording or another obvious mechanical change; use the mechanical-change exemption above.
+
+Fit-check a small intent matrix, not a generic interaction framework. Keep the dimensions distinct; these example outcomes illustrate a possible accepted contract, not a mandatory product policy:
+
+| Source → target relationship      | Pointer/drop location    | Operation                         | Visual feedback                                             | Persistent effect          | Cancellation / no-op              |
+| --------------------------------- | ------------------------ | --------------------------------- | ----------------------------------------------------------- | -------------------------- | --------------------------------- |
+| Same group → member               | Between existing members | Internal reorder; keep membership | No external-regroup highlight; reorder preview per contract | Reorder on commit          | Cancel or unchanged drop: no save |
+| Other group → valid target        | Inside target            | Join or regroup per contract      | External-grouping preview                                   | Membership/order on commit | Invalid target: no save           |
+| First item → outside group        | Before start boundary    | Extract first item                | Boundary target feedback                                    | Membership/order on commit | Cancel: no save                   |
+| Last item → outside group         | After end boundary       | Extract last item                 | Boundary target feedback                                    | Membership/order on commit | Cancel: no save                   |
+| Any → invalid or unchanged target | No accepted change       | None                              | Clear preview                                               | None                       | No save                           |
+
+Include first and last boundaries when ordering is involved, and fit the example to the accepted product contract. A visual-feedback restriction must not silently disable a separately accepted operation. State cancellation and no-op outcomes explicitly, including whether either persists a change.
+
+Name existing owners rather than adding layers by default: presentation renders the affordance and feedback; interaction state/lifecycle tracks pointer, drag, and cancellation; geometry and policy resolve the target and permitted intent; pure data transformations apply reorder/extract/group changes; persistence commits accepted changes. Keep these seams composed and decisions pure where practical; prefer composition over class hierarchies or framework machinery. See [Outcome-First Planning](../references/outcome-first-planning-reference.md), [Code Organization](../references/code-organization-reference.md), and [Project Knowledge Base](project-knowledge-base-workflow.md). Record durable UX requirements and acceptance scenarios in the product repository's existing product/QA knowledge owners; keep transient execution history in the issue, PR, or session.
+
+Preserve adjacent accepted behaviors unless the user changes them. Fit-check the matrix against the correction and neighboring cases before implementation, then keep the focused acceptance scenarios with their product knowledge owner.
+
 ### 3. Align with Project Patterns
 
 Read, in order:

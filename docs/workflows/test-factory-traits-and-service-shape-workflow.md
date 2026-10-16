@@ -3,6 +3,9 @@
 Use when TypeScript tests need recurring persisted relationship setup.
 
 1. Read the project’s factory API and test TypeScript command.
-2. Keep one-off setup literal in the test. For recurring setup, add a named opt-in builder trait to the owning Fishery-style factory.
-3. Keep relationship creation inside the trait; do not use per-test transient flags or `.afterCreate(...)` mutations to simulate a trait.
-4. Run the focused test and test TypeScript check.
+2. Arrange persisted scenario records explicitly inside each test, even when multiple tests use identical attributes. Keep each scenario self-contained; do not move persisted scenario creation into shared `beforeEach` hooks. Environment setup and teardown, such as fake timers, may still use hooks.
+3. Keep one-off setup literal in the test. For recurring persisted relationship setup, add a named opt-in builder trait to the owning Fishery-style factory; the trait must not change ordinary factory creation.
+4. Keep relationship creation inside the trait; do not use per-test transient flags or `.afterCreate(...)` mutations to simulate a trait.
+5. Use fixture-backed tests under their descriptive exported names; do not alias them to generic `test` or `it`. Inspect the active runner configuration before adding mock cleanup, rely on configured cleanup, and add local cleanup only for resources or state it does not cover. Preserve intentional mid-test restoration.
+6. Import test dependencies from their owning bundle or barrel when available and consistent with local conventions. Import the subject under test directly from its full module path, respecting supported public boundaries and local conventions.
+7. Run the focused test and test TypeScript check.

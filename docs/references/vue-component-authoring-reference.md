@@ -2,6 +2,8 @@
 
 Use for Vue authoring and review. Project-local conventions and supported component contracts take precedence.
 
+For coupled interaction corrections, fit-check the whole contract before the next gesture patch using [Interaction-Contract Activation](../workflows/outcome-first-planning-workflow.md#interaction-contract-activation) in the outcome-first planning workflow. Preserve adjacent accepted behavior; component structure and presentation guidance do not define which operations are allowed.
+
 ## One Template Root and Existing Components
 
 Keep exactly one top-level template element per component, even where Vue permits fragments. Keep static footer controls and informational content inside the existing root rather than adding sibling roots. For drag containers, use the supported row selector or slot contract so only intended rows are draggable; static content must remain non-draggable. Preserve the existing layout and interaction behavior.
