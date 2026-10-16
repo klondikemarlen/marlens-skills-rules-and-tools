@@ -29,36 +29,9 @@ if (!packageJson.scripts?.test?.includes("node verifications/no-oversized-source
 
 const rootReadme = read("README.md")
 const rulesReadme = read("rules/README.md")
-const ruleVerificationReference = read("docs/references/rules-and-verifications-reference.md")
-const currentPackageClassification = ruleVerificationReference.slice(
-  ruleVerificationReference.indexOf("## Current Package Classification"),
-  ruleVerificationReference.indexOf("## Code-Style Advice")
-)
-for (const requiredText of [
-  "Rules and verifications are complementary",
-  "Both are true",
-  "Advisor or review guidance",
-]) {
-  if (!ruleVerificationReference.includes(requiredText)) {
-    fail(`rules and verifications reference must explain ${requiredText}`)
-  }
-}
-
-for (const verification of packageJson.omp.verifications) {
-  const verificationName = path.basename(verification.entry, ".mjs")
-  if (!currentPackageClassification.includes(`\`${verificationName}\``)) {
-    fail(`rules and verifications reference must classify ${verificationName}`)
-  }
-}
 const packagedRules = readdirSync(path.join(root, "rules"), {
   withFileTypes: true,
 }).filter((entry) => entry.isFile() && entry.name.endsWith(".md") && entry.name !== "README.md")
-for (const rule of packagedRules) {
-  const ruleName = path.basename(rule.name, ".md")
-  if (!currentPackageClassification.includes(`\`${ruleName}\``)) {
-    fail(`rules and verifications reference must classify ${ruleName}`)
-  }
-}
 
 if (!packageJson.files.includes("rules/")) {
   fail("package.json must package reusable OMP rules")

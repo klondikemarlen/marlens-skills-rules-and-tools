@@ -80,6 +80,14 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+### Semantic Module-Boundary Review
+
+Module-boundary alignment is semantic review, not a size or count check. The package supplies its policy through the `marlens-rules:module-boundary-alignment` agentic verification contract in `package.json` and `verifications/module-boundary-alignment.json`; this reference's Module Decomposition, Review Structure, and Service Orchestration guidance remains authoritative. The contract asks the existing verifier model to assess changed boundaries against that guidance. It does not make every extraction suspect: retain short modules when they own a meaningful invariant, domain action, volatile dependency, independent change axis, or genuinely reusable behavior.
+
+The contract requires changed code, relevant callers, sibling modules, and project guidance. The consumer needs OMP Verifier 0.10.0 or later to prepare, capture, and evaluate the declared contract. If required context or a supported runtime is unavailable, report `BLOCKED` with the missing evidence; do not guess, claim a pass, or treat retrieval limits as a semantic result. Project-specific architecture and naming conventions take precedence over generic guidance.
+
+For a finding, identify the actual changed location and the Gold condition it fails, then correct the boundary or use an allowed reasoned bounded suppression. Re-run a fresh evaluation after correction; earlier assessments do not prove the changed code. This is advisor-assisted review, not a hard completion veto: final enforcement depends on OMP's native advisor behavior, as described in the [OMP Verifier scope and manifest contract](https://github.com/klondikemarlen/omp-verifier/blob/main/README.md).
+
 ### Component-Owned Support Modules
 
 For a pure TypeScript helper that operates on component/editor-specific concepts owned by that component, prefer a descriptive sibling `.ts` module in the component directory over a global `utils` module. Such a support module need not define a Vue component. Keep the helper pure and test its behavior separately from rendering using the project's test layout; do not introduce a model class or composable solely to relocate it.

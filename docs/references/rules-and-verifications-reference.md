@@ -9,9 +9,18 @@ Rules and verifications are complementary enforcement layers, not interchangeabl
 | An agent must make a contextual decision or follow a procedure            | Rule                       | It needs intent, repository context, or human judgment.                              |
 | A final repository state has a deterministic, bounded pass/fail condition | Verification               | A read-only script can produce repeatable evidence without model judgment.           |
 | Both are true                                                             | Rule and verification      | The rule prevents the mistake early; the verification is a backstop at the boundary. |
+| An accepted contextual standard has an explicit Gold condition, rubric, and required evidence | Agentic verification       | The existing verifier model evaluates the declared contract; unknown or missing evidence is BLOCKED. |
 | The signal is subjective, incomplete, or too costly to specify precisely  | Advisor or review guidance | A blocking script would create false positives and reward mechanical compliance.     |
 
 A verification must declare a concrete input scope, fail condition, evidence, and remediation. Do not add one merely because a rule exists. A rule must explain the decision an agent must make; do not replace that explanation with a script name.
+
+## Agentic Semantic Verification
+
+Some review policies require contextual judgment and therefore cannot be implemented as deterministic scripts. The package may declare such a policy as an `agentic` entry in the existing `omp.verifications` manifest, pointing to a versioned JSON contract that names the standard/source, Gold, required context, and rubric. The provider owns that policy and keeps its existing guidance authoritative; the verifier runtime owns discovery, fresh evidence capture, and evaluation through its existing verifier advisor. Do not add a dummy executable, a metric proxy, another registry, or a new advisor.
+
+The consumer requires OMP Verifier 0.10.0 or later. The runtime must surface unsupported contracts or missing required context as `BLOCKED`, with the actual check ID and missing evidence; unavailable context is not evidence of a pass or failure. Project-specific guidance takes precedence over shared policy. Correct a reported issue and request a fresh evaluation, or use a deliberate bounded suppression with its reason. Stale assessments cannot clear later changes.
+
+An agentic verification result is not by itself a hard completion gate. The provider contract and runtime protocol are documented in the [Module Boundary Alignment guidance](code-organization-reference.md#semantic-module-boundary-review) and the [OMP Verifier scope and manifest contract](https://github.com/klondikemarlen/omp-verifier/blob/main/README.md); final completion-veto behavior depends on OMP's native advisor.
 
 For cross-project responsibility and promotion of prose into checks, use [`quality-ownership-reference.md`](quality-ownership-reference.md). This package owns reusable check policy/implementation; OMP Verifier owns discovery, execution, and correction, while OMP Learner owns eligible feedback and proposal routing.
 
@@ -27,6 +36,7 @@ For cross-project responsibility and promotion of prose into checks, use [`quali
 | `default-function-exports`                        | Verification | TypeScript paths are checked by default; projects may explicitly opt out.                                       |
 | `typescript-runtime-entrypoints`                  | Verification | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                    |
 | `test-alignment`                                  | Verification | Changed tests follow naming/structure rules plus explicit local policies; assertion quality still needs review. |
+| `module-boundary-alignment`                      | Agentic verification | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes. |
 
 ## Default-Enabled Package Policies
 

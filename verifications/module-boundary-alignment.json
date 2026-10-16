@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "standardId": "marlens-rules:module-boundary-alignment",
+  "source": "./docs/references/code-organization-reference.md#module-decomposition",
+  "gold": "Each changed module boundary owns a meaningful invariant, domain action, volatile dependency, independent change axis, or actual reusable behavior. A boundary must not exist only for a trivial transformation or direct forwarding; preserve useful short boundaries when evidence shows real ownership.",
+  "requiredContext": [
+    "changed-code",
+    "callers",
+    "siblings",
+    "project-guidance"
+  ],
+  "rubric": [
+    {
+      "id": "boundary-ownership",
+      "question": "For each changed or introduced boundary, what meaningful responsibility, invariant, domain action, volatile decision, or reusable behavior does it own? Cite the changed code that demonstrates this ownership."
+    },
+    {
+      "id": "change-cohesion",
+      "question": "Do the boundary's contents change together for the same domain reason, while independently changing concerns remain separate? Use sibling modules and relevant caller relationships as evidence."
+    },
+    {
+      "id": "public-surface-and-dependencies",
+      "question": "Does the boundary expose a small intention-revealing API and preserve appropriate one-way dependencies without introducing cycles, cross-calling services, or reaching through internals?"
+    },
+    {
+      "id": "extraction-value",
+      "question": "Does each extraction make ownership, a domain decision, or a side effect easier to find, rather than merely wrapping a trivial transform, direct delegation, short clear branch, or unrelated mechanics? Would keeping the behavior co-located be clearer?"
+    },
+    {
+      "id": "orchestration-clarity",
+      "question": "For service or use-case changes, does top-level orchestration reveal guards, domain decisions, side effects, and results? Do extracted helpers name cohesive domain decisions or side-effect steps instead of hiding queries, permissions, transactions, or unrelated operations?"
+    },
+    {
+      "id": "project-conventions",
+      "question": "Does project-specific architecture or naming guidance override the generic boundary recommendation? Identify the applicable project guidance and its effect; do not infer a convention from a single incidental example."
+    }
+  ]
+}
