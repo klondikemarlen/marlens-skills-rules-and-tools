@@ -121,6 +121,8 @@ Call fixture-backed test functions by their descriptive exported names rather th
 
 Assert fetched or returned collections directly against expanded literal expected arrays/objects and supported matchers such as `expect.objectContaining`. Do not put `map`, `filter`, `reduce`, or another projection inside `expect` merely to reshape the actual result; use the project's native model representation and compliant sibling patterns. Preserve legitimate async API assertions, native promise-rejection assertions, and matcher API calls.
 
+Place queries whose sole purpose is observing persisted results in Assert, immediately above the expectation. Prefer a simple awaited ORM query over a parenthesized await followed by in-memory filtering only when isolated fixtures make that filtering unnecessary. Preserve query constraints and options that the scenario actually needs, and keep the operation under test in Act.
+
 Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
 
 ## Input-Heavy Utility Tests
@@ -269,7 +271,7 @@ Preserve the caller's loaded association graph when returning an updated instanc
 
 Prefer CRUD-style operation names for new or refactored services when they accurately describe the action; use `Update...Service` over `Set...Service` for changes to existing state. Do not force unrelated domain actions into misleading CRUD names. For search-index lifecycle services, explicitly include `Index` in the class and file name (for example, `UpdateIndexService` and `update-index-service.ts`), even when a containing directory already names the index. Do not apply index naming to unrelated document or workflow operations.
 
-Group service barrel exports with standard CRUD services first, special actions next, and bundled namespaces last. Alphabetize exported symbols within each group, not globally across the groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Add another meaningful category when needed rather than forcing unrelated operations into a group or rewriting unrelated established barrels.
+Group service barrel exports with standard CRUD/read entries first, special actions next, and bundled namespaces last. Read-only definition or value exports belong in the ordinary CRUD/read group, alphabetized with its entries; do not create a separate category merely because they are definitions. Alphabetize exported symbols within each group, not globally across the groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Add another meaningful category when needed rather than forcing unrelated operations into a group or rewriting unrelated established barrels. Preserve exported names.
 
 ## Query Names and Cohesive Projections
 
@@ -346,9 +348,14 @@ A concise scalar ternary may remain when it is genuinely clearer than branching,
 
 ## Guard Clauses and Exceptional Responses
 
-By default, in generated or touched JavaScript and TypeScript, use a multiline braced block for an early `if` exit rather than an inline `if (...) throw` or `if (...) return`. Leave one blank line between the closing brace and the next sibling statement; keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
+In generated or touched JavaScript and TypeScript, short clear guard clauses may be single-line. Follow a standalone guard with one blank line; consecutive short guards may remain adjacent, with the blank line only after the last guard. Use a multiline braced block for guards that are not short or when branching reads more clearly; do not compress every guard. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
 
-In a review restoration, retain original simple single-line nil-return guards such as `if (isNil(value)) return` when the user explicitly prefers them. Do not mechanically expand those accepted guards or change their nil-check semantics. This bounded exception does not make inline throws, complex guards, or all early returns the default.
+```ts
+if (oldValue === newValue) return
+if (isNil(value)) return
+
+applyChange(value)
+```
 
 Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
 
@@ -400,6 +407,8 @@ expect(getByRole("status")).toHaveTextContent("Loading")
 By contrast, dispose resources that remain live beyond the assertion, such as timers, I/O, or subscriptions. Reuse automatic teardown where it already provides the required disposal. Keep explicit disposal when disposal itself is under test or when it protects a demonstrated isolation invariant.
 
 Inspect the active test-runner configuration before adding local mock-restoration hooks. Rely on configured cleanup for the mocks, globals, or environment state it already covers rather than duplicating it in `afterEach`. Retain local cleanup for uncovered resources or state and preserve intentional mid-test restoration; apply an accepted correction consistently within the reviewed scope.
+
+When tests repeatedly track and delete the same class of external test resources, prefer a named shared cleaner integrated with the existing before-test isolation lifecycle instead of repeated per-test cleanup bookkeeping. Restrict destructive cleanup to test-owned resources and preserve isolation from other suites or workers. Apply the existing narrowest-scope and asynchronous fan-out rules rather than adding an unconditional global hook; keep necessary cleanup for unique or otherwise uncovered resources.
 
 ```ts
 // Necessary: the interval remains live after this assertion.

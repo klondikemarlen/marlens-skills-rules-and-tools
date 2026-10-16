@@ -52,6 +52,8 @@ Multiple direct assertions can jointly prove a coupled invariant, such as atomic
 
 The verifier cannot determine semantic focus or whether an object is a real result. Its `PASS` means the configured structural rules passed, not that assertions are useful. Authoring and review own that judgment; do not add a syntax-only semantic gate.
 
+For placement of persistence-observation queries beside Assert expectations, follow [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification). This is authoring guidance, not another structural verifier rule.
+
 ## Scoped Suppression
 
 Use the repository-root `.marlens-verifications.json` only when a bounded legacy path cannot meet the shared contract yet:
