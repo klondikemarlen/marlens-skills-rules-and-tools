@@ -161,6 +161,10 @@ function renderLoadState(state: LoadState<string[]>): string {
 
 The `status` tag narrows each branch to the fields valid for that state, so no value can simultaneously be loading and failed or claim success without data. Use an exhaustive check when it improves safety as the union grows. This is a small type-modeling technique, not a framework or class requirement, and it does not replace runtime validation of untrusted input. See the [TypeScript narrowing handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
 
+## Initialization Safety
+
+Prefer initialization that TypeScript can verify over definite-assignment assertions such as `let callback!: () => void`. For asynchronous coordination, use directly initialized values or appropriate standard synchronization primitives supported by the project runtime. Do not replace the assertion with casts, dummy callbacks, or optional calls that conceal missing initialization or silently discard a signal. Preserve pending-state behavior, signal delivery, ownership, lifecycle, and failure behavior. This is not a requirement to use `EventEmitter` everywhere or a blanket ban on unrelated TypeScript syntax.
+
 ## SDK Configuration Types
 
 When an SDK configuration object's intended contract is the SDK type, prefer a named constant with an explicit type annotation over an inline `satisfies` expression. If the configuration is nested in an application wrapper, type that configuration constant itself and retain the wrapper's own fields; do not annotate the whole wrapper with the nested SDK type or add `Partial` without an actually partial contract. Preserve `satisfies` when narrower inferred literals or keys are required by a real consumer; this is not a blanket ban on it.
