@@ -9,7 +9,7 @@ Use these templates for Vue 3 + TypeScript admin CRUD screens that use Vuetify, 
 - A typed API client owns HTTP calls and serializer-aligned response types.
 - Project-local table, route, toast/snackbar, and error helpers may replace template snippets.
 
-For component structure, stock UI reuse, and scoped utility-style presentation, use the [Vue Component Authoring Reference](../../../references/vue-component-authoring-reference.md).
+For component structure, loading/disabled state, stock UI reuse, and scoped utility-style presentation, use the [Vue Component Authoring Reference](../../../references/vue-component-authoring-reference.md).
 
 ## Templates
 
