@@ -39,5 +39,5 @@ accessibleBy(user: User) {
 The named trait owns its persisted relationship and remains opt-in.
 
 - Do not use per-test `.afterCreate(...)` mutations or transient flags as a substitute for a reusable trait.
-- Keep unit-test imports direct when that is the project convention.
+- For dependency-bundle versus direct-subject test imports, use [Project-Root Imports and Paths](../../docs/references/code-organization-reference.md#project-root-imports-and-paths).
 - For factory type changes, run the project’s test TypeScript check, not only the application build.

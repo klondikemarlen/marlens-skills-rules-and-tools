@@ -15,6 +15,7 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 - Keep controllers thin: request parsing, status codes, and response shape only.
 - Put reusable or multi-step domain work in a service/use-case. Do not create a service for a trivial read if sibling endpoints keep that inline.
 - Authorize and validate before mutation. Fail closed when a policy is unclear.
+- For required-new record lifecycles, use [Service Orchestration Readability](../references/code-organization-reference.md#service-orchestration-readability): prefer strict creation over convenience reuse/repair while preserving accepted unchanged-state paths.
 - Serialize explicit fields. Do not leak raw ORM/model objects unless that is already the project contract.
 - Use existing dependencies: ORM/query builder, transaction helper, logger, validation, and test factories. Do not add a new framework for the template.
 

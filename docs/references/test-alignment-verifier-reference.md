@@ -31,15 +31,9 @@ The naming and Arrange/Act/Assert baseline directives remain accepted in README 
 
 The authoring default is one `expect` for one observable contract, not a numeric quality quota. An HTTP response's status and body together describe one result. Prefer a native or meaningful matcher such as [`toHaveHttpResponse`](http-response-matcher-reference.md), which checks both without building a synthetic wrapper object. Keep independent persistence effects or other independently meaningful outcomes separate.
 
-Where no suitable HTTP matcher is available, status and body may use two direct assertions in one focused test when together they prove the response contract. If a repository explicitly selects `one-direct-expect`, document this narrow coupled-contract exception in the test body:
+Where no suitable HTTP matcher is available, status and body may use two direct assertions in one focused test when together they prove the response contract. Do not add an inline `allow-multiple-expects` directive or rationale comment to justify the coupled assertions. Do not replace it with equivalent rationale prose, a broader suppression, a synthetic assertion bundle, or weaker assertions. Keep independent persistence effects or other independently meaningful outcomes separate.
 
-```ts
-// marlens-test-alignment: allow-multiple-expects -- Status and body jointly prove the HTTP response contract; no suitable response matcher is available here.
-expect(response.status).toEqual(201)
-expect(response.body).toEqual({ id: 7, name: "Widget" })
-```
-
-The exemption applies only to the local count rule and requires text after `--`. It does not exempt naming or other directives. Do not apply it to independent persistence assertions. Controller tests have no blanket exemption.
+If a repository explicitly selects `one-direct-expect`, its syntax gate conflicts with this response-contract guidance for a status/body pair that needs two assertions. Report that policy/check mismatch and preserve truthful status; do not silently waive the gate or reshape the test to hide it. Controller tests have no blanket exemption.
 
 **Avoid synthetic bundles:**
 

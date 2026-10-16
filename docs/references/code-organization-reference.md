@@ -113,7 +113,11 @@ Verification code should expose each independently observable contract through a
 
 Use a fresh fixture when a scenario needs a different starting state. A failing scenario must not be mutated into a clean scenario, because that couples independent behavior and obscures the clean contract.
 
+Create persisted scenario records explicitly in each test's Arrange section, even when their attributes are identical across the suite; do not move that creation into shared `beforeEach` hooks. Preserve environment hooks such as fake-timer setup/teardown and reusable opt-in factory traits called from each scenario. Intentional duplication keeps the persisted starting state visible.
+
 Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
+
+Call fixture-backed test functions by their descriptive exported names rather than aliasing them to generic `test` or `it`; the name exposes the setup/teardown context. Do not hide a fixture such as `testWithConfigOverride` behind `const test = testWithConfigOverride`.
 
 Assert fetched or returned collections directly against expanded literal expected arrays/objects and supported matchers such as `expect.objectContaining`. Do not put `map`, `filter`, `reduce`, or another projection inside `expect` merely to reshape the actual result; use the project's native model representation and compliant sibling patterns. Preserve legitimate async API assertions, native promise-rejection assertions, and matcher API calls.
 
@@ -155,17 +159,25 @@ function renderLoadState(state: LoadState<string[]>): string {
 
 The `status` tag narrows each branch to the fields valid for that state, so no value can simultaneously be loading and failed or claim success without data. Use an exhaustive check when it improves safety as the union grows. This is a small type-modeling technique, not a framework or class requirement, and it does not replace runtime validation of untrusted input. See the [TypeScript narrowing handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
 
+## SDK Configuration Types
+
+When an SDK configuration object's intended contract is the SDK type, prefer a named constant with an explicit type annotation over an inline `satisfies` expression. If the configuration is nested in an application wrapper, type that configuration constant itself and retain the wrapper's own fields; do not annotate the whole wrapper with the nested SDK type or add `Partial` without an actually partial contract. Preserve `satisfies` when narrower inferred literals or keys are required by a real consumer; this is not a blanket ban on it.
+
 ## Domain-Oriented Modules and Tests
 
 Split a growing module by the domain action or external integration it owns—not into generic `helpers`, `utils`, `services`, or `tests` buckets. Each module should have one narrow responsibility: parse or validate a boundary, make a policy decision, coordinate one action, or adapt one external system. Keep parsers and policies pure where practical; let orchestration depend on those decisions; keep filesystem, HTTP, database, framework, and extension state at the outer adapter boundary. Classes earn their cost only when they own meaningful state or a lifecycle; otherwise use a function.
 
-Co-locate focused unit tests with the pure policy, parser, or small domain operation they protect. Use a boundary integration test for the adapter contract. Keep request payloads, inputs, and expected output local to each test; intentional duplication is clearer than a helper that hides those facts. Tests should share a fixture only when it represents stable domain data used by several tests or stable environment state, never to assemble varying request attributes or expectations. Before a structural move, run the existing behavior check; after the move, rerun the same check and add only the smallest missing behavior test. A folder split that cannot name its owned action or preserve that check should stay a module.
+Co-locate focused unit tests with the pure policy, parser, or small domain operation they protect. Use a boundary integration test for the adapter contract. Keep request payloads, inputs, and expected output local to each test; intentional duplication is clearer than a helper that hides those facts. Follow [Scenario-Oriented Verification](#scenario-oriented-verification) for persisted-record setup; shared environment mechanics or fixed literal data must not hide scenario inputs. Before a structural move, run the existing behavior check; after the move, rerun the same check and add only the smallest missing behavior test. A folder split that cannot name its owned action or preserve that check should stay a module.
 
 ## Project-Root Imports and Paths
 
 Use one project-root import convention for dependencies across features or modules when it makes the dependency direction clearer than `../../..` traversal. Prefer `@/…` when every supported compiler, test runner, bundler, and editor/language server resolve it identically. Keep a short relative import for an immediately co-located sibling when it better expresses that the files form one local unit.
 
 For production callers, prefer named imports from the deepest matching supported domain/module entry point rather than a broad root barrel plus a namespace alias, especially when the caller belongs to that domain. A domain barrel is a valid entry point; this does not require bypassing its public API for an individual implementation file. Preserve package export boundaries and existing module resolution, and leave unrelated imports alone.
+
+In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions; a deeper private implementation path is not automatically a valid subject import.
+
+Preserve the positions and order of unchanged imports when editing unrelated behavior. Do not move them merely to tidy or alphabetize a touched file; retain required new imports and intentional import changes. Review the full PR diff for equivalent incidental moves and remove them. Explicitly requested import cleanup and changes required by project tooling remain valid.
 
 When raw Node runs ESM source directly, prefer Node's native `#/…` package-import namespace instead of `@/…`, which Node treats as an external package. Map it through `package.json` `"imports"` as `"#/*": "./*"`, and require Node v24.14.0 or later, which supports `#/` subpath imports. If a supported Node version cannot use `#/…`, map the package root as `#root/…` through `"#root/*": "./*"`, and map a sibling `tests` root as `#tests/…` through `"#tests/*": "./tests/*"`.
 
@@ -242,6 +254,8 @@ Extraction is warranted when the helper name captures a cohesive domain decision
 Extraction is not warranted for a trivial one-line transform, direct delegation, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
 
 When extracting a bulk replacement operation, let the sub-service own that operation's validation and persistence while the higher-level action continues to orchestrate related side effects, such as notification-preference transitions. Preserve the existing transaction boundary, rollback and safety invariants, and required side-effect order across that call. Prefer straightforward existing orchestration over combining responsibilities or adding machinery without a concrete gain; this does not require extracting trivial forwarding steps.
+
+Do not introduce `findOrCreate` as convenience provisioning. When the lifecycle invariant says a record must be new, use direct `create` and let an unexpected existing record fail through the normal constraints and transaction rather than silently reusing or repairing it. Keep explicitly accepted unchanged-state behavior separate; this preference does not authorize changing that path into creation or repair.
 
 For an ordinary collection read, prefer the mapped model's normal query API, such as `findAll`, over a service that merely wraps the query. Keep required batching orchestration separate; retain a service when it owns a meaningful action or orchestration rather than forwarding alone. Name a collection-returning service with `List`, not `Load`—for example, `ListDocumentsService` rather than `LoadDocumentsService`.
 
@@ -384,6 +398,8 @@ expect(getByRole("status")).toHaveTextContent("Loading")
 ```
 
 By contrast, dispose resources that remain live beyond the assertion, such as timers, I/O, or subscriptions. Reuse automatic teardown where it already provides the required disposal. Keep explicit disposal when disposal itself is under test or when it protects a demonstrated isolation invariant.
+
+Inspect the active test-runner configuration before adding local mock-restoration hooks. Rely on configured cleanup for the mocks, globals, or environment state it already covers rather than duplicating it in `afterEach`. Retain local cleanup for uncovered resources or state and preserve intentional mid-test restoration; apply an accepted correction consistently within the reviewed scope.
 
 ```ts
 // Necessary: the interval remains live after this assertion.
