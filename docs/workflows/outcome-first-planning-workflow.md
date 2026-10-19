@@ -87,6 +87,8 @@ Do not add runtime orchestration when guidance assets satisfy the success condit
 
 Prefer a simple, predictable interface. Name the public inputs, outputs, and stop conditions. Reject speculative options, duplicate procedures, and abstractions without a current caller. Confirm the complexity ceiling still holds after integration links and verification are included.
 
+For broad work, bound the delivery sequence with [Plan Reviewable PR Slices](hands-off-agentic-coding-workflow.md#plan-reviewable-pr-slices) before implementation, using the existing plan rather than a separate artifact.
+
 ### 6. Iterate Until Risk Converges
 
 Repeat the fit check and pattern alignment after each design change. Stop when either:

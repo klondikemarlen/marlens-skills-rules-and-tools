@@ -23,7 +23,7 @@ Do not use this workflow for an obvious local or mechanical change; read the loc
 2. **Fit-check examples.** Record good, bad, and ambiguous examples with expected results; resolve counter-examples before choosing an interface.
 3. **Align with local patterns.** Read project guidance, setup/test/release docs, sibling workflows, skills, references, templates, rules, callers, and verifiers before adding assets.
 4. **Map tools and rules.** Choose the smallest applicable existing skills, workflows, references, templates, or rules. Do not add runtime orchestration for a guidance problem.
-5. **Bound the interface.** Name public inputs, outputs, stop conditions, and rejected speculative flexibility.
+5. **Bound the interface.** Name public inputs, outputs, stop conditions, and rejected speculative flexibility. For broad work, bound the delivery sequence with [Plan Reviewable PR Slices](../hands-off-agentic-coding/workflow.md#plan-reviewable-pr-slices) before implementation, using the existing plan rather than a separate artifact.
 6. **Converge.** Stop when the success condition is covered by examples and a runnable verification gate exists with residual risk named. Ask only when an unresolved decision materially changes ownership, security, compatibility, or the public interface; otherwise run an experiment.
 
 ### Interaction-Contract Activation
