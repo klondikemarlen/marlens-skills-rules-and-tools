@@ -19,8 +19,7 @@ Use when creating or updating a pull request.
 
 ### Repository Metadata
 
-Before requesting review, reconcile any ownership, label, and reviewer-request metadata required by
-the target repository:
+Before every agent-created PR handoff, including drafts and documentation-only work, reconcile ownership and applicable existing labels unless an explicit user instruction or repository policy directs otherwise. Reviewer requests remain separately authorized.
 
 Set the repository and PR number once for these commands:
 
@@ -29,23 +28,22 @@ repo=OWNER/REPO
 number=PULL_NUMBER
 ```
 
-- **Local policy:** Read the repository's local guidance first. It decides whether metadata is
-  required, who owns the PR, which labels are appropriate, and who may request review.
-- **Current PR state:** Inspect existing assignees, labels, and review requests before changing
-  them. Reconcile only the metadata required by local policy:
+- **Local policy:** Read the repository's local guidance first. Explicit ownership, label, and handoff exceptions override the generic defaults; never hard-code personal accounts or a fixed label taxonomy into shared standards.
+- **Current PR state:** Inspect existing assignees, labels, and review requests before changing them. Preserve unrelated metadata and add only missing applicable assignments and labels:
 
   ```bash
   gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests
   ```
 
-- **Assignee:** When local policy assigns the authenticated GitHub user, derive and assign that user
-  rather than hard-coding an account:
+- **Assignee:** Resolve the intended owner to a GitHub login. Use the authenticated GitHub user when that account is the intended owner, or an explicit verified mapping when supplied. Do not assume an automation credential identifies a different requesting human; ask only when the intended identity remains unresolved. When the authenticated user is the intended owner:
 
   ```bash
   assignee="$(gh api user --jq .login)"
   gh api "repos/$repo/issues/$number/assignees" -X POST \
     -f "assignees[]=$assignee"
   ```
+
+  Keep identities service-specific: a Jira assignment requires a separately resolved Jira account, not a GitHub login. A Jira account ID likewise does not establish a PR owner's GitHub identity.
 
 - **Available labels:** Query the repository's current label taxonomy with an explicit limit.
   If it returns 100 labels, rerun it with a higher limit before selection:
@@ -72,8 +70,7 @@ number=PULL_NUMBER
   `POST` adds the selected labels. Use `PUT` only when local policy explicitly owns the complete
   label set, because `PUT` replaces the entire label set.
 
-- **Confirmation:** After any metadata update, run the current PR state command again and confirm it
-  matches local policy:
+- **Confirmation:** After any metadata update, run the current PR state command again and confirm the intended owner, applicable labels, preserved unrelated metadata, and unchanged review requests before handoff:
 
   ```bash
   gh pr view "$number" --repo "$repo" --json assignees,labels,reviewRequests

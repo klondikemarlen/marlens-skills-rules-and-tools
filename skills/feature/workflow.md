@@ -13,6 +13,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Project-local release and contribution docs win over this generic workflow.
 - Before editing repository documentation, follow [Selecting Documentation Content](../../docs/workflows/project-knowledge-base-workflow.md#selecting-documentation-content) to name the changed durable reader question or contract and decide whether a docs change is needed.
 - Create or update a GitHub issue before coding user-facing work unless the user explicitly says not to use issues.
+- Before branch or worktree creation, use [Related-Issue Triage](#related-issue-triage) to revalidate the seed issue and decide whether nearby tickets belong in the same small delivery.
 - An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation; do not ask again solely for that delivery. External or unresolved GitHub writes remain subject to `omp-soft-boundary-guard` advisory warnings when installed. A standard OMP Ask applies only when a caller explicitly uses the guard's strict programmatic API; do not add another confirmation. Preserve destructive or ambiguous Git-operation safeguards.
 - Name issue branches with the project's issue convention and a concise, meaningful outcome slug; never use opaque abbreviations or a bare issue number. Give pull requests an equally meaningful outcome-focused title and link the issue in the body.
 - Before `git worktree add`, `dev branch-from`, or creating an issue branch, inspect the target project's local guidance and existing `git worktree list`/branch layout. Use its prescribed worktree path and branch-name convention; an issue-linked branch does not necessarily repeat the issue number.
@@ -73,6 +74,16 @@ For changes to build images, dependency-install layers, migrations, bootstrap or
 
 Record `N/A` when the repository has no path-filtered CI or cache tied to the changed surface. Ordinary source-only changes do not require CI/cache closure, generic CI edits, cache busting, or full-suite reruns.
 
+## Related-Issue Triage
+
+Before creating a branch or worktree:
+
+1. Revalidate the seed issue against current code and open PRs. Do not implement stale requests, duplicate already-shipped behavior, or start a competing fix for work covered by an existing PR.
+2. Search nearby backlog issues using the seed's user outcome and affected implementation boundary. Read plausible matches and their acceptance criteria; this is a bounded related-ticket check, not a backlog-wide audit.
+3. Group issues only when one small coherent PR can fully satisfy every linked acceptance criterion through the same implementation boundary and verification path. Keep one primary issue for branch/worktree naming and link every resolved issue in the PR. Keep unrelated or substantially broader work separate; shared keywords or a common deploy command are not sufficient.
+
+Briefly record the grouping or keep-separate decision in the normal issue or PR location. An isolated fix stays single; two gaps in one release-finalization transaction may fit together; independent permission and terminal-input defects stay separate even if both mention deployment. No separate planning artifact, grouping quota, or runtime orchestration is needed.
+
 ## Learner Coverage During Issue Triage
 
 For each issue not clearly learner-authored, inspect explicit provenance—author, `learner:` title or label, issue body, and cited evidence—rather than guessing from its appearance. Record exactly one learner coverage outcome in the existing location permitted by local policy. Absent a contrary local evidence-placement rule, record the concise outcome in the implementation PR:
@@ -86,11 +97,11 @@ Do not auto-file a learner issue solely because an issue was manually authored.
 ## Process
 
 1. Capture the user story and acceptance criteria in a GitHub issue.
-2. For each issue not clearly learner-authored, inspect its explicit provenance and evidence and record one learner coverage outcome in the existing location permitted by local policy. Absent a contrary local evidence-placement rule, record the concise outcome in the implementation PR. File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
+2. Run [Related-Issue Triage](#related-issue-triage). For each issue not clearly learner-authored, inspect its explicit provenance and evidence and record one learner coverage outcome in the existing location permitted by local policy. Absent a contrary local evidence-placement rule, record the concise outcome in the implementation PR. File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
 3. Before `git worktree add`, `dev branch-from`, or branch creation, inspect the target project's documented naming convention and existing worktree layout. Create the worktree and issue-linked branch with the exact project-local path and branch format plus a concise, meaningful outcome slug; do not use opaque abbreviations, a bare issue number, or infer an `issue-<number>/` prefix from GitHub alone.
 4. Before opening a PR, verify its base is the repository's default branch or a documented release branch.
 5. Implement the feature against project-local patterns and keep the diff scoped to the story.
-6. Open a draft pull request linked to the issue.
+6. Open a draft pull request linked to every resolved issue using `docs/workflows/pull-request-management-workflow.md`. Before every handoff, including drafts, reconcile ownership and applicable existing labels through its [Repository Metadata](../../docs/workflows/pull-request-management-workflow.md#repository-metadata) gate.
 7. Self-review the complete PR diff and truthfully record material findings and the `PASS`/`FAIL`/`BLOCKED` outcome in the existing location permitted by local policy. Without contrary local policy, record concise reviewer-relevant status in the top-level PR body.
 8. Run targeted QA and truthfully record current-head status, the user-visible scenario and observed outcome, relevant automated-check status, and any failures or blockers—including `PASS`/`FAIL`/`BLOCKED` outcomes—in the existing location permitted by local policy. Without contrary local policy, record concise status in the same PR body. Revise the existing record in place after every implementation, review, or QA change; preserve issue links, genuine product questions, relevant images/captions and prerequisites, and reproducible testing instructions. Follow the pull-request management workflow for evidence placement, detailed evidence, genuine discussion, and remote read-back. Do not append routine report comments.
 9. Mark the PR ready only after its acceptance criteria and current self-review and QA are complete. Record their outcomes in the locally permitted existing location; without contrary local policy, use the PR body. If an explicit user or maintainer waiver directs readiness despite incomplete work, record the missing evidence truthfully.
