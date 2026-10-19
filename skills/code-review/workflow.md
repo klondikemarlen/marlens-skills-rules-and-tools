@@ -13,6 +13,7 @@ Use when reviewing a branch, pull request, or local diff.
 - Lead with behavior, contracts, data safety, security, and missing verification.
 - Configuration diagnostics follow [Safe Configuration Diagnostics](../hands-off-agentic-coding/workflow.md#safe-configuration-diagnostics): selective context-approved output and credential status, not broad local env/tool dumps.
 - Start from the success condition: name the behavior, invariant, or regression risk that must be proven before judging implementation quality.
+- Check the change's user-need evidence and the value of additional edge-case handling using [Solve Real User Needs](../../rules/solve-real-user-needs.md). This is contextual review, not an automated user-value verdict.
 - Before revising a policy branch or its expectations, establish whether the accepted behavior is already satisfied. Follow [Verify Existing Behavior Before Policy Changes](../hands-off-agentic-coding/workflow.md#verify-existing-behavior-before-policy-changes); preserve an already-correct path and distinguish configuration selection from a genuine semantic change.
 - Treat style as worth raising only when it affects clarity, consistency, or future safety.
 - Flag cramped adjacent sibling logical blocks when local precedent separates them: top-level functions/classes/modules, class methods, helper sections, and test cases/groups should usually have one blank line between siblings for scanability.
