@@ -83,12 +83,16 @@ Automatic checks require declared `pathTriggers`. This package narrows test alig
 
 ## Diff Scope
 
-Set `MARLENS_TEST_ALIGNMENT_BASE` to the PR base ref when checking committed branch changes:
+Before merge, select the actual PR base ref and check the current PR scope. The check assesses every test in each selected changed file, including legacy callbacks outside the edited lines. Record its `PASS`, `FAIL`, or `BLOCKED` result in the project's existing permitted evidence location. Behavioral-suite success does not prove this structural contract; anticipated final-yield advice is not a completed check.
+
+In an OMP session launched with `MARLENS_TEST_ALIGNMENT_BASE` set to that base ref, invoke `/verifier verify marlens-rules:test-alignment`. Alternatively, locate the declared check entry in the installed provider and run it from the active project in a terminal:
 
 ```bash
-MARLENS_TEST_ALIGNMENT_BASE=origin/main /verifier verify marlens-rules:test-alignment
+env -u OMP_VERIFIER_CHANGED_PATHS \
+  MARLENS_TEST_ALIGNMENT_BASE="<actual PR base ref>" \
+  node "<installed provider root>/verifications/test-alignment.mjs"
 ```
 
-With that variable, the verifier compares committed branch changes to the base and also includes current worktree and untracked tests. Without it, the verifier examines the current worktree diff against `HEAD` plus untracked tests; use it before committing local test changes.
+Do not run the slash command as a shell executable. Clearing `OMP_VERIFIER_CHANGED_PATHS` avoids a stale automatic per-turn selection overriding the manual PR scope. `MARLENS_TEST_ALIGNMENT_BASE` compares committed branch changes to the base and also includes current worktree and untracked tests. Without it, the check examines only the current worktree diff against `HEAD` plus untracked tests, so a clean committed branch can miss its PR changes.
 
-Running `node verifications/test-alignment.mjs` directly prints the same result and exits non-zero when it reports `FAIL`, so CI can enforce the shared baseline and local additions without the agent verifier.
+The standalone entry prints the same structured result; `FAIL` also exits non-zero. Read `status` explicitly: the current entry can exit zero for `BLOCKED`, which is not `PASS`. No installed coordinator is needed for this path. Preserve explicit local additions and supported scoped suppressions. If the relevant check or base ref is unavailable, record `BLOCKED` with the exact prerequisite rather than claiming a structural PASS. No matching changed tests means `N/A` for this gate. This is focused pre-merge evidence, not a new runtime completion barrier, advisor cadence, model route, or unrelated hygiene scan.

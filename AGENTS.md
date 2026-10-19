@@ -91,6 +91,7 @@
 
 - Do not run write, edit, deploy, or restart commands against production cloud infrastructure. Use read-only inspection only, and provide proposed commands for the user to run.
 - Only run write, edit, deploy, or restart commands against non-production cloud infrastructure when the user explicitly asks for that exact action in the current conversation.
+- A request to investigate or configure an existing cloud deployment, or update its source PR instructions, does not by itself authorize application/container-image implementation: source edits, implementation issues, feature branches, or image builds. Inspect source read-only as needed. If a prerequisite requires an application/image change, explain the dependency and obtain separate authorization before starting repository implementation; continue authorized cloud-only alternatives where viable. Explicitly requested application work remains in scope, subject to the separate cloud-write safety rules above.
 
 ## Shell
 
