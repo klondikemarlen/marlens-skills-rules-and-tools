@@ -13,6 +13,22 @@ Use when writing or updating pull request testing instructions.
 7. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter.
 8. Separate independent scenarios with numbered test cases when the flow is complex.
 
+## Real-Authentication E2E Preflight
+
+This applies only when a suite claims real-authenticated coverage; it does not require every suite to use real credentials.
+
+Before expanding a suite that claims real-authenticated coverage:
+
+1. **Identify the path and account.** Read the app configuration and project setup to identify the configured provider/client, the intended authorized test account, and the app-level result that proves authentication (such as reaching a protected route or completing a protected action). Use a non-secret test-account alias in published instructions; never publish credentials. Check the actual provider/client protection policy, including CAPTCHA, from its configuration or an authorized owner. Do not infer automation policy from a tenant or domain name.
+2. **Run one minimal executable scenario first.** Use the project's documented command and its actual configured client/SDK to sign in with the intended account, return to the application, and verify the named app-level result—not just successful identity-provider sign-in. Record the exact command and observable result. Limit provider-specific claims to the client/path actually exercised.
+3. **Separate environments.** Document local setup and credential sourcing separately from CI secret configuration. Run the preflight in every environment for which authenticated acceptance is claimed; secret presence alone does not prove that CI login works. An unrun preflight for a claimed authenticated target is `BLOCKED`. A deliberately smoke/mock-only target remains labeled as such, with authenticated acceptance `N/A`, not passing.
+4. **Report the result truthfully.** Report smoke/mock and real-auth coverage separately for each environment. A successful preflight proves only its exercised path, not unrun acceptance scenarios. Use `PASS` for an executed successful check, `FAIL` when the attempted check returns an error or misses its app-level result, and `BLOCKED` when a required authenticated check is not run or an external prerequisite, provider protection, or missing authorization prevents completion. State the exact blocker and the authorized owner who can resolve it. Skipped or unrun authenticated checks never count as passing.
+5. **Preserve safeguards.** Do not bypass CAPTCHA or weaken authentication. Account provisioning, provider-policy changes, and administrative access require explicit approval from the authorized account/provider owner; do not make those changes without it. If current protections prevent automation, leave authenticated acceptance blocked.
+
+Mocks and smoke checks remain useful, but they prove only the behavior they exercise and must not be labeled authenticated acceptance.
+
+When validating an authenticated browser flow, follow this preflight before adding many scenarios; the [Browser QA Workflow](browser-qa-workflow.md) covers user-visible execution and reporting.
+
 ## Evidence Ownership
 
 Choose the smallest owning evidence layer that can prove the success condition. Move outward only when the changed behavior crosses a boundary.
