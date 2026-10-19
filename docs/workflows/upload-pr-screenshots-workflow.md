@@ -4,8 +4,8 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 ## Process
 
-1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional.
-2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture stable states only; avoid transient spinners, snackbars, or partially loaded screens.
+1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional, and use **Capture Preflight** before opening a browser or preparing data.
+2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture the actual application in the requested browser at stable states; avoid transient spinners, snackbars, or partially loaded screens.
 3. Keep every image for the run in that directory, use it as the default upload source, and verify the exact selected upload files are readable. Use only the scoped sandbox exception below when necessary; do not scatter working copies.
 4. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. For manual sign-in, follow **Interactive Sign-In Preference** below. Use **Authenticated Session Bootstrap** only as an explicit fallback when the preferred authorized route is unavailable.
 5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images.
@@ -18,6 +18,30 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 12. Release the owned tab and stop the owned session process even after failure, as described below.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
+
+## Capture Preflight
+
+Before capture, establish these prerequisites from the task and project-local QA/setup guidance:
+
+1. **Evidence target:** name the changed state, app route, required role/data, and visible result each image will demonstrate. Use the running application; fixture/component previews may support separately labeled evidence but do not prove authenticated application behavior.
+2. **Capture browser:** distinguish an explicit request for the user's normal/existing Firefox session from a separate Firefox automation session or Chromium. Confirm the available tooling supports the requested browser and an actual screenshot destination. Chromium/CDP upload support does not establish Firefox capture/control support.
+3. **Application access:** verify the app route and required data are reachable through the project's documented login/QA path. Use [Real-Authentication E2E Preflight](testing-instructions-workflow.md#real-authentication-e2e-preflight) for authenticated coverage. Application sign-in and GitHub attachment sign-in are separate prerequisites.
+4. **Control and capture:** use a supported authorized browser connection or desktop/window capture. A launched browser or a desktop portal request is not proof of control or capture: require a returned, readable image, then inspect it for the intended state and sensitive content. Do not silently substitute a different browser, restart or terminate the user's browser, copy profiles/cookies, or install a new driver to work around missing access. When the requested surface is inaccessible, report that precise blocker and ask only for the missing user action or a materially different capture route.
+
+Keep project-specific browser commands, login/data setup, and desktop permissions in the project's QA documentation; do not invent a universal Firefox command. If its local workflow is missing, use the packaged browser-QA and upload procedures rather than guessing a local filename or requiring the user to copy shared docs. Local policy still wins when it deliberately differs; report stale/conflicting instructions to their owner rather than silently overriding them.
+
+## Progress and Blockers
+
+Record the actual stage reached; do not collapse these into a generic “screenshots blocked”:
+
+- **Capture:** requested browser, application access/data, or screenshot output is unavailable. Name the missing prerequisite; GitHub sign-in cannot produce a missing application capture.
+- **GitHub authentication:** valid captures exist but the authorized GitHub browser is signed out. Discover the existing session/bootstrap route below before handing upload back to the user. If the relaunched session is still signed out, stop and report that observed result; do not repeatedly relaunch or infer successful sign-in from caller confirmation alone.
+- **Upload/file transfer:** the target editor or browser file input cannot accept the selected images. Inspect the scoped editor error and browser-visible file transfer; use the staging sandbox exception only with evidence. Host readability does not establish browser readability. Do not diagnose an empty/unsupported upload as an authentication failure without evidence.
+- **Publication verification:** an upload URL exists but saved-body preservation or loaded-image placement is unverified. Keep that distinction; neither local files nor app-route links are published attachments.
+
+Retain valid captures when publication is blocked, separate from disposable authentication profiles, so session cleanup does not delete the only evidence. After a UI revision, inspect whether existing images still represent the changed state; recapture affected states and preserve unrelated images. A prior successful upload is not proof of replacement-image delivery.
+
+Screenshot publication is a merge/readiness gate only when the user or project policy requires it. Do not turn optional images or explicitly permitted captioned placeholders into a new gate. An explicit screenshot request remains an outstanding deliverable until completed or truthfully reported blocked, even when the PR may otherwise proceed. Keep required behavioral QA and review gates separate.
 
 ## Screenshot Staging
 
