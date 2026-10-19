@@ -30,11 +30,21 @@ Deliver the smallest complete change that provides the requested user value. Pro
 
 Ship small, coherent increments once their acceptance criteria and required checks pass. Prioritize follow-up from observed use, reported failures, and concrete risk instead of expanding scope before release. If an agreed requirement needs deferring, obtain explicit agreement rather than declaring unfinished work complete.
 
+### Plan Reviewable PR Slices
+
+Before implementing broad work, consider several focused PRs rather than one large patch. In the existing bounded plan, name each useful slice's outcome, implementation boundary, verification, and dependencies. Prefer coherent, safely mergeable increments with their required callers and tests; make dependent slices' merge order explicit.
+
+Use the first consequential slice's review and QA feedback before extending its design across the remaining work. Merely partitioning an already-written patch does not provide that early feedback or establish reduced churn.
+
+Treat file count as a signal to consider decomposition, not a quota. A uniform mechanical change may remain together. Keep coupled contract cutovers atomic when splitting would break intermediate states, introduce unused abstractions or temporary adapters, or repeatedly rewrite the same contract. Keep isolated fixes ceremony-free and all agreed requirements in scope; one finished slice does not complete the overall request.
+
+Focused diffs can make change amplification and recurring change clusters easier to see. During slice review, inspect disproportionate fan-out, repeated coordinated edits, and duplicated policy; distinguish necessary cross-cutting changes from avoidable coupling. Use the existing [Domain Discovery Checkpoint](../../docs/references/code-organization-reference.md#domain-discovery-checkpoint) to investigate ownership and the smallest useful organization or abstraction change before extending that pattern. Churn alone does not justify an extraction or new folder, and smaller PRs are not evidence of a measured reduction in total churn.
+
 ## Process
 
 1. Choose the execution shape:
    - **Small diff:** one-sentence request, one obvious area, no exported API change. Read the local pattern, patch, and exercise the relevant proof; no separate framing record, plan, or handoff packet is required.
-   - **Unclear or multi-file:** inspect the affected boundary, then make one bounded plan naming the outcome, first runnable prototype, and its proof. Reuse an existing issue or plan that already supplies this context.
+   - **Unclear or multi-file:** inspect the affected boundary, then make one bounded plan naming the outcome, first runnable prototype, and its proof. Reuse an existing issue or plan that already supplies this context. For broad work, apply [Plan Reviewable PR Slices](#plan-reviewable-pr-slices) before implementation.
 2. Establish the outcome once for non-trivial work:
    - `Goal`: the user-visible outcome.
    - `Success condition`: the behavior, invariant, or regression risk that proves success.
