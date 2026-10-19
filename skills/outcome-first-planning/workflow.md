@@ -46,6 +46,12 @@ Name existing owners rather than adding layers by default: presentation renders 
 
 Preserve adjacent accepted behaviors unless the user changes them. Fit-check the matrix against the correction and neighboring cases before implementation, then keep the focused acceptance scenarios with their product knowledge owner.
 
+When replacing or intercepting a library's interaction lifecycle, inventory the affected input methods the feature already supports and preserve each begin, move, release, and cancel path unless the product explicitly narrows support. Native DOM drag/drop events do not cover every touch, pointer-capture, or fallback sensor path. Normalize input at the sensor boundary and reuse the existing domain target and commit rules rather than duplicating them per device.
+
+For example, a sortable list that supports mouse and touch can pass native mouse-drop tests while a custom handler listening only for `drop` never commits touch release. Fit-check a real supported touch/fallback release through the shared target rules, cancellation, and release outside a valid target; prove the resulting persisted/user-visible order and no-save invalid/cancel behavior. Synthetic mouse events labeled as touch do not establish sensor parity.
+
+Keep this conditional on the changed lifecycle and affected supported inputs. Do not require an exhaustive device matrix, a new interaction framework, or unrelated keyboard/accessibility scope expansion.
+
 ## Output Contract
 
 ```text
