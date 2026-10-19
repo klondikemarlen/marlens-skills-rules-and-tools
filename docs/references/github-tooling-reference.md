@@ -29,6 +29,14 @@ Keep GitHub Actions matrix jobs fail-fast, using the default behavior. Do not se
 
 Read the main issue and current discussion before commenting. Keep upstream issue comments brief and human: add only new evidence or useful context, such as a distinct reproduction or an observed constraint, rather than restating the report. Link supporting detail when needed instead of repeating a long report.
 
+Defect ownership and permission to write are separate prerequisites. Before proposing an upstream bug report or recurrence comment, establish with a focused reproduction, source trace, or equivalent evidence that the defect is in the third-party project rather than our application, configuration, prompts, plugins, or integration. A similar issue upstream is not proof that a new symptom is caused by upstream code. Route a confirmed local defect to its owning project or user-controlled tracker; keep an unisolated integration finding user-owned until attribution is established. Only participate upstream when the defect is attributable to that project and the write is authorized. If repository-write authorization or the boundary is unclear, confirm it once before writing; a blocked or unclear write is not permission to retry.
+
+Examples:
+
+- An application, configuration, custom-prompt, or plugin defect stays with that code's owning repository, even if a related upstream issue exists.
+- An integration symptom with no focused reproduction or source trace stays user-owned; do not report it upstream merely because a similar issue exists there.
+- A focused reproduction or source trace isolates a defect in third-party code: an upstream report or useful recurrence comment is appropriate only when writing to that repository is authorized.
+
 For agreement without additional information, use a `+1` reaction on the main issue rather than a comment. If the same actor has already reacted, do not add a duplicate reaction. Existing repository-write authorization still applies to comments and reactions; agreement is not permission to write to an external repository.
 
 ## Metadata Updates

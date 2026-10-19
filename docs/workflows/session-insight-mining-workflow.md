@@ -14,6 +14,7 @@ Use after the requested work is complete when a session contains corrections, ad
 - Every actionable finding needs source evidence, an owner, a smallest next action, and a duplicate check.
 - For resolved review threads and fixup commits, capture the concrete observable invariant, affected boundary, and smallest regression check; do not preserve only a process summary.
 - Preserve repository boundaries. A finding owned by another repository becomes a scoped ticket or report for that repository; do not edit its checkout.
+- Before routing a possible third-party defect, use [Upstream Issue Participation](../references/github-tooling-reference.md#upstream-issue-participation) to establish defect ownership separately from write authorization.
 - Prefer existing guidance over new wording. A covered finding is reported with its citation, not duplicated.
 - Keep user code-review corrections separate from product behavior findings so each has an explicit owner and persistence path.
 - Classify code-style clusters as a Project-local convention, Cross-project agent guidance, or One-off preference before proposing any guidance.

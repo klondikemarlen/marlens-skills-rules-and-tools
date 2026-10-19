@@ -11,6 +11,7 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 **Decision Rules:**
 
 - Start with the target's declared purpose, public surface, and local guidance. This package supplies reusable rules, workflows, templates, and thin adapters; it is not an orchestration runtime.
+- Before routing a possible third-party defect, use [Upstream Issue Participation](../references/github-tooling-reference.md#upstream-issue-participation) to establish defect ownership separately from write authorization.
 - Project-local guidance wins. Keep project-specific practices in the target project; change shared guidance only for a cross-project, repeatable need.
 - Technical debt is actionable only when observed evidence shows a current correctness, maintainability, safety, discoverability, or verification risk. Do not refactor for style, imagined future flexibility, or generic cleanup.
 - When newer models motivate a pass, inspect demonstrated instruction conflicts, duplicate artifacts, and unnecessary handoffs before adding guidance. Simplify the existing owner rather than layering another checklist or always-on rule. Model capability alone is not evidence of a defect or a measured speedup.
