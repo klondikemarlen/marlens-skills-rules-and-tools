@@ -21,6 +21,10 @@ gh pr list --json number,title,headRefName,state,isDraft
 gh pr view 456 --json title,body,state,isDraft,mergeStateStatus,url
 ```
 
+## GitHub Actions Matrix Fail-Fast
+
+Keep GitHub Actions matrix jobs fail-fast, using the default behavior. Do not set `fail-fast: false` as a routine diagnostic convenience: continuing sibling jobs after one matrix job fails consumes additional runner credits. Change this only when a specific, accepted requirement calls for the remaining matrix jobs to complete; do not treat that exception as a blanket policy change.
+
 ## Upstream Issue Participation
 
 Read the main issue and current discussion before commenting. Keep upstream issue comments brief and human: add only new evidence or useful context, such as a distinct reproduction or an observed constraint, rather than restating the report. Link supporting detail when needed instead of repeating a long report.
