@@ -86,7 +86,7 @@ Module-boundary alignment is semantic review, not a size or count check. The pac
 
 The contract requires changed code, relevant callers, sibling modules, and project guidance. The consumer needs OMP Verifier 0.10.0 or later to prepare, capture, and evaluate the declared contract. If required context or a supported runtime is unavailable, report `BLOCKED` with the missing evidence; do not guess, claim a pass, or treat retrieval limits as a semantic result. Project-specific architecture and naming conventions take precedence over generic guidance.
 
-For a finding, identify the actual changed location and the Gold condition it fails, then correct the boundary or use an allowed reasoned bounded suppression. Re-run a fresh evaluation after correction; earlier assessments do not prove the changed code. This is advisor-assisted review, not a hard completion veto: final enforcement depends on OMP's native advisor behavior, as described in the [OMP Verifier scope and manifest contract](https://github.com/klondikemarlen/omp-verifier/blob/main/README.md).
+For a finding, identify the actual changed location and the specific quality-standard requirement it fails, then correct the boundary or use an allowed reasoned bounded suppression. Re-run a fresh evaluation after correction; earlier assessments do not prove the changed code. This is advisor-assisted review, not a hard completion veto: final enforcement depends on OMP's native advisor behavior, as described in the [OMP Verifier scope and manifest contract](https://github.com/klondikemarlen/omp-verifier/blob/main/README.md).
 
 ### Component-Owned Support Modules
 
