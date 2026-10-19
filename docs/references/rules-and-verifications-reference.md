@@ -26,7 +26,7 @@ The consumer requires OMP Verifier 0.10.0 or later. The runtime must surface uns
 
 An agentic verification result is not by itself a hard completion gate. The provider contract and runtime protocol are documented in the [Module Boundary Alignment guidance](code-organization-reference.md#semantic-module-boundary-review) and the [OMP Verifier scope and manifest contract](https://github.com/klondikemarlen/omp-verifier/blob/main/README.md); final completion-veto behavior depends on OMP's native advisor.
 
-For cross-project responsibility and promotion of prose into checks, use [`quality-ownership-reference.md`](quality-ownership-reference.md). This package owns reusable check policy/implementation; OMP Verifier owns discovery, execution, and correction, while OMP Learner owns eligible feedback and proposal routing.
+For cross-project responsibility and promotion of prose into checks, use [`quality-ownership-reference.md#correction-coverage-and-verification-evidence`](quality-ownership-reference.md#correction-coverage-and-verification-evidence). It distinguishes Learner's correction-coverage result from an accepted rule, a supplied supported contract, and Verifier's evidence from applicable current code. This package owns reusable policy and check assets; Verifier owns discovery, execution, and correction; Learner owns eligible feedback and proposal routing.
 
 ## Current Package Classification
 
