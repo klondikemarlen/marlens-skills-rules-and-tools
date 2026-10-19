@@ -13,8 +13,8 @@ Use when creating or updating a pull request.
 
 1. Inspect repository status and preserve unrelated local work.
 2. Read the branch diff and recent commits before drafting text.
-3. Create PRs as drafts. Before pushing changes to an existing open PR, convert it back to draft unless the user asks to keep it ready for review.
-   When the follow-up work resolves review comments, use `docs/workflows/pull-request-comment-resolution-workflow.md` and restore ready-for-review status after resolved thread state is verified unless the PR was intentionally left draft.
+3. Create PRs as drafts. Before any fixup mutation to an existing open PR, inspect its live remote state; read-only investigation may happen first. Record current draft/ready status separately from explicit user intent about keeping draft or returning to review. Leave an already-draft PR in draft. Unless the user explicitly asks to keep it ready, convert a ready PR to draft and re-read the remote state before the first fixup edit or commit. If required state or conversion cannot be verified, stop before fixup mutations. Record an explicit user override rather than silently skipping the gate; do not defer the default transition until push.
+   When follow-up work resolves review comments, use [Pull Request Comment Resolution](pull-request-comment-resolution-workflow.md). After all review, thread, QA, and required-check gates pass, restore ready-for-review only for an agent-temporary conversion from ready or an explicit user request to return to review. Otherwise preserve existing or intentionally draft status. Verify the remote ready state before reporting it.
    Before correcting accepted review feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
 
 ### Repository Metadata
