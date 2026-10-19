@@ -24,6 +24,63 @@ Before declaring browser automation unavailable or substituting an engine:
 
 3. Prefer a maintained installed Firefox binding/helper. If Geckodriver is installed but language bindings are absent, a bounded disposable probe using standard WebDriver HTTP commands is valid; do not install Selenium bindings, create a persistent runner, or add a second automation runtime solely for QA.
 
+### Installed Puppeteer Firefox Probe
+
+From the project's existing Node package, inspect `npm ls puppeteer puppeteer-core --depth=0`, the installed Node version, and that binding's Firefox support and launch options. Use an already-installed compatible binding; do not install another runtime or change the project's browser defaults. The example below uses `puppeteer`; an existing `puppeteer-core` installation may supply the same supported API. Check its actual installed version rather than assuming either package exists.
+
+Select `browser: "firefox"` and `protocol: "webDriverBiDi"` explicitly, with an observed installed Firefox `executablePath`. A default Chrome configuration, skipped Firefox downloads, or an empty downloaded-Firefox cache does not rule out this route. An arbitrary system Firefox is not guaranteed compatible: prove startup and interaction with the installed pair. See Puppeteer's [launch options](https://pptr.dev/api/puppeteer.launchoptions) and [connection options](https://pptr.dev/api/puppeteer.connectoptions); the installed version's API remains authoritative.
+
+Before running this disposable snippet, supply the observed `firefoxExecutable`, a private browser-visible `profileParent` outside the repository, and the screenshot workflow's owned `screenshotDirectory`. Supply the authorized `qaUrl`, actual control selectors, `inputText`, and exact `expectedText` from the QA scenario. Use a disposable loopback fixture for control-only smoke, not as proof of authenticated application coverage.
+
+```js
+import { once } from "node:events"
+import { mkdtemp, rm } from "node:fs/promises"
+import { join } from "node:path"
+
+import puppeteer from "puppeteer"
+
+const profileRoot = await mkdtemp(join(profileParent, "firefox-qa-"))
+let browser
+
+try {
+  browser = await puppeteer.launch({
+    browser: "firefox",
+    protocol: "webDriverBiDi",
+    executablePath: firefoxExecutable,
+    headless: true,
+    userDataDir: profileRoot,
+    args: ["--no-remote"],
+  })
+  const page = await browser.newPage()
+  await page.goto(qaUrl)
+  await page.type(inputSelector, inputText)
+  await page.click(submitSelector)
+  await page.waitForFunction(
+    (selector, text) => document.querySelector(selector)?.textContent === text,
+    {},
+    resultSelector,
+    expectedText
+  )
+  await page.screenshot({
+    path: join(screenshotDirectory, "firefox-result.png"),
+  })
+} finally {
+  const ownedProcess = browser?.process()
+  let exited
+  if (ownedProcess && ownedProcess.exitCode === null && ownedProcess.signalCode === null) {
+    exited = once(ownedProcess, "exit")
+  }
+
+  await browser?.close()
+  await exited
+  await rm(profileRoot, { recursive: true, force: true })
+}
+```
+
+Honor an explicitly requested visible mode instead of `headless: true`. For sandboxed Firefox, use an owned profile parent the browser can read, such as a private directory under Downloads; host `/tmp` may not be shared. Retain the returned browser/process handle, confirm process exit before deleting its profile, and inspect the PNG for the expected visible state and sensitive content. If close or exit confirmation fails, retain the profile and diagnose only the owned process; never kill browsers by name or adopt personal profiles, cookies, or sessions.
+
+Report startup, native control/interaction, application authentication, and UI/screenshot inspection separately. A fixture PASS does not establish sign-in or application readiness. If package resolution fails, the binding lacks compatible Firefox/BiDi support, or launch cannot control the observed binary, name that exact prerequisite and stop this route without downloads or relaxed authentication protections. Retain the raw WebDriver fallback below when no suitable maintained binding is installed.
+
 ### Disposable Firefox WebDriver Probe
 
 Use this only for the authorized QA surface. Allocate a unique private, agent-owned profile root outside the repository, retain the driver process handle/PID, and keep screenshots in the screenshot workflow's separate owned run directory. For sandboxed Firefox, choose a browser-visible owned profile root such as a unique directory under Downloads; do not copy an existing personal profile or guess a Snap revision.
