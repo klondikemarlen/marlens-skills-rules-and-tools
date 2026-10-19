@@ -33,6 +33,7 @@ For cross-project responsibility and promotion of prose into checks, use [`quali
 | Asset                                             | Layer                | Why                                                                                                             |
 | ------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `whitespace-matters`                              | Rule                 | Formatting and sibling grouping require project-local tools and structure judgment.                             |
+| `solve-real-user-needs`                           | Rule                 | User value needs request/product context; use contextual review, not keyword or edge-case counts.               |
 | `no-envrc-example-commits` and `no-envrc-example` | Both                 | The rule prevents staging; the verifier backstops tracked repository state.                                     |
 | `omp-not-opencode-target-check`                   | Rule                 | Product identity depends on the user request and target package.                                                |
 | `use-dev-wrapper-for-development-compose`         | Rule                 | Wrapper availability and command intent require repository context.                                             |
