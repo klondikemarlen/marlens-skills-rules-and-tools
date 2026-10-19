@@ -3,6 +3,8 @@ import { existsSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
+import ts from "typescript"
+
 const DIRECTIVES = {
   "test-name-when": {
     summary: "Test names use `when [condition], [behavior]`.",
@@ -261,105 +263,56 @@ function matchingSuppression(suppressions, testPath) {
   })
 }
 
-function closingDelimiter(source, openingOffset, openingCharacter, closingCharacter) {
-  let depth = 0
-  let quote = null
-  let escaped = false
-  let lineComment = false
-  let blockComment = false
-
-  for (let index = openingOffset; index < source.length; index += 1) {
-    const character = source[index]
-    const next = source[index + 1]
-
-    if (lineComment) {
-      if (character === "\n") lineComment = false
-      continue
-    }
-
-    if (blockComment) {
-      if (character === "*" && next === "/") {
-        blockComment = false
-        index += 1
-      }
-      continue
-    }
-
-    if (quote) {
-      if (escaped) {
-        escaped = false
-      } else if (character === "\\") {
-        escaped = true
-      } else if (character === quote) {
-        quote = null
-      }
-      continue
-    }
-
-    if (character === "/" && next === "/") {
-      lineComment = true
-      index += 1
-      continue
-    }
-
-    if (character === "/" && next === "*") {
-      blockComment = true
-      index += 1
-      continue
-    }
-
-    if (character === "'" || character === '"' || character === "`") {
-      quote = character
-      continue
-    }
-
-    if (character === openingCharacter) depth += 1
-    if (character === closingCharacter) {
-      depth -= 1
-      if (depth === 0) return index
-    }
+function isTestCallee(expression) {
+  if (
+    ts.isCallExpression(expression) &&
+    ts.isPropertyAccessExpression(expression.expression) &&
+    expression.expression.name.text === "each"
+  ) {
+    expression = expression.expression.expression
   }
 
-  return null
+  if (
+    ts.isPropertyAccessExpression(expression) &&
+    ["concurrent", "fails", "only", "skip"].includes(expression.name.text)
+  ) {
+    expression = expression.expression
+  }
+
+  return ts.isIdentifier(expression) && ["it", "test"].includes(expression.text)
 }
 
-function testBlocks(source) {
+function testBlocks(source, testPath) {
   const blocks = []
-  const declaration = /\b(?:it|test)(?:\.(?:concurrent|fails|only|skip))?(?:\.each)?\s*\(/gu
+  const sourceFile = ts.createSourceFile(testPath, source, ts.ScriptTarget.Latest)
 
-  for (const match of source.matchAll(declaration)) {
-    const declarationEnd = match.index + match[0].length
-    let titleOffset = declarationEnd
+  function visit(node) {
+    if (ts.isCallExpression(node) && isTestCallee(node.expression)) {
+      const [title, callback] = node.arguments
+      if (title && (ts.isStringLiteral(title) || ts.isNoSubstitutionTemplateLiteral(title))) {
+        const offset = node.getStart(sourceFile)
+        const line = lineNumber(source, offset)
+        const body =
+          callback &&
+          (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) &&
+          ts.isBlock(callback.body)
+            ? source.slice(callback.body.getStart(sourceFile) + 1, callback.body.end - 1)
+            : ""
 
-    if (match[0].includes(".each")) {
-      const eachClosing = closingDelimiter(source, declarationEnd - 1, "(", ")")
-      const testCall = eachClosing === null ? null : /^\s*\(/u.exec(source.slice(eachClosing + 1))
-      if (eachClosing === null || testCall === null) continue
-
-      titleOffset = eachClosing + 1 + testCall[0].length
+        blocks.push({
+          name: title.text,
+          line,
+          code: lineAt(source, line),
+          body,
+          offset,
+        })
+      }
     }
 
-    const title = /^(['"`])((?:\\.|(?!\1)[\s\S])*)\1/u.exec(source.slice(titleOffset))
-    if (title === null) continue
-
-    const callbackOffset = titleOffset + title[0].length
-    const callback =
-      /^\s*,\s*(?:(?:async\s+)?function\s*\([^)]*\)|(?:async\s+)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>)\s*\{/u.exec(
-        source.slice(callbackOffset)
-      )
-    const openingBrace = callback === null ? -1 : callbackOffset + callback[0].lastIndexOf("{")
-    const closing = openingBrace === -1 ? null : closingDelimiter(source, openingBrace, "{", "}")
-    const line = lineNumber(source, match.index)
-
-    blocks.push({
-      name: title[2],
-      line,
-      code: lineAt(source, line),
-      body: closing === null ? "" : source.slice(openingBrace + 1, closing),
-      offset: match.index,
-    })
+    ts.forEachChild(node, visit)
   }
 
+  visit(sourceFile)
   return blocks
 }
 
@@ -558,7 +511,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
 
     const guidance = guidanceForTest(root, testPath)
     const source = readFileSync(path.join(root, testPath), "utf8")
-    const blocks = testBlocks(source)
+    const blocks = testBlocks(source, testPath)
     configured.push(`${testPath} (${guidance.size} rule${guidance.size === 1 ? "" : "s"})`)
 
     for (const block of blocks) {
