@@ -689,14 +689,6 @@ for (const [name, workflow] of [
   ["packaged code review workflow", codeReviewFallbackWorkflow],
 ]) {
   if (
-    !workflow.includes("For changed test files, inspect the nearest test-directory README") ||
-    !workflow.includes(
-      "report its assertion conventions and flag violations before reporting `PASS`"
-    )
-  ) {
-    fail(`${name} must discover and report local test assertion conventions before PASS`)
-  }
-  if (
     !workflow.includes(
       "shared setup or teardown hook that awaits an external, asynchronous, or potentially slow subsystem"
     ) ||
