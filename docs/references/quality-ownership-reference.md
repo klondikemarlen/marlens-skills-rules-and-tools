@@ -38,7 +38,7 @@ Standalone application and test libraries belong in focused packages with their 
 
 ## Promote Standards Through Explicit Contracts
 
-A verification needs a bounded input, declared Gold condition, evidence location, useful remediation, and examples that distinguish a violation from a valid counter-example. Deterministic conditions belong in scripts or an existing native checker. Context-dependent accepted standards require a [declared semantic contract](rules-and-verifications-reference.md#agentic-semantic-verification), not a metric proxy or an inferred policy from prose. Preserve local configuration and test the actual consumer-visible boundary.
+A verification needs a bounded input, declared quality standard, evidence location, useful remediation, and examples that distinguish a violation from a valid counter-example. Deterministic conditions belong in scripts or an existing native checker. Context-dependent accepted standards require a [declared semantic contract](rules-and-verifications-reference.md#agentic-semantic-verification), not a metric proxy or an inferred policy from prose. Preserve local configuration and test the actual consumer-visible boundary.
 
 Readability, test focus, and architectural cohesion need context unless the project defines a precise contract. Syntax metrics can enforce an explicitly selected local policy, but do not prove quality. In particular, counting `expect` calls cannot distinguish direct assertions of a coupled invariant from unrelated assertions bundled into one synthetic object. [Test alignment](test-alignment-verifier-reference.md) therefore leaves assertion quality to authoring/review and enforces assertion count only when a project explicitly requests it.
 
