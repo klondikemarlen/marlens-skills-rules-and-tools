@@ -22,3 +22,10 @@ Use when validating user-visible behavior in a browser.
 - Before expanding scenarios that claim real-authenticated coverage, follow the canonical [Real-Authentication E2E Preflight](testing-instructions-workflow.md#real-authentication-e2e-preflight); report smoke/mock and authenticated coverage separately for each environment.
 - Keep personal usernames, absolute home paths, local browser profile/session paths, credentials/tokens, and workstation-specific locations out of all published GitHub QA records, including issue/review/QA comments and screenshot contents, filenames, and metadata. Keep local operational paths and profile/session details in local notes only; legitimate repository-relative source/test paths and reviewer-facing app routes may remain.
 - Before publishing a screenshot, inspect its contents and use a neutral filename and reviewer-facing caption. For screenshot upload and public-safe examples, follow [Upload Pull Request Screenshots](upload-pr-screenshots-workflow.md).
+
+## External Protocol Links
+
+- Before clicking a link that may dispatch outside the browser, inspect its resolved `href` and decode encoded destination values for inspection only. Identify `mailto:`, `tel:`, and custom schemes without navigating to discover the destination.
+- Treat an external protocol launch as a side effect requiring explicit QA scope. A visible link or headless session does not make launching a desktop application routine UI validation.
+- An automated click requires a supported interception/blocking mechanism that the current run has verified prevents the external launch. Installing a page-level override or observing an empty capture alone is not proof of prevention.
+- If prevention cannot be verified, stop before clicking and report the blocker and unverified behavior. Non-launching destination inspection is not end-to-end click validation; do not attribute an interception failure to a browser-runtime cause without separate evidence.
