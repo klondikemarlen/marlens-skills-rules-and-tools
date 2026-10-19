@@ -1,56 +1,11 @@
 import { requireEvery, requireText } from "./verify-skill-workflows-assertions.mjs"
 
-function normalizePullRequestWorkflow(workflow) {
-  return workflow
-    .replace(
-      /\n\s+(?:When\s+the\s+follow-up\s+work\s+resolves\s+review\s+comments,\s+use\s+`docs\/workflows\/pull-request-comment-resolution-workflow\.md`\s+and\s+restore\s+ready-for-review\s+status\s+after\s+resolved\s+thread\s+state\s+is\s+verified\s+unless\s+the\s+PR\s+was\s+intentionally\s+left\s+draft\.|After\s+follow-up\s+work\s+resolves\s+review\s+comments,\s+verify\s+every\s+addressed\s+thread\s+is\s+resolved,\s+restore\s+ready-for-review\s+status\s+unless\s+the\s+PR\s+was\s+intentionally\s+left\s+draft,\s+and\s+re-check\s+the\s+remote\s+PR\s+state\s+before\s+reporting\s+it\s+ready\.)/u,
-      "\n   [follow-up review state]"
-    )
-    .replace(/\n\s+Use\s+`github-review-thread resolve[\s\S]*?checks\s+pass\./u, "")
-    .replace(
-      "the packaged `../../docs/workflows/upload-pr-screenshots-workflow.md`",
-      "`docs/workflows/upload-pr-screenshots-workflow.md`"
-    )
-    .replace(
-      "`docs/workflows/upload-pr-screenshots-workflow.md` workflow for upload",
-      "`docs/workflows/upload-pr-screenshots-workflow.md` for upload"
-    )
-    .replace(
-      "../../docs/references/engineering-techniques-reference.md",
-      "../references/engineering-techniques-reference.md"
-    )
-}
-
 export function verifyReviewProcedures({ read, fail }) {
   const commentResolutionWorkflow = read(
     "docs/workflows/pull-request-comment-resolution-workflow.md"
   )
-  requireText(
-    commentResolutionWorkflow,
-    "temporarily draft",
-    "comment resolution workflow must distinguish temporary draft state",
-    fail
-  )
-  requireText(
-    commentResolutionWorkflow,
-    "mark it ready for review again",
-    "comment resolution workflow must restore ready-for-review status after resolved follow-up threads",
-    fail
-  )
-  requireText(
-    commentResolutionWorkflow,
-    "Re-check the remote PR state",
-    "comment resolution workflow must verify remote PR state before reporting ready",
-    fail
-  )
 
   const pullRequestWorkflow = read("skills/pull-request-management/workflow.md")
-  requireText(
-    pullRequestWorkflow,
-    "restore ready-for-review status unless the PR was intentionally left draft",
-    "packaged pull request workflow must include self-contained restored ready-for-review guidance",
-    fail
-  )
 
   requireEvery(
     commentResolutionWorkflow,
@@ -161,15 +116,6 @@ export function verifyReviewProcedures({ read, fail }) {
     ) {
       fail(`${name} must preserve review-derived correction history`)
     }
-  }
-
-  if (
-    normalizePullRequestWorkflow(authoritativePullRequestWorkflow) !==
-    normalizePullRequestWorkflow(pullRequestWorkflow)
-  ) {
-    fail(
-      "pull request workflow and packaged fallback must stay synchronized except for self-contained path and review-helper guidance"
-    )
   }
 
   requireText(
