@@ -191,9 +191,13 @@ Co-locate focused unit tests with the pure policy, parser, or small domain opera
 
 Use one project-root import convention for dependencies across features or modules when it makes the dependency direction clearer than `../../..` traversal. Prefer `@/…` when every supported compiler, test runner, bundler, and editor/language server resolve it identically. Keep a short relative import for an immediately co-located sibling when it better expresses that the files form one local unit.
 
-For production callers, prefer named imports from the deepest matching supported domain/module entry point rather than a broad root barrel plus a namespace alias, especially when the caller belongs to that domain. A domain barrel is a valid entry point; this does not require bypassing its public API for an individual implementation file. Preserve package export boundaries and existing module resolution, and leave unrelated imports alone.
+For production dependencies across domain boundaries, prefer an existing named domain bundle and access its members through that namespace rather than importing an implementation leaf, even when both paths are supported. For example, an external caller can use `import { Search } from "@/services"` and `Search.Workflows.WorkflowSearchIndex` when that is the existing public bundle shape. This names the owning domain at the use site; it is not a request for a new namespace alias or a broader barrel.
 
-In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions; a deeper private implementation path is not automatically a valid subject import.
+For collaborators inside the owning domain/module bundle, prefer direct named imports from the deepest matching supported domain entry point or leaf. This retains domain-owned query imports and short co-located sibling imports when they express the local unit. A supported domain barrel remains valid; never bypass a public package/export boundary for a private file.
+
+Reuse the project's actual export shape and module resolution. Do not create bundles, widen exports, introduce cycles, or reorganize unrelated imports solely to satisfy the preference. Explicit project-local conventions remain authoritative.
+
+In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production cross-domain preference does not override those explicit test conventions.
 
 Model barrels are an exception to the dependency-bundle preference: export models only. Import a model-owned constant or enum directly from that model's module instead of expanding the model barrel. This does not change service-barrel grouping or permit bypassing public package/export boundaries. Explicit project-local conventions remain authoritative.
 
