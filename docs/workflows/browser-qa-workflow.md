@@ -5,6 +5,7 @@ Use when validating user-visible behavior in a browser.
 ## Process
 
 1. Identify the exact user flow, setup state, and expected outcomes. Select the requested browser engine and mode before launch; default to an isolated, headless automation instance, not the user's personal browser. Retain ownership of its process/profile for scoped cleanup.
+   Before declaring control unavailable or switching engines, use [Browser Control Discovery](../references/browser-qa-techniques-reference.md#browser-control-discovery): inspect already-installed project tooling and Firefox/Geckodriver where applicable, prefer maintained bindings, and distinguish startup from actual control, authentication, and UI evidence.
 2. Prefer user-equivalent actions: navigate, click, type, upload, scroll, and wait for visible state.
 3. Use backend shortcuts only when the user explicitly approves them or the task is not UI validation.
 4. Verify labels and controls from the browser or source before writing QA notes.
