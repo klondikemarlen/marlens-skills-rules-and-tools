@@ -16,11 +16,18 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - When a target repository documents an `npm test` gate, run it for source-file changes; in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when the required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
 - Explore before planning when scope is unclear, multi-file, or cross-subsystem.
 - For unclear or multi-file work, implement the first runnable prototype after one bounded plan and iterate from its evidence. Re-plan only when that evidence invalidates the requested outcome, scope boundary, chosen approach, or verification path.
+- For initial scope and follow-up priorities, use [Simple-First Delivery](#simple-first-delivery).
 - Skip separate framing, formal planning, and handoff artifacts for one-sentence small diffs that touch one obvious area; read the local context, patch, and verify.
 - Reuse outcome, constraints, and proof already recorded in the issue or plan. Create a context handoff only for actual delegation or resumption, not as a prerequisite for solo implementation.
 - Delegate only when independent substantial work or a concrete coverage need justifies the coordination cost. Do not require tester, reviewer, or competing-design agents merely because they are available.
 - Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
+
+## Simple-First Delivery
+
+Deliver the smallest complete change that provides the requested user value. Prove the core path, agreed requirements, and known material security or data-integrity risks. Do not delay useful work for speculative edge cases, exhaustive permutations, optional extensibility, or polish.
+
+Ship small, coherent increments once their acceptance criteria and required checks pass. Prioritize follow-up from observed use, reported failures, and concrete risk instead of expanding scope before release. If an agreed requirement needs deferring, obtain explicit agreement rather than declaring unfinished work complete.
 
 ## Process
 
