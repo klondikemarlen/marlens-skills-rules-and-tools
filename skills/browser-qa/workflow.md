@@ -4,7 +4,7 @@ Use when validating user-visible behavior in a browser.
 
 ## Process
 
-1. Identify the exact user flow, setup state, and expected outcomes.
+1. Identify the exact user flow, setup state, and expected outcomes. Select the requested browser engine and mode before launch; default to an isolated, headless automation instance, not the user's personal browser. Retain ownership of its process/profile for scoped cleanup.
 2. Prefer user-equivalent actions: navigate, click, type, upload, scroll, and wait for visible state.
 3. Use backend shortcuts only when the user explicitly approves them or the task is not UI validation.
 4. Verify labels and controls from the browser or source before writing QA notes.
@@ -15,7 +15,7 @@ Use when validating user-visible behavior in a browser.
 
 - Do not print credentials or secrets.
 - This package does not install browser automation dependencies. Use OMP's browser tool or the target project's documented browser QA setup; do not add browser automation solely for QA unless requested.
-- For manual interactive sign-in, prefer an explicitly authorized existing browser/profile with the user's password-manager extension; see [Interactive Sign-In Preference](../../docs/workflows/upload-pr-screenshots-workflow.md#interactive-sign-in-preference). This does not change project-managed headless application-QA requirements.
+- For browser startup and manual GitHub sign-in, follow the [Default Browser and Login Handoff](../../docs/workflows/upload-pr-screenshots-workflow.md#default-browser-and-login-handoff): headless owned automation, a temporary isolated login/MFA window when needed, then headless continuation. Never restart or terminate the personal browser, kill by browser name, or infer personal-profile reuse from “normal Firefox.” Explicit existing-session requests retain the [Interactive Sign-In Preference](../../docs/workflows/upload-pr-screenshots-workflow.md#interactive-sign-in-preference) exception and project-managed QA requirements.
 - Do not rely on logs or database state as proof of UI behavior.
 - Before the first screenshot, allocate one private run directory under `/tmp/omp-pr-screenshots/` and keep all captures and image variants there. Follow [Screenshot Staging](../../docs/workflows/upload-pr-screenshots-workflow.md#screenshot-staging) for capture-tool output relocation, the scoped sandbox exception, and owned-directory cleanup. Keep screenshots out of the repository unless explicitly requested.
 - If authentication or an external service blocks automation, state the exact blocker and what remains unverified without including local paths or profile/session details.

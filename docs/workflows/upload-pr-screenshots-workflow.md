@@ -7,7 +7,7 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional, and use **Capture Preflight** before opening a browser or preparing data.
 2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture the actual application in the requested browser at stable states; avoid transient spinners, snackbars, or partially loaded screens.
 3. Keep every image for the run in that directory, use it as the default upload source, and verify the exact selected upload files are readable. Use only the scoped sandbox exception below when necessary; do not scatter working copies.
-4. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. For manual sign-in, follow **Interactive Sign-In Preference** below. Use **Authenticated Session Bootstrap** only as an explicit fallback when the preferred authorized route is unavailable.
+4. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. Follow **Default Browser and Login Handoff** below: when signed out, use the owned headed-to-headless bootstrap. Use **Interactive Sign-In Preference** only for explicitly requested existing-session reuse.
 5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images.
 6. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
 7. Call `github_pr_screenshot_upload_path` and use the complete **Browser Helper** invocation below. The batch uploader opens that target editor, replaces every exact placeholder, submits once, reloads, and verifies persisted attachment URLs. Use `addImageToGitHubMarkdownEditor` only for individual uploads or deferred submission.
@@ -19,12 +19,22 @@ Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 
+## Default Browser and Login Handoff
+
+Use an agent-owned browser with a unique disposable profile; keep automation headless unless a user interaction or project/browser requirement needs a visible window. Application QA and GitHub publication may use separate browsers: honor a required application browser without forcing GitHub's Chromium/CDP helper onto that application.
+
+For GitHub attachments, use an already-authorized owned session for the current run when available. When signed out, start the installed `github-headless-session` command in **Authenticated Session Bootstrap** below. It opens only its own temporary sign-in window, waits for the user to finish login/MFA, then closes that owned window and relaunches headless with the same owned profile. The caller signals continuation only after the user's confirmation and verifies actual signed-in state after relaunch. Do not restart or terminate the personal browser at any stage.
+
+Retain the owned process handle/PID, profile ownership, and returned endpoint through upload and cleanup. Never use `pkill`, `killall`, or browser-name process selection to free a profile, port, or debugging connection. Cancel only the owned process; an uncertain owner is a reason to stop, not to widen cleanup.
+
+Manual login occurs in that isolated window, not automatically in the user's regular browser. GitHub device authorization and personal access tokens authenticate API clients, not this browser session; do not request pasted credentials or promise a PR-scoped browser token. A disposable profile isolates browser state but does not reduce the signed-in account's GitHub permissions. See [Screenshot Attachments](../references/github-tooling-reference.md#screenshot-attachments) for the API boundary. Existing personal-session reuse is the explicit exception below, not the default.
+
 ## Capture Preflight
 
 Before capture, establish these prerequisites from the task and project-local QA/setup guidance:
 
 1. **Evidence target:** name the changed state, app route, required role/data, and visible result each image will demonstrate. Use the running application; fixture/component previews may support separately labeled evidence but do not prove authenticated application behavior.
-2. **Capture browser:** distinguish an explicit request for the user's normal/existing Firefox session from a separate Firefox automation session or Chromium. Confirm the available tooling supports the requested browser and an actual screenshot destination. Chromium/CDP upload support does not establish Firefox capture/control support.
+2. **Capture browser:** honor the requested browser engine and headless/visible mode. “Normal Firefox” alone requests neither the user's existing personal profile/tabs nor headed mode: use a separate owned Firefox instance, headless by default unless visibility is explicitly required by the task or project. Discover the installed/project-supported Firefox control route before treating Chromium-only OMP tooling as a Firefox blocker. Chromium/CDP upload support does not establish Firefox capture/control support.
 3. **Application access:** verify the app route and required data are reachable through the project's documented login/QA path. Use [Real-Authentication E2E Preflight](testing-instructions-workflow.md#real-authentication-e2e-preflight) for authenticated coverage. Application sign-in and GitHub attachment sign-in are separate prerequisites.
 4. **Control and capture:** use a supported authorized browser connection or desktop/window capture. A launched browser or a desktop portal request is not proof of control or capture: require a returned, readable image, then inspect it for the intended state and sensitive content. Do not silently substitute a different browser, restart or terminate the user's browser, copy profiles/cookies, or install a new driver to work around missing access. When the requested surface is inaccessible, report that precise blocker and ask only for the missing user action or a materially different capture route.
 
@@ -64,9 +74,9 @@ Keep filenames neutral and local directory paths out of published GitHub records
 
 ## Interactive Sign-In Preference
 
-For manual interactive sign-in, prefer an existing browser/profile that the user has explicitly authorized for this repository and that has the user's password-manager extension available. Use Firefox where the available browser tooling supports it. If the task requires Chromium/CDP, prefer a compatible, explicitly authorized existing profile with the extension rather than defaulting immediately to an extension-free disposable profile. Do not assume the current CLI can load arbitrary browser profiles or promise Firefox support in a Chromium/CDP-only route.
+The default is the isolated headed-to-headless handoff above, not adoption of a personal browser. Only when the user explicitly requests reuse of an existing browser/profile for sign-in, prefer an authorized profile with the user's password-manager extension and use Firefox where the available tooling supports it. If that requested route is unsupported, state the limitation and offer the isolated handoff; do not restart the personal browser to enable debugging or assume Chromium/CDP can control Firefox.
 
-Do not silently reuse an unrelated personal session, export or transfer cookies or credentials, or bypass MFA. This preference applies to interactive sign-in only; it does not change a project's managed headless application-QA contract. If the preferred authorized route is unavailable, the owned disposable bootstrap below remains the explicit fallback and retains its sign-in, process, profile, and cleanup requirements.
+This exception applies to interactive sign-in only; it does not change a project's managed headless application-QA contract. Do not export or transfer cookies/credentials, bypass MFA, or promise that the disposable helper profile includes personal extensions.
 
 When an authorized existing browser/profile is reused, release only the owned tab; do not terminate the user's browser or delete its profile.
 
