@@ -46,6 +46,16 @@ Choose the smallest owning evidence layer that can prove the success condition. 
 
 Report only affected dimensions. Do not require an unrelated full matrix by default.
 
+## External CLI and API Doubles
+
+When a test double stands in for a CLI or API used by a changed adapter, derive the consumed options, field names, response shape, and semantics from the supported public interface: authoritative documentation, installed dependency help/schema, or a safely observed response. Keep fixtures focused; omit irrelevant fields, but do not invent consumed fields or unsupported options merely to make the adapter pass.
+
+For example, if an adapter runs `gh issue view --json url,state,number`, a synthetic response with those documented fields is a valid focused fixture. Adding an invented `repository` field to the request and stub is not fidelity: the [supported `gh issue view` JSON fields](https://cli.github.com/manual/gh_issue_view#json-fields) include `url`, `state`, and `number`, not `repository`. Keep such command-specific detail in the test/example, not as a global field list.
+
+When practical and authorized, complement the deterministic double with the smallest read-only smoke check against the actual boundary and exercised dependency version. Do not mutate external state for a compatibility probe. If the boundary cannot be reached safely or is not authorized, say that compatibility remains unverified; do not broaden the stub or call it live acceptance. Preserve deterministic isolation and the distinction between mock/smoke and authenticated acceptance; do not require network access for every test or adapter. Keep synthetic fixtures and published evidence free of credentials, account data, raw private payloads, and workstation-specific paths.
+
+For one-off tooling checks and suite selection, follow the [hands-off verification guidance](../hands-off-agentic-coding/workflow.md#intent).
+
 This evidence-ownership guidance is adapted from Tura's [contribution guide](https://github.com/Tura-AI/tura/blob/main/docs/contributing-guide.md). Tura-inspired process guidance is not evidence that any isolated Tura feature caused a benchmark result.
 
 ## Rules
