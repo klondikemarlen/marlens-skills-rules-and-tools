@@ -11,6 +11,8 @@ Every changed test file must meet these rules without a README directive:
 
 Failure evidence identifies the changed test, violated rule, and `shared baseline` as its source. Assertion count is not a shared quality gate.
 
+Test callback boundaries are parsed as JavaScript or TypeScript using the packaged TypeScript dependency. Regex literals do not hide phase comments or shift reported source locations; each invocation reads the current file before checking its phases.
+
 ## Explicit Local Additions
 
 Put supported directives in the nearest `README.md` or `README.mdx` at or above the test file:
