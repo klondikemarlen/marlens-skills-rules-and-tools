@@ -17,6 +17,12 @@ Use when creating or updating a pull request.
    When follow-up work resolves review comments, use [Pull Request Comment Resolution](pull-request-comment-resolution-workflow.md). After all review, thread, QA, and required-check gates pass, restore ready-for-review only for an agent-temporary conversion from ready or an explicit user request to return to review. Otherwise preserve existing or intentionally draft status. Verify the remote ready state before reporting it.
    Before correcting accepted review feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
 
+### Initial Draft Publication
+
+Publish an issue-linked draft as soon as the first coherent, reviewable change can be pushed, then continue implementation in that same draft. Do not wait for all implementation, full self-review, passing QA, browser access, or finished screenshots. Initial publication does not authorize broken placeholders or false completion claims; describe remaining work, unrun checks, and observed blockers truthfully in the canonical body using the locally permitted sections.
+
+Push coherent progress and revise that existing description as implementation and QA change; preserve issue links, ownership/labels, intentional draft status, and all readiness, feedback-resolution, and merge gates. Honor explicit user or local-policy publication exceptions. If GitHub publication is unavailable, report its exact missing prerequisite; an unrelated browser-QA blocker does not itself prevent draft publication through GitHub's API.
+
 ### Repository Metadata
 
 Before every agent-created PR handoff, including drafts and documentation-only work, reconcile ownership and applicable existing labels unless an explicit user instruction or repository policy directs otherwise. Reviewer requests remain separately authorized.
@@ -168,7 +174,7 @@ See [GitHub Asynchronous Merge for PR Stacks](../references/engineering-techniqu
 - For UI changes, include screenshots or explain why screenshots do not apply.
 - When screenshots are required or supplied for a PR, use `docs/workflows/upload-pr-screenshots-workflow.md` for upload and PR body formatting, including browser authentication/session bootstrap, installed batch uploads, saved/rendered verification, and cleanup. Preserve project-local screenshot optionality.
 - If a project has a local PR template or workflow, follow it over this generic workflow.
-- When creating a PR from code changes, use the local or shared code-review workflow before finalizing the PR body unless the user explicitly asks to skip review.
+- Complete the local or shared code-review workflow before finalizing readiness unless the user explicitly asks to skip review. An initial work-in-progress draft must still follow [Initial Draft Publication](#initial-draft-publication), with incomplete review and QA reported truthfully rather than claimed complete.
 - Do not stop at PR body drafting: include or update testing instructions unless the user explicitly says not to.
 
 ## Output Contract
