@@ -18,6 +18,8 @@ A verification must declare a concrete input scope, fail condition, evidence, an
 
 A **quality standard** names the concrete engineering outcome and evidence required to assess it. It can address correctness, security, and readability, with diligence in verification; priorities follow the applicable standard and project requirements rather than a universal ranking.
 
+Choose initial delivery scope with [Simple-First Delivery](../workflows/hands-off-agentic-coding-workflow.md#simple-first-delivery).
+
 Some review policies require contextual judgment and therefore cannot be implemented as deterministic scripts. The package may declare such a policy as an `agentic` entry in the existing `omp.verifications` manifest, pointing to a versioned JSON contract that names the standard/source, expected outcome, required context, and rubric. The provider owns that policy and keeps its existing guidance authoritative; the verifier runtime owns discovery, fresh evidence capture, and evaluation through its existing verifier advisor. Do not add a dummy executable, a metric proxy, another registry, or a new advisor.
 
 The consumer requires OMP Verifier 0.10.0 or later. The runtime must surface unsupported contracts or missing required context as `BLOCKED`, with the actual check ID and missing evidence; unavailable context is not evidence of a pass or failure. Project-specific guidance takes precedence over shared policy. Correct a reported issue and request a fresh evaluation, or use a deliberate bounded suppression with its reason. Stale assessments cannot clear later changes.
