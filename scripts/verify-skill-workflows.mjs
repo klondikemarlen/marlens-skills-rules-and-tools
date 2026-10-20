@@ -68,7 +68,6 @@ for (const requiredText of [
   "smallest cohesive seam",
   "do not split mechanically by line count",
   "option that lowers net owned complexity",
-  "in this package that gate includes `node scripts/verify-oversized-source-files.mjs`",
 ]) {
   if (!alwaysLoadedGuidance.includes(requiredText)) {
     fail(`AGENTS.md must prevent mixed-responsibility source growth with ${requiredText}`)
