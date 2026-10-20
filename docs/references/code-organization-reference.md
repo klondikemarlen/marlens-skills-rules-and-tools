@@ -94,6 +94,10 @@ For a pure TypeScript helper that operates on component/editor-specific concepts
 
 Choose the home by concept ownership, not single-caller count: a generic or domain-owned helper keeps its actual owner even with one component caller. Promote component support code to a shared feature/domain home when genuinely shared ownership emerges, not merely because another caller appears. Preserve project-local directory conventions; real reactive state or lifecycle needs remain independent reasons to use a composable.
 
+## Self-Contained Migrations
+
+Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
+
 ## Oversized Responsibility Clusters
 
 Treat a large source file as a review signal, not an automatic split mandate. Inspect whether it combines independently changing responsibilities such as boundary parsing, state/persistence, external adapters, policy decisions, orchestration, and CLI or transport wiring.
