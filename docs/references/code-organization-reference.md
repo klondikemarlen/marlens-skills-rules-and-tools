@@ -252,6 +252,12 @@ Use these terms as review vocabulary, not as mandatory layers:
 
 Protected work should expose its ownership through an intention-revealing `With...` service boundary when that service coordinates the protected action. Do not extract a utility that merely acquires a lock while leaving the domain operation, persistence, and invariant ownership elsewhere. Keep the existing transaction and locking semantics; this is not a mandate for a new layer or ORM.
 
+## Thin Persistence Lifecycle Handoffs
+
+For domain-specific background work scheduled from persistence changes, reuse existing ORM lifecycle subscriptions or established event wiring rather than building parallel infrastructure. Keep the lifecycle callback thin: hand off to the owning service/job, which owns affected-record discovery and processing. Do not add domain-specific discovery, orchestration, or transaction overrides to a shared base model.
+
+Preserve the existing delivery and transaction contract. Reusing lifecycle wiring does not justify replacing required durable delivery with transient post-commit PubSub, changing transaction ownership, or mandating a particular ORM.
+
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
