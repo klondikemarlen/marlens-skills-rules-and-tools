@@ -15,7 +15,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Start from the success condition: name the desired behavior, invariant, or regression risk before planning or editing.
 - Establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
 - Prefer an established relevant suite when one exists. For a one-off tooling change without a relevant suite, use a focused disposable smoke check rather than creating a permanent bespoke runner or assertion API solely for that change; remove temporary scripts and recording fixtures afterward, and preserve reviewer-reproducible commands and truthful evidence. Keep permanent regression coverage when it fits established conventions, and intentionally establishing test infrastructure remains valid when it is accepted scope. Do not replace runnable behavioral proof with source-text assertions or inspection alone.
-- When a target repository documents an `npm test` gate, run it for source-file changes; in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when the required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
+- When a target repository documents an `npm test` gate, retain its source-change requirement, but launch a full suite only after explicit user direction under [Full-Suite Permission](#full-suite-permission); in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when the required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
 - Explore before planning when scope is unclear, multi-file, or cross-subsystem.
 - For unclear or multi-file work, implement the first runnable prototype after one bounded plan and iterate from its evidence. Re-plan only when that evidence invalidates the requested outcome, scope boundary, chosen approach, or verification path.
 - For initial scope and follow-up priorities, use [Simple-First Delivery](#simple-first-delivery).
@@ -25,6 +25,12 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
 - For design-heavy tasks, run `docs/workflows/outcome-first-planning-workflow.md` before implementation planning.
+
+## Full-Suite Permission
+
+Do not launch a full test suite until the user explicitly directs it. Use focused checks for changed behavior in the meantime. This applies to agent-launched local commands and remote full-suite dispatches; routine verification, self-improvement, or release-workflow language is not permission to override it.
+
+Inspect the documented command before running it: a script named `test` may be a full suite, while a narrowly scoped command may be appropriate. Preserve project wrappers and required release checks. When a required full suite lacks permission, name that unrun prerequisite and request direction rather than silently running, waiving, or reporting it as passed. Existing automatically triggered CI may be observed separately; do not manually dispatch a full suite or disable CI to evade the boundary.
 
 ## Simple-First Delivery
 
@@ -72,7 +78,7 @@ Focused diffs can make change amplification and recurring change clusters easier
    - run the predeclared check;
    - use its result to make the next smallest change; when it fails, fix the root cause and rerun the smallest failing check;
    - re-plan only when evidence invalidates the requested outcome, scope boundary, chosen approach, or verification path; ordinary test failures are iteration, not a new plan;
-   - run broader checks only when the changed surface warrants them.
+   - run broader checks only when the changed surface warrants them; a full suite additionally requires explicit user direction under [Full-Suite Permission](#full-suite-permission).
 7. Report the result:
    - changed files and links;
    - final `PASS`, `FAIL`, or `BLOCKED` evidence;
