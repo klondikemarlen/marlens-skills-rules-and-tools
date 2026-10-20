@@ -11,6 +11,8 @@ For new repository implementation work, default to an appropriate separate Git w
 - For genuinely new implementation with no selected continuation, create the appropriate same-repository worktree using this workflow and the project's branch/path conventions. Prepare its own documented runtime environment; preserve primary and unrelated checkouts.
 - Read-only investigation does not require a new worktree. Follow deliberate project-local exceptions rather than mechanically creating one.
 
+Before creating or resuming an implementation worktree for a ticket, apply [Ticket Lifecycle](feature-workflow.md#ticket-lifecycle): assign the intended person and move the ticket into the project's active-work state. A worktree or draft-PR request is a work-start event, not just Git setup. Read-only inspection does not claim the ticket.
+
 ## Goal
 
 Create an issue worktree without guessing its layout or forgetting the repository's local environment setup.

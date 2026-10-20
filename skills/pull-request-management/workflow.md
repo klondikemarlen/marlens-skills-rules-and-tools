@@ -23,6 +23,8 @@ Publish an issue-linked draft as soon as the first coherent, reviewable change c
 
 Push coherent progress and revise that existing description as implementation and QA change; preserve issue links, ownership/labels, intentional draft status, and all readiness, feedback-resolution, and merge gates. Honor explicit user or local-policy publication exceptions. If GitHub publication is unavailable, report its exact missing prerequisite; an unrelated browser-QA blocker does not itself prevent draft publication through GitHub's API.
 
+Reconcile linked implementation tickets through [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle) when starting a draft, requesting review, handling rework, or completing a merge. PR assignment does not assign the issue, and merging a PR does not prove that Jira status or GitHub Project Status advanced. After merge, use the project's actual next state; retain QA/release requirements rather than marking incomplete delivery Done.
+
 ### Repository Metadata
 
 Before every agent-created PR handoff, including drafts and documentation-only work, reconcile ownership and applicable existing labels unless an explicit user instruction or repository policy directs otherwise. Reviewer requests remain separately authorized.
