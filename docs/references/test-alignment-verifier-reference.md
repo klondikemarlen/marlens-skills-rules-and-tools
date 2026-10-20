@@ -97,6 +97,8 @@ Do not run the slash command as a shell executable. Clearing `OMP_VERIFIER_CHANG
 
 The standalone entry prints the same structured result and uses a fail-closed shell contract: `PASS` exits zero; `FAIL` and `BLOCKED` exit nonzero. Its JSON output retains the actual status, evidence, and next check; callers must not reinterpret `BLOCKED` as a structural failure or pass. An unavailable base therefore stops a shell `&&` continuation while preserving its prerequisite evidence. No installed coordinator is needed for this standalone path. Preserve explicit local additions and supported scoped suppressions. If the relevant check or base ref is unavailable, record `BLOCKED` with the exact prerequisite rather than claiming a structural PASS. No matching changed tests means `N/A` for this gate. This is focused pre-merge evidence, not a new runtime completion barrier, advisor cadence, model route, or unrelated hygiene scan.
 
+Coordinator integration needs support for nonzero structured `BLOCKED` results, introduced in OMP Verifier 0.10.9. Upgrade older coordinators before relying on the preserved prerequisite fields.
+
 From a source checkout, exercise an installed or unpacked package's standalone CLI by pointing the repository's focused behavioral check at that entrypoint. The maintainer check lives in `scripts/`, which is not part of the installed package:
 
 ```bash
