@@ -52,11 +52,13 @@ An older same-day release, mismatched commit, or missing required provenance fai
 
 Use this procedure only when an agent-owned Dockerized worktree must be removed.
 
-1. Verify the target branch, pull request, worktree owner, and local changes; preserve the primary checkout and user-owned untracked files.
-2. Stop only the target worktree's services through its documented wrapper.
-3. Remove only explicitly allowlisted Docker-owned generated artifacts from inside those project containers.
-4. Run `git worktree remove <path>`. If its metadata disappears but the directory remains, re-check `git worktree list` before treating the directory as orphaned.
-5. Verify the target directory, worktree registry, branch, and primary checkout state afterward.
+1. Verify the target branch, pull request, worktree owner, and local changes; preserve the primary checkout and user-owned untracked files. Before deleting its configuration, capture the exact Compose project identity and inventory its containers, volumes, networks, and worktree-specific image tags, including ownership.
+2. Remove only explicitly allowlisted Docker-owned generated artifacts from inside those project containers before teardown.
+3. Stop only the target worktree's services through its documented wrapper, with the exact target project selected. Remove volumes only when target ownership, disposable verification purpose, and cleanup authorization are established; preserve user development data, shared/external volumes, backups, and uncertain resources. Never default to blanket `down --volumes`.
+4. Remove only obsolete worktree-specific image tags when safe; preserve shared tags/layers and never use global Docker pruning.
+5. Verify the final container, volume, network, and image-tag inventory by the captured exact project labels/identities. Record intentionally retained resources and their reasons separately from Git cleanup.
+6. Run `git worktree remove <path>`. If its metadata disappears but the directory remains, re-check `git worktree list` before treating the directory as orphaned.
+7. Verify the target directory, worktree registry, branch, and primary checkout state afterward; do not claim all Docker resources were removed when some were intentionally retained.
 
 See [Safe Worktree Cleanup in Dockerized Projects](../../docs/references/engineering-techniques-reference.md#safe-worktree-cleanup-in-dockerized-projects) for ownership and safety boundaries.
 
