@@ -18,6 +18,11 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 - For required-new record lifecycles, use [Service Orchestration Readability](../../docs/references/code-organization-reference.md#service-orchestration-readability): prefer strict creation over convenience reuse/repair while preserving accepted unchanged-state paths.
 - Serialize explicit fields. Do not leak raw ORM/model objects unless that is already the project contract.
 - Use existing dependencies: ORM/query builder, transaction helper, logger, validation, and test factories. Do not add a new framework for the template.
+- Keep database/model-aware persistence and locking in the owning service/use case, not generic utilities. For protected work, prefer an intention-revealing `With...` service boundary when it coordinates the action; preserve project persistence and transaction rails.
+- Follow the controller/resource namespace for its policy, including nested resources that project a parent model. Compose applicable parent authorization inside the resource policy; do not select the parent policy directly in the controller or scatter resource visibility rules into a listing service. Inspect local nested-policy patterns and preserve existing authorization behavior.
+- Fit the controller query types, resource policy scope, and collection service to that resource's model or supported read projection, not a parent model merely relabeled as the child. Reuse parent-access predicates without registering the child policy on the parent model. Inspect existing CRUD patterns; fix the resource boundary rather than adding scope-name overrides to accommodate a mismatch. Preserve shared registration/consumer constants. This does not mandate a new table, SQL view, or universal schema.
+- For collection endpoints, including projected/picker resources, inspect sibling request-query helpers. Compose established filter scopes with the resource policy and pass request where conditions to that scoped query: client filters narrow, never replace, authorization. Do not introduce arbitrary query support outside the local contract. Verify combined filtering and an attempted selection outside policy visibility.
+- Before adding a resource picker or collection service, inspect neighboring domain inputs and collection endpoints. Compose an owning-domain input when existing resource-input components own fetching, loading/error state, and autocomplete rendering; keep model bindings and contextual hints in the parent. Follow the established collection-service bundle and naming, including nested `IndexService` conventions where present, rather than introducing a flat `List<Resource>Service`. Preserve selection, visibility-triggered loading, errors, and authorization. Do not add wrappers for trivial controls or impose a universal layout.
 
 ## Process
 
@@ -25,10 +30,11 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 2. If the project has `docs/templates/backend/express-light-rail/`, pick only the templates needed; otherwise use nearby live code and this workflow as the fallback shape.
 3. Define the API contract: method, path, params, query/body fields, status codes, response JSON, and error JSON.
 4. Add validation at the request boundary using the project’s existing validation style.
-5. Add authorization before sensitive reads and all writes.
+5. Add authorization before sensitive reads and all writes. For collections, apply the resource policy together with locally supported filter scopes, then pass the established request where conditions to the authorized query.
 6. Implement persistence through the project’s existing model/repository/ORM shape.
 7. Serialize the response through the project’s response-shaping pattern.
-8. Add the smallest runnable test that proves the changed success path and the highest-risk edge.
+8. Reuse the project's shared HTTP request/test-support helper when one exists, following its contract. Keep authentication real when testing authentication boundaries; do not replace it with a stub or introduce a new wrapper.
+9. Add the smallest runnable test that proves the changed success path and the highest-risk edge.
 
 ## Output Contract
 
