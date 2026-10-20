@@ -11,6 +11,7 @@ Use when you need source-of-truth issue or pull request data from GitHub.
 - For non-UI GitHub administration—issue, pull request, and release reconciliation—prefer an authenticated `gh`/GitHub API path when available. A signed-out browser session does not make API-backed work `BLOCKED`.
 - After an API mutation, perform a fresh API read that confirms the intended remote state before reporting success. Reserve browser authentication blockers for explicit browser UI validation.
 - Do not print credentials, tokens, or private URLs in issue/PR bodies or final summaries.
+- Keep ordinary project issue/PR comments brief, natural, and human, not just upstream comments. Include the useful response, question, new evidence, link, or limitation; omit repetitive audit narration and boilerplate. Preserve requested detail and required facts without turning the comment into a large process report.
 
 ## Common Reads
 
