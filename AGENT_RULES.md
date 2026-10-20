@@ -56,6 +56,8 @@ Report verification outcomes with this vocabulary:
 
 Use plain terms in user-facing summaries, PR bodies, and final reports. Define domain terms once when they are useful; otherwise choose clearer phrases so maintainers and reviewers do not need glossary context.
 
+Keep user responses and GitHub comments brief, natural, and human. Lead with the useful outcome, question, or blocker; preserve necessary links, limitations, and explicitly requested detail. Avoid repetitive audit narration, boilerplate, and large AI-style process reports. Link supporting detail when useful rather than repeating it, and honor a requested format without padding it.
+
 ### Guarded Computations
 
 When one predicate gates multiple related computed fields, or a multi-line computation, prefer a descriptively named helper with an early return if it reduces repeated conditions or nesting. Keep concise scalar ternaries inline when extraction adds indirection; see [Guarded Computations](docs/references/code-organization-reference.md#guarded-computations) for the scope and example.
