@@ -21,6 +21,10 @@ Keep application code focused on product-specific policies and behavior. When a 
 
 Prefer the option that lowers net owned complexity: the codebase should not recreate generic implementation details merely to avoid a dependency. Include compatibility, maintenance, security, and the adapter code the project must still own in that comparison. Keep the project-specific policy and result model explicit at the library boundary.
 
+Before implementing domain-specific retry or recovery loops, inspect the installed client and queue capabilities and their configuration. Prefer supported native retries/backoff for the failure layer they actually cover. Distinguish connection retry, execution retry, and durable handoff failure: reconnecting a client does not retry failed job execution, and execution retries do not recover work that was never durably handed off.
+
+Do not silently reset exhausted attempts by removing and recreating jobs or resetting domain status. Necessary recovery for an uncovered delivery gap belongs at the existing shared infrastructure owner with an explicit policy, not duplicated in domain scheduling code. Preserve accepted attempt limits and delivery requirements; this is not a universal retry-forever or terminal-failure policy.
+
 ## Domain Discovery Checkpoint
 
 Before proposing a reorganization, discover the domain boundary from evidence rather than waiting for someone to name it. Inspect:
