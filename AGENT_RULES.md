@@ -36,6 +36,7 @@ durable prefix patterns over one-off command strings.
 ### Workflow Guidance
 
 - Prioritize [real user needs over speculative edge cases](rules/solve-real-user-needs.md).
+- For new implementation work, default to an appropriate separate worktree; reuse the registered checkout for continuation and honor explicit checkout/boundary instructions. Follow [Checkout Selection](docs/workflows/worktree-creation-workflow.md#checkout-selection) instead of duplicating its setup mechanics.
 - Prefer small, logically isolated commits.
 - Keep pull requests scoped to one story slice or one coherent integration step.
 - When a branch contains multiple meaningful slices, explain the current slice clearly in the PR

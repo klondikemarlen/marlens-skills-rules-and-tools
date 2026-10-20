@@ -11,6 +11,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 **Decision Rules:**
 
 - Project-local issue, release, contribution, and setup docs win over this generic workflow.
+- Before new implementation, apply [Checkout Selection](worktree-creation-workflow.md#checkout-selection): default to an appropriate separate worktree, reuse a registered continuation, and honor explicit checkout/boundary instructions. This applies outside feature-labeled work too; use the existing creation/setup procedure rather than duplicating it.
 - Start from the success condition: name the desired behavior, invariant, or regression risk before planning or editing.
 - Establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
 - Prefer an established relevant suite when one exists. For a one-off tooling change without a relevant suite, use a focused disposable smoke check rather than creating a permanent bespoke runner or assertion API solely for that change; remove temporary scripts and recording fixtures afterward, and preserve reviewer-reproducible commands and truthful evidence. Keep permanent regression coverage when it fits established conventions, and intentionally establishing test infrastructure remains valid when it is accepted scope. Do not replace runnable behavioral proof with source-text assertions or inspection alone.
