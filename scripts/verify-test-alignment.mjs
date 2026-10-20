@@ -69,6 +69,7 @@ const suppressionProject = createProject()
 const invalidSuppressionProject = createProject()
 const automaticScopeProject = createProject()
 const combinedPhaseProject = createProject()
+const regexProject = createProject()
 try {
   write(project, "tests/README.md", guidance)
   write(project, "tests/widget.test.ts", alignedTest)
@@ -398,6 +399,62 @@ expect(response).toHaveHttpResponse(200, { id: 7 });
     assert.equal(result.status, expectedStatus, result.evidence)
   }
 
+  // Arrange: a compliant callback whose regex used to consume its closing brace.
+  write(
+    regexProject,
+    "tests/csv.test.ts",
+    String.raw`test("when CSV text starts with formula markers, neutralizes the cells", () => {
+  // Arrange
+  const text = "'=Title,'=Waiting On (User),Open,'+Creator,";
+
+  // Act
+  const csv = text;
+
+  // Assert
+  expect(csv).toMatch(/'=Title,'=Waiting On \(User\),Open,.*,'\+Creator,/);
+});
+`
+  )
+
+  // Act
+  const compliantRegex = runVerification(regexProject, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/csv.test.ts"]),
+  })
+
+  // Assert
+  assert.equal(compliantRegex.status, "PASS", compliantRegex.evidence)
+  assert.equal(compliantRegex.evidence, "Inspected tests/csv.test.ts (2 rules).")
+
+  // Arrange: rewrite that same file with a missing phase and a shifted declaration.
+  write(
+    regexProject,
+    "tests/csv.test.ts",
+    String.raw`// Updated source snapshot.
+
+test("when CSV text starts with formula markers, neutralizes the cells", () => {
+  // Arrange
+  const csv = "'=Title,'=Waiting On (User),Open,'+Creator,";
+
+  // Assert
+  expect(csv).toMatch(/'=Title,'=Waiting On \(User\),Open,.*,'\+Creator,/);
+});
+`
+  )
+
+  // Act
+  const missingPhase = runVerification(regexProject, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/csv.test.ts"]),
+  })
+
+  // Assert
+  assert.deepEqual(missingPhase, {
+    status: "FAIL",
+    summary: "1 test-alignment violation(s) found.",
+    evidence:
+      'tests/csv.test.ts:3: `test("when CSV text starts with formula markers, neutralizes the cells", () => {` — does not contain ordered Arrange, Act, and Assert comments; source shared baseline:1 (`marlens-test-alignment: arrange-act-assert`).',
+    nextCheck: "Add ordered Arrange, Act, and Assert comments to the test.",
+  })
+
   console.log("Test alignment verification checks passed")
 } finally {
   rmSync(project, { recursive: true, force: true })
@@ -409,4 +466,5 @@ expect(response).toHaveHttpResponse(200, { id: 7 });
   rmSync(invalidSuppressionProject, { recursive: true, force: true })
   rmSync(automaticScopeProject, { recursive: true, force: true })
   rmSync(combinedPhaseProject, { recursive: true, force: true })
+  rmSync(regexProject, { recursive: true, force: true })
 }
