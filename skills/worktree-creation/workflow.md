@@ -2,6 +2,15 @@
 
 Use this workflow before starting issue work in a separate Git worktree, or when continuing work in an explicitly selected existing worktree.
 
+## Checkout Selection
+
+For new repository implementation work, default to an appropriate separate Git worktree; the user does not need to request isolation each time. Before creating anything, inspect the registered worktrees, current issue/PR branch, and project-local naming/layout.
+
+- Honor an explicitly selected checkout and higher-priority repository-boundary restrictions. The default is not permission to enter another repository or override a current-checkout instruction; obtain required authorization when the allowed target remains constrained.
+- For continuing issue/PR work, reuse its verified registered worktree instead of creating a competing checkout.
+- For genuinely new implementation with no selected continuation, create the appropriate same-repository worktree using this workflow and the project's branch/path conventions. Prepare its own documented runtime environment; preserve primary and unrelated checkouts.
+- Read-only investigation does not require a new worktree. Follow deliberate project-local exceptions rather than mechanically creating one.
+
 ## Goal
 
 Create an issue worktree without guessing its layout or forgetting the repository's local environment setup.
