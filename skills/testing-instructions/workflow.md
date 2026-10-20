@@ -33,6 +33,8 @@ When validating an authenticated browser flow, follow this preflight before addi
 
 Choose the smallest owning evidence layer that can prove the success condition. Move outward only when the changed behavior crosses a boundary.
 
+Before executing any listed suite, apply [Full-Suite Permission](../hands-off-agentic-coding/workflow.md#full-suite-permission). Writing instructions or following a release workflow does not authorize an agent-launched local or remote full suite. Use focused evidence until explicitly directed, and report an unrun required full-suite gate truthfully rather than weakening it.
+
 | Change surface                                | Primary evidence                                                                                                            |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Unit, parser, schema, or pure state logic     | Owning unit/module test                                                                                                     |
