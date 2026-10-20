@@ -228,6 +228,12 @@ This is a review heuristic, not an alphabetical rule. Preserve an existing stron
 
 For related visibility props, preserve the established show/hide polarity. Beside an existing `hideOrganization`, prefer `hideUsageCount` over mixing in `showUsageCount`. When renaming an in-scope prop, update every caller, invert defaults and predicates together, and verify identical visible behavior for both values and the omitted-prop case. Do not rename unrelated established APIs solely for this preference.
 
+## Function Action Names
+
+Name functions, including event/error callbacks, for the concrete operation, effect, or result they perform rather than their caller or triggering event. Prefer `openVerificationDialog` over a vague `handleChallenge` when opening the dialog is the operation. Preserve established framework-required names and keep renames scoped to affected functions and callers; do not rename unrelated code.
+
+Use [UI Navigation Handler Names](#ui-navigation-handler-names) for route changes and [Service Orchestration Readability](#service-orchestration-readability) for intention-revealing domain steps.
+
 ## UI Navigation Handler Names
 
 Name a UI router-navigation handler after its destination and effect. Prefer `goToTemplateWorkflowsPage` or `goToCategoryWorkflowNewPage`; avoid trigger-oriented (`select...`, `open...`) or imprecise names that hide the route change. An established project convention wins.
