@@ -28,6 +28,8 @@ An agentic verification result is not by itself a hard completion gate. The prov
 
 For cross-project responsibility and promotion of prose into checks, use [`quality-ownership-reference.md#correction-coverage-and-verification-evidence`](quality-ownership-reference.md#correction-coverage-and-verification-evidence). It distinguishes Learner's correction-coverage result from an accepted rule, a supplied supported contract, and Verifier's evidence from applicable current code. This package owns reusable policy and check assets; Verifier owns discovery, execution, and correction; Learner owns eligible feedback and proposal routing.
 
+The default `whitespace-matters` rule selects commit/push and PR creation/readiness/merge commands, not an operation merely named `review`. Request/evidence inspection is not a readiness claim. The rule still requires project formatter/checker use and `git diff --check` at delivery, with existing project/user precedence and explicit overrides.
+
 ## Current Package Classification
 
 | Asset                                             | Layer                | Why                                                                                                             |
