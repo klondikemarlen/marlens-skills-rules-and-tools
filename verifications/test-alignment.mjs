@@ -554,5 +554,5 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const verification = runVerification()
   process.stdout.write(`${JSON.stringify(verification)}\n`)
-  if (verification.status === "FAIL") process.exitCode = 1
+  if (verification.status !== "PASS") process.exitCode = 1
 }

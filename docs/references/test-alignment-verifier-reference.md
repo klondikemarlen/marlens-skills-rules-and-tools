@@ -95,4 +95,15 @@ env -u OMP_VERIFIER_CHANGED_PATHS \
 
 Do not run the slash command as a shell executable. Clearing `OMP_VERIFIER_CHANGED_PATHS` avoids a stale automatic per-turn selection overriding the manual PR scope. `MARLENS_TEST_ALIGNMENT_BASE` compares committed branch changes to the base and also includes current worktree and untracked tests. Without it, the check examines only the current worktree diff against `HEAD` plus untracked tests, so a clean committed branch can miss its PR changes.
 
-The standalone entry prints the same structured result; `FAIL` also exits non-zero. Read `status` explicitly: the current entry can exit zero for `BLOCKED`, which is not `PASS`. No installed coordinator is needed for this path. Preserve explicit local additions and supported scoped suppressions. If the relevant check or base ref is unavailable, record `BLOCKED` with the exact prerequisite rather than claiming a structural PASS. No matching changed tests means `N/A` for this gate. This is focused pre-merge evidence, not a new runtime completion barrier, advisor cadence, model route, or unrelated hygiene scan.
+The standalone entry prints the same structured result and uses a fail-closed shell contract: `PASS` exits zero; `FAIL` and `BLOCKED` exit nonzero. Its JSON output retains the actual status, evidence, and next check; callers must not reinterpret `BLOCKED` as a structural failure or pass. An unavailable base therefore stops a shell `&&` continuation while preserving its prerequisite evidence. No installed coordinator is needed for this standalone path. Preserve explicit local additions and supported scoped suppressions. If the relevant check or base ref is unavailable, record `BLOCKED` with the exact prerequisite rather than claiming a structural PASS. No matching changed tests means `N/A` for this gate. This is focused pre-merge evidence, not a new runtime completion barrier, advisor cadence, model route, or unrelated hygiene scan.
+
+Coordinator integration needs support for nonzero structured `BLOCKED` results, introduced in OMP Verifier 0.10.9. Upgrade older coordinators before relying on the preserved prerequisite fields.
+
+From a source checkout, exercise an installed or unpacked package's standalone CLI by pointing the repository's focused behavioral check at that entrypoint. The maintainer check lives in `scripts/`, which is not part of the installed package:
+
+```bash
+MARLENS_TEST_ALIGNMENT_ENTRY="<installed provider root>/verifications/test-alignment.mjs" \
+  node scripts/verify-test-alignment.mjs
+```
+
+For coordinator integration, start a fresh OMP process in a disposable Git project and run `/verifier verify marlens-rules:test-alignment` with `MARLENS_TEST_ALIGNMENT_BASE` set to a nonexistent ref. Confirm the result remains structured `BLOCKED` with its missing-base evidence. Repeat once with a test containing a real structural violation (`FAIL`), then correct the test and request a fresh evaluation (`PASS`). The standalone CLI contract also requires checking that a shell `&&` continuation is skipped for the missing-base case; the behavioral check above covers this using the installed CLI path when configured. The coordinator must preserve a valid structured `BLOCKED` output even though its process exit is nonzero; a generic process-exit diagnostic is not equivalent evidence.
