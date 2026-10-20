@@ -18,5 +18,5 @@ These templates are centralized starting points. Project-local templates and liv
 
 1. Read the nearest live backend slice first.
 2. Copy only the rails the project already uses or the feature actually needs.
-3. Replace placeholders and project hooks: auth context, validation errors, logger, ORM, transaction helper, and test factory helper.
+3. Replace placeholders and project hooks: auth context, validation errors, logger, ORM, transaction helper, and test factory helper. For request tests, reuse the project's shared HTTP request/test-support helper when available; follow its contract and preserve real authentication for authentication-boundary tests.
 4. Run the smallest backend test that proves the API contract.

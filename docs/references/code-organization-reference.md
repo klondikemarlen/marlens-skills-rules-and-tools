@@ -244,6 +244,9 @@ Use these terms as review vocabulary, not as mandatory layers:
 - **Adapter/gateway:** a small boundary around an external system, platform branch, CLI, HTTP client, SDK, filesystem, or clock.
 - **Aggregate/transaction boundary:** the domain cluster whose invariant must be protected together. Do not hide transaction ownership in a generic helper name.
 - **Module public API:** the exported names a caller can use. They should reveal what the module owns.
+- **Utility:** generic, domain-independent computation over explicit inputs and outputs. Utilities must not own database queries or model/domain knowledge; put domain-aware persistence and locking orchestration in the owning service/use case, following the project's established persistence and transaction rails.
+
+Protected work should expose its ownership through an intention-revealing `With...` service boundary when that service coordinates the protected action. Do not extract a utility that merely acquires a lock while leaving the domain operation, persistence, and invariant ownership elsewhere. Keep the existing transaction and locking semantics; this is not a mandate for a new layer or ORM.
 
 ## Service Orchestration Readability
 
@@ -283,7 +286,7 @@ Prepare replacement attributes or content before deleting existing records, then
 
 Do not introduce `findOrCreate` as convenience provisioning. When the lifecycle invariant says a record must be new, use direct `create` and let an unexpected existing record fail through the normal constraints and transaction rather than silently reusing or repairing it. Keep explicitly accepted unchanged-state behavior separate; this preference does not authorize changing that path into creation or repair.
 
-For an ordinary collection read, prefer the mapped model's normal query API, such as `findAll`, over a service that merely wraps the query. Keep required batching orchestration separate; retain a service when it owns a meaningful action or orchestration rather than forwarding alone. Name a collection-returning service with `List`, not `Load`—for example, `ListDocumentsService` rather than `LoadDocumentsService`.
+For an ordinary collection read, prefer the mapped model's normal query API, such as `findAll`, over a service that merely wraps the query. Keep required batching orchestration separate; retain a service when it owns a meaningful action or orchestration rather than forwarding alone. `List` is a reasonable generic name for a collection-returning service, but an established domain convention takes precedence: for example, follow a nested resource bundle's `IndexService` shape when that is how neighboring collection endpoints are organized. Inspect adjacent endpoints and keep the operation name aligned with their domain API.
 
 When refactoring a query through an ORM, preserve its existing projection, predicates (including cancellation and deleted-record filtering), ordering, and batching semantics. Verify the returned records and exclusions, not just that the replacement query runs. This preference does not authorize changing a downstream table mapping or unrelated query behavior.
 
