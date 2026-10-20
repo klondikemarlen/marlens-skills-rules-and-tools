@@ -324,6 +324,8 @@ For multi-property query/options object arguments, put each property on its own 
 
 For explanatory comments, prefer JSDoc-style blocks that explain the mechanism and rationale, especially for non-obvious lifecycle state or invariants. State the actual captured boundary, when it is captured, what it gates, and why that gate or cache exists; describe lazy first-use behavior accurately rather than calling it startup. This does not require converting short inline comments or Arrange/Act/Assert markers.
 
+During edits and simplification, retain accurate comments that explain framework/library callback execution conditions, mechanisms, or rationale not obvious from nearby statements. Move them with the relevant handler when needed; remove or revise them when obsolete or misleading. Redundant comments may still be removed, and this does not require converting inline comments to JSDoc.
+
 ## Shared Content and Presentation Contracts
 
 When content requirements appear to conflict with a shared field limit or sanitizer, inspect the field's semantics, storage capacity, original constraint rationale, and sanitization contract plus all consumers before proposing an exception. Prefer a consistent contract across event types over an event-specific bypass. Distinguish stored content from compact presentation, and separate their policies when the existing model supports it. Do not assume a new field or universal UI-only truncation is required without inspecting the model and rendering surfaces.
