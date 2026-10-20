@@ -21,6 +21,10 @@ Keep application code focused on product-specific policies and behavior. When a 
 
 Prefer the option that lowers net owned complexity: the codebase should not recreate generic implementation details merely to avoid a dependency. Include compatibility, maintenance, security, and the adapter code the project must still own in that comparison. Keep the project-specific policy and result model explicit at the library boundary.
 
+Before implementing domain-specific retry or recovery loops, inspect the installed client and queue capabilities and their configuration. Prefer supported native retries/backoff for the failure layer they actually cover. Distinguish connection retry, execution retry, and durable handoff failure: reconnecting a client does not retry failed job execution, and execution retries do not recover work that was never durably handed off.
+
+Do not silently reset exhausted attempts by removing and recreating jobs or resetting domain status. Necessary recovery for an uncovered delivery gap belongs at the existing shared infrastructure owner with an explicit policy, not duplicated in domain scheduling code. Preserve accepted attempt limits and delivery requirements; this is not a universal retry-forever or terminal-failure policy.
+
 ## Domain Discovery Checkpoint
 
 Before proposing a reorganization, discover the domain boundary from evidence rather than waiting for someone to name it. Inspect:
@@ -261,6 +265,10 @@ Protected work should expose its ownership through an intention-revealing `With.
 ## Thin Persistence Lifecycle Handoffs
 
 For domain-specific background work scheduled from persistence changes, reuse existing ORM lifecycle subscriptions or established event wiring rather than building parallel infrastructure. Keep the lifecycle callback thin: hand off to the owning service/job, which owns affected-record discovery and processing. Do not add domain-specific discovery, orchestration, or transaction overrides to a shared base model.
+
+Do not introduce single-action transaction wrappers solely for lifecycle-triggered background work. When a transaction already exists, reuse the ORM's supported managed-transaction propagation; leave otherwise unwrapped operations unwrapped unless an accepted business invariant requires atomicity. Preserve real multi-write/business transactions. Verify propagation support and configuration in the installed ORM; retain explicit transaction passing where required rather than assuming every ORM behaves like Sequelize 7.
+
+If the initiating mutation and job or durable handoff commit independently, either can succeed while the other fails. Document those consequences and reconcile them with accepted delivery requirements rather than promising atomic delivery.
 
 Preserve the existing delivery and transaction contract. Reusing lifecycle wiring does not justify replacing required durable delivery with transient post-commit PubSub, changing transaction ownership, or mandating a particular ORM.
 
