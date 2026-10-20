@@ -21,6 +21,21 @@ gh pr list --json number,title,headRefName,state,isDraft
 gh pr view 456 --json title,body,state,isDraft,mergeStateStatus,url
 ```
 
+## Requested Codex Reviews
+
+Use this only when a maintainer specifically requests a Codex review; it is not a universal merge gate. Follow OpenAI's [Codex GitHub review setup and troubleshooting guidance](https://learn.chatgpt.com/docs/third-party/github#troubleshoot-code-review). Before requesting, read the current PR head and draft/ready state. Check the configured review trigger: if it requires a ready PR, preserve draft status unless the maintainer authorizes making it ready. A manual `@codex review` request is distinct from automatic-review preferences.
+
+Treat these as separate prerequisites:
+
+- The ChatGPT Codex Connector GitHub App must have access to the target repository. Success on a sibling repository does not prove target access.
+- Codex must have code review enabled/configured for the target repository in [Codex review settings](https://chatgpt.com/settings/code-review); automatic-review preferences and their trigger govern automatic reviews.
+
+When settings are inaccessible, report exactly which prerequisite is unverified. Do not infer that access is absent from lack of `admin:org` visibility, claim a service-wide outage from one repository, alter access/settings, or treat an unverified required review as complete.
+
+For a requested review, publish the exact `@codex review` comment on the PR. Publication is not acknowledgement. Check for Codex's eyes reaction or other clear acknowledgement before describing it as queued/running. If there is no acknowledgement after a bounded, context-appropriate wait, diagnose the exact trigger, target repository access, review enablement, and draft/ready eligibility before any further wait or fresh request. Do not repeat long waits or repost without new evidence. Choose bounded waits to fit the context; there is no universal timeout.
+
+After acknowledgement, wait in bounded intervals for the posted review, then verify it applies to the intended current PR head (compare the reviewed commit with the current head). A posted review with no findings is a terminal result; a running acknowledgement is not. If the head changed, the old review is stale: request a fresh review when required and verify its result for the new head. Handle actionable findings and any explicit re-review requirement before the authorized merge path. Waiving a separately required external approval does not waive a requested Codex review unless the maintainer explicitly says so.
+
 ## GitHub Actions Matrix Fail-Fast
 
 Keep GitHub Actions matrix jobs fail-fast, using the default behavior. Do not set `fail-fast: false` as a routine diagnostic convenience: continuing sibling jobs after one matrix job fails consumes additional runner credits. Change this only when a specific, accepted requirement calls for the remaining matrix jobs to complete; do not treat that exception as a blanket policy change.
