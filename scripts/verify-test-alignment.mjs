@@ -1,12 +1,28 @@
 import assert from "node:assert/strict"
-import { execFileSync } from "node:child_process"
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { execFileSync, spawnSync } from "node:child_process"
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { runVerification } from "../verifications/test-alignment.mjs"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const verifierPath =
+  process.env.MARLENS_TEST_ALIGNMENT_ENTRY ?? path.join(root, "verifications/test-alignment.mjs")
+
+function runStandalone(projectDirectory, environment) {
+  return spawnSync(process.execPath, [verifierPath], {
+    cwd: projectDirectory,
+    encoding: "utf8",
+    env: { ...process.env, ...environment },
+  })
+}
+
+function standaloneResult(processResult) {
+  assert.equal(processResult.error, undefined, processResult.error?.message)
+  assert.equal(processResult.stderr, "")
+  return JSON.parse(processResult.stdout)
+}
 
 function git(directory, argumentsList) {
   return execFileSync("git", argumentsList, {
@@ -70,6 +86,7 @@ const invalidSuppressionProject = createProject()
 const automaticScopeProject = createProject()
 const combinedPhaseProject = createProject()
 const regexProject = createProject()
+const cliBlockedProject = createProject()
 try {
   write(project, "tests/README.md", guidance)
   write(project, "tests/widget.test.ts", alignedTest)
@@ -77,6 +94,63 @@ try {
   git(project, ["switch", "--quiet", "-c", "feature"])
   write(project, "tests/widget.test.ts", `${alignedTest}\n// Changed on this branch.\n`)
   commit(project, "aligned test change")
+  // The standalone CLI keeps BLOCKED evidence and fails closed for shell gates.
+  const blockedCli = runStandalone(cliBlockedProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "missing-pr-base",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(blockedCli.status, 1)
+  const blockedResult = standaloneResult(blockedCli)
+  assert.equal(blockedResult.status, "BLOCKED")
+  assert.match(blockedResult.nextCheck, /accessible PR base ref/u)
+
+  const continuationPath = path.join(cliBlockedProject, "continued")
+  const shellContinuation = spawnSync(
+    "sh",
+    ["-c", `node "$1" && printf reached > "$2"`, "test", verifierPath, continuationPath],
+    {
+      cwd: cliBlockedProject,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        MARLENS_TEST_ALIGNMENT_BASE: "missing-pr-base",
+        OMP_VERIFIER_CHANGED_PATHS: undefined,
+      },
+    }
+  )
+  assert.equal(shellContinuation.status, 1)
+  assert.equal(JSON.parse(shellContinuation.stdout).status, "BLOCKED")
+  assert.equal(existsSync(continuationPath), false)
+
+  const failingCliProject = createProject()
+  try {
+    write(failingCliProject, "tests/README.md", guidance)
+    write(failingCliProject, "tests/widget.test.ts", alignedTest)
+    commit(failingCliProject, "baseline")
+    git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      "test('saves widget', () => { expect(true).toEqual(true) })\n"
+    )
+
+    const failingCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(failingCli.status, 1)
+    assert.equal(standaloneResult(failingCli).status, "FAIL")
+
+    write(failingCliProject, "tests/widget.test.ts", `${alignedTest}\n// Corrected on branch.\n`)
+    const passingCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(passingCli.status, 0)
+    assert.equal(standaloneResult(passingCli).status, "PASS")
+  } finally {
+    rmSync(failingCliProject, { recursive: true, force: true })
+  }
 
   const aligned = runVerification(project, {
     MARLENS_TEST_ALIGNMENT_BASE: "main",
@@ -467,4 +541,5 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
   rmSync(automaticScopeProject, { recursive: true, force: true })
   rmSync(combinedPhaseProject, { recursive: true, force: true })
   rmSync(regexProject, { recursive: true, force: true })
+  rmSync(cliBlockedProject, { recursive: true, force: true })
 }
