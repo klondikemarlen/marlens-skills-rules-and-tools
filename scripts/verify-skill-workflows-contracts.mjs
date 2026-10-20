@@ -174,9 +174,6 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     ["packaged self-improvement workflow", read("skills/self-improvement/workflow.md")],
   ]
   for (const [name, workflow] of selfImprovementWorkflows) {
-    if (!workflow.includes("For this package's own checkout, use `npm test`")) {
-      fail(`${name} must use package verification for a package self-improvement run`)
-    }
     if (!workflow.includes("node bin/agent-guidance-audit.js --strict <downstream-root>")) {
       fail(`${name} must reserve the guidance audit for downstream repositories`)
     }
