@@ -262,6 +262,10 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 For domain-specific background work scheduled from persistence changes, reuse existing ORM lifecycle subscriptions or established event wiring rather than building parallel infrastructure. Keep the lifecycle callback thin: hand off to the owning service/job, which owns affected-record discovery and processing. Do not add domain-specific discovery, orchestration, or transaction overrides to a shared base model.
 
+Do not introduce single-action transaction wrappers solely for lifecycle-triggered background work. When a transaction already exists, reuse the ORM's supported managed-transaction propagation; leave otherwise unwrapped operations unwrapped unless an accepted business invariant requires atomicity. Preserve real multi-write/business transactions. Verify propagation support and configuration in the installed ORM; retain explicit transaction passing where required rather than assuming every ORM behaves like Sequelize 7.
+
+If the initiating mutation and job or durable handoff commit independently, either can succeed while the other fails. Document those consequences and reconcile them with accepted delivery requirements rather than promising atomic delivery.
+
 Preserve the existing delivery and transaction contract. Reusing lifecycle wiring does not justify replacing required durable delivery with transient post-commit PubSub, changing transaction ownership, or mandating a particular ORM.
 
 ## Service Orchestration Readability
