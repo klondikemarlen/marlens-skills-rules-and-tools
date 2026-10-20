@@ -1,21 +1,38 @@
 # Git Rebase Workflow
 
-Use when the user asks to fix up, amend, reword, squash, or reorder commits that are not `HEAD`.
+Use when the user asks to fix up, amend, reword, squash, or reorder commits that are not `HEAD`, or to resolve a stacked child PR's conflicts against its parent.
 
 ## Intent
 
 **WHY this workflow exists:** `git commit --amend` is fine for `HEAD`; rewriting the second-last commit or anything further back is where agents get brittle. The safe path is an explicit helper mode or fixup/autosquash flow.
 
-**WHAT this workflow produces:** A rewritten local branch history with the requested older-commit message/code change folded into the target commit, or a clear blocker when the worktree is unsafe.
+**WHAT this workflow produces:** The requested older-commit change or a child-only replay onto the current stack parent, with verified history and authorized remote updates, or a clear blocker when the rewrite is unsafe.
 
 **Decision Rules:**
 
 - Never rewrite public/shared branch history unless the user explicitly asks for that exact branch rewrite.
 - Preserve unrelated staged, unstaged, and untracked files. Stop if the target change is mixed with unrelated work.
-- Prefer the published `agent-rebase-edit` command when it is on `PATH`; package-local `bin/agent-rebase-edit.js` is only a checkout-specific override.
+- For older-commit edits, prefer the published `agent-rebase-edit` command when it is on `PATH`; package-local `bin/agent-rebase-edit.js` is only a checkout-specific override.
 - If neither is available, use the fallback flows below rather than guessing helper paths or hand-writing rebase todo files first.
 - Avoid opening an editor. Use helper modes or `GIT_SEQUENCE_EDITOR=true` for autosquash fallback rebases when the generated todo is sufficient.
-- After rewriting commits that were already pushed, use `git push --force-with-lease`, never plain force.
+- For an authorized published rewrite, use an exact expected-remote-SHA lease; never plain force or an implicit remote-tracking-ref lease.
+
+## Stacked Pull Request Conflicts
+
+For a stacked child PR, prefer rebasing onto its freshly fetched actual parent rather than merging the parent into the child. Use this procedure instead of the older-commit helper flow below. This preference does not authorize rewriting a published branch; retain the explicit authorization and PR draft/fixup gates.
+
+1. Read the current PR base/stack metadata and remote refs to identify the actual parent and child. Do not infer the parent from the default branch or an old branch name.
+2. Preserve unrelated work. Record the original child tip, its reviewed remote head for any authorized lease, and available historical parent refs before fetching. Fetch the actual parent; stop if unexpected remote child work is not included in the local history.
+3. Identify and inspect the child-only replay range, `<old-parent-boundary>..<saved-child-tip>`. If the parent was rewritten, establish the historical boundary from saved refs, reflog, or verified stack history; a merge-base with the rewritten parent alone can include obsolete parent commits. Stop if the boundary is uncertain rather than replaying the old parent.
+4. Keep a backup ref for the original child tip, then replay only child commits onto the fetched parent:
+
+   ```bash
+   git rebase --onto <fetched-parent> <old-parent-boundary> <child-branch>
+   ```
+
+5. Resolve only in-scope conflicts using the existing continue/abort safety guidance. Preserve child changes and unrelated work; do not silently discard merge intent or other commits.
+6. Review `git range-diff <old-parent-boundary>..<saved-child-tip> <fetched-parent>..<new-child-tip>`, the final diff, and affected behavior. Account for intentional conflict resolutions and run the smallest relevant smoke/check plus required current-head CI.
+7. Update a published child only when that exact rewrite is authorized, using the recorded expected-remote-SHA lease shown below. If the remote changed, stop and inspect/preserve that work; do not retry by blindly refreshing the lease or silently merge the parent as a substitute for authorization.
 
 ## Restoring Deleted Features
 
@@ -34,6 +51,8 @@ Keep restoration scoped to the requested behavior; do not add a new restoration 
    git branch --show-current
    git log --oneline --decorate -n 20
    ```
+
+   Before an authorized published rewrite, record the exact reviewed remote branch head as the lease expectation and ensure its history is included locally. Stop and reconcile unexpected remote work rather than replacing the expectation with an unreviewed newer SHA.
 
 2. Identify the target commit hash and the branch range to rewrite. If the target is unclear, ask.
 
@@ -163,10 +182,10 @@ git log --oneline --decorate -n 20
 git status --short
 ```
 
-12. If the branch was already pushed and the user asked to update the remote:
+12. If the branch was already pushed and the user authorized that exact branch rewrite and remote update, use the reviewed remote SHA recorded before rewriting:
 
 ```bash
-git push --force-with-lease
+git push --force-with-lease=refs/heads/<branch>:<expected-remote-sha> origin HEAD:refs/heads/<branch>
 ```
 
 ## Output Contract

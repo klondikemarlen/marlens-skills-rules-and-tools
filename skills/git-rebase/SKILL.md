@@ -1,6 +1,6 @@
 ---
 name: git-rebase
-description: Use when fixing up, amending, rewording, squashing, or reordering older commits with non-interactive git rebase safety.
+description: Use when fixing up, amending, rewording, squashing, or reordering older commits, or resolving stacked child PR conflicts by rebasing onto the actual parent with history-rewrite safety.
 ---
 
 # Git Rebase

@@ -172,6 +172,7 @@ See [GitHub Asynchronous Merge for PR Stacks](../../docs/references/engineering-
 ## Decision Rules
 
 - Preserve existing `Fixes`, `Closes`, or issue-link semantics unless asked to change them.
+- For stacked child PR conflicts, follow [Stacked Pull Request Conflicts](../git-rebase/workflow.md#stacked-pull-request-conflicts): prefer a child-only rebase onto the freshly fetched actual parent, not a parent merge. Preserve explicit published-history rewrite authorization, current draft/fixup gates, and exact expected-remote-SHA leases.
 - Prefer concise active language over file-by-file implementation summaries.
 - For a specifically requested Codex review, follow [Requested Codex Reviews](../../docs/references/github-tooling-reference.md#requested-codex-reviews) before waiting: establish eligibility, distinguish publication from acknowledgment, and verify completion on the intended head without silently waiving the request.
 - Preserve the canonical description contract through every implementation, review, QA, readiness, and merge refresh. Apply [Description and Evidence Placement](#description-and-evidence-placement) before writing. Keep self-review, current-head QA, learner triage, and truthful `PASS`/`FAIL`/`BLOCKED` evidence mandatory in the selected existing location. Do not add routine report comments. Preserve human/reviewer/bot discussion and checks during authorized duplicate cleanup; reconcile unique evidence, repair dangling links, and verify the remote body and discussion without a cleanup-confirmation comment.
