@@ -11,7 +11,6 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
       workflow,
       [
         "Open a draft pull request",
-        "in this package that gate includes `node scripts/verify-oversized-source-files.mjs`",
         "Resolve every actionable review finding or comment",
         "After a fixup, repeat the complete self-review and targeted QA",
         "Merge verified pull requests by default with a merge commit",

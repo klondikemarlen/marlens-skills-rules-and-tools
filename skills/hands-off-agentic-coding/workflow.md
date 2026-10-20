@@ -15,7 +15,7 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Start from the success condition: name the desired behavior, invariant, or regression risk before planning or editing.
 - Establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
 - Prefer an established relevant suite when one exists. For a one-off tooling change without a relevant suite, use a focused disposable smoke check rather than creating a permanent bespoke runner or assertion API solely for that change; remove temporary scripts and recording fixtures afterward, and preserve reviewer-reproducible commands and truthful evidence. Keep permanent regression coverage when it fits established conventions, and intentionally establishing test infrastructure remains valid when it is accepted scope. Do not replace runnable behavioral proof with source-text assertions or inspection alone.
-- When a target repository documents an `npm test` gate, retain its source-change requirement, but launch a full suite only after explicit user direction under [Full-Suite Permission](#full-suite-permission); in this package that gate includes `node scripts/verify-oversized-source-files.mjs`. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when the required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
+- Choose focused checks or a relevant affordable full suite under [Full-Suite Cost](#full-suite-cost), without a routine approval prompt. Preserve independently documented test/release gates; an `npm test` script alone does not mandate a full-suite run. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when a required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
 - Explore before planning when scope is unclear, multi-file, or cross-subsystem.
 - For unclear or multi-file work, implement the first runnable prototype after one bounded plan and iterate from its evidence. Re-plan only when that evidence invalidates the requested outcome, scope boundary, chosen approach, or verification path.
 - For initial scope and follow-up priorities, use [Simple-First Delivery](#simple-first-delivery).
@@ -25,11 +25,13 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
 
-## Full-Suite Permission
+## Full-Suite Cost
 
-Do not launch a full test suite until the user explicitly directs it. Use focused checks for changed behavior in the meantime. This applies to agent-launched local commands and remote full-suite dispatches; routine verification, self-improvement, or release-workflow language is not permission to override it.
+Use focused checks for changed behavior; run a relevant affordable full suite when useful or independently required, without a separate approval prompt. Base restrictions on known local-development cost, not repository ownership or the command name. Reuse documented or recently observed timings; do not add recurring cost audits or run a full suite merely to benchmark it. An `npm test` script alone does not create a mandatory full-suite gate.
 
-Inspect the documented command before running it: a script named `test` may be a full suite, while a narrowly scoped command may be appropriate. Preserve project wrappers and required release checks. When a required full suite lacks permission, name that unrun prerequisite and request direction rather than silently running, waiving, or reporting it as passed. Existing automatically triggered CI may be observed separately; do not manually dispatch a full suite or disable CI to evade the boundary.
+Do not automatically launch a full suite known to be too heavy for local development. Use focused local tests and observe existing CI instead; request explicit direction only when an expensive full run is actually needed, including a manually dispatched remote run. Routine release-workflow language does not authorize that expensive launch. WRAP is the currently identified example: the maintainer reports five roughly 15-minute CI shards or about an hour locally. This does not classify all Ice Fog Analytics or personal projects as expensive.
+
+Preserve project wrappers, independently required release checks, and automatic CI. If an independently required expensive run lacks permission, name the unrun prerequisite and request direction rather than silently waiving it or claiming it passed. Otherwise continue with relevant verification without a repeated permission check. Do not disable CI to evade a required gate.
 
 ## Simple-First Delivery
 
@@ -77,7 +79,7 @@ Focused diffs can make change amplification and recurring change clusters easier
    - run the predeclared check;
    - use its result to make the next smallest change; when it fails, fix the root cause and rerun the smallest failing check;
    - re-plan only when evidence invalidates the requested outcome, scope boundary, chosen approach, or verification path; ordinary test failures are iteration, not a new plan;
-   - run broader checks only when the changed surface warrants them; a full suite additionally requires explicit user direction under [Full-Suite Permission](#full-suite-permission).
+   - run broader checks only when the changed surface warrants them; apply [Full-Suite Cost](#full-suite-cost) without adding routine permission checks for affordable suites.
 7. Report the result:
    - changed files and links;
    - final `PASS`, `FAIL`, or `BLOCKED` evidence;
