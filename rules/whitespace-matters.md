@@ -1,7 +1,7 @@
 ---
 name: whitespace-matters
 description: "Before presenting a change as ready, enforce clean-code whitespace defaults and mechanical whitespace checks unless the user explicitly overrides them."
-condition: "git (commit|push)|pull request|PR|ready for review|review"
+condition: "\\bgit\\s+(commit|push)\\b|\\bgh\\s+pr\\s+(create|ready|merge)\\b|\\bready for review\\b"
 scope: "tool:bash"
 ---
 
