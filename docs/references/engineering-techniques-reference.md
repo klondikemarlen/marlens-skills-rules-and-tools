@@ -14,6 +14,12 @@ Before cleanup, verify the target branch, pull request, worktree owner, and loca
 
 Use the target project's documented wrapper to stop only services belonging to the target worktree. Remove only explicitly allowlisted Docker-owned generated artifacts from inside those project containers; do not use host-side ownership guesses to delete source or user files.
 
+Before deleting the worktree or its configuration, capture its exact Compose project identity and inventory its containers, volumes, networks, and worktree-specific image tags. Establish ownership from the project configuration and resource metadata, including `com.docker.compose.project` labels; a matching label alone does not prove that data is disposable.
+
+Use the documented wrapper with that exact project selected for service/database cleanup. Remove volumes only when target ownership, disposable verification purpose, and cleanup authorization are all established. Preserve user development data, shared/external volumes, backups, and uncertain resources; record intentional retention and its reason. Do not make `down --volumes` a blanket default.
+
+Remove only obsolete worktree-specific image tags when safe; preserve shared tags/layers. Do not use global image, volume, or system pruning. Verify the final inventory by the captured exact project labels/identities, and report retained Docker resources and their reasons separately from successful Git/filesystem cleanup.
+
 `git worktree remove` can remove registry metadata while leaving the directory behind. Re-check the worktree registry before treating a remaining directory as orphaned, then verify the target directory, worktree list, branch state, and primary checkout after cleanup.
 
 ## GitHub Asynchronous Merge for PR Stacks
