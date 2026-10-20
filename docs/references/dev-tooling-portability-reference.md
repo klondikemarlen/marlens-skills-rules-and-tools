@@ -18,6 +18,21 @@ Use ordinary Bundler and repository configuration. Avoid custom `BUNDLE_GEMFILE`
 
 Use descriptive names for values and helpers. For dynamic environment passed to a Ruby API that accepts a hash, use one builder (for example, `dynamic_environment_variables`) and keep native hash values until the shell boundary requires serialization. Avoid duplicate builders, dual-format flags, and indirection that merely renames a direct operation.
 
+#### Ownership and Control-Boundary Checks
+
+When a wrapper validates configured keys or ownership, derive the catalog from the authoritative runtime configuration or the same builder used for execution; do not maintain a parallel key list. A small disposable add/remove-setting scenario should show that validation coverage follows that owner without a separate policy edit. Preserve only override boundaries accepted by the project contract: deriving validation ownership does not require changing runtime configuration or inventing an override feature.
+
+Keep wrapper control decisions separate from child-command data. A child argument that resembles a wrapper flag (including `--help` or `-h`) remains opaque and must not skip wrapper-owned prerequisite, conflict, or lifecycle checks. Determine control behavior only from wrapper-owned argument positions and the operation grammar; do not scan the full argv for familiar flags, build a universal parser, or maintain an upstream option catalog. Preserve thin passthrough unchanged.
+
+For a wrapper with configuration validation or child-process forwarding, use disposable behavioral smoke scenarios when no established focused suite covers the contract:
+
+- Add and remove a setting at the authoritative configuration/execution source, confirming validation ownership follows each change with no parallel catalog edit. Exercise only genuine overrides allowed by the existing project contract; do not add runtime configuration or override behavior for the smoke.
+- With a conflicting setup, invoke the wrapper to spawn an actual child process whose trailing arguments include `--help` and, separately, `-h`; both calls must reject before the child starts. Do not substitute a mock that only echoes a copied argv.
+- With valid configuration, spawn the same child with trailing `--help`, `-h`, an empty argument, and an argument containing spaces; verify the child actually starts and receives each argument unchanged, including empty/spaced values.
+- Exercise genuine wrapper/operation help at its wrapper-owned position and verify it remains available without starting the wrapped process.
+
+The guidance consumer scenario for wrapper reviews should select these ownership and spawned-child checks whenever the change touches validation catalogs, argument handling, or preflight decisions.
+
 ### Dependency Release Selection
 
 When adopting or integrating a dependency, honor an explicit request for its latest published release: at the adoption decision, inspect the authoritative package registry and that release's public API and changelog. Reuse a sibling project's responsibility boundaries and organization, but do not treat its older dependency pin as a constraint that overrides the request. Prefer documented capabilities and defaults of the requested release over plumbing needed only by an older reference, while preserving necessary integration and safety boundaries.
