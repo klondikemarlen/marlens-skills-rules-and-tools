@@ -60,7 +60,7 @@ Keep user responses and GitHub comments brief, natural, and human. Lead with the
 
 ### Guarded Computations
 
-When one predicate gates multiple related computed fields, or a multi-line computation, prefer a descriptively named helper with an early return if it reduces repeated conditions or nesting. Keep concise scalar ternaries inline when extraction adds indirection; see [Guarded Computations](docs/references/code-organization-reference.md#guarded-computations) for the scope and example.
+Prefer explicit logical forks over ternary arguments that hide branch choices; repeat the branch-local call when clearer while sharing dependencies and common setup outside the fork. For a predicate gating related computations, use a named helper with an early return only when it improves readability. Keep concise scalar ternaries when genuinely clearest; see [Guarded Computations](docs/references/code-organization-reference.md#guarded-computations) for scope and examples.
 
 ### End-User Preferences
 

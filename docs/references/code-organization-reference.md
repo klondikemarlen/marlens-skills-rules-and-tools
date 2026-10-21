@@ -252,6 +252,10 @@ For related visibility props, preserve the established show/hide polarity. Besid
 
 Name functions, including event/error callbacks, for the concrete operation, effect, or result they perform rather than their caller or triggering event. Prefer `openVerificationDialog` over a vague `handleChallenge` when opening the dialog is the operation. Preserve established framework-required names and keep renames scoped to affected functions and callers; do not rename unrelated code.
 
+Prefer `assert...` for condition-checking functions that throw on failure, naming the asserted condition so the failure contract is apparent at the call site. Do not mechanically rename boolean predicates or framework-required methods.
+
+Name conversion helpers for the concrete operation and both source and destination, such as `convertPlacementToReorderRequest`, rather than a destination-only `toReorderRequest`. Apply accepted names to the affected helper and every caller while preserving framework-required names and behavior.
+
 Use [UI Navigation Handler Names](#ui-navigation-handler-names) for route changes and [Service Orchestration Readability](#service-orchestration-readability) for intention-revealing domain steps.
 
 ## UI Navigation Handler Names
@@ -352,6 +356,8 @@ Group service barrel exports with standard CRUD/read entries first, special acti
 
 For SQL aliases and query variables, prefer descriptive entity-and-role names over generic or terse labels. Name the records represented (for example, SQL aliases `pending_workflow_search_document_changes` and `processed_workflow_search_document_changes`) and apply accepted naming changes consistently across the affected query scope without changing predicates or behavior.
 
+Name a model association after its natural plural domain collection, such as `tags` for `Tag[]`, rather than adding a generic `Records` suffix only because a primitive projection occupies that name. Give the derived values a descriptive name such as `tagNames`. Keep transport naming in the serializer contract, follow stronger project conventions, and limit renames to affected associations and callers.
+
 Name model scopes and similar query abstractions for their filtering or projection effect, not their caller, trigger, or downstream operation, and match established sibling naming conventions. A scope that projects a search document might be `withSearchDocument`, not `forSearchIndex`; the concrete name belongs to the project. Keep a shared scope when it has real reuse; inline a one-off query when that removes needless indirection without duplicating a shared contract.
 
 Keep closely related projections under one cohesive query scope—for example, include related organization and personal ranking projections in a suggestion-ranking scope—rather than requiring callers to compose a separate scope for each dimension. Keep genuinely different concerns, such as administrator usage analytics, separate.
@@ -364,6 +370,10 @@ For explanatory comments, prefer JSDoc-style blocks that explain the mechanism a
 
 During edits and simplification, retain accurate comments that explain framework/library callback execution conditions, mechanisms, or rationale not obvious from nearby statements. Move them with the relevant handler when needed; remove or revise them when obsolete or misleading. Redundant comments may still be removed, and this does not require converting inline comments to JSDoc.
 
+Preserve existing TODOs and improvement suggestions until their requested outcome is actually implemented. Compare the suggestion's full scope with the change before removing it as completed; an adjacent fix or partial improvement is not fulfillment. Restore prematurely removed suggestions. Explicit user-directed removal remains authoritative; this does not require a TODO inventory or unrelated implementation.
+
+When adding an explanatory comment convention, apply it consistently across comparable in-scope code or omit redundant commentary instead of leaving a one-off explanation. Preserve comments with distinct non-obvious rationale and functional tooling directives; consistency does not mean identical comments everywhere or broader cleanup.
+
 ## Shared Content and Presentation Contracts
 
 When content requirements appear to conflict with a shared field limit or sanitizer, inspect the field's semantics, storage capacity, original constraint rationale, and sanitization contract plus all consumers before proposing an exception. Prefer a consistent contract across event types over an event-specific bypass. Distinguish stored content from compact presentation, and separate their policies when the existing model supports it. Do not assume a new field or universal UI-only truncation is required without inspecting the model and rendering surfaces.
@@ -373,6 +383,8 @@ When content requirements appear to conflict with a shared field limit or saniti
 When one predicate gates multiple related computed fields or a multi-line computation, prefer explicit branching with a descriptively named helper and early return when that makes the normal path easier to follow and removes repeated conditions or nesting.
 
 Keep the predicate's exact boundary, result shape, evaluation order, side effects, and excluded-case behavior unchanged. Avoid ternaries when a clear branch or guard expresses the control flow; do not extract a wrapper solely to eliminate a ternary or `?` token.
+
+Prefer explicit logical forks over a shared call with a ternary argument when the branches represent different operations or choices. Repeat the branch-local call in `if`/`else` when that makes the distinction clear, while reusing shared dependencies and common setup outside the fork. Do not force a single call solely to avoid duplication, extract a wrapper solely to remove syntax, or mechanically eliminate every concise scalar ternary.
 
 For example, a fuzzy-search term may only be expanded up to a length bound. The same limit gates both generated fields:
 
