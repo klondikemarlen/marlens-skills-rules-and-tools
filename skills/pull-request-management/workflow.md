@@ -6,7 +6,7 @@ Use when creating or updating a pull request.
 
 - Current branch name and base branch.
 - Diff or commit range being proposed.
-- Related issue/ticket URLs, if any.
+- Authoritative ticket key and URL; any secondary tracker record explicitly required by the user or project policy.
 - Existing PR body, when updating.
 
 ## Process
@@ -19,11 +19,11 @@ Use when creating or updating a pull request.
 
 ### Initial Draft Publication
 
-Publish an issue-linked draft as soon as the first coherent, reviewable change can be pushed, then continue implementation in that same draft. Do not wait for all implementation, full self-review, passing QA, browser access, or finished screenshots. Initial publication does not authorize broken placeholders or false completion claims; describe remaining work, unrun checks, and observed blockers truthfully in the canonical body using the locally permitted sections.
+Publish a draft PR linked to the authoritative ticket as soon as the first coherent, reviewable change can be pushed, then continue implementation in that same draft. Do not wait for all implementation, full self-review, passing QA, browser access, or finished screenshots. Include the source key and URL in the PR body; link a secondary ticket only when explicitly requested or required by project policy. Initial publication does not authorize broken placeholders or false completion claims; describe remaining work, unrun checks, and observed blockers truthfully in the canonical body using the locally permitted sections.
 
-Push coherent progress and revise that existing description as implementation and QA change; preserve issue links, ownership/labels, intentional draft status, and all readiness, feedback-resolution, and merge gates. Honor explicit user or local-policy publication exceptions. If GitHub publication is unavailable, report its exact missing prerequisite; an unrelated browser-QA blocker does not itself prevent draft publication through GitHub's API.
+Push coherent progress and revise that existing description as implementation and QA change; preserve authoritative and explicitly required secondary ticket links, ownership/labels, intentional draft status, and all readiness, feedback-resolution, and merge gates. Honor explicit user or local-policy publication exceptions. If GitHub publication is unavailable, report its exact missing prerequisite; an unrelated browser-QA blocker does not itself prevent draft publication through GitHub's API.
 
-Reconcile linked implementation tickets through [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle) when starting a draft, requesting review, handling rework, or completing a merge. PR assignment does not assign the issue, and merging a PR does not prove that Jira status or GitHub Project Status advanced. After merge, use the project's actual next state; retain QA/release requirements rather than marking incomplete delivery Done.
+Reconcile linked implementation tickets through [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle) when starting a draft, requesting review, handling rework, or completing a merge. PR assignment does not assign its linked ticket, and merging a PR does not prove that Jira status or GitHub Project Status advanced. After merge, use the project's actual next state; retain QA/release requirements rather than marking incomplete delivery Done.
 
 ### Repository Metadata
 
@@ -173,7 +173,7 @@ See [GitHub Asynchronous Merge for PR Stacks](../../docs/references/engineering-
 
 ## Decision Rules
 
-- Preserve existing `Fixes`, `Closes`, or issue-link semantics unless asked to change them.
+- Preserve existing `Fixes`/`Closes` semantics for GitHub issues and keep Jira ticket links as key-plus-URL references handled through [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle); never imply a GitHub closing relationship from a Jira key.
 - For stacked child PR conflicts, follow [Stacked Pull Request Conflicts](../git-rebase/workflow.md#stacked-pull-request-conflicts): prefer a child-only rebase onto the freshly fetched actual parent, not a parent merge. Preserve explicit published-history rewrite authorization, current draft/fixup gates, and exact expected-remote-SHA leases.
 - Prefer concise active language over file-by-file implementation summaries.
 - For a specifically requested Codex review, follow [Requested Codex Reviews](../../docs/references/github-tooling-reference.md#requested-codex-reviews) before waiting: establish eligibility, distinguish publication from acknowledgment, and verify completion on the intended head without silently waiving the request.

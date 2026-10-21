@@ -12,14 +12,14 @@ Use for user-facing feature work that should move through an issue, branch, pull
 
 - Project-local release and contribution docs win over this generic workflow.
 - Before editing repository documentation, follow [Selecting Documentation Content](project-knowledge-base-workflow.md#selecting-documentation-content) to name the changed durable reader question or contract and decide whether a docs change is needed.
-- Create or update a GitHub issue before coding user-facing work unless the user explicitly says not to use issues.
+- Use the authoritative ticket source under [Ticket Source Selection](#ticket-source-selection); do not create a secondary GitHub issue unless the user requests it or project-local policy explicitly requires one.
 - Before branch or worktree creation, use [Related-Issue Triage](#related-issue-triage) to revalidate the seed issue and decide whether nearby tickets belong in the same small delivery.
-- An explicit feature-workflow request for the current checkout authorizes same-origin issue and branch creation; do not ask again solely for that delivery. External or unresolved GitHub writes remain subject to `omp-soft-boundary-guard` advisory warnings when installed. A standard OMP Ask applies only when a caller explicitly uses the guard's strict programmatic API; do not add another confirmation. Preserve destructive or ambiguous Git-operation safeguards.
-- Name issue branches with the project's issue convention and a concise, meaningful outcome slug; never use opaque abbreviations or a bare issue number. Give pull requests an equally meaningful outcome-focused title and link the issue in the body.
+- An explicit feature-workflow request for the current checkout authorizes same-origin branch creation and only the GitHub issue creation allowed by [Ticket Source Selection](#ticket-source-selection); do not ask again solely for that delivery. External or unresolved GitHub writes remain subject to `omp-soft-boundary-guard` advisory warnings when installed. A standard OMP Ask applies only when a caller explicitly uses the guard's strict programmatic API; do not add another confirmation. Preserve destructive or ambiguous Git-operation safeguards.
+- Name branches from the authoritative ticket's exact key or number plus a concise, meaningful outcome slug when the project convention permits; never use opaque abbreviations or a bare identifier. Give pull requests an equally meaningful outcome-focused title and link the authoritative ticket by key and URL in the body.
 - Before `git worktree add`, `dev branch-from`, or creating an issue branch, inspect the target project's local guidance and existing `git worktree list`/branch layout. Use its prescribed worktree path and branch-name convention; an issue-linked branch does not necessarily repeat the issue number.
 - Apply [Checkout Selection](worktree-creation-workflow.md#checkout-selection) before implementation: default new work to a separate worktree, reuse registered continuation work, and honor an explicitly selected checkout or higher-priority target boundary.
 - If a worktree must move or a pushed branch must be renamed, update the registered worktree and delete the obsolete remote-tracking branch after confirming it is agent-owned. Do not hard-code project-specific paths or branch shapes into shared guidance.
-- Treat GitHub administration as distinct from browser UI validation: for non-UI issue, pull request, and release reconciliation, prefer an authenticated `gh`/GitHub API path when available. A signed-out browser does not block completed remote work when the required state can be queried or mutated through the API.
+- Treat GitHub administration as distinct from browser UI validation: for GitHub issue, pull request, and release reconciliation, prefer an authenticated `gh`/GitHub API path when available. A signed-out browser does not block completed remote work when the required state can be queried or mutated through the API.
 - Before creating or updating a GitHub issue or pull request, run `check-title-case --title "<final title>"`; pass exact identifiers with `--preserve`, then re-read the created title through GitHub and run the same final check.
 - Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement. After any API mutation, perform a fresh API read that confirms the intended remote state before claiming success.
 - When restoring previously tracked behavior, use [Restoring Deleted Features](git-rebase-workflow.md#restoring-deleted-features) to recover from removal history without reviving retired controls or rewriting published history without authorization.
@@ -110,6 +110,15 @@ For each issue not clearly learner-authored, inspect explicit provenance—autho
 
 Do not auto-file a learner issue solely because an issue was manually authored.
 
+## Ticket Source Selection
+
+Before work starts, resolve the authoritative source from project policy and current tracker records. Verify the ticket in its owning tracker and confirm its project and current requirements/status; a key, URL, branch name, or mirror alone does not establish authority. Carry the exact authoritative key and URL with the requirements and use that source for assignment and status transitions under [Ticket Lifecycle](#ticket-lifecycle).
+
+- **Verified Jira ticket:** Reuse its exact Jira key and URL as authoritative. Keep the key in the branch/worktree name where project conventions allow, capture requirements on the Jira ticket, and link the Jira record by key and URL in the PR. Do not create a GitHub mirror unless the user requests one or project-local policy explicitly requires a secondary tracker.
+- **Verified GitHub issue:** Reuse its exact number and URL as authoritative, including GitHub's native assignment, status, and PR-link semantics. Do not create a Jira mirror unless the user requests one or project-local policy explicitly requires it.
+- **No authoritative ticket:** Follow project-local policy; a GitHub-native project creates its normal GitHub issue before implementation. Preserve an explicit user opt-out or a local policy that designates a different authoritative tracker.
+- **Explicit secondary mirror:** Create a secondary record only when the user requests it or project-local policy explicitly requires it. Keep the originating ticket authoritative, record both exact keys and URLs, link both records from the PR, and update the secondary tracker only as project workflow requires. Never infer a Jira key from a GitHub issue number.
+
 ## Ticket Lifecycle
 
 Treat tracker updates as part of doing the work, not optional handoff cleanup. A request to start work on a named ticket includes its routine assignment and status updates within the authorized tracker/project boundary; it does not authorize unrelated ticket changes, new boards, workflow administration, or bypassing permissions.
@@ -124,12 +133,12 @@ Treat tracker updates as part of doing the work, not optional handoff cleanup. A
 
 ## Process
 
-1. Capture the user story and acceptance criteria in a GitHub issue.
+1. Capture the user story and acceptance criteria on the authoritative ticket selected under [Ticket Source Selection](#ticket-source-selection), preserving its exact key and URL. Create a GitHub issue only when that source-selection rule calls for one.
 2. Run [Related-Issue Triage](#related-issue-triage). For each issue not clearly learner-authored, inspect its explicit provenance and evidence and record one learner coverage outcome in the existing evidence location selected under [Description and Evidence Placement](pull-request-management-workflow.md#description-and-evidence-placement). File an OMP Learner bug or feature only for an evidence-backed current-signal miss or capability gap.
-3. Before `git worktree add`, `dev branch-from`, or branch creation, inspect the target project's documented naming convention and existing worktree layout. Create the worktree and issue-linked branch with the exact project-local path and branch format plus a concise, meaningful outcome slug; do not use opaque abbreviations, a bare issue number, or infer an `issue-<number>/` prefix from GitHub alone. Apply [Ticket Lifecycle](#ticket-lifecycle) when starting or resuming implementation, including a worktree plus draft-PR request.
+3. Before `git worktree add`, `dev branch-from`, or branch creation, inspect the target project's documented naming convention and existing worktree layout. Create the worktree and branch using the authoritative ticket's exact key or number plus a concise, meaningful outcome slug where the project convention permits; do not use opaque abbreviations, a bare identifier, or infer a Jira key from a GitHub issue number. Apply [Ticket Lifecycle](#ticket-lifecycle) when starting or resuming implementation, including a worktree plus draft-PR request.
 4. Before opening a PR, verify its base is the repository's default branch or a documented release branch.
 5. Implement the first coherent, reviewable change against project-local patterns and keep the diff scoped to the story.
-6. Open a draft pull request as soon as that initial change can be pushed, linked to every issue in scope, using `docs/workflows/pull-request-management-workflow.md`. Do not wait for completed implementation, full self-review, passing QA, or finished screenshots. Honor explicit user/project publication exceptions; if publication is unavailable, report the exact prerequisite rather than silently deferring it. Before every handoff, including drafts, reconcile ownership and applicable existing labels through its [Repository Metadata](pull-request-management-workflow.md#repository-metadata) gate.
+6. Open a draft pull request as soon as that initial change can be pushed, linked to every authoritative ticket in scope and any explicitly required secondary tracker record, using `docs/workflows/pull-request-management-workflow.md`. Do not wait for completed implementation, full self-review, passing QA, or finished screenshots. Honor explicit user/project publication exceptions; if publication is unavailable, report the exact prerequisite rather than silently deferring it. Before every handoff, including drafts, reconcile ownership and applicable existing labels through its [Repository Metadata](pull-request-management-workflow.md#repository-metadata) gate.
 7. Continue implementation in the same draft, pushing coherent progress and maintaining its canonical description within the selected description contract. Self-review the complete PR diff and record material findings and the `PASS`/`FAIL`/`BLOCKED` outcome in the separately selected existing evidence location. Do not expand the description contract to report execution.
 8. Run targeted QA and truthfully record current-head status, the user-visible scenario and observed outcome, relevant automated-check status, failures, and blockers in that same evidence location. Refresh it after each implementation, review, or QA revision. Preserve issue links, genuine product questions, relevant images/captions, prerequisites, and reproducible testing instructions in the description without adding operational reports or routine report comments.
 9. Mark the PR ready only after its acceptance criteria and current self-review and QA are complete. Record outcomes in the selected evidence location; readiness and merge administration do not authorize new description sections. If an explicit user or maintainer waiver directs readiness despite incomplete work, record the missing evidence truthfully.
@@ -147,7 +156,7 @@ Treat tracker updates as part of doing the work, not optional handoff cleanup. A
 Report the concrete artifacts and evidence:
 
 ```text
-Issue: <url or number>
+Ticket: <authoritative tracker key and URL>
 Branch: <branch>
 PR: <url or number>
 Final branch/sync: <checked-out branch and fast-forward status>
