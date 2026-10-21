@@ -1,6 +1,6 @@
 ---
 name: test-factory-traits-and-service-shape
-description: Use when TypeScript tests need reusable persisted relationship setup through Fishery-style factories.
+description: Use when TypeScript tests need reusable persisted relationship setup or repeated non-persisted API entity fixtures, including frontend component tests.
 ---
 
 # Factory Traits
