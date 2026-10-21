@@ -18,6 +18,8 @@ Before editing repository documentation:
 4. Retain historical context when it explains a current decision, invariant, compatibility constraint, or operator procedure, and make that relevance clear.
 5. Preserve actual documentation needs and project-local changelog, release-metadata, verification, and publishing requirements. Do not attribute an unverified instruction to this workflow or package; if its actual owner is established, reconcile it there separately. Translate corrective feedback into a positive, durable explanation of product design and reader value. Avoid preserving conversation rebuttals, dismissing legitimate preferences as arbitrary quotas, or framing complementary goals as a false choice; retain concrete tradeoffs that still explain the design.
 
+Write complete logical paragraphs without fixed-column manual line breaks; let the editor or renderer wrap prose naturally. Preserve paragraph boundaries, lists, tables, code blocks, and intentional hard breaks. Follow explicit repository formatting requirements; do not change global formatter settings to reflow one document.
+
 ## Required Inputs
 
 - Project-local instructions, README, source-adjacent READMEs, existing docs, and contribution guidance.

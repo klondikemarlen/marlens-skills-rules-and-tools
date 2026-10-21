@@ -12,6 +12,7 @@ Use when establishing or materially revising a repository-local `docs/` knowledg
 
 - Read the target project’s local instructions, README, source-adjacent READMEs, existing `docs/`, and contribution/release guidance before moving or creating documentation.
 - Reuse the project’s naming and documentation conventions. Do not impose a fixed tree or create empty directories.
+- Write complete logical paragraphs without fixed-column manual line breaks; let the editor or renderer wrap prose naturally. Preserve paragraph boundaries, lists, tables, code blocks, and intentional hard breaks. Follow explicit repository formatting requirements; do not change global formatter settings to reflow one document.
 - Keep durable human-level project knowledge under `docs/`. Source-directory READMEs own architectural purpose and responsibility boundaries, not feature implementation walkthroughs; non-obvious code-local rationale belongs beside the code.
 - Keep `docs/domain/workflows/` for product or operator processes and `docs/workflows/` for developer or agent procedures.
 - Treat documentation as intended domain and product meaning, code as current implementation behavior, and tests or QA scenarios as observed evidence. Record conflicts rather than inferring a resolution.

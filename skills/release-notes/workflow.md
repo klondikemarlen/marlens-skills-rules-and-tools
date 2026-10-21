@@ -12,6 +12,8 @@ Use when drafting release notes, changelog entries, or release-summary emails.
 ## Rules
 
 - Separate user-facing changes from internal-only changes.
+- Write concise entries naming the affected user task and the concrete capability or corrected behavior. Omit promotional filler and implementation inventories that do not explain a reader-visible outcome.
+- When the user designates another project's notes as a prose reference, inspect representative entries and adopt their meaningful outcome-focused style without copying the reference's storage format or release machinery. Preserve the consuming project's requested changelog format.
 - Do not say a version is deployed unless a source confirms it.
 - Do not overclaim impact; write what the evidence supports.
 - Group entries by common changelog categories when useful: Added, Changed, Deprecated, Removed, Fixed, Security.
