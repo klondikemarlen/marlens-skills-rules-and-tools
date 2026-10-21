@@ -102,6 +102,12 @@ Choose the home by concept ownership, not single-caller count: a generic or doma
 
 Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
 
+For new or actively reviewed unreleased migrations, separate meaningfully distinct schema/table introduction, dependent SQL objects, independently owned data conversions, and obsolete-schema removal when they have distinct responsibility or rollback boundaries. Keep table-local constraints with their table and cohesive schema/backfill work together when they share one responsibility. Order forward dependencies and backfills before dependent conversion or removal, and undo them in reverse dependency order. Choose cohesive boundaries, not a universal file count or line threshold.
+
+Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
+
+Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
+
 ## Oversized Responsibility Clusters
 
 Treat a large source file as a review signal, not an automatic split mandate. Inspect whether it combines independently changing responsibilities such as boundary parsing, state/persistence, external adapters, policy decisions, orchestration, and CLI or transport wiring.
@@ -271,6 +277,12 @@ Use these terms as review vocabulary, not as mandatory layers:
 - **Utility:** generic, domain-independent computation over explicit inputs and outputs. Utilities must not own database queries or model/domain knowledge; put domain-aware persistence and locking orchestration in the owning service/use case, following the project's established persistence and transaction rails.
 
 Protected work should expose its ownership through an intention-revealing `With...` service boundary when that service coordinates the protected action. Do not extract a utility that merely acquires a lock while leaving the domain operation, persistence, and invariant ownership elsewhere. Keep the existing transaction and locking semantics; this is not a mandate for a new layer or ORM.
+
+## Text Validation Ownership
+
+In ORM-backed application code, keep ordinary trimming, blank-value handling, accepted character grammar, and canonical-name validation in the existing service/model validation layer; prefer model-level validators for persisted text invariants rather than reproducing that policy in elaborate SQL checks. Follow the accepted normalization-versus-rejection contract; do not invent a universal alphabet or silently normalize rejected input.
+
+Retain relational constraints such as foreign keys, uniqueness, and nullability. Necessary narrowly scoped legacy cleanup belongs in its self-contained migration, not a mutable application-model import. This preference does not ban database constraints or remove an independently required database invariant.
 
 ## Thin Persistence Lifecycle Handoffs
 

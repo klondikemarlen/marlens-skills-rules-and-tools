@@ -13,8 +13,10 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 - Project-local docs, wrappers, model conventions, auth context, error middleware, and factory helpers win.
 - Use project-local templates from `docs/templates/backend/express-light-rail/` when they exist; otherwise continue from this workflow and nearby live code.
 - Keep controllers thin: request parsing, status codes, and response shape only.
+- Pass policy-filtered request attributes directly to services without controller-side `as` assertions to force compatibility. Fix mismatches in the owning policy/service attribute contracts while preserving filtering, authorization, and the established controller shape; this is not a ban on unrelated TypeScript assertions or a mandate for a particular ORM generic.
 - Put reusable or multi-step domain work in a service/use-case. Do not create a service for a trivial read if sibling endpoints keep that inline.
 - Authorize and validate before mutation. Fail closed when a policy is unclear.
+- Keep text normalization and format/character validation in the existing service/model owner, following [Text Validation Ownership](../../docs/references/code-organization-reference.md#text-validation-ownership). Preserve relational constraints, required migration cleanup, and accepted normalization-versus-rejection behavior.
 - For required-new record lifecycles, use [Service Orchestration Readability](../../docs/references/code-organization-reference.md#service-orchestration-readability): prefer strict creation over convenience reuse/repair while preserving accepted unchanged-state paths.
 - Serialize explicit fields. Do not leak raw ORM/model objects unless that is already the project contract.
 - Use existing dependencies: ORM/query builder, transaction helper, logger, validation, and test factories. Do not add a new framework for the template.
