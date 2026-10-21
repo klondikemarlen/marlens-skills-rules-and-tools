@@ -22,6 +22,7 @@ Use when reviewing a branch, pull request, or local diff.
 - When a maintainer specifically requests Codex review, use [Requested Codex Reviews](../references/github-tooling-reference.md#requested-codex-reviews) for eligibility, target-repository access, acknowledgment, and current-head completion. This is conditional troubleshooting, not a universal review gate.
 - Before the first push or review request, preflight each touched area against its closest local style and test guidance plus nearby sibling precedent. Check only touched files for conventions a formatter may miss—import grouping, blank-line separation, test hierarchy, naming, and focused assertions—then run the repository formatter/checker. Formatter output is not proof of local structural compliance.
 - For production import boundaries, use [Project-Root Imports and Paths](../references/code-organization-reference.md#project-root-imports-and-paths). For Vue component structure/root-based naming, form-owned dependent-field watchers, loading/disabled state, stock UI reuse, and scoped utility-style presentation, use the [Vue Component Authoring Reference](../references/vue-component-authoring-reference.md).
+- For changed style declarations, follow [CSS Diagnostics for Style Changes](#css-diagnostics-for-style-changes); unrelated changes do not activate CSS-only checks.
 - For coupled interaction changes or corrective UX feedback across related gestures, use [Interaction Contract Activation](outcome-first-planning-workflow.md#interaction-contract-activation) before the next gesture patch. Keep the fit check scoped to the relevant contract; isolated wording or mechanical changes do not need it.
 - When custom code replaces or intercepts a library's interaction lifecycle, use that same interaction-contract check to preserve affected supported input sensors through begin/move/release/cancel. Do not accept native DOM drop handling or mouse-only tests as proof of touch/fallback parity; keep normalization at the sensor boundary and reuse existing domain target/commit rules.
 - Prefer deletion and simpler existing patterns over new abstractions.
@@ -60,6 +61,14 @@ Use when reviewing a branch, pull request, or local diff.
 
 - Before proposing a reorganization, run the domain-discovery checkpoint in [`docs/references/code-organization-reference.md`](../references/code-organization-reference.md): inspect topology, cohesive concepts, repeated change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling conventions. Treat churn, growing branches, context-heavy helpers, and repeated boundary crossings as evidence to investigate—not proof of a new abstraction—and record each candidate's evidence, responsibilities, boundary, and smallest safe next action.
 - Flag private helpers that read instance fields when a caller can pass those values explicitly. Do not force parameters when the helper is inherently bound to object state. For service classes, apply the conventions linked above: constructor-backed action inputs stay in `perform`, developer preload guards precede side effects, and returned instances preserve caller preload graphs.
+
+## CSS Diagnostics for Style Changes
+
+When style declarations change, inspect the project's configured CSS diagnostic provider for the changed standalone CSS files and supported embedded Vue `<style>` blocks, in addition to formatting, type checks, and rendered behavior. A Vue script/template-only change or another unrelated change does not acquire CSS-only verification work.
+
+`css(vendorPrefix)` is a CSS language-service diagnostic, not an ESLint diagnostic. An ESLint, type-check, or browser PASS does not establish that CSS diagnostics are clear. Add supported standard equivalents where appropriate while retaining browser-required vendor-prefixed fallbacks; for example, supported `line-clamp: 3` can accompany `-webkit-line-clamp: 3`. Do not require an unprefixed twin for every prefixed property.
+
+Reuse project-configured tooling and respect its supported syntax, dialects, custom CSS data, and settings; validate embedded style blocks with their supported service rather than parsing the entire Vue file as CSS. Report unavailable required diagnostic coverage as `BLOCKED` with the missing provider or block/dialect support. Do not silently add project dependencies, weaken checks, or substitute rendered behavior for diagnostic evidence.
 
 ## Process
 
