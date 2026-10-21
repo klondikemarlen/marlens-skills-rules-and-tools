@@ -10,7 +10,11 @@ Keep exactly one top-level template element per component, even where Vue permit
 
 Before writing custom informational UI, inspect shared components and nearby usage. Reuse the stock component when it serves the need; keep specific component names project-local.
 
+Name a component with a suffix that matches its semantic root element or component type: for example, a `div` root uses `Div`, and a `v-card` root uses `Card`. Inspect nearby app conventions for other root types rather than inventing a universal suffix mapping. When applying this convention to an affected component, update its name, file name, imports, and template consumers together; avoid unrelated renames or behavior changes.
+
 Before adding an inline resource picker, inspect neighboring domain inputs and reuse an existing resource-input component when it owns fetching, loading/error state, and autocomplete rendering. Compose the owning-domain input from the dashboard or form; keep model bindings and contextual hints in its parent. Preserve selection behavior, visibility-triggered loading, errors, and authorization. Follow local component contracts and do not add a wrapper for a trivial control.
+
+When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
 ## Utility-Style Scoped Presentation
 
