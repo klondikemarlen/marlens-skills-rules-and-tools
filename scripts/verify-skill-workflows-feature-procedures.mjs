@@ -33,8 +33,6 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
         "External or unresolved GitHub writes remain subject to `omp-soft-boundary-guard` advisory warnings when installed.",
         "Routine OMP installs use the generic `omp plugin install github:OWNER/REPOSITORY` reference",
         "Use `#<full-commit-hash> --force` only for exact-artifact reproduction or stale-cache diagnosis",
-        "Treat GitHub administration as distinct from browser UI validation",
-        "prefer an authenticated `gh`/GitHub API path when available",
         "A signed-out browser does not block completed remote work",
         "Report browser authentication as `BLOCKED` only when browser UI behavior is the explicit requirement",
         "After any API mutation, perform a fresh API read that confirms the intended remote state",
