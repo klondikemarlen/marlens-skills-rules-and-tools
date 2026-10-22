@@ -84,6 +84,12 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
 
+### Default-Safe Lifecycle APIs
+
+When failure isolation or lifecycle cleanup is required for ordinary callers, make it part of the normal operation rather than a parallel safe/unsafe or `WithErrorHandler` entry point. Optional callbacks express genuinely optional policy responses, not enabling baseline safety. Migrate all in-scope callers and remove the superseded unsafe path. Preserve domain recovery policy and error propagation; required safety does not mean swallowing errors, adding retries, or mandating a subscription API.
+
+For a small framework-like subsystem, keep familiar explicit lifecycle operations and put wrapper bookkeeping and cleanup in the mechanism owner. Prefer a minimal `subscribed()`/`unsubscribed()`-style interface over expanding a shared base class or requiring callers to manage cleanup handles merely to obtain ordinary safety. A Rails-like interface illustrates simplicity, not a universal Rails layering rule or permanent compatibility promise. Choose the smallest coherent diff meeting accepted behavior; retain a handle or richer interface when an evidenced consumer contract actually needs it.
+
 ### Semantic Module-Boundary Review
 
 Module-boundary alignment is semantic review, not a size or count check. The package supplies its policy through the `marlens-rules:module-boundary-alignment` agentic verification contract in `package.json` and `verifications/module-boundary-alignment.json`; this reference's Module Decomposition, Review Structure, and Service Orchestration guidance remains authoritative. The contract asks the existing verifier model to assess changed boundaries against that guidance. It does not make every extraction suspect: retain short modules when they own a meaningful invariant, domain action, volatile dependency, independent change axis, or genuinely reusable behavior.

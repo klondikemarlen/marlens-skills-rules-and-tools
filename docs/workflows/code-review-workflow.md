@@ -81,7 +81,7 @@ Reuse project-configured tooling and respect its supported syntax, dialects, cus
 6. Check tests and verification: changed behavior should have the smallest meaningful runnable check, and PR testing instructions should match user-visible behavior.
 7. Report evidence-sensitive checks as `PASS`, `FAIL`, or `BLOCKED` using the shared vocabulary in `AGENT_RULES.md`.
 8. Check code organization: flag modules, services, repositories, value objects, adapters, or helper extractions that obscure ownership, create cycles, pass context bags, hide side effects, or fail to group code that changes together. Treat an oversized file as a signal to inspect responsibility clusters, independent change axes, side effects, dependency direction, and extraction seams; do not require a split when the file is cohesive, and do not accept a mechanical split that preserves the same tangles. State names should describe represented domain facts or lifecycles, and query/composable results should stay beside their direct derived state unless a stronger local convention applies.
-9. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem.
+9. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem. Apply [Default-Safe Lifecycle APIs](../references/code-organization-reference.md#default-safe-lifecycle-apis) when ordinary safety is opt-in or implementation bookkeeping leaks into a framework-like caller interface.
 10. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
 ## Output Contract
