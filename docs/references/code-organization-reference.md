@@ -26,6 +26,8 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 - Extract helpers when a meaningful name and boundary clarify an operation or remove real duplication. Do not lower cyclomatic complexity merely by scattering decisions across trivial helpers or adding layers.
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
 
+For a meaningful computed function result used in an object property or nested call, prefer a descriptive local before its use so the processing step has an inspectable value and useful debugger breakpoint. For example, capture `const gaps = captureGaps(rows, container)` before constructing `{ gaps }`. Preserve evaluation order and short-circuit behavior: keep conditional computation inside its branch rather than hoisting it unconditionally. Do not add aliases for already-available values, trivial wrappers, or extra statements solely to increase line count.
+
 Complexity measurements identify places to inspect, not quality targets. Preserve a cohesive implementation when splitting would add navigation and indirection. Apply improvements within the requested scope; baseline quality does not authorize unrelated refactoring.
 
 During feature or PR work, incidental cleanup is eligible only in an existing file where the requested work also changes effective code or a meaningful contract. Remove files whose net PR diff is solely incidental import cleanup, formatting, whitespace, or export ordering. Meaningful type, schema, and test changes count; runtime behavior need not change. Preserve explicitly requested cleanup and changes necessary for project tooling or the accepted contract.
@@ -102,6 +104,8 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 - **Keeps a small public API:** callers get a few intention-revealing operations; they do not reach through the module to manipulate internals.
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
+
+Where the project uses `lib` for reusable mechanisms, reserve it for code meaningfully usable outside the application, not merely code shared by two screens. A generic type parameter or multiple callers does not establish project independence: application models, status policy, and persisted-order mappings remain with their domain owner. A pure contiguity algorithm can belong in `lib` even with one caller. Keep an already-clean generic mechanism separate from domain mappings, but do not build adapters, a framework, or speculative genericization solely to qualify for `lib`. Stronger project-local directory conventions win.
 
 ### Default-Safe Lifecycle APIs
 
@@ -358,6 +362,8 @@ Keep clean cutovers when their prerequisites are verified. Support only evidence
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
+
+Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.
 
 When a create service follows a partial creation-attributes contract, accept the general `Partial<CreationAttributes<Model>>` payload and explicitly guard required field presence inside `perform()` before persistence. Destructure required fields, then pass the narrowed values alongside supported optional creation attributes; do not discard policy-filtered optional fields or use a type assertion to bypass missing required values. Reuse the project's validation error and presence semantics, preserving legitimate falsy values. Keep blank-text handling, normalization, format validation, and persisted constraints with their existing [validation owners](#text-validation-ownership).
 

@@ -74,6 +74,7 @@ Focused diffs can make change amplification and recurring change clusters easier
 5. Implement the first runnable prototype:
    - before changing policy, use [Verify Existing Behavior Before Policy Changes](#verify-existing-behavior-before-policy-changes) to establish the actual gap; an already-satisfied request may need no production-policy diff.
    - reuse existing project patterns;
+   - apply [Organization Before Authoring](#organization-before-authoring) when the change introduces or materially changes module ownership or data flow;
    - keep tests focused on one observable contract, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles. HTTP status and body together form one response contract; prefer a native or meaningful matcher such as [`toHaveHttpResponse`](../references/http-response-matcher-reference.md), and use two direct assertions only as a narrow, reasoned fallback where no suitable matcher exists and local policy permits it. Keep independent persistence effects separate. Preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for examples and verifier limits;
    - delete obsolete paths instead of adding compatibility shims;
    - avoid new abstractions, options, dependencies, or runtime machinery unless the current task needs them.
@@ -84,6 +85,16 @@ Focused diffs can make change amplification and recurring change clusters easier
    - run broader checks only when the changed surface warrants them; apply [Full-Suite Cost](#full-suite-cost) without adding routine permission checks for affordable suites.
 7. Preserve the required completion evidence in the session or existing designated record, including changed files and links, final `PASS`/`FAIL`/`BLOCKED` results, required review/QA and current-head checks, learner or tracker outcomes, and residual risks or missing prerequisites. Do not omit or relabel a required gate.
 8. Give the user the relevant outcome, proof, link, or blocker. Choose useful details for the reader and destination; do not turn internal execution bookkeeping into a mandatory public schema or repeat evidence already available in the linked record or CI. If there is no useful reader-needed information beyond the existing record, do not add a separate public report. Honor any explicitly requested report format. Apply [Workflow Outputs and Publication](../references/guidance-precedence-reference.md#workflow-outputs-and-publication): this workflow specifies evidence to retain, not permission to publish.
+
+## Organization Before Authoring
+
+Before implementing a change that introduces or materially changes module ownership or data flow, identify the operation, its existing owner, a comparable local implementation, and the values crossing each proposed boundary. Trace the affected caller-to-result path before adding a helper, service, include/hydration step, state store, or watcher. Name any behavior that does not fit the existing pattern and its actual owner using [Pattern Fit and Non-Fit](../references/code-organization-reference.md#pattern-fit-and-non-fit); do not force the remainder into that pattern.
+
+Keep these decisions in the existing plan or session, not a new checklist artifact. Reuse established rails when they fit; preserve a demonstrated exception, such as an ORM pagination limitation, with its concrete reason and behavior proof. A small local edit that does not change ownership or data flow needs only the nearby pattern and ordinary verification, not an organization report.
+
+During implementation, make the operation readable top-down, keep meaningful computed values inspectable, and give each side effect or state transition one visible owner. Follow [Human Readability](../references/code-organization-reference.md#human-readability), [Module Decomposition](../references/code-organization-reference.md#module-decomposition), and [Service Orchestration Readability](../references/code-organization-reference.md#service-orchestration-readability) rather than extracting by size or inventing parallel conventions.
+
+Before the first push, trace the changed path again and compare new or materially reorganized files with relevant siblings: do their names, locations, exports, and contents describe the same responsibility? Check the actual caller and consumer contracts, not just formatting or passing tests. After accepted organization feedback, inspect equivalent occurrences across the in-scope PR while preserving unrelated code and the reference's per-file cleanup boundary.
 
 ## Verify Existing Behavior Before Policy Changes
 

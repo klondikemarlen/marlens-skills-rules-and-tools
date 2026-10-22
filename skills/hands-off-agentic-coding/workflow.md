@@ -73,6 +73,7 @@ Focused diffs can make change amplification and recurring change clusters easier
 5. Implement the first runnable prototype:
    - before changing policy, use [Verify Existing Behavior Before Policy Changes](#verify-existing-behavior-before-policy-changes) to establish the actual gap; an already-satisfied request may need no production-policy diff.
    - reuse existing project patterns;
+   - apply [Organization Before Authoring](#organization-before-authoring) when the change introduces or materially changes module ownership or data flow;
    - keep tests focused on one observable contract, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles. HTTP status and body together form one response contract; prefer a native or meaningful matcher such as [`toHaveHttpResponse`](../../docs/references/http-response-matcher-reference.md), and use two direct assertions only as a narrow, reasoned fallback where no suitable matcher exists and local policy permits it. Keep independent persistence effects separate. Preserve framework-native matchers and use [Assertion Quality Requires Review](../../docs/references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for examples and verifier limits;
    - delete obsolete paths instead of adding compatibility shims;
    - avoid new abstractions, options, dependencies, or runtime machinery unless the current task needs them.
@@ -83,6 +84,10 @@ Focused diffs can make change amplification and recurring change clusters easier
    - run broader checks only when the changed surface warrants them; apply [Full-Suite Cost](#full-suite-cost) without adding routine permission checks for affordable suites.
 7. Preserve the required completion evidence in the session or existing designated record, including changed files and links, final `PASS`/`FAIL`/`BLOCKED` results, required review/QA and current-head checks, learner or tracker outcomes, and residual risks or missing prerequisites. Do not omit or relabel a required gate.
 8. Give the user the relevant outcome, proof, link, or blocker. Choose useful details for the reader and destination; do not turn internal execution bookkeeping into a mandatory public schema or repeat evidence already available in the linked record or CI. If there is no useful reader-needed information beyond the existing record, do not add a separate public report. Honor any explicitly requested report format. Apply [Workflow Outputs and Publication](../../docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication): this workflow specifies evidence to retain, not permission to publish.
+
+## Organization Before Authoring
+
+For changes that introduce or materially change module ownership or data flow, apply [Organization Before Authoring](../../docs/workflows/hands-off-agentic-coding-workflow.md#organization-before-authoring) before implementation and again before the first push. Reuse its conditional checkpoint and the existing plan or session; do not create a new checklist artifact or require an organization report for a small local edit.
 
 ## Verify Existing Behavior Before Policy Changes
 
