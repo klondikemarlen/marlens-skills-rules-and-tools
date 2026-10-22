@@ -45,6 +45,16 @@ Readability is a [default engineering expectation](rules/human-readable-code.md)
 
 For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` runs **advance → improve → simplify → wrap-up** once. It carries evidence forward, permits justified no-change stages, and completes each distinct outcome's delivery gates without combining unrelated work into a large PR. Say “Use evolve on this repo, then exit” only when you also want the session to end after successful completion; bare `evolve` keeps it open.
 
+## Evidence-Backed Ticket Triage
+
+Use [`ticket-triage`](skills/ticket-triage/SKILL.md) to assess a ticket or a bounded backlog without claiming ownership or changing remote records. It separates work type, owner, readiness, impact, relationships, and next action; recommendations cite inspected evidence and retain uncertainty.
+
+The packaged `ticket-triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
+
+### Version 3.20.0
+
+Introduces the ticket-triage skill, evidence-backed triage rule, and read-only snapshot/validate/render helper. Existing ticket lifecycle and release workflows remain authoritative for separately authorized implementation.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

@@ -22,6 +22,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Quality ownership across MSSRT, Verifier, and Learner: [`quality-ownership-reference.md`](./quality-ownership-reference.md).
 - GitHub CLI and metadata editing caveats.
 - Thin development wrappers and generic/project ownership: [`dev-tooling-portability-reference.md`](./dev-tooling-portability-reference.md), with its bounded [future gem adoption plan](../plans/composable-dev-helper-gem-adoption-plan.md).
+- Evidence-backed ticket assessment, snapshot identity, and read-only helper limits: [`ticket-triage-reference.md`](./ticket-triage-reference.md).
 - Cross-workflow conventions.
 - Guidance precedence and placement policy.
 - Downstream agent-guidance audit checks.

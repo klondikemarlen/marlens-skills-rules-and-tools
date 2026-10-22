@@ -50,6 +50,7 @@ Examples:
 - `temporary-mcp-task-workflow.md`
 - `typescript-migration-slice-workflow.md`
 - `upload-pr-screenshots-workflow.md`
+- `ticket-triage-workflow.md`
 
 ## Authoring Rules
 
