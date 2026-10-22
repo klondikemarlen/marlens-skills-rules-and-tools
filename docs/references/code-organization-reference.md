@@ -71,6 +71,8 @@ When a feature is deferred or removed, remove its supporting abstractions if acc
 
 When a computed or similar reactive wrapper no longer reads reactive dependencies, remove it and now-unused imports if the existing consumer supports a plain value. Pass a fixed literal directly rather than keeping a one-use wrapper or alias. Retain reactivity when inputs still change or the consumer requires a ref; preserve type checking and the consumer's value/identity contract.
 
+Avoid assigning an existing value to a new name solely to attach a type assertion when the alias adds no domain meaning or transformation. Prefer the original value and accurate narrowing from the existing validation boundary where available. Keep intermediates that clarify meaning, are reused, or represent real transformations; this is not a ban on necessary assertions or intermediate variables.
+
 ## Module Decomposition
 
 A useful module, file, or folder boundary should satisfy at least one of these checks:
@@ -113,6 +115,8 @@ For new or actively reviewed unreleased migrations, separate meaningfully distin
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
+
+Where soft-delete exclusion is the routine convention, omit `Active` and `DeletedAtNull`/`deleted_at_null` from index names, decorator identifiers, and matching filenames. Preserve the deleted-at-null predicate and uniqueness semantics, and align model and migration index names. Continue naming other meaningful filter conditions under the project's convention; do not rename unrelated historical indexes.
 
 ## Oversized Responsibility Clusters
 
@@ -205,6 +209,10 @@ The `status` tag narrows each branch to the fields valid for that state, so no v
 
 Prefer initialization that TypeScript can verify over definite-assignment assertions such as `let callback!: () => void`. For asynchronous coordination, use directly initialized values or appropriate standard synchronization primitives supported by the project runtime. Do not replace the assertion with casts, dummy callbacks, or optional calls that conceal missing initialization or silently discard a signal. Preserve pending-state behavior, signal delivery, ownership, lifecycle, and failure behavior. This is not a requirement to use `EventEmitter` everywhere or a blanket ban on unrelated TypeScript syntax.
 
+## Return Annotation Consistency
+
+Within a cohesive TypeScript module, class, or comparable method family, consistently follow the established local choice of explicit `void` annotations or inferred returns. Correct equivalent in-scope methods rather than arbitrary unrelated files; this is not a global always-omit or always-require rule. Preserve callback/function-type contracts, type predicates, and other semantically necessary annotations.
+
 ## SDK Configuration Types
 
 When an SDK configuration object's intended contract is the SDK type, prefer a named constant with an explicit type annotation over an inline `satisfies` expression. If the configuration is nested in an application wrapper, type that configuration constant itself and retain the wrapper's own fields; do not annotate the whole wrapper with the nested SDK type or add `Partial` without an actually partial contract. Preserve `satisfies` when narrower inferred literals or keys are required by a real consumer; this is not a blanket ban on it.
@@ -256,6 +264,10 @@ This is a review heuristic, not an alphabetical rule. Preserve an existing stron
 
 For related visibility props, preserve the established show/hide polarity. Beside an existing `hideOrganization`, prefer `hideUsageCount` over mixing in `showUsageCount`. When renaming an in-scope prop, update every caller, invert defaults and predicates together, and verify identical visible behavior for both values and the omitted-prop case. Do not rename unrelated established APIs solely for this preference.
 
+Reserve relationship-style `Id`/`id` field names for record references and foreign keys. For UUID membership labels with no independently referenced record, prefer `Identifier` or `Uuid`, such as `groupIdentifier` rather than `groupId`. Preserve actual primary-key `id` fields and genuine foreign keys. Apply an accepted rename consistently across the in-scope contracts and callers rather than changing unrelated established APIs.
+
+For model declarations, follow sibling models' meaningful groups, section-comment headings, and order. Keep persisted fields together, associations together, and lifecycle hooks distinct from unrelated static helpers where those categories exist. Preserve initialization dependencies and behavior, and do not move unrelated imports, invent empty sections, or impose one framework-specific layout everywhere.
+
 ## Function Action Names
 
 Name functions, including event/error callbacks, for the concrete operation, effect, or result they perform rather than their caller or triggering event. Prefer `openVerificationDialog` over a vague `handleChallenge` when opening the dialog is the operation. Preserve established framework-required names and keep renames scoped to affected functions and callers; do not rename unrelated code.
@@ -296,6 +308,8 @@ API/HTTP transport classifies failures and throws typed errors; it must not impo
 
 Use a shared core base for application-created error types so deliberate application failures remain distinguishable from unexpected third-party, transport, or unknown failures. Preserve concrete subtypes for distinct failure/recovery contracts; base membership alone does not mean locally recoverable. Name errors for their actual failure contract, not a vague response or an unproven vendor source. Do not wrap every foreign failure just to force it into that hierarchy.
 
+When an owning layer has a family of custom error types, group its shared local base and concrete modules in that owner's `errors/` directory, such as `api/errors/`, rather than scattering them among endpoint clients or placing them in an unrelated global bucket. Keep a cross-owner core base with its actual owner. Preserve behavior and migrate all affected imports and applicable documentation; do not require a folder for every isolated error or introduce a new barrel.
+
 In a local catch, consume only positively recognized categories the operation actually handles, then rethrow everything else through existing framework propagation. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on handled and rethrown paths. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 ## Text Validation Ownership
@@ -323,6 +337,8 @@ Keep clean cutovers when their prerequisites are verified. Support only evidence
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
+
+When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, serialize into a named local first, then sort or transform on a separate line rather than nesting the calls. Preserve response values, required association ordering, preload guards, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
 
 Prefer this shape:
 
@@ -384,7 +400,7 @@ Name model scopes and similar query abstractions for their filtering or projecti
 
 Keep closely related projections under one cohesive query scope—for example, include related organization and personal ranking projections in a suggestion-ranking scope—rather than requiring callers to compose a separate scope for each dimension. Keep genuinely different concerns, such as administrator usage analytics, separate.
 
-For multi-property query/options object arguments, put each property on its own line even when the object fits the print width. Preserve option values and behavior, apply the correction consistently within the affected review scope, and leave unrelated objects alone. Project-local formatting conventions still win.
+For multi-property query/options object arguments, put each property on its own line even when the object fits the print width. Expand nested query/predicate objects too, even when each nested level has only one property, such as `where` → `deletedAt` → `[Op.is]`. Preserve option values and behavior, apply the correction consistently within the affected review scope, and leave unrelated objects alone. Project-local formatting conventions still win.
 
 ## Explanatory Comments
 
