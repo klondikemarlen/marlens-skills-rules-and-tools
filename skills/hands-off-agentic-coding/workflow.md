@@ -106,6 +106,12 @@ Use when diagnosing local configuration or environment prerequisites:
 
 For example, a synthetic fixture containing mode/port settings and a token can emit only the context-approved mode and port plus `tokenPresent: true`. Do not include the token or assume that those key names are always safe in a real project. Existing public-report privacy and environment-example rules retain their separate boundaries.
 
+## Smoke and Cleanup Control Targets
+
+Before a mutating smoke check or cleanup command, identify both its filesystem target and any controlling service or session, and confirm every resource it can mutate belongs to the QA scope. A temporary `HOME`, profile, working directory, or unset connection variable does not prove service/session isolation. Use a genuinely isolated service or session with its target observed; otherwise stay with non-mutating checks and state the unexercised boundary. Keep verification proportional: a documentation-only install check does not authorize uninstalling an existing personal installation. Ordinary file-only temporary fixtures need no extra service-isolation ceremony.
+
+If an agent causes a live side effect, disclose it promptly, restore only the evidenced affected resource, and distinguish restored files from restored active behavior. Check supported recovery paths before declaring a disruptive logout or restart mandatory. Do not reproduce destructive behavior against a personal desktop session.
+
 ## Context Handoff Template
 
 Use this only for an actual delegation or resumption. Include the observed context the recipient needs to act without the parent transcript; omit fields that add no actionable information. A completed solo task needs a result and proof, not a handoff packet.
