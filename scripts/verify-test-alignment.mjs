@@ -591,9 +591,14 @@ try {
   for (const [phases, expectedStatus] of [
     ["// Arrange\nconst response = makeResponse();\n// Act / Assert", "PASS"],
     ["// Arrange\nconst response = makeResponse();\n// Act and Assert", "PASS"],
+    ["// Arrange\nconst response = makeResponse();\n// Act & Assert", "PASS"],
+    ["/* Arrange */\nconst response = makeResponse();\n/* Act & Assert */", "PASS"],
     ["// Arrange\nconst response = makeResponse();\n// Act\n// Assert", "PASS"],
     ["// Act / Assert\nconst response = makeResponse();\n// Arrange", "FAIL"],
     ["// Arrange\nconst response = makeResponse();\n// Act", "FAIL"],
+    ["// Act & Assert\nconst response = makeResponse();\n// Arrange", "FAIL"],
+    ["// Act & Assert", "FAIL"],
+    ["// Arrange\nconst response = makeResponse();\n// Assert", "FAIL"],
   ]) {
     write(
       combinedPhaseProject,
