@@ -153,7 +153,7 @@ Treat tracker updates as part of doing the work, not optional handoff cleanup. A
 
 ## Output Contract
 
-Report the concrete artifacts and evidence:
+Retain the concrete artifacts and evidence below in the session or existing designated record. Apply [Workflow Outputs and Publication](../references/guidance-precedence-reference.md#workflow-outputs-and-publication) when selecting reader-facing details; these fields are not mandatory public headings or a reason to post routine release comments.
 
 ```text
 Ticket: <authoritative tracker key and URL>

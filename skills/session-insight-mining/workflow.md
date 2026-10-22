@@ -45,8 +45,8 @@ For a mined user correction or accepted decision that changes a durable contract
    - Route reusable workflow, rule, or review guidance to this package and enforcement requiring command, runtime, or automation support to `omp-verifier`.
    - When issue filing is explicitly authorized, create the scoped shared feature request or project-local ticket for the chosen owner instead of requiring another clarification. Do not file isolated, speculative, or already-covered feedback.
 7. Choose the smallest safe action and its owner. For external owners, create only a scoped report or issue; never mutate the external repository.
-8. Keep detailed classification and evidence in the session or an existing designated record (such as the owning issue or PR); do not create a second ledger. Do not treat downstream examples as permission to mutate those repositories.
-9. Surface findings that need a reader's action or explain the outcome. Include classification, evidence, owner, action, and link where useful; capture material skipped decisions when needed to explain scope. Do not report every internal candidate by default.
+8. Apply authorized local changes through the normal repository release workflow. Keep detailed classification and evidence in the session or an existing designated record (such as the owning issue or PR); do not create a second ledger. Do not treat downstream examples as permission to mutate those repositories.
+9. Surface findings that need a reader's action or explain the outcome. Include classification, evidence, owner, action, and link where useful; capture material skipped decisions when needed to explain scope. Do not report every internal candidate by default or present speculative improvements as completed work.
 
 ## Reporting
 
