@@ -7,3 +7,4 @@ These outcome cases show the smallest useful difference made by one packaged ski
 - [`agent-guidance-audit.md`](./agent-guidance-audit.md) — deterministic downstream guidance auditing instead of manual document inspection.
 - [`rules-and-verifications.md`](./rules-and-verifications.md) — contextual guidance paired with a deterministic release backstop.
 - [`project-aware-test-review.md`](./project-aware-test-review.md) — replayable semantic review of complete changed tests against local conventions and compliant siblings.
+- [`reader-focused-publication.md`](./reader-focused-publication.md) — separate required execution evidence from useful public communication, with replayable publication decisions.

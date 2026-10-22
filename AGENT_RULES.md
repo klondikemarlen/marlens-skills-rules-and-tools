@@ -56,7 +56,7 @@ Report verification outcomes with this vocabulary:
 
 Use plain terms in user-facing summaries, PR bodies, and final reports. Define domain terms once when they are useful; otherwise choose clearer phrases so maintainers and reviewers do not need glossary context.
 
-Keep user responses and GitHub comments brief, natural, and human. Lead with the useful outcome, question, or blocker; preserve necessary links, limitations, and explicitly requested detail. Avoid repetitive audit narration, boilerplate, and large AI-style process reports. Link supporting detail when useful rather than repeating it, and honor a requested format without padding it.
+Keep user responses and GitHub comments brief, natural, and human. Lead with the useful outcome, question, or blocker; preserve necessary links, limitations, and explicitly requested detail. Workflow output fields are execution requirements, not automatic public headings or permission to post. Use [Workflow Outputs and Publication](docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication) to select the reader and destination; publish nothing when there is no new reader-needed information.
 
 ### Guarded Computations
 

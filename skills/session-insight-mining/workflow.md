@@ -6,7 +6,7 @@ Use after the requested work is complete when a session contains corrections, ad
 
 **WHY this workflow exists:** Long sessions contain useful lessons alongside one-off friction. Mining them explicitly prevents missed reusable guidance, duplicate rules, and speculative tickets.
 
-**WHAT this workflow produces:** Evidence-backed findings classified by owner and next action: memory, project guidance, shared guidance, verifier/runtime proposal, already covered, or no action; plus a distinct Code Style Insights section for repeated user code-review corrections.
+**WHAT this workflow produces:** Evidence-backed findings classified by owner and next action: memory, project guidance, shared guidance, verifier/runtime proposal, already covered, or no action. Include Code Style Insights only for actionable repeated user code-review corrections.
 
 ## Decision Rules
 
@@ -38,19 +38,23 @@ For a mined user correction or accepted decision that changes a durable contract
    - **Already covered** — cite the existing guidance and take no duplicate action.
    - **One-off/no action** — record only when the skipped decision matters.
 5. Check existing files and issue history for coverage before proposing a change or filing a ticket.
-6. Build the distinct **Code Style Insights** section:
+6. Classify repeated user code-review style corrections separately from product findings; create **Code Style Insights** only for actionable findings:
    - Cluster repeated corrections by abstraction level: Project-local convention, Cross-project agent guidance, or One-off preference.
    - For each cluster, record exact evidence, classification, owner, proposed guidance text, and the smallest safe persistence action.
    - Persist project-local conventions in the owning project’s memory or documentation; do not promote them merely because they repeated within one pull request.
    - Route reusable workflow, rule, or review guidance to this package and enforcement requiring command, runtime, or automation support to `omp-verifier`.
    - When issue filing is explicitly authorized, create the scoped shared feature request or project-local ticket for the chosen owner instead of requiring another clarification. Do not file isolated, speculative, or already-covered feedback.
 7. Choose the smallest safe action and its owner. For external owners, create only a scoped report or issue; never mutate the external repository.
-8. Apply authorized local changes through the normal repository release workflow. Keep the mining record in the owning issue, PR, or final report rather than creating a second ledger.
-9. Report every candidate with its classification, evidence, owner, action, filed link when applicable, and intentionally skipped rationale.
+8. Keep detailed classification and evidence in the session or an existing designated record (such as the owning issue or PR); do not create a second ledger. Do not treat downstream examples as permission to mutate those repositories.
+9. Surface findings that need a reader's action or explain the outcome. Include classification, evidence, owner, action, and link where useful; capture material skipped decisions when needed to explain scope. Do not report every internal candidate by default.
 
-## Output Contract
+## Reporting
 
-### Code Style Insights
+Maintain enough detail internally to support each actionable finding: source evidence, classification, owner, next action, and duplicate check. For resolved review threads and fixup commits, retain the observable invariant, affected boundary, and smallest regression check. Use an existing designated issue/PR/record when appropriate; do not create a second ledger. Apply [Workflow Outputs and Publication](../../docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication): this evidence contract is not a mandatory public schema or permission to publish.
+
+The final response should give the relevant result, useful evidence or link, and any blocker or action needed. Preserve material findings without duplicating linked records or turning internal classification fields into mandatory public headings. If there is no useful reader-needed information beyond the existing record, do not add a separate public report. Honor an explicitly requested report format.
+
+Include **Code Style Insights** only when there are actionable repeated user code-review style findings. Omit the section when there are none; do not add empty or no-action boilerplate. When useful, this optional working outline helps retain the finding's provenance and disposition:
 
 ```text
 Finding: <repeated code-style correction cluster>
@@ -61,16 +65,16 @@ Proposed guidance: <candidate text, or N/A>
 Persistence action: <memory/docs update, scoped issue, or no action>
 ```
 
+For other candidates, keep only the fields relevant to the evidence and decision; the following are optional working fields, not a required public schema:
+
 ```text
 Finding: <short name>
 Classification: <personal/project/shared/verifier/already covered/no action>
-Evidence: <user correction, advisor finding, resolved review thread, fixup commit, command, file, or issue>
-Invariant: <observable behavior or domain fact that must remain true, or N/A>
-Boundary: <affected module, API, serializer, UI route, workflow, or N/A>
+Evidence: <source evidence>
+Invariant: <observable behavior or domain fact, or N/A>
+Boundary: <affected area, or N/A>
 Smallest check: <focused regression check or N/A>
 Owner: <memory, current repository, owning repository, or omp-verifier>
 Action: <smallest action taken or proposed>
-Link: <issue/PR/memory link, or N/A>
+Link: <issue/PR/memory link, if useful>
 ```
-
-Include all actionable findings and any no-action decisions needed to explain the scope. Do not report speculative improvements as completed work.

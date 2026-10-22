@@ -13,6 +13,7 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 - Start with the target's declared purpose, public surface, and local guidance. This package supplies reusable rules, workflows, templates, and thin adapters; it is not an orchestration runtime.
 - Before routing a possible third-party defect, use [Upstream Issue Participation](../references/github-tooling-reference.md#upstream-issue-participation) to establish defect ownership separately from write authorization.
 - Project-local guidance wins. Keep project-specific practices in the target project; change shared guidance only for a cross-project, repeatable need.
+- Treat downstream examples and consumer output as evidence for improving shared guidance, not permission to clean up or mutate those repositories. Any downstream change requires an explicitly authorized target and scope.
 - Technical debt is actionable only when observed evidence shows a current correctness, maintainability, safety, discoverability, or verification risk. Do not refactor for style, imagined future flexibility, or generic cleanup.
 - When newer models motivate a pass, inspect demonstrated instruction conflicts, duplicate artifacts, and unnecessary handoffs before adding guidance. Simplify the existing owner rather than layering another checklist or always-on rule. Model capability alone is not evidence of a defect or a measured speedup.
 - Keep safety, repository boundaries, required review, behavioral verification, and release/install gates intact. Make ceremony proportional to the work; do not make correctness depend on a claimed model intelligence level.
@@ -39,14 +40,17 @@ Use when asked to improve an agent's reusable guidance, prompt flow, or evidence
 
 Stop when the scoped acceptance criteria are verified and findings are classified. Do not expand into unrelated housekeeping or reopen settled choices without new evidence.
 
-## Output Contract
+## Reporting
+
+Keep exact audit results, candidate evidence, classifications, owner, and next action in the session or existing designated record. Do not lose absent findings or material risks, but do not create a second ledger or make internal fields a mandatory public report. Apply [Workflow Outputs and Publication](../references/guidance-precedence-reference.md#workflow-outputs-and-publication): evidence requirements are not mandatory public headings or permission to publish.
+
+For the user, report the relevant outcome, evidence, changes or link, and any blocker or residual risk. Include the purpose, findings, and verification details when they help the reader or are explicitly requested; do not duplicate an existing issue, PR, or CI record. If there is no useful reader-needed information beyond that record, do not add a separate public report. The following fields are a useful optional working outline, not a required response schema:
 
 ```text
 Purpose: <target role and public boundary>
 Success condition: <observable invariant or risk removed>
 Evidence: <audit/check and exact result>
-Findings:
-- <evidence> -> <classification> -> <owner/action>
+Findings: <relevant evidence, classification, owner/action>
 Changes: <files changed, or none>
 Verification: PASS | FAIL | BLOCKED <command/scenario>
 Residual risk: <none or specific gap>
