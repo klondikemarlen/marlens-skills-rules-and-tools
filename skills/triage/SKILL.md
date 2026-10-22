@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Use for read-only, evidence-backed assessment and ranking of one ticket or a bounded backlog without changing tracker state.
+description: Use for evidence-backed ticket assessment, bounded backlog ranking, or explicitly authorized classification-label application without starting implementation.
 ---
 
 # Triage
