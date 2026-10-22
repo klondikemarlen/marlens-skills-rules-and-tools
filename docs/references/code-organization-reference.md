@@ -15,6 +15,19 @@ Code organization is not more folders, more layers, or more pattern names. It is
 
 Use the smallest structure that makes ownership, change axes, data handoffs, and volatile decisions obvious.
 
+## Human Readability
+
+Human readability is an ordinary engineering standard, not an optional cleanup phase. Optimize for the next maintainer's effort to understand, change, and trust the code while preserving correctness and the project's conventions.
+
+- Choose explanatory function and variable names that reveal domain purpose and effects, not vague mechanisms or unnecessary abbreviations.
+- Keep responsibilities cohesive and related steps together. Make dependencies, state ownership, side effects, and failure paths visible.
+- Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction.
+- Use consistent formatting and blank lines to separate meaningful logical steps; follow [Whitespace Matters](../../rules/whitespace-matters.md).
+- Extract helpers when a meaningful name and boundary clarify an operation or remove real duplication. Do not lower cyclomatic complexity merely by scattering decisions across trivial helpers or adding layers.
+- Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
+
+Complexity measurements identify places to inspect, not quality targets. Preserve a cohesive implementation when splitting would add navigation and indirection. Apply improvements within the requested scope; baseline quality does not authorize unrelated refactoring.
+
 ## Libraries for Generic Mechanism
 
 Keep application code focused on product-specific policies and behavior. When a change needs generic parsing, traversal, tokenization, serialization, or equivalent plumbing, compare the standard library, installed dependencies, a well-maintained library, and bespoke code.
