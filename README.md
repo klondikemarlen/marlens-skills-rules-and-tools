@@ -47,13 +47,13 @@ For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` run
 
 ## Evidence-Backed Ticket Triage
 
-Use [`ticket-triage`](skills/ticket-triage/SKILL.md) to assess a ticket or a bounded backlog without claiming ownership or changing remote records. It separates work type, owner, readiness, impact, relationships, and next action; recommendations cite inspected evidence and retain uncertainty.
+Use [`triage`](skills/triage/SKILL.md) to assess a ticket or a bounded backlog without claiming ownership or changing remote records. It separates work type, owner, readiness, impact, relationships, and next action; recommendations cite inspected evidence and retain uncertainty.
 
-The packaged `ticket-triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
+The packaged `triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
 
-### Version 3.20.0
+### Version 3.20.1
 
-Introduces the ticket-triage skill, evidence-backed triage rule, and read-only snapshot/validate/render helper. Existing ticket lifecycle and release workflows remain authoritative for separately authorized implementation.
+Renames the skill and CLI to `triage`, removing the former public entrypoints without aliases. The evidence-backed triage rule and read-only snapshot/validate/render behavior remain unchanged. Existing ticket lifecycle and release workflows remain authoritative for separately authorized implementation.
 
 ## Claude Code Plugin Install
 

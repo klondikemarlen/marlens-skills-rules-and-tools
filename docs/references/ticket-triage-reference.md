@@ -1,14 +1,14 @@
 # Ticket Triage Reference
 
-This reference defines the optional GitHub-only `ticket-triage` command-line interface, the shared snapshot and assessment data contract, and its safety limits. Use the [Ticket Triage Workflow](../workflows/ticket-triage-workflow.md) for the read-only assessment process. Jira and other trackers use authenticated native read tools; the helper does not discover, create, or assume a mirror in GitHub.
+This reference defines the optional GitHub-only `triage` command-line interface, the shared snapshot and assessment data contract, and its safety limits. Use the [Ticket Triage Workflow](../workflows/ticket-triage-workflow.md) for the read-only assessment process. Jira and other trackers use authenticated native read tools; the helper does not discover, create, or assume a mirror in GitHub.
 
 ## Command-Line Interface
 
 ```text
-ticket-triage --help
-ticket-triage snapshot --repo OWNER/REPO --issue NUMBER [--search TEXT]
-ticket-triage validate --snapshot FILE --assessment FILE
-ticket-triage render --snapshot FILE --assessment FILE
+triage --help
+triage snapshot --repo OWNER/REPO --issue NUMBER [--search TEXT]
+triage validate --snapshot FILE --assessment FILE
+triage render --snapshot FILE --assessment FILE
 ```
 
 `--help` documents the installed command. `snapshot` uses authenticated GitHub CLI reads (`gh` GET operations), returns JSON on stdout, and has no implicit file output or remote-write behavior. The snapshot contains the requested issue, bounded related issue context when found, and the repository's label vocabulary. A missing required read fails; unavailable data is not represented as an empty result. Any bounded or omitted context must be explicitly disclosed by the implementation rather than appearing complete.
@@ -19,9 +19,9 @@ Commands write no files unless the caller explicitly redirects stdout. When the 
 
 ```sh
 private_dir="$(mktemp -d "${TMPDIR:-/tmp}/ticket-triage.XXXXXX")"
-ticket-triage snapshot --repo OWNER/REPO --issue 123 > "$private_dir/issue-123.snapshot.json"
-ticket-triage validate --snapshot "$private_dir/issue-123.snapshot.json" --assessment "$private_dir/issue-123.assessment.json"
-ticket-triage render --snapshot "$private_dir/issue-123.snapshot.json" --assessment "$private_dir/issue-123.assessment.json"
+triage snapshot --repo OWNER/REPO --issue 123 > "$private_dir/issue-123.snapshot.json"
+triage validate --snapshot "$private_dir/issue-123.snapshot.json" --assessment "$private_dir/issue-123.assessment.json"
+triage render --snapshot "$private_dir/issue-123.snapshot.json" --assessment "$private_dir/issue-123.assessment.json"
 ```
 
 Only the redirected snapshot and any other explicitly written files are created; validation and rendering print to stdout. The validation/render examples assume an assessment already exists at the explicitly chosen path; the CLI does not create it. Snapshot and assessment files can contain sensitive report text. Keep them private; never commit, upload, or publish them. Do not add a file-writing option or default destination.
