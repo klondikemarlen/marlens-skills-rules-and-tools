@@ -288,7 +288,12 @@ function testBlocks(source, testPath) {
 
   function visit(node) {
     if (ts.isCallExpression(node) && isTestCallee(node.expression)) {
-      const [title, callback] = node.arguments
+      const [title, secondArgument, thirdArgument] = node.arguments
+      const callback =
+        secondArgument &&
+        (ts.isArrowFunction(secondArgument) || ts.isFunctionExpression(secondArgument))
+          ? secondArgument
+          : thirdArgument
       if (title && (ts.isStringLiteral(title) || ts.isNoSubstitutionTemplateLiteral(title))) {
         const offset = node.getStart(sourceFile)
         const line = lineNumber(source, offset)
