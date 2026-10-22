@@ -11,7 +11,9 @@ Use this when a downstream API already follows an Express controller, Sequelize 
 - `{ResourceNamePolicy}`: policy class.
 - `{IndexSerializer}` / `{ShowSerializer}` / `{ReferenceSerializer}`: response serializers.
 - `{CreateService}` / `{UpdateService}` / `{DestroyService}`: mutation services.
+- `{EnsureService}`: optional owning-domain lookup-or-create service for reuse-intended lifecycles.
 - `{searchField}`: searchable model field.
+- `{lookupField}`: reuse-identity field for the optional ensure slice, distinct from search where needed.
 - `{requiredAssociation}`: association to reload for show/edit responses, if any.
 
 ## Model Slice
@@ -146,6 +148,27 @@ export class {CreateService} extends BaseService {
 
 Use matching update and destroy services when the mutation has transaction, audit, validation, association reload, or side-effect behavior. Direct model calls are enough for trivial project-local paths.
 
+For Sequelize 7, the managed transaction above relies on the project's automatic transaction propagation and nested reuse settings. Inspect the installed version, `disableClsTransactions`, `defaultTransactionNestMode`, and neighboring services before adopting it; see [Sequelize's managed transaction documentation](https://sequelize.org/docs/v7/querying/transactions/). With those guarantees, called services and queries join the active context without transaction parameters in constructors or helpers. Keep a multi-write service's transaction in `perform()` so it remains atomic standalone and its writes roll back if an outer transaction fails. Retain explicit transaction plumbing when propagation or reuse is unavailable; do not add transaction wrappers to ordinary lookups solely for this pattern.
+
+When the lifecycle intentionally reuses an existing record, use an owning-domain ensure service rather than ORM `findOrCreate`. Keep the lookup explicit and delegate creation to the domain's create service:
+
+```ts
+export class {EnsureService} extends BaseService {
+  constructor(private attributes: CreationAttributes<{ResourceName}>) { super() }
+
+  async perform(): Promise<{ResourceName}> {
+    const resource = await {ResourceName}.findOne({
+      where: { {lookupField}: this.attributes.{lookupField} },
+    })
+    if (resource) return resource
+
+    return {CreateService}.perform(this.attributes)
+  }
+}
+```
+
+Use the domain's real reuse identity, including compound predicates where required, and preserve its uniqueness and concurrency contract; lookup-then-create alone does not guarantee concurrent calls converge. Required-new lifecycles continue to use strict creation, not ensure or repair. See [Service Orchestration Readability](../../../references/code-organization-reference.md#service-orchestration-readability) for ownership.
+
 ## Serializer Slice
 
 ```ts
@@ -159,5 +182,7 @@ export type {ResourceName}AsReference = Pick<{ResourceName}, "id" | "{searchFiel
 - [ ] Index applies policy scope, filters, sort, pagination, and returns `totalCount`.
 - [ ] Show/create/update return serialized data and policy; missing records return `404`; forbidden actions return `403`.
 - [ ] Mutations use services when they need transactions, reloads, audit, or side effects.
+- [ ] Reuse-intended ensure returns an existing record or delegates creation; required-new creation remains strict.
+- [ ] Where managed transaction context is used, project configuration supports propagation and nested reuse; multi-write failures roll back both standalone and inside an outer transaction.
 - [ ] Serializers expose only fields used by list/detail/reference clients.
 - [ ] Tests cover allowed, forbidden, missing, invalid, and successful mutation paths.
