@@ -227,6 +227,8 @@ Model barrels are an exception to the dependency-bundle preference: export model
 
 Preserve the positions and order of unchanged imports when editing unrelated behavior. Do not move them merely to tidy or alphabetize a touched file; retain required new imports and intentional import changes. Review the full PR diff for equivalent incidental moves and remove them. Explicitly requested import cleanup and changes required by project tooling remain valid.
 
+Group intentionally changed imports by conceptual distance and responsibility, following the project's existing sections rather than imposing a universal alphabetical order. Mark type-only bindings explicitly with `type` and keep them together within the established groups instead of interleaving them with runtime bindings. Preserve actual runtime imports, including model classes referenced by association decorators. Apply an accepted import correction across the in-scope review diff without moving unrelated imports.
+
 When raw Node runs ESM source directly, prefer Node's native `#/…` package-import namespace instead of `@/…`, which Node treats as an external package. Map it through `package.json` `"imports"` as `"#/*": "./*"`, and require Node v24.14.0 or later, which supports `#/` subpath imports. If a supported Node version cannot use `#/…`, map the package root as `#root/…` through `"#root/*": "./*"`, and map a sibling `tests` root as `#tests/…` through `"#tests/*": "./tests/*"`.
 
 When a directory such as `tests` is a sibling of the source root, give it an explicit root-alias mapping instead of implying that it lives under source. With `@` mapped to `src`, map `@/tests` to `tests`; with Node's package-root import map, use `#/tests/…`.
@@ -281,6 +283,14 @@ Use these terms as review vocabulary, not as mandatory layers:
 - **Utility:** generic, domain-independent computation over explicit inputs and outputs. Utilities must not own database queries or model/domain knowledge; put domain-aware persistence and locking orchestration in the owning service/use case, following the project's established persistence and transaction rails.
 
 Protected work should expose its ownership through an intention-revealing `With...` service boundary when that service coordinates the protected action. Do not extract a utility that merely acquires a lock while leaving the domain operation, persistence, and invariant ownership elsewhere. Keep the existing transaction and locking semantics; this is not a mandate for a new layer or ORM.
+
+## Error Ownership and Local Recovery
+
+API/HTTP transport classifies failures and throws typed errors; it must not import presentation state or open recovery UI. UI consumers or existing application/framework error boundaries own recovery presentation. When intermediate callers swallow a failure needed there, correct their propagation rather than introducing UI side effects in transport. Preserve ordinary local handling and cleanup without mandating a new global handler or layer.
+
+Use a shared core base for application-created error types so deliberate application failures remain distinguishable from unexpected third-party, transport, or unknown failures. Preserve concrete subtypes for distinct failure/recovery contracts; base membership alone does not mean locally recoverable. Name errors for their actual failure contract, not a vague response or an unproven vendor source. Do not wrap every foreign failure just to force it into that hierarchy.
+
+In a local catch, consume only positively recognized categories the operation actually handles, then rethrow everything else through existing framework propagation. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on handled and rethrown paths. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 ## Text Validation Ownership
 

@@ -16,6 +16,7 @@ Use this for new, show, and edit pages whose nested resource list stays in a par
 - `{ResourceFormComponent}` / `{ResourceDetailComponent}`: project-local page components.
 - `{ResourceCreatePolicyExpression}` / `{ResourceUpdatePolicyExpression}`: project-local policy expressions.
 - `{Toast}`: project-local success/error feedback utility.
+- `{LocallyHandledCreateError}` / `{LocallyHandledLoadError}`: existing concrete failure categories the operation can actually handle; use the project's existing type guard instead when appropriate. Do not consume every application-base error or invent a new error framework. Other errors propagate through existing framework handling.
 
 ## Shared Parent Return Navigation
 
@@ -84,8 +85,13 @@ async function createResource(formValues: Record<string, unknown>) {
     {Toast}.success("{ResourceName} created.")
     navigateToParentResourceList()
   } catch (error) {
-    console.error("Failed to create {resourceName}", { error })
-    {Toast}.error("Could not create {ResourceName}.")
+    if (error instanceof {LocallyHandledCreateError}) {
+      console.error(`Failed to create {resourceName}: ${error}`, { error })
+      {Toast}.error("Could not create {ResourceName}.")
+      return
+    }
+
+    throw error
   } finally {
     isSubmitting.value = false
   }
@@ -149,8 +155,13 @@ async function fetchResource() {
   try {
     {resourceName}.value = await {ResourceApiClient}.get(props.{resourceName}Id)
   } catch (error) {
-    console.error("Failed to load {resourceName}", { error })
-    errorMessage.value = "Could not load {ResourceName}."
+    if (error instanceof {LocallyHandledLoadError}) {
+      console.error(`Failed to load {resourceName}: ${error}`, { error })
+      errorMessage.value = "Could not load {ResourceName}."
+      return
+    }
+
+    throw error
   } finally {
     isLoading.value = false
   }
@@ -165,8 +176,9 @@ onMounted(fetchResource)
 Start from the show-page loading/error flow, gate the form with
 `{ResourceUpdatePolicyExpression}`, pass both route ids to `{ResourceFormComponent}`, and submit
 through `{ResourceApiClient}.update`. On success, show `{Toast}` feedback then return to
-`{ParentResourceListRouteName}` with `{parentResourceName}Id`. On validation or network failure,
-keep the form and entered values visible with the project-standard error feedback.
+`{ParentResourceListRouteName}` with `{parentResourceName}Id`. For a positively recognized
+failure this operation handles, keep the form and entered values visible with project-standard
+feedback. Rethrow other failures to the existing application error boundary; retain `finally` cleanup.
 
 ## Verification Checklist
 
