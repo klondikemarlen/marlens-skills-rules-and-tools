@@ -93,7 +93,7 @@ number=PULL_NUMBER
    - Screenshots: uploaded images, placeholders, or `N/A — <reason>.`
    - Testing instructions: runnable steps a reviewer can execute without branch-author context.
 5. After creating or updating a PR body, read the remote PR body and discussion through GitHub. Confirm the body follows the authoritative template or permitted fallback, reflects the latest intended description, preserves issue links and relevant existing images/captions or prerequisites, and has no competing agent-generated description. Confirm links resolve. The remote body—not a local draft or artifact—is the active canonical reviewer description.
-6. Keep testing instructions reproducible and usable without branch-author context, subject to local policy for their placement. Preserve supplied instructions and prerequisites that remain relevant when revising the body.
+6. Keep testing instructions reproducible and usable without branch-author context, subject to local policy for their placement. Follow the [Testing Instructions Workflow](testing-instructions-workflow.md): put end-user/QA checks before separate developer setup/checks when needed, preserve relevant prerequisites before actions that need them, and use the project's existing template headings and structure.
 7. Do not claim verification that was not performed.
 8. Self-review the complete PR diff before requesting review or merging. Record material findings, decisions, limitations, fixups, blockers, and a `PASS`/`FAIL`/`BLOCKED` outcome in the evidence location selected by [Description and Evidence Placement](#description-and-evidence-placement).
 9. Run targeted QA for the user-visible changed behavior and the smallest relevant automated checks. Record truthful current-head status, useful evidence, failures, and blockers in that same location, distinguishing superseded results. Refresh the canonical description only when there is reader-needed new information and within its permitted content. Comments are for genuine discussion, specific review responses, or reader-needed new information—not routine implementation, self-review, QA/status, learner, or final-delivery reports. An explicitly requested supplemental report updates its existing designated comment.
@@ -102,6 +102,18 @@ number=PULL_NUMBER
 12. Resolve every actionable review finding or comment before marking the PR ready or merging by default. If the user explicitly requests a waiver, drop, or cleanup instead, follow that instruction, record unresolved findings truthfully, and do not claim they were resolved.
 13. Keep the PR `BLOCKED` while repository- or platform-enforced review requirements, review feedback, QA, or required checks are unresolved by default. If the user explicitly requests a waiver, drop, or cleanup instead, follow that disposition, record the missing evidence and do not claim verification that did not occur.
 14. After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default. Wait only for specifically required end-user testing the agent cannot perform. If the user explicitly requests a waiver, drop, or cleanup, record the missing evidence and do not claim the result was verified.
+
+## Temporary Authoring Files
+
+When a workflow needs a temporary authoring artifact, including a PR body file, allocate a unique file or private run directory for that invocation. Do not use a fixed global path: concurrent runs can overwrite or remove one another's work. Quote the allocated path at every use and clean up only the artifact owned by the current invocation. For example, this Bash pattern works with a `TMPDIR` containing spaces and `mktemp` creates the file privately:
+
+```bash
+body_file="$(mktemp "${TMPDIR:-/tmp}/pr-body.XXXXXXXXXX")"
+trap 'rm -f -- "$body_file"' EXIT
+# Pass "$body_file" to the authoring tool or command that consumes the file.
+```
+
+Keep this scoped to authoring-file safety; it does not change the PR publication or review contract.
 
 ## Description and Evidence Placement
 
