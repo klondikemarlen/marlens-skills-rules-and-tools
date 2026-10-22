@@ -338,6 +338,8 @@ Keep clean cutovers when their prerequisites are verified. Support only evidence
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
 
+When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, serialize into a named local first, then sort or transform on a separate line rather than nesting the calls. Preserve response values, required association ordering, preload guards, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
+
 Prefer this shape:
 
 ```text
