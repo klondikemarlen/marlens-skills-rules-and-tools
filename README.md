@@ -69,6 +69,10 @@ Accepts `Act & Assert` alongside `Act / Assert` and `Act and Assert` in the test
 
 Adds explicitly authorized classification-label application to the triage skill, alongside default read-only assessment and dry-run. The workflow refreshes evidence, uses existing labels additively, preserves unrelated metadata, and verifies live results. The CLI and assessment schema remain read-only and unchanged.
 
+## Version 3.21.1
+
+Moves organization decisions before authoring and rechecks them before the first push. Clarifies top-down service helper order, project-independent library ownership, and debugger-friendly computed values without adding mandatory artifacts, mechanical extraction, or unrelated cleanup.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
