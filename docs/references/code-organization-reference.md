@@ -355,6 +355,10 @@ Keep clean cutovers when their prerequisites are verified. Support only evidence
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
 
+When a create service follows a partial creation-attributes contract, accept the general `Partial<CreationAttributes<Model>>` payload and explicitly guard required field presence inside `perform()` before persistence. Destructure required fields, then pass the narrowed values alongside supported optional creation attributes; do not discard policy-filtered optional fields or use a type assertion to bypass missing required values. Reuse the project's validation error and presence semantics, preserving legitimate falsy values. Keep blank-text handling, normalization, format validation, and persisted constraints with their existing [validation owners](#text-validation-ownership).
+
+Apply the same partial-input contract to an existing dependent ensure service where it reuses creation attributes. Guard required lookup identity before querying and delegate missing-record creation to the create service, which retains its required-field checks. This does not mandate an ensure service, broaden accepted attributes, or require unrelated service refactors.
+
 When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, serialize into a named local first, then sort or transform on a separate line rather than nesting the calls. Preserve response values, required association ordering, preload guards, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
 
 Prefer this shape:
