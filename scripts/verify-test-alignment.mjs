@@ -148,6 +148,143 @@ try {
     })
     assert.equal(passingCli.status, 0)
     assert.equal(standaloneResult(passingCli).status, "PASS")
+
+    write(
+      failingCliProject,
+      "tests/README.md",
+      `<!-- marlens-test-alignment: test-name-when -->
+<!-- marlens-test-alignment: arrange-act-assert -->
+`
+    )
+
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      `test("when a synchronous option is supplied, reads the value", { skip: false }, () => {
+  // Arrange
+  const input = 1;
+
+  // Act
+  const result = input + 1;
+
+  // Assert
+  expect(result).toBe(2);
+});
+`
+    )
+    const synchronousOptionsCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(synchronousOptionsCli.status, 0)
+    assert.equal(standaloneResult(synchronousOptionsCli).status, "PASS")
+
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      `test("when an asynchronous option is supplied, reads the value", { skip: false }, async () => {
+  // Arrange
+  const input = 1;
+
+  // Act
+  const result = await Promise.resolve(input + 1);
+
+  // Assert
+  expect(result).toBe(2);
+});
+`
+    )
+    const asynchronousOptionsCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(asynchronousOptionsCli.status, 0)
+    assert.equal(standaloneResult(asynchronousOptionsCli).status, "PASS")
+
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      `test.each([2])("when a row is supplied, keeps its callback", (input) => {
+  // Arrange
+  const value = input;
+
+  // Act
+  const result = value;
+
+  // Assert
+  expect(result).toBe(2);
+}, 100);
+`
+    )
+    const parameterizedTimeoutCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(parameterizedTimeoutCli.status, 0)
+    assert.equal(standaloneResult(parameterizedTimeoutCli).status, "PASS")
+
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      `test.skip("when a test is skipped, keeps its callback", () => {
+  // Arrange
+  const value = 2;
+
+  // Act
+  const result = value;
+
+  // Assert
+  expect(result).toBe(2);
+}, 100);
+`
+    )
+    const modifiedTimeoutCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(modifiedTimeoutCli.status, 0)
+    assert.equal(standaloneResult(modifiedTimeoutCli).status, "PASS")
+
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      `test("when the Act phase is missing, reports a violation", { skip: false }, () => {
+  // Arrange
+  const value = 2;
+
+  // Assert
+  expect(value).toBe(2);
+});
+`
+    )
+    const missingOptionPhaseCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(missingOptionPhaseCli.status, 1)
+    assert.equal(standaloneResult(missingOptionPhaseCli).status, "FAIL")
+
+    write(
+      failingCliProject,
+      "tests/widget.test.ts",
+      `test("when the phases are out of order, reports a violation", { skip: false }, () => {
+  // Act
+  const value = 2;
+
+  // Arrange
+  const input = value;
+
+  // Assert
+  expect(input).toBe(2);
+});
+`
+    )
+    const outOfOrderOptionPhasesCli = runStandalone(failingCliProject, {
+      MARLENS_TEST_ALIGNMENT_BASE: "main",
+      OMP_VERIFIER_CHANGED_PATHS: undefined,
+    })
+    assert.equal(outOfOrderOptionPhasesCli.status, 1)
+    assert.equal(standaloneResult(outOfOrderOptionPhasesCli).status, "FAIL")
   } finally {
     rmSync(failingCliProject, { recursive: true, force: true })
   }
