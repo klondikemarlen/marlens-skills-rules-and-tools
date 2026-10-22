@@ -28,6 +28,10 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 
 Complexity measurements identify places to inspect, not quality targets. Preserve a cohesive implementation when splitting would add navigation and indirection. Apply improvements within the requested scope; baseline quality does not authorize unrelated refactoring.
 
+During feature or PR work, incidental cleanup is eligible only in an existing file where the requested work also changes effective code or a meaningful contract. Remove files whose net PR diff is solely incidental import cleanup, formatting, whitespace, or export ordering. Meaningful type, schema, and test changes count; runtime behavior need not change. Preserve explicitly requested cleanup and changes necessary for project tooling or the accepted contract.
+
+When this scope correction is accepted, inspect the complete in-scope PR for equivalent incidental-only files, not just the selected review line. Preserve other owners' work and remove only the unrelated cleanup from the proposed change.
+
 ## Libraries for Generic Mechanism
 
 Keep application code focused on product-specific policies and behavior. When a change needs generic parsing, traversal, tokenization, serialization, or equivalent plumbing, compare the standard library, installed dependencies, a well-maintained library, and bespoke code.
