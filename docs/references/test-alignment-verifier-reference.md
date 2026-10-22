@@ -11,7 +11,7 @@ Every changed test file must meet these rules without a README directive:
 
 Failure evidence identifies the changed test, violated rule, and `shared baseline` as its source. Assertion count is not a shared quality gate.
 
-Test callback boundaries are parsed as JavaScript or TypeScript using the packaged TypeScript dependency. Regex literals do not hide phase comments or shift reported source locations; each invocation reads the current file before checking its phases.
+Test callback boundaries are parsed as JavaScript or TypeScript using the packaged TypeScript dependency. Both `test(name, callback)` and Node's `test(name, options, callback)` preserve synchronous or async callback phases, including tests with `skip` options. Callback-plus-timeout forms retain their second-argument callback. Regex literals do not hide phase comments or shift reported source locations; each invocation reads the current file before checking its phases.
 
 ## Explicit Local Additions
 
