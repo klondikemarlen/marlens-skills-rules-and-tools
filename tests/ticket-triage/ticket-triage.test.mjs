@@ -17,7 +17,7 @@ import { runCli } from "../../lib/ticket-triage/run-cli.js"
 const REPOSITORY = "owner/project"
 const PRIMARY_NUMBER = 7
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
-const executable = path.join(root, "bin/ticket-triage")
+const executable = path.join(root, "bin/triage")
 const timestamp = "2026-10-20T12:00:00Z"
 
 function issue(number, overrides = {}) {
