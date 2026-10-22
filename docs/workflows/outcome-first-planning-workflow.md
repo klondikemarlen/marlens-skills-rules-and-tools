@@ -76,6 +76,8 @@ Read, in order:
 
 Record which existing pattern is reused and why a new asset is necessary.
 
+For material extensions, use [Pattern Fit and Non-Fit](../references/code-organization-reference.md#pattern-fit-and-non-fit) to name fitting responsibilities and the owner of non-fitting behavior in the existing plan; do not broaden a shared pattern for one outlier.
+
 ### 4. Map Tools and Rules
 
 Choose the smallest applicable set from:

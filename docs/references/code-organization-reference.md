@@ -607,6 +607,24 @@ Use patterns only when they earn their keep:
 - **Interface/factory/registry:** use when there are multiple real implementations or one volatile external boundary. Delete one-implementation abstractions that only prepare for imagined future variation.
 - **Folder/module split:** use when it groups code that changes together or hides volatility. Do not split files by technical phase if every feature change crosses all of those folders.
 
+### Pattern Fit and Non-Fit
+
+A pattern is a bounded solution to a recurring responsibility, not a container for all related feature code. Before materially extending it, identify its purpose, owned invariants and lifecycle, allowed dependencies, and excluded concerns. Reuse the parts that fit; place the remainder with its actual feature or domain owner.
+
+Minor extensions are valid when they preserve that responsibility and dependency direction. Adding feature modes, unrelated lifecycle state, or presentation callbacks to a resource-fetching contract is a responsibility change, not merely a small implementation detail. Judge the boundary by meaning, not the number of changed lines.
+
+Allow cohesive local growth and intentional duplication while a stable common responsibility has not emerged. Use the existing [Organization Tests](#organization-tests), [Domain Discovery Checkpoint](#domain-discovery-checkpoint), and [Component-Owned Support Modules](#component-owned-support-modules) to choose the smallest appropriate owner. A named operation may own a meaningful invariant with one caller; it does not need to become a generalized pattern. Introduce a second narrow shared pattern when current cases demonstrate common meaning, invariants, or lifecycle—not just similar syntax or a fixed reuse count.
+
+Outside a pattern still means inside architectural ownership. Keep feature-specific interaction with its component or specialized reactive lifecycle, pure feature transformations with their concept owner, and business transactions with the service/use case rather than the controller. Do not create a catch-all module for everything that does not fit.
+
+For example:
+
+- **Purpose-preserving extension:** an existing `save(attributesOverrides = {})` merges extra update attributes over editable record state after its null guard. Use that capability rather than rejecting a legitimate variation for uniformity.
+- **Non-fit:** one editor needs drag previews and cancellation state. Compose its resource composable with component-owned coordination or a specialized interaction composable when a distinct reactive lifecycle warrants one; keep pure placement calculations with their feature owner. Do not add editor modes and callbacks to ordinary resource fetching.
+- **Different action, same ownership:** an endpoint needs a workflow update and dependent record creation in one transaction. Give that action an intention-named service operation; a CRUD-template mismatch does not justify putting the transaction in the controller.
+
+Fix genuine shared-contract defects at their owner rather than preserving them through local exceptions. If an accepted requirement changes a domain invariant, revise the model explicitly instead of forcing the new behavior into an inaccurate model. For material boundary decisions, record what fits, what does not, and who owns the remainder in the existing plan or review; do not create another artifact.
+
 ## Review Smells and Fixes
 
 - Context/request object passed everywhere -> pass the minimum named values each lower operation needs.
