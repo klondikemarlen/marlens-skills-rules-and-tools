@@ -314,6 +314,12 @@ If the initiating mutation and job or durable handoff commit independently, eith
 
 Preserve the existing delivery and transaction contract. Reusing lifecycle wiring does not justify replacing required durable delivery with transient post-commit PubSub, changing transaction ownership, or mandating a particular ORM.
 
+### Durable Job Payload Changes
+
+Persisted job arguments are a deployment interface even after all current source callers are migrated. Review changes to argument type, position, arity, and representation when old queued jobs can execute new handler code. Require evidence that an actual prior payload remains readable by the current handler, or an explicit verified migration, queue drain, or versioned-handler cutover before deployment. Prefer a focused prior-payload-to-current-handler regression through the existing serializer/processor; a test using only the new producer is insufficient.
+
+Keep clean cutovers when their prerequisites are verified. Support only evidenced prior payloads while they can still exist; do not require permanent unions, aliases, compatibility shims, a queue framework, or hypothetical payload versions.
+
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
@@ -393,6 +399,8 @@ When adding an explanatory comment convention, apply it consistently across comp
 ## Shared Content and Presentation Contracts
 
 When content requirements appear to conflict with a shared field limit or sanitizer, inspect the field's semantics, storage capacity, original constraint rationale, and sanitization contract plus all consumers before proposing an exception. Prefer a consistent contract across event types over an event-specific bypass. Distinguish stored content from compact presentation, and separate their policies when the existing model supports it. Do not assume a new field or universal UI-only truncation is required without inspecting the model and rendering surfaces.
+
+When an initiating application service creates an event containing user-authored rich text, prepare the accepted sanitized content there before handing off the event. Notification coordinators, channels, and mailers consume that explicit prepared payload rather than owning normal-path sanitization policy or reconstructing content from raw source records. Reuse the existing sanitizer and representation contract; this does not require storing HTML universally or removing independently necessary final-boundary safety checks.
 
 ## Guarded Computations
 
