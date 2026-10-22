@@ -10,8 +10,10 @@ Use when writing or updating pull request testing instructions.
 4. Start from the success condition: name the behavior, invariant, or regression risk each scenario must prove.
 5. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
 6. Write steps in execution order, checking each action is available in the state produced by the previous action. When repairing instructions, preserve the scenario's intended transitions and invariant coverage: restore a required real user action rather than moving setup earlier if that removes the behavior under test. For a completed-record edit scenario, this may mean reopen/revert, reassign/edit, then re-complete; an initial-assignment scenario needs no unnecessary revert.
-7. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end.
-8. Separate independent scenarios with numbered test cases when the flow is complex.
+7. Write the user-visible end-user/QA checks first, in the order a reviewer can perform them. Keep any local developer setup or developer-only checks in a separate section afterward when needed; the project's existing PR template chooses section labels and structure, so do not impose a new heading or skeleton.
+8. State real prerequisites before the first action that needs them, even when developer setup is presented afterward. Keep end-user scenario prerequisites distinct from optional or developer-only checks; do not move a prerequisite later if doing so makes an earlier action unavailable or changes the behavior under test.
+9. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end.
+10. Separate independent scenarios with numbered test cases when the flow is complex.
 
 ## Real-Authentication E2E Preflight
 
@@ -78,9 +80,19 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 ```markdown
 ## Testing Instructions
 
-1. Run `<focused check>`.
-2. Start the app with `<project command>`.
-3. Navigate to `<page>`.
-4. Perform `<action>`.
-5. Verify `<observable result>`.
+### <project template's end-user/QA section>
+
+Prerequisite: <required app/account/data state, established before the first action that needs it>.
+
+1. Navigate to `<page>`.
+2. Perform `<action>`.
+3. Verify `<observable result>`.
+
+### <project template's developer setup/checks section, when needed>
+
+Prerequisite: <local developer environment or credentials, when required by these checks>.
+
+1. Run `<focused developer check>`.
+
+Use the project's existing template headings and structure; these labels illustrate ordering, not required new headings.
 ```
