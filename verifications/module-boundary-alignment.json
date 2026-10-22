@@ -3,16 +3,15 @@
   "standardId": "marlens-rules:module-boundary-alignment",
   "source": "./docs/references/code-organization-reference.md#module-decomposition",
   "gold": "Each changed module boundary owns a meaningful invariant, domain action, volatile dependency, independent change axis, or actual reusable behavior. A boundary must not exist only for a trivial transformation or direct forwarding; preserve useful short boundaries when evidence shows real ownership.",
-  "requiredContext": [
-    "changed-code",
-    "callers",
-    "siblings",
-    "project-guidance"
-  ],
+  "requiredContext": ["changed-code", "callers", "siblings", "project-guidance"],
   "rubric": [
     {
       "id": "boundary-ownership",
       "question": "For each changed or introduced boundary, what meaningful responsibility, invariant, domain action, volatile decision, or reusable behavior does it own? Cite the changed code that demonstrates this ownership."
+    },
+    {
+      "id": "pattern-fit",
+      "question": "When a changed module extends an existing pattern, does it preserve that pattern's responsibility and dependency direction, or absorb unrelated behavior for an outlier? Apply Pattern Fit and Non-Fit in the source reference: identify the actual owner of non-fitting behavior, preserve architectural ownership, allow purpose-preserving extensions and meaningful local operations, and require current semantic evidence rather than a reuse count before generalizing."
     },
     {
       "id": "change-cohesion",
