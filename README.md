@@ -47,7 +47,9 @@ For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` run
 
 ## Evidence-Backed Ticket Triage
 
-Use [`triage`](skills/triage/SKILL.md) to assess a ticket or a bounded backlog without claiming ownership or changing remote records. It separates work type, owner, readiness, impact, relationships, and next action; recommendations cite inspected evidence and retain uncertainty.
+Use [`triage`](skills/triage/SKILL.md) for evidence-backed ticket assessment, bounded backlog ranking, or explicitly authorized classification-label additions without claiming ownership or beginning implementation. It separates work type, owner proposal, readiness, impact, relationships, and next action; classifications cite inspected evidence and retain uncertainty.
+
+Say “triage these tickets” for assessment, “triage and show proposed labels; dry run only” for a no-write plan, or “triage and apply classification labels to these tickets” to authorize bounded label additions. Labeling does not authorize assignment, closure, comments, board transitions, or implementation.
 
 The packaged `triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
 
@@ -62,6 +64,10 @@ Clarifies [Pattern Fit and Non-Fit](docs/references/code-organization-reference.
 ## Version 3.20.3
 
 Accepts `Act & Assert` alongside `Act / Assert` and `Act and Assert` in the test-alignment check. Existing supported comments need no spelling-only edits; genuinely missing or misordered phases still fail.
+
+## Version 3.21.0
+
+Adds explicitly authorized classification-label application to the triage skill, alongside default read-only assessment and dry-run. The workflow refreshes evidence, uses existing labels additively, preserves unrelated metadata, and verifies live results. The CLI and assessment schema remain read-only and unchanged.
 
 ## Claude Code Plugin Install
 
