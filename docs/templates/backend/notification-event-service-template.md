@@ -119,6 +119,10 @@ export default {EventServiceName}
 
 Use an `attributes` argument for notification-row-like copy fields. Keep domain models as explicit constructor arguments.
 
+For user-authored rich text, the initiating application action prepares these attributes with the project's existing sanitizer before constructing the event service. Pass the accepted representation explicitly to both channel paths; do not move normal-path sanitization into this coordinator or the mailer, reread raw content there, or assume that every project stores HTML. The single-recipient example above uses static copy; use this explicit attributes handoff when content comes from user input.
+
+When queued mailer arguments change, follow [Durable Job Payload Changes](../../references/code-organization-reference.md#durable-job-payload-changes): prove an actual queued prior payload remains readable or verify the deployment cutover before dropping it. Current producer calls alone are not that evidence.
+
 ```typescript
 type {EventServiceName}NotificationAttributes = {
   title: string
@@ -200,7 +204,7 @@ export class {EventServiceName} {
 2. Add UI labels or preference labels for the event if users can configure it.
 3. Add or confirm the mailer/job when email delivery is supported.
 4. Export the event service from the nearest services index.
-5. Replace separate in-app/email calls with one event-service call.
+5. Replace separate in-app/email calls with one event-service call. For user-authored rich text, prepare accepted sanitized attributes in the initiating application service; coordinators and mailers consume that payload. Preserve independent final-boundary safety checks.
 6. Keep `options: NotificationDeliveryOptions = {}` as the final constructor argument.
 7. Add focused service tests for observable delivery contracts:
    - default options create an in-app notification row when preferences allow it
