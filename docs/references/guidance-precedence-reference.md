@@ -35,6 +35,23 @@ Before applying a workflow from this package, read the target project’s local 
 | Skills                      | `skills/`          | Compatibility entrypoints that route agents to authoritative workflows.  |
 | OMP rules                   | `rules/`           | Reusable OMP rule snippets that may be copied or linked into user rules. |
 
+## Workflow Outputs and Publication
+
+A workflow's output contract describes the knowledge, decisions, and evidence needed to complete the work. It is not a mandatory public document shape or permission to post. Keep execution records in the session or the existing designated check, artifact, or work record unless the user or project explicitly selects another destination. Required verification, review, ownership, and honest limitations still apply.
+
+Choose public communication by the reader's need, not by the amount of work performed. Publish only information that answers a real question, changes a decision, exposes a material risk or prerequisite, or supplies necessary new evidence. If the existing record already communicates it and no response is needed, make no new write. Routine success, CI echoes, rebase/cleanup diaries, and learner-no-action bookkeeping do not become discussion merely because a workflow requires recording them.
+
+| Destination                            | Reader-Facing Purpose                                                                                                                                                                                                                                                         |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session or existing execution evidence | Retain detailed checks, current-head results, investigation, and internal bookkeeping without publishing a running diary. Link an appropriate existing check/artifact when readers need supporting detail.                                                                    |
+| PR description                         | Explain the current purpose, changed behavior, material prerequisites, and reproducible testing within the repository's canonical template. Follow [Description and Evidence Placement](../workflows/pull-request-management-workflow.md#description-and-evidence-placement). |
+| Existing issue or review conversation  | Answer the actual question or finding, communicate a decision or actionable risk, or add genuinely missing context in its owning thread. Do not repeat the full report or information already visible in checks.                                                              |
+| Explicitly requested report or handoff | Preserve the requested detail and format in the selected destination; update an existing designated report in place rather than creating competing summaries.                                                                                                                 |
+
+Write the smallest useful answer, result, risk, or next action with the supporting link or limitation it needs. Concision must not hide a blocker or remove explicitly requested detail. Keep historical evidence tied to its revision; a self-review or old PASS is not independent approval or proof of the current state.
+
+Downstream links supplied as examples of a shared instruction problem are read-only research inputs. Improve the shared owner when that is the requested outcome; a broad follow-up such as “do what you think is best” does not turn those examples into cleanup targets. Editing or deleting downstream history requires an explicit cleanup request and target scope.
+
 ## Rules
 
 - Keep project-specific commands, services, routes, domain terms, auth, schemas, deployment details, and UI labels in the target project.
