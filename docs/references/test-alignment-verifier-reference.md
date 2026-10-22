@@ -7,7 +7,7 @@
 Every changed test file must meet these rules without a README directive:
 
 - `test-name-when` — `when [condition], [behavior]` test names.
-- `arrange-act-assert` — ordered `Arrange`, `Act`, and `Assert` comments; `Arrange` followed by `Act / Assert` is also accepted when invoking the subject is itself the assertion, as in matcher tests. Do not invent aliases or no-op steps solely to separate those phases.
+- `arrange-act-assert` — ordered `Arrange`, `Act`, and `Assert` comments; `Arrange` followed by `Act / Assert`, `Act & Assert`, or `Act and Assert` is also accepted when invoking the subject is itself the assertion, as in native promise-error or matcher tests. Preserve the existing supported spelling rather than restyling comments. Do not invent aliases or no-op steps solely to separate those phases.
 
 Failure evidence identifies the changed test, violated rule, and `shared baseline` as its source. Assertion count is not a shared quality gate.
 
