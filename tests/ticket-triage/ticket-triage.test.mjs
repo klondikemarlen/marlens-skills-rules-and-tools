@@ -10,6 +10,9 @@ import { calculateSnapshotId } from "../../lib/ticket-triage/snapshot-id.js"
 import { renderAssessment } from "../../lib/ticket-triage/render.js"
 import { createSnapshot, parseIssueNumber } from "../../lib/ticket-triage/snapshot.js"
 import { validateAssessment, validateSnapshot } from "../../lib/ticket-triage/validate.js"
+import { parseCommand } from "../../lib/ticket-triage/options.js"
+import { readJsonFile } from "../../lib/ticket-triage/read-json.js"
+import { runCli } from "../../lib/ticket-triage/run-cli.js"
 
 const REPOSITORY = "owner/project"
 const PRIMARY_NUMBER = 7
@@ -361,4 +364,100 @@ test("when JSON object keys are reordered, the same content still validates", as
 
   // Assert
   assert.equal(result.snapshotId, snapshot.id)
+})
+
+test("when GitHub returns string labels, capture preserves the supported issue labels", async () => {
+  // Arrange
+  const primary = issue(PRIMARY_NUMBER, { labels: ["bug"] })
+
+  // Act
+  const snapshot = await makeSnapshot({ primary })
+
+  // Assert
+  assert.deepEqual(snapshot.issue.labels, ["bug"])
+})
+
+test("when a repository name starts with a dot, CLI capture and validation accept it", async () => {
+  // Arrange
+  const repository = "owner/.github"
+  const primary = issue(PRIMARY_NUMBER, {
+    html_url: `https://github.com/${repository}/issues/7`,
+    repository_url: `https://api.github.com/repos/${repository}`,
+    labels: ["bug"],
+  })
+  const parsed = parseCommand(["snapshot", "--repo", repository, "--issue", "7"])
+  const read = async (endpoint) => {
+    if (endpoint.endsWith("/issues/7")) return primary
+    if (endpoint.includes("/comments?")) return [[]]
+    if (endpoint.includes("/labels?")) return [[{ name: "bug" }]]
+    return { total_count: 1, items: [primary] }
+  }
+
+  // Act
+  const snapshot = await createSnapshot({
+    repository: parsed.options["--repo"],
+    issueNumber: parsed.options["--issue"],
+    read,
+  })
+
+  // Assert
+  assert.equal(snapshot.repository, "owner/.github")
+})
+
+test("when evidence URLs use a different origin or noncanonical path, capture and validation reject them", async () => {
+  // Arrange
+  const snapshot = await makeSnapshot()
+  const invalidUrls = [
+    "https://github.com:444/owner/project/issues/7",
+    "https://github.com/owner/project/issues//7",
+    "https://github.com/owner/project/issues/7\n",
+  ]
+
+  // Act / Assert
+  for (const url of invalidUrls) {
+    const edited = structuredClone(snapshot)
+    edited.issue.url = url
+    edited.id = calculateSnapshotId(edited)
+    assert.throws(() => validateSnapshot(edited), /must refer to issue/)
+    await assert.rejects(
+      makeSnapshot({ primary: issue(PRIMARY_NUMBER, { html_url: url }) }),
+      /non-canonical/
+    )
+  }
+})
+
+test("when capture emits a snapshot at the file limit, the emitted bytes remain readable", async () => {
+  // Arrange
+  const limit = 16 * 1024 * 1024
+  const comments = Array.from({ length: 17 }, (_, index) =>
+    comment(PRIMARY_NUMBER, 100 + index, "x".repeat(986000))
+  )
+  const initial = await makeSnapshot({ comments })
+  const padding = limit - Buffer.byteLength(`${JSON.stringify(initial)}\n`, "utf8")
+  comments.at(-1).body += "x".repeat(padding)
+  const directory = await mkdtemp(path.join(os.tmpdir(), "triage-size-"))
+  let output = ""
+
+  try {
+    // Act
+    const status = await runCli(["snapshot", "--repo", REPOSITORY, "--issue", "7"], {
+      read: makeReadTransport({ comments }),
+      writeOutput: (text) => {
+        output = text
+      },
+      writeError: (text) => {
+        throw new Error(text)
+      },
+    })
+    const file = path.join(directory, "snapshot.json")
+    await writeFile(file, output)
+    const loaded = await readJsonFile(file, "snapshot")
+
+    // Assert
+    assert.equal(status, 0)
+    assert.equal(Buffer.byteLength(output, "utf8"), limit)
+    assert.equal(validateSnapshot(loaded).id, JSON.parse(output).id)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 })
