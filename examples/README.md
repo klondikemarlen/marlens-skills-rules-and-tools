@@ -8,3 +8,4 @@ These outcome cases show the smallest useful difference made by one packaged ski
 - [`rules-and-verifications.md`](./rules-and-verifications.md) — contextual guidance paired with a deterministic release backstop.
 - [`project-aware-test-review.md`](./project-aware-test-review.md) — replayable semantic review of complete changed tests against local conventions and compliant siblings.
 - [`reader-focused-publication.md`](./reader-focused-publication.md) — separate required execution evidence from useful public communication, with replayable publication decisions.
+- [`outcome-skills.md`](./outcome-skills.md) — memorable task intentions with bounded progress, evidence-backed simplification, and safe session closure.

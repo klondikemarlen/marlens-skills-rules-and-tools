@@ -30,6 +30,19 @@ For Jest or Vitest projects, the optional [HTTP response matcher](docs/reference
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
 
+## Four Verbs to Remember
+
+Name the outcome; the skill selects the existing workflows and owns verification and completion. These are skills, not new slash-command handlers. In OMP, type `/skill:` to find skill invocations; natural-language requests can name the skill too.
+
+| Skill                                  | Example Request                             | Intended Outcome                                                                                                     |
+| -------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [`advance`](skills/advance/SKILL.md)   | “Use advance to move this project forward.” | Select and deliver one valuable outcome from accepted direction, issues, plans, or blockers—not empty the backlog.   |
+| [`simplify`](skills/simplify/SKILL.md) | “Use simplify on the hardest-to-read code.” | Improve one evidenced readability hotspot while preserving behavior.                                                 |
+| [`improve`](skills/improve/SKILL.md)   | “Use improve to reassess this repo.”        | Reconcile useful knowledge and deliver one justified improvement, or explain an evidenced no-change finding.         |
+| [`wrap-up`](skills/wrap-up/SKILL.md)   | “Use wrap-up; then exit.”                   | Close delivery loops, safely clean owned resources, and route session insights. Exit only when explicitly requested. |
+
+Readability is a [default engineering expectation](rules/human-readable-code.md), not another command to remember. The portable [`readable-code`](skills/readable-code/SKILL.md) modifier can emphasize it during an existing task without launching a refactoring campaign. These entrypoints preserve project-local guidance, repository authorization, and release gates; `wrap-up` alone does not authorize exit or filing issues in arbitrary repositories.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
