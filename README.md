@@ -55,6 +55,10 @@ The packaged `triage` CLI captures authenticated read-only GitHub snapshots, val
 
 Renames the skill and CLI to `triage`, removing the former public entrypoints without aliases. The evidence-backed triage rule and read-only snapshot/validate/render behavior remain unchanged. Existing ticket lifecycle and release workflows remain authoritative for separately authorized implementation.
 
+## Version 3.20.2
+
+Clarifies [Pattern Fit and Non-Fit](docs/references/code-organization-reference.md#pattern-fit-and-non-fit): preserve a pattern's responsibility, place non-fitting behavior with its actual owner, and generalize only from demonstrated common meaning or invariants. Planning, domain modeling, and semantic boundary review reuse this guidance; no new skill or executable verifier is introduced.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
