@@ -138,8 +138,14 @@ export class {CreateService} extends BaseService {
   constructor(private attributes: Partial<CreationAttributes<{ResourceName}>>) { super() }
 
   async perform(): Promise<{ResourceName}> {
+    const { {searchField}, ...optionalAttributes } = this.attributes
+    if ({searchField} === undefined || {searchField} === null) {
+      // Use the project's standard validation error.
+      throw new Error("{searchField} is required")
+    }
+
     return db.transaction(async () => {
-      const resource = await {ResourceName}.create(this.attributes)
+      const resource = await {ResourceName}.create({ ...optionalAttributes, {searchField} })
       return resource.reload({ include: ["{requiredAssociation}"] })
     })
   }
@@ -148,17 +154,25 @@ export class {CreateService} extends BaseService {
 
 Use matching update and destroy services when the mutation has transaction, audit, validation, association reload, or side-effect behavior. Direct model calls are enough for trivial project-local paths.
 
+For the partial creation-payload pattern, guard required field presence in `perform()` before persistence, then pass the narrowed required fields alongside supported policy-filtered optional attributes. The model slice requires `{searchField}`; adapt the guards to the target model's actual required fields. Presence checks do not replace model-owned blank-text handling, normalization, format validation, or database constraints. An ensure service using this contract also accepts a partial payload and guards its lookup identity before querying; missing-record creation still goes through the create service's required-field checks.
+
 For Sequelize 7, the managed transaction above relies on the project's automatic transaction propagation and nested reuse settings. Inspect the installed version, `disableClsTransactions`, `defaultTransactionNestMode`, and neighboring services before adopting it; see [Sequelize's managed transaction documentation](https://sequelize.org/docs/v7/querying/transactions/). With those guarantees, called services and queries join the active context without transaction parameters in constructors or helpers. Keep a multi-write service's transaction in `perform()` so it remains atomic standalone and its writes roll back if an outer transaction fails. Retain explicit transaction plumbing when propagation or reuse is unavailable; do not add transaction wrappers to ordinary lookups solely for this pattern.
 
 When the lifecycle intentionally reuses an existing record, use an owning-domain ensure service rather than ORM `findOrCreate`. Keep the lookup explicit and delegate creation to the domain's create service:
 
 ```ts
 export class {EnsureService} extends BaseService {
-  constructor(private attributes: CreationAttributes<{ResourceName}>) { super() }
+  constructor(private attributes: Partial<CreationAttributes<{ResourceName}>>) { super() }
 
   async perform(): Promise<{ResourceName}> {
+    const { {lookupField} } = this.attributes
+    if ({lookupField} === undefined || {lookupField} === null) {
+      // Use the project's standard validation error.
+      throw new Error("{lookupField} is required")
+    }
+
     const resource = await {ResourceName}.findOne({
-      where: { {lookupField}: this.attributes.{lookupField} },
+      where: { {lookupField} },
     })
     if (resource) return resource
 
