@@ -59,6 +59,10 @@ Renames the skill and CLI to `triage`, removing the former public entrypoints wi
 
 Clarifies [Pattern Fit and Non-Fit](docs/references/code-organization-reference.md#pattern-fit-and-non-fit): preserve a pattern's responsibility, place non-fitting behavior with its actual owner, and generalize only from demonstrated common meaning or invariants. Planning, domain modeling, and semantic boundary review reuse this guidance; no new skill or executable verifier is introduced.
 
+## Version 3.20.3
+
+Accepts `Act & Assert` alongside `Act / Assert` and `Act and Assert` in the test-alignment check. Existing supported comments need no spelling-only edits; genuinely missing or misordered phases still fail.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
