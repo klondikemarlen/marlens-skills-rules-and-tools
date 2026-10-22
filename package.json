@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "3.20.0",
+  "version": "3.20.1",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -25,7 +25,7 @@
     "temporary-mcp-task": "./bin/temporary-mcp-task.js",
     "github-headless-session": "./bin/github-headless-session",
     "github-review-thread": "./bin/github-review-thread",
-    "ticket-triage": "./bin/ticket-triage",
+    "triage": "./bin/triage",
     "check-title-case": "./bin/check-title-case"
   },
   "files": [
