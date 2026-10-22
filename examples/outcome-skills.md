@@ -24,12 +24,25 @@ The user names an outcome; a thin skill selects maintained workflows. Readabilit
 | “Use wrap-up.” Delivery is verified; unrelated uncommitted files and an upstream insight remain.                                              | Preserve unrelated files. Deduplicate and route the insight, filing externally only where authorized. Bare wrap-up does not authorize exit.                                                                     |
 | “Use wrap-up; then exit.” Delivery is verified, an owned clean disposable worktree remains, and one upstream filing is explicitly authorized. | Safely remove only verified owned resources, file the deduplicated finding with its evidenced owner, schedule supported exit after the final response, then give that response. Do not implement upstream work. |
 
+## One Bounded Cycle
+
+“Use evolve on this repo” evaluates advance → improve → simplify → wrap-up once. It composes the existing skills, including their project-local workflow selection, rather than replacing their procedures.
+
+| Evidence During the Cycle                                                                                                             | Expected Decision                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All three implementation stages have distinct justified work.                                                                         | Deliver at most one cohesive outcome per stage, in order, with separate applicable issue/PR/release gates. Wrap up the full cycle; do not restart.                                |
+| Advance already improved the relevant design and simplified the strongest hotspot; later inspection finds no further justified work.  | Evaluate improve and simplify using carried evidence, record no-change/already-covered, and wrap up without forced edits or redundant releases.                                   |
+| Advance merged, but its required artifact installation failed and an authorized fix is reachable.                                     | Resolve and verify that stage before starting improve; merge is not proof of completed delivery.                                                                                  |
+| A required external prerequisite blocks advance with no reachable remedy.                                                             | Stop subsequent implementation. Use wrap-up only for truthful incomplete-status closeout, preserve unreleased or uncertain resources, and do not exit even if exit was requested. |
+| Simplify changes inputs covered by an earlier stage's verification.                                                                   | Revalidate the affected earlier acceptance proof before final completion; reuse unrelated checks whose inputs remain unchanged.                                                   |
+| The target has a local improve workflow; the user limited evolve to one module and did not request exit or authorize external filing. | Use that local workflow within the module scope. Preserve unrelated work, report externally owned insights without filing, keep the session open, and do not loop.                |
+
 ## Why
 
 These are task intentions, not a new orchestration runtime. Existing workflows retain authority over delivery, knowledge, review, and learning. Success is less supervision and ownership burden, not more autonomous activity or lower complexity scores.
 
 ## Check
 
-In a fresh OMP process, discover `/skill:advance`, `/skill:simplify`, `/skill:improve`, `/skill:wrap-up`, and `/skill:readable-code`. Use these scenarios as bounded read-only consumer evaluations against both the authoritative workflows and packaged fallbacks. Check the concrete decisions and preserved boundaries, not phrase matches. Do not execute the fictional cleanup, issue filings, rewrites, or exit during evaluation.
+In a fresh OMP process, discover `/skill:evolve`, `/skill:advance`, `/skill:simplify`, `/skill:improve`, `/skill:wrap-up`, and `/skill:readable-code`. Use these scenarios as bounded read-only consumer evaluations against both the authoritative workflows and packaged fallbacks. Check concrete stage order, transitions, proof validity, delivery boundaries, and exit decisions, not phrase matches. Do not execute the fictional cleanup, issue filings, rewrites, or exit during evaluation.
 
-Sources: [Advance](../docs/workflows/advance-workflow.md), [Simplify](../docs/workflows/simplify-workflow.md), [Improve](../docs/workflows/improve-workflow.md), [Wrap-Up](../docs/workflows/wrap-up-workflow.md), and [Readable Code](../docs/workflows/readable-code-workflow.md).
+Sources: [Evolve](../docs/workflows/evolve-workflow.md), [Advance](../docs/workflows/advance-workflow.md), [Simplify](../docs/workflows/simplify-workflow.md), [Improve](../docs/workflows/improve-workflow.md), [Wrap-Up](../docs/workflows/wrap-up-workflow.md), and [Readable Code](../docs/workflows/readable-code-workflow.md).

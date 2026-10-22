@@ -43,6 +43,8 @@ Name the outcome; the skill selects the existing workflows and owns verification
 
 Readability is a [default engineering expectation](rules/human-readable-code.md), not another command to remember. The portable [`readable-code`](skills/readable-code/SKILL.md) modifier can emphasize it during an existing task without launching a refactoring campaign. These entrypoints preserve project-local guidance, repository authorization, and release gates; `wrap-up` alone does not authorize exit or filing issues in arbitrary repositories.
 
+For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` runs **advance → improve → simplify → wrap-up** once. It carries evidence forward, permits justified no-change stages, and completes each distinct outcome's delivery gates without combining unrelated work into a large PR. Say “Use evolve on this repo, then exit” only when you also want the session to end after successful completion; bare `evolve` keeps it open.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
