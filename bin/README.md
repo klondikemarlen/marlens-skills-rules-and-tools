@@ -14,6 +14,7 @@ Read this file when a workflow refers to package-local command setup. It maps pu
 | `github-review-thread`    | Upvote/downvote, reply, and resolve review comments in the current repository.                                                                                                                             | [`bin/github-review-thread`](./github-review-thread)       |
 | `check-title-case`        | Fail when a GitHub issue or pull request title is not title case.                                                                                                                                          | [`bin/check-title-case`](./check-title-case)               |
 | `github-headless-session` | Starts a disposable headed-to-headless GitHub browser session and prints a loopback CDP endpoint. The endpoint is not an authorization boundary; use a dedicated test account with repository-only access. | [`bin/github-headless-session`](./github-headless-session) |
+| `ticket-triage` | Capture read-only GitHub context, validate a structured assessment, and render an advisory preview. See the [contract and examples](../docs/references/ticket-triage-reference.md). | [`bin/ticket-triage`](./ticket-triage) |
 
 `agent-rebase-edit` is the published rebase helper. `git-edit-commit` remains a compatible alias.
 
