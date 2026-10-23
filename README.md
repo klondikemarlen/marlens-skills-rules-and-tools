@@ -93,6 +93,10 @@ Prefers the configured project-root convention for ordinary sibling runtime and 
 
 Adds a [verified shared-standards adoption path](docs/workflows/project-knowledge-base-workflow.md#adopting-shared-standards): load the direct shared base before thin local deltas, preserve project authority, and prove consumer decisions rather than link presence alone. Includes a compact [overlay template](docs/templates/shared-standards-overlay-template.md) and [replayable example](examples/shared-standards-adoption.md). The downstream audit now resolves repository-root and percent-encoded Markdown links without treating valid targets as missing.
 
+## Version 3.24.0
+
+Adds the declared [Test Assertion Focus check](docs/references/test-alignment-verifier-reference.md#semantic-assertion-focus-check) for contextual review against ordinary-language project test standards. It distinguishes independent outcomes and hidden assertions from direct native contracts and valid coupled invariants, without a magic directive or universal assertion quota. Structural test alignment and native advisor scheduling remain unchanged. See the [native QA procedure](examples/test-assertion-focus.md).
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
