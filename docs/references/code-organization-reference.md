@@ -107,6 +107,12 @@ Co-locate code until there is a real change axis, invariant boundary, duplicated
 
 Where the project uses `lib` for reusable mechanisms, reserve it for code meaningfully usable outside the application, not merely code shared by two screens. A generic type parameter or multiple callers does not establish project independence: application models, status policy, and persisted-order mappings remain with their domain owner. A pure contiguity algorithm can belong in `lib` even with one caller. Keep an already-clean generic mechanism separate from domain mappings, but do not build adapters, a framework, or speculative genericization solely to qualify for `lib`. Stronger project-local directory conventions win.
 
+### Library Index Barrels
+
+Use application-library `index` files for bundling and re-exports; put implementations in descriptive named sibling modules. Keep named functions and their matching default exports in those implementation modules under the existing export convention. A barrel may re-export values/types, import named/default/namespace bindings and re-export them, or default-export a static object of imported bindings. Do not hide functions, classes, locally computed values, side-effect imports, or executable initialization in a library barrel.
+
+An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
+
 ### Default-Safe Lifecycle APIs
 
 When failure isolation or lifecycle cleanup is required for ordinary callers, make it part of the normal operation rather than a parallel safe/unsafe or `WithErrorHandler` entry point. Optional callbacks express genuinely optional policy responses, not enabling baseline safety. Migrate all in-scope callers and remove the superseded unsafe path. Preserve domain recovery policy and error propagation; required safety does not mean swallowing errors, adding retries, or mandating a subscription API.
