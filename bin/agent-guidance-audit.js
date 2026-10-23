@@ -156,14 +156,17 @@ function isPathLike(token) {
 
 function markdownTargetExists(root, baseDir, target) {
   if (!target) return true
+
   const isRootRelative = target.startsWith("/")
   const targetBase = isRootRelative ? root : baseDir
   let localPath = isRootRelative ? target.replace(/^\/+/, "") : target
+
   try {
     localPath = decodeURIComponent(localPath)
   } catch {
     // Keep malformed percent escapes as literal filename characters.
   }
+
   return existsSync(path.resolve(targetBase, localPath))
 }
 
