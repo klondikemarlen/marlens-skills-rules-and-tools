@@ -85,6 +85,10 @@ Recognizes trusted current-head Codex review completion in issue comments when t
 
 Clarifies [Scenario-Oriented Verification](docs/references/code-organization-reference.md#scenario-oriented-verification): leave standard dependency API coverage upstream while preserving application-owned invariants and observed integration regressions. Adds a [replayable review example](examples/dependency-test-ownership.md) for cutovers, upgrades, existing consumer coverage, and version-scoped proof.
 
+## Version 3.22.3
+
+Prefers the configured project-root convention for ordinary sibling runtime and type imports. Preserves resolver compatibility, supported Node root spellings, public package boundaries, relative barrel re-exports, and unrelated imports. Self-improvement reuses the [existing import guidance](docs/references/code-organization-reference.md#project-root-imports-and-paths) instead of recommending a conflicting sibling-relative default.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
