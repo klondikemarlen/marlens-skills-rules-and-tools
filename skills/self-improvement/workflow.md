@@ -28,7 +28,7 @@ For design-planning requests, run the outcome-first-planning workflow first, the
 - Treat domain discovery as a recurring phase, not a one-time planning step. Before each refactoring or organization proposal, revisit topology, cohesive concepts, change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling-domain conventions. Keep weak signals as hypotheses and record candidate evidence before choosing the smallest safe action.
 - Follow existing issue-filing authorization rules. Do not file an external issue without authorization for that target.
 
-- For an import-style finding, inspect the target's existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration before proposing a project-root import. Prefer the configured root across feature/module boundaries; retain short relative imports for co-located siblings. Record incompatible or inconsistent resolution as a blocker, and do not bulk-rewrite imports solely for style.
+- For an import-style finding, inspect the target's existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration before proposing a project-root import. Apply [Project-Root Imports and Paths](../../docs/references/code-organization-reference.md#project-root-imports-and-paths), including configured-root sibling imports and the distinction from barrel re-exports. Record incompatible or inconsistent resolution as a blocker, and do not bulk-rewrite imports solely for style.
 
 ## Process
 
