@@ -80,7 +80,7 @@ Projects with different library locations can replace the default scope with rep
 }
 ```
 
-Put this configuration in `.marlens-verifications.json`. Omit `roots` to retain the default `lib` scope; set `barrelOnlyIndexes` to `false` only for an explicit project opt-out. A package export is not automatically exempt because it may itself be a barrel.
+Put this configuration in a regular `.marlens-verifications.json` file; configuration symlinks are blocked because edits to their targets would otherwise bypass the configuration-change trigger. Omit `roots` to retain the default `lib` scope; set `barrelOnlyIndexes` to `false` only for an explicit project opt-out. A package export is not automatically exempt because it may itself be a barrel.
 
 Automatic checks inspect matching `OMP_VERIFIER_CHANGED_PATHS`; a configuration-file change checks the complete configured scope. Manual checks inspect the whole scope. Evidence names inspected and explicitly excluded paths, including exception reasons; no matching files is an explicit not-applicable result. Invalid configuration or changed-path context, unreadable source, syntax errors, and paths escaping the repository produce `BLOCKED`, not a guessed pass. Deleted paths are skipped. Automatic execution/discovery belongs to OMP Verifier; this package supplies the policy and deterministic check.
 
