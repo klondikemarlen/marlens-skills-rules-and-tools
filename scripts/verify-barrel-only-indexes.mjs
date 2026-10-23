@@ -191,6 +191,48 @@ try {
   assert.equal(readFailure.status, "BLOCKED")
   assert.match(readFailure.evidence, /src\/lib\/unreadable\/index\.ts/u)
 
+  // A shorthand initializer is malformed object syntax even when parsing defers the error.
+  write(
+    projectDirectory,
+    "src/lib/shorthand-initializer/index.ts",
+    'import { item } from "./item.js"\nexport default { item = initialize() }\n'
+  )
+  const shorthandInitializer = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["src/lib/shorthand-initializer/index.ts"]),
+  })
+  assert.equal(shorthandInitializer.status, "BLOCKED")
+  assert.match(shorthandInitializer.evidence, /src\/lib\/shorthand-initializer\/index\.ts:2/u)
+
+  // Existing dangling links are unreadable source, not deleted candidates.
+  for (const kind of ["tracked", "untracked"]) {
+    const relativePath = `src/lib/dangling-${kind}/index.ts`
+    const sourcePath = path.join(projectDirectory, relativePath)
+    mkdirSync(path.dirname(sourcePath), { recursive: true })
+    symlinkSync("missing.ts", sourcePath)
+    if (kind === "tracked") {
+      execFileSync("git", ["add", relativePath], { cwd: projectDirectory })
+    }
+
+    const danglingSource = runVerification(projectDirectory, {
+      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify([relativePath]),
+    })
+    assert.equal(danglingSource.status, "BLOCKED")
+    assert.ok(danglingSource.evidence.includes(relativePath))
+  }
+
+  // Reject indirect configuration rather than miss edits to an untriggered symlink target.
+  write(projectDirectory, "config/verifications.json", '{"barrelOnlyIndexes": {}}\n')
+  rmSync(path.join(projectDirectory, ".marlens-verifications.json"))
+  symlinkSync(
+    "config/verifications.json",
+    path.join(projectDirectory, ".marlens-verifications.json")
+  )
+  const indirectConfiguration = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["config/verifications.json"]),
+  })
+  assert.equal(indirectConfiguration.status, "BLOCKED")
+  assert.match(indirectConfiguration.evidence, /\.marlens-verifications\.json/u)
+
   assert.equal(runVerification(nonGitProject).status, "BLOCKED")
   console.log("Barrel-only index verification checks passed")
 } finally {

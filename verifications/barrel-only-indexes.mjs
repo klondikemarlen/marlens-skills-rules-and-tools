@@ -82,8 +82,8 @@ function readConfiguration(repositoryRoot) {
     throw new Error(`${CONFIGURATION_FILE} cannot be inspected.`)
   }
 
-  if (!configurationDetails.isFile() && !configurationDetails.isSymbolicLink()) {
-    throw new Error(`${CONFIGURATION_FILE} must be a regular JSON file.`)
+  if (!configurationDetails.isFile()) {
+    throw new Error(`${CONFIGURATION_FILE} must be a regular JSON file, not a symlink.`)
   }
 
   const realConfigurationPath = realpathSync(configurationPath)
@@ -402,10 +402,25 @@ function statementViolations(sourceFile) {
 }
 
 function sourceSyntaxErrors(sourceFile) {
-  return sourceFile.parseDiagnostics.map((diagnostic) => ({
+  const errors = sourceFile.parseDiagnostics.map((diagnostic) => ({
     line: sourceLine(sourceFile, diagnostic.start ?? 0),
     message: ts.flattenDiagnosticMessageText(diagnostic.messageText, " "),
   }))
+
+  // TypeScript defers this malformed object-literal grammar to its later checker.
+  function inspectShorthandInitializer(node) {
+    if (ts.isShorthandPropertyAssignment(node) && node.objectAssignmentInitializer) {
+      errors.push({
+        line: sourceLine(sourceFile, node),
+        message: "A static barrel object cannot contain a shorthand property initializer.",
+      })
+    }
+
+    ts.forEachChild(node, inspectShorthandInitializer)
+  }
+
+  inspectShorthandInitializer(sourceFile)
+  return errors
 }
 
 function formatPaths(paths) {
@@ -492,8 +507,13 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
     try {
       realFilePath = realpathSync(path.join(repositoryRoot, relativePath))
     } catch (error) {
-      if (error.code === "ENOENT" || error.code === "ENOTDIR") continue
-      blocked.push(`${relativePath}: cannot resolve the source path safely.`)
+      try {
+        lstatSync(path.join(repositoryRoot, relativePath))
+      } catch (inspectionError) {
+        if (inspectionError.code === "ENOENT" || inspectionError.code === "ENOTDIR") continue
+      }
+
+      blocked.push(`${relativePath}: existing source path cannot be resolved safely.`)
       continue
     }
 
