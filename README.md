@@ -77,6 +77,10 @@ Moves organization decisions before authoring and rechecks them before the first
 
 Adds a deterministic [library index verification](docs/references/rules-and-verifications-reference.md#library-index-verification): application-library indexes bundle/re-export named modules instead of containing implementations. Supports changed-file checks, configurable library roots, and explicit reasoned runtime/package-entrypoint exceptions; malformed or unavailable evidence is blocked rather than treated as a pass.
 
+## Version 3.22.1
+
+Recognizes trusted current-head Codex review completion in issue comments when the formal Reviews API is empty. Adds bounded recovery for acknowledged reviews that remain running, preserving maintainer wait choices and separate security, approval, CI, and merge gates. See [Requested Codex Reviews](docs/references/github-tooling-reference.md#requested-codex-reviews).
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
