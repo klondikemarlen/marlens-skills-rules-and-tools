@@ -35,7 +35,52 @@ When settings are inaccessible, report exactly which prerequisite is unverified.
 
 For a requested review, publish the exact `@codex review` comment on the PR. Publication is not acknowledgement. Check for Codex's eyes reaction or other clear acknowledgement before describing it as queued/running. If there is no acknowledgement after a bounded, context-appropriate wait, diagnose the exact trigger, target repository access, review enablement, and draft/ready eligibility before any further wait or fresh request. Do not repeat long waits or repost without new evidence. Choose bounded waits to fit the context; there is no universal timeout.
 
-After acknowledgement, wait in bounded intervals for the posted review, then verify it applies to the intended current PR head (compare the reviewed commit with the current head). A posted review with no findings is a terminal result; a running acknowledgement is not. If the head changed, the old review is stale: request a fresh review when required and verify its result for the new head. Handle actionable findings and any explicit re-review requirement before the authorized merge path. Waiving a separately required external approval does not waive a requested Codex review unless the maintainer explicitly says so.
+### Establish Current-Head Completion
+
+After acknowledgement, observe in bounded intervals. Read the actual current PR head and fully paginate formal reviews, PR issue comments, and inline review comments; inspect unresolved review threads as well. An empty formal Reviews API response alone means neither running nor failed: the connector can publish its terminal result in issue comments.
+
+Verify the result's author is the target repository's trusted Codex connector bot (normally `chatgpt-codex-connector[bot]`), not a human quoting a marker or an account with a similar display name. Compare the full reviewed commit SHA with the actual current PR head. Use the current canonical summary and corroborating receipts, not an older favorable comment; conflicting states, unknown marker versions, missing fields, inaccessible pages, or an unclear association with the intended request leave completion unverified.
+
+Recognize these observed comment forms conservatively:
+
+- A `codex-pull-request-review-summary` comment with a `codex-review-state:v1` payload identifies each review separately. For code review, inspect `code_review.commit_sha`, `status`, `has_any_findings`, and `has_unresolved_findings`. A current-head `status: "completed"` with both finding flags `false` establishes a terminal no-findings result, subject to the author and consistency checks above.
+- A `codex-review-receipt:v1` comment can corroborate completion when it explicitly identifies the reviewed commit and terminal outcome, such as no major issues. The marker alone, an abbreviated or missing commit, or reassuring prose without a terminal result is insufficient. Do not guess a receipt schema or let a receipt override a conflicting canonical summary.
+
+For example, this sanitized summary payload reports only code-review completion; it is not a live response:
+
+```html
+<!-- codex-pull-request-review-summary -->
+<!-- codex-review-state:v1 {"code_review":{"commit_sha":"1111111111111111111111111111111111111111","has_any_findings":false,"has_unresolved_findings":false,"status":"completed"},"security_review":{"commit_sha":null,"has_any_findings":null,"has_unresolved_findings":null,"status":null}} -->
+```
+
+Inspect finding flags and actionable inline comments before declaring the requested review satisfied. A terminal review with findings is not a no-findings pass: resolve actionable findings and any explicit re-review requirement through the existing review workflow. An unresolved finding remains a gate even if another comment sounds favorable. Formal reviews also need author, current-head, and finding checks. Re-read the PR head before relying on the result; a changed head makes the old result stale and requires a fresh result when review is required.
+
+Keep review scopes separate: code-review completion does not prove security-review completion, approving GitHub review, CI success, or permission to merge. Follow the existing authorized merge path only after its other gates pass.
+
+### Recover From Acknowledged Reviews That Remain Running
+
+After repeated context-appropriate observation windows without progress, inspect the intended head, current canonical summary/receipts, formal reviews, and inline findings before choosing another action. Distinguish a trusted current-head summary still reporting `running` from acknowledgement alone, terminal completion, stale-head results, and unavailable or ambiguous evidence. Do not restart the same long wait without a new decision.
+
+- **Continue waiting** when there is useful progress or the maintainer chooses to wait; preserve that choice and use another bounded observation window. There is no fixed global deadline.
+- **Make one fresh request** when inspection establishes persistent nonterminal current-head state without progress, eligibility remains satisfied, and the maintainer has not directed waiting only. Publish one exact `@codex review` request under the existing review authorization, verify its acknowledgement, and then observe for a current-head terminal result. Record the prior state and new request so this does not become a repeated-request loop. A later completion does not prove the fresh request caused recovery.
+- **Report the unfulfilled gate for maintainer direction** when evidence is inaccessible/ambiguous, the fresh request is unacknowledged or remains nonterminal after bounded observation, or no justified next action remains. Name the missing evidence and attempted path; do not diagnose a service defect from elapsed time alone.
+
+Waiving a separately required external approval does not waive a requested Codex review unless the maintainer explicitly says so. A pending review has not passed. Do not change model/provider defaults as recovery.
+
+### Representative Decisions
+
+Assume the intended head is unchanged unless noted; all comment-based completion cases require the trusted-author and complete-evidence checks above.
+
+| Observed Evidence                                                                                                        | Decision                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Formal reviews `[]`; current-head v1 summary says completed with both finding flags false; no actionable inline findings | Code review completed with no findings; do not keep waiting on the empty Reviews API.                          |
+| Eyes acknowledgement only                                                                                                | Acknowledged, not completed; observe in bounded intervals.                                                     |
+| Repeated windows; trusted current-head summary still running; no new findings or progress                                | Apply the recovery decision, not an automatic retry loop or guessed pass; preserve a maintainer's wait choice. |
+| Completed result names an older head                                                                                     | Stale; obtain the required current-head review.                                                                |
+| Current-head completed summary reports unresolved findings, or actionable inline findings remain                         | Terminal result, but review gate unresolved; address findings and required re-review.                          |
+| Human copies a valid-looking completed marker                                                                            | Untrusted result; completion unverified.                                                                       |
+| Current-head code review completed; security review fields are null                                                      | Code review only; security review remains unverified.                                                          |
+| Unknown marker version, missing commit, conflicting summary/receipt, or an API page cannot be read                       | Completion unverified; obtain the missing evidence or report the unfulfilled gate.                             |
 
 ## GitHub Actions Matrix Fail-Fast
 
