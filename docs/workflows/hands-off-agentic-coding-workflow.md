@@ -76,6 +76,7 @@ Focused diffs can make change amplification and recurring change clusters easier
    - reuse existing project patterns;
    - apply [Organization Before Authoring](#organization-before-authoring) when the change introduces or materially changes module ownership or data flow;
    - keep tests focused on one observable contract, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles. HTTP status and body together form one response contract; prefer a native or meaningful matcher such as [`toHaveHttpResponse`](../references/http-response-matcher-reference.md), and use two direct assertions only as a narrow, reasoned fallback where no suitable matcher exists and local policy permits it. Keep independent persistence effects separate. Preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for examples and verifier limits;
+   - before adding or retaining dependency-related tests, apply [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification) to identify the application-owned contract, uncovered compatibility risk, and existing consumer coverage;
    - delete obsolete paths instead of adding compatibility shims;
    - avoid new abstractions, options, dependencies, or runtime machinery unless the current task needs them.
 6. Exercise the proof and iterate:

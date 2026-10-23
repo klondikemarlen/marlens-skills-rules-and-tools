@@ -81,6 +81,10 @@ Adds a deterministic [library index verification](docs/references/rules-and-veri
 
 Recognizes trusted current-head Codex review completion in issue comments when the formal Reviews API is empty. Adds bounded recovery for acknowledged reviews that remain running, preserving maintainer wait choices and separate security, approval, CI, and merge gates. See [Requested Codex Reviews](docs/references/github-tooling-reference.md#requested-codex-reviews).
 
+## Version 3.22.2
+
+Clarifies [Scenario-Oriented Verification](docs/references/code-organization-reference.md#scenario-oriented-verification): leave standard dependency API coverage upstream while preserving application-owned invariants and observed integration regressions. Adds a [replayable review example](examples/dependency-test-ownership.md) for cutovers, upgrades, existing consumer coverage, and version-scoped proof.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
