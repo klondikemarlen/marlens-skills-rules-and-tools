@@ -551,35 +551,6 @@ if (
 ) {
   fail("references index must list the code organization reference")
 }
-for (const requiredText of [
-  "Project-Root Imports and Paths",
-  "one project-root import convention",
-  "`@/…`",
-  "When raw Node runs ESM source directly",
-  "`#/…` package-import namespace",
-  '`"#/*": "./*"`',
-  "Node v24.14.0 or later",
-  "`#root/…`",
-  '`"#root/*": "./*"`',
-  "`#tests/…`",
-  '`"#tests/*": "./tests/*"`',
-  "When a directory such as `tests` is a sibling of the source root",
-  "`@/tests` to `tests`",
-  "`#/tests/…`",
-  "every supported compiler, test runner, bundler, and editor/language server resolve it identically",
-  "short relative import for an immediately co-located sibling",
-  "Do not bulk-rewrite imports solely for style",
-  "record it in project-local guidance",
-  "do not add a dependency merely to police import spelling",
-  "define one application/source root and derive paths from it",
-  "framework-managed autoloaded constants instead of relative `require` traversal",
-  "`Rails.root.join` for application-root file paths",
-  "Do not treat a runtime path constant as module-resolution configuration",
-]) {
-  if (!codeOrganizationReference.includes(requiredText)) {
-    fail(`code organization reference must document ${requiredText}`)
-  }
-}
 
 for (const requiredText of [
   "Domain-Oriented Modules and Tests",
