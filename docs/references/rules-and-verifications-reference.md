@@ -41,6 +41,7 @@ The default `whitespace-matters` rule selects commit/push and PR creation/readin
 | `use-dev-wrapper-for-development-compose`         | Rule                 | Wrapper availability and command intent require repository context.                                             |
 | `no-oversized-source-files`                       | Verification         | Tracked source paths and line ceilings are deterministic.                                                       |
 | `default-function-exports`                        | Verification         | TypeScript paths are checked by default; projects may explicitly opt out.                                       |
+| `barrel-only-indexes`                             | Verification         | Explicit library indexes contain static barrel constructs, with reasoned runtime-entrypoint exclusions.         |
 | `typescript-runtime-entrypoints`                  | Verification         | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                    |
 | `test-alignment`                                  | Verification         | Changed tests follow naming/structure rules plus explicit local policies; assertion quality still needs review. |
 | `module-boundary-alignment`                       | Agentic verification | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes.               |
@@ -56,6 +57,32 @@ For `default-function-exports`, inspect all tracked TypeScript modules by defaul
   "defaultFunctionExports": false
 }
 ```
+
+## Library Index Verification
+
+`marlens-rules:barrel-only-indexes` checks Git-tracked and nonignored untracked `index.js`, `index.jsx`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.mts`, and `index.cts` files under a directory segment named `lib` by default. Dependencies under `node_modules` and declaration files are excluded. It parses syntax with the installed TypeScript dependency; comments and empty statements are harmless.
+
+Supported barrels contain re-exports (including type/namespace exports), imports with bindings, local export lists of imported bindings, and default exports of an imported identifier or a static object of imported bindings. Implementations, local declarations, side-effect-only imports, computed/spread/method object members, calls, and other executable statements fail with file/line evidence. This checks barrel syntax, not imported modules' side effects, module resolution, or semantic cohesion; the existing default-function-export check still owns implementation export spelling.
+
+Projects with different library locations can replace the default scope with repository-relative `roots`. Explicit runtime/package initialization entrypoints need an exact path and nonblank reason:
+
+```json
+{
+  "barrelOnlyIndexes": {
+    "roots": ["web/src/lib", "packages/widgets"],
+    "entrypoints": [
+      {
+        "path": "packages/widgets/runtime/index.ts",
+        "reason": "Starts the widget worker rather than bundling its public API."
+      }
+    ]
+  }
+}
+```
+
+Put this configuration in `.marlens-verifications.json`. Omit `roots` to retain the default `lib` scope; set `barrelOnlyIndexes` to `false` only for an explicit project opt-out. A package export is not automatically exempt because it may itself be a barrel.
+
+Automatic checks inspect matching `OMP_VERIFIER_CHANGED_PATHS`; a configuration-file change checks the complete configured scope. Manual checks inspect the whole scope. Evidence names inspected and explicitly excluded paths, including exception reasons; no matching files is an explicit not-applicable result. Invalid configuration or changed-path context, unreadable source, syntax errors, and paths escaping the repository produce `BLOCKED`, not a guessed pass. Deleted paths are skipped. Automatic execution/discovery belongs to OMP Verifier; this package supplies the policy and deterministic check.
 
 ## Code-Style Advice
 

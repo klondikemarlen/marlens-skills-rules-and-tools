@@ -73,6 +73,10 @@ Adds explicitly authorized classification-label application to the triage skill,
 
 Moves organization decisions before authoring and rechecks them before the first push. Clarifies top-down service helper order, project-independent library ownership, and debugger-friendly computed values without adding mandatory artifacts, mechanical extraction, or unrelated cleanup.
 
+## Version 3.22.0
+
+Adds a deterministic [library index verification](docs/references/rules-and-verifications-reference.md#library-index-verification): application-library indexes bundle/re-export named modules instead of containing implementations. Supports changed-file checks, configurable library roots, and explicit reasoned runtime/package-entrypoint exceptions; malformed or unavailable evidence is blocked rather than treated as a pass.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
