@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "standardId": "marlens-rules:test-assertion-focus",
+  "source": "./docs/references/test-alignment-verifier-reference.md#assertion-quality-requires-review",
+  "gold": "Every changed test proves its intended observable contract with direct, meaningful assertions whose scope honors applicable ordinary-language project test standards. Independent outcomes remain independently visible; assertion count alone is never a shared quality gate.",
+  "requiredContext": ["changed-code", "project-guidance"],
+  "rubric": [
+    {
+      "id": "complete-current-scope",
+      "question": "Review every complete changed test in the supplied scope, not only edited lines. If the changed-test scope is missing or incomplete, return BLOCKED with the exact missing evidence."
+    },
+    {
+      "id": "local-policy-and-shared-default",
+      "question": "Identify applicable ordinary-language project test standards and cite their exact source when they govern assertion count, focus, phase placement, or matcher choice. Honor an explicit local standard, including a single meaningful final assertion rule; do not infer a count requirement when no local policy states one. The shared default is semantic focus, not a numeric quota. If determining an applicable local requirement needs guidance that is unavailable, return BLOCKED rather than guessing."
+    },
+    {
+      "id": "observable-contract-and-direct-assertions",
+      "question": "Assess whether assertions prove the test's named behavior through its natural real result or native matcher. Prefer a direct complete contract such as a route fullPath when it naturally represents the behavior. Preserve native promise rejection assertions, web-first matchers, meaningful nested matchers, and direct assertions of actual returned or fetched objects and arrays. Do not recommend synthetic summary objects, weakened assertions, or count-driven rewrites."
+    },
+    {
+      "id": "independent-outcomes-and-hidden-assertions",
+      "question": "Identify independently meaningful outcomes bundled in one test, including assertions hidden in setup, Act, helpers, or shared hooks. When such code is needed to assess a changed test, inspect the actual invoked subject/helper and relevant sibling context; if that context is needed but unavailable, return BLOCKED. Do not treat irrelevant absent callers or optional siblings as missing required context. Recommend focused tests for genuinely independent outcomes while keeping coupled invariants together."
+    },
+    {
+      "id": "policy-valid-exceptions-and-findings",
+      "question": "Preserve exceptions permitted by the applicable policy, including coupled response or invariant assertions when allowed. Report a conflict between local syntax/count policy and shared semantic guidance truthfully rather than silently waiving either. A finding must explain the unproven behavior or independent outcomes, cite the changed test and applicable guidance, and give a concrete correction. Never report a violation solely because a test has multiple assertions; a clean review must not invent findings."
+    }
+  ]
+}
