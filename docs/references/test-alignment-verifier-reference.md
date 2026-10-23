@@ -52,9 +52,17 @@ Keep native promise-error assertions such as `await expect(operation()).rejects.
 
 Multiple direct assertions can jointly prove a coupled invariant, such as atomic rollback leaving both account balances unchanged. Do not split a coupled invariant into tests that lose its transition evidence, or combine it with unrelated outcomes.
 
-The verifier cannot determine semantic focus or whether an object is a real result. Its `PASS` means the configured structural rules passed, not that assertions are useful. Authoring and review own that judgment; do not add a syntax-only semantic gate.
+The structural verifier cannot determine semantic focus or whether an object is a real result. Its `PASS` means the configured syntax rules passed, not that assertions are useful. `marlens-rules:test-assertion-focus` is a separate declared agentic review of the same changed-test paths against this guidance and applicable ordinary-language local standards; it uses the existing OMP Verifier consumer and semantic contract, not a syntax-only semantic gate.
 
 For placement of persistence-observation queries beside Assert expectations, follow [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification). This is authoring guidance, not another structural verifier rule.
+
+## Semantic Assertion-Focus Check
+
+`marlens-rules:test-assertion-focus` reviews the complete changed test files against this shared assertion-quality guidance and applicable ordinary-language local test standards. Its automatic path triggers match `test-alignment`, but the checks answer different questions: test-alignment evaluates deterministic naming, phase, and explicitly opted-in structural rules; assertion-focus uses Verifier's existing agentic review to assess observable contracts, independent outcomes, and applicable local policy.
+
+The review must cite the changed test and any governing local guidance. A local standard that explicitly requires one meaningful final assertion is honored; where no local policy sets a count, multiple assertions are judged by what they prove rather than their number. Native promise-error and web-first assertions, direct real-result assertions, and genuinely coupled invariants remain valid when permitted by local policy. Do not hide outcomes in setup, Act, helpers, or synthetic bundles to satisfy a count. Recommend direct natural contracts and separate tests only for independent outcomes. When the changed scope, applicable required guidance, or subject/helper context needed to judge a finding is unavailable, report `BLOCKED` with the missing evidence rather than guessing. Unnecessary caller or sibling context is not a prerequisite.
+
+Invoke the check through the supported OMP Verifier interface, for example `/verifier verify marlens-rules:test-assertion-focus`; the installed Verifier's existing semantic review flow captures scope and required context. This declaration adds no executable, natural-language parser, directive, dependency, or advisor. See [Agentic Semantic Verification](rules-and-verifications-reference.md#agentic-semantic-verification) for the shared contract ownership and protocol boundary.
 
 ## Scoped Suppression
 

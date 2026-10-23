@@ -32,23 +32,24 @@ The default `whitespace-matters` rule selects commit/push and PR creation/readin
 
 ## Current Package Classification
 
-| Asset                                             | Layer                | Why                                                                                                             |
-| ------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `whitespace-matters`                              | Rule                 | Formatting and sibling grouping require project-local tools and structure judgment.                             |
-| `solve-real-user-needs`                           | Rule                 | User value needs request/product context; use contextual review, not keyword or edge-case counts.               |
-| `no-envrc-example-commits` and `no-envrc-example` | Both                 | The rule prevents staging; the verifier backstops tracked repository state.                                     |
-| `omp-not-opencode-target-check`                   | Rule                 | Product identity depends on the user request and target package.                                                |
-| `use-dev-wrapper-for-development-compose`         | Rule                 | Wrapper availability and command intent require repository context.                                             |
-| `no-oversized-source-files`                       | Verification         | Tracked source paths and line ceilings are deterministic.                                                       |
-| `default-function-exports`                        | Verification         | TypeScript paths are checked by default; projects may explicitly opt out.                                       |
-| `barrel-only-indexes`                             | Verification         | Explicit library indexes contain static barrel constructs, with reasoned runtime-entrypoint exclusions.         |
-| `typescript-runtime-entrypoints`                  | Verification         | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                    |
-| `test-alignment`                                  | Verification         | Changed tests follow naming/structure rules plus explicit local policies; assertion quality still needs review. |
-| `module-boundary-alignment`                       | Agentic verification | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes.               |
+| Asset                                             | Layer                | Why                                                                                                            |
+| ------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `whitespace-matters`                              | Rule                 | Formatting and sibling grouping require project-local tools and structure judgment.                            |
+| `solve-real-user-needs`                           | Rule                 | User value needs request/product context; use contextual review, not keyword or edge-case counts.              |
+| `no-envrc-example-commits` and `no-envrc-example` | Both                 | The rule prevents staging; the verifier backstops tracked repository state.                                    |
+| `omp-not-opencode-target-check`                   | Rule                 | Product identity depends on the user request and target package.                                               |
+| `use-dev-wrapper-for-development-compose`         | Rule                 | Wrapper availability and command intent require repository context.                                            |
+| `no-oversized-source-files`                       | Verification         | Tracked source paths and line ceilings are deterministic.                                                      |
+| `default-function-exports`                        | Verification         | TypeScript paths are checked by default; projects may explicitly opt out.                                      |
+| `barrel-only-indexes`                             | Verification         | Explicit library indexes contain static barrel constructs, with reasoned runtime-entrypoint exclusions.        |
+| `typescript-runtime-entrypoints`                  | Verification         | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                   |
+| `test-alignment`                                  | Verification         | Changed tests follow deterministic naming/structure rules plus explicit local syntax policies.                 |
+| `test-assertion-focus`                            | Agentic verification | Changed tests receive semantic review against shared assertion guidance and ordinary-language local standards. |
+| `module-boundary-alignment`                       | Agentic verification | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes.              |
 
 ## Default-Enabled Package Policies
 
-Shared package policies and manifest verifications are available by default; a consuming project may explicitly opt out only where documented configuration supports it. Automatic execution still requires OMP Verifier and a matching trigger. Test-alignment's explicit local additions, including assertion-count limits, are project-selected conventions rather than shared defaults.
+Shared package policies and manifest verifications are available by default; a consuming project may explicitly opt out only where documented configuration supports it. Automatic execution still requires OMP Verifier and a matching trigger. Test-alignment's explicit local additions, including assertion-count limits, are structural syntax conventions, not shared quality defaults. `test-assertion-focus` separately reviews semantic focus and honors applicable ordinary-language local policy without imposing a universal count.
 
 For `default-function-exports`, inspect all tracked TypeScript modules by default. Add the following to `.marlens-verifications.json` only to disable that verification:
 
