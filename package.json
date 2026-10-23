@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "3.23.0",
+  "version": "3.24.0",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -140,6 +140,34 @@
           "**/*.spec.tsx"
         ],
         "timeoutMs": 30000
+      },
+      {
+        "id": "marlens-rules:test-assertion-focus",
+        "label": "Test Assertion Focus",
+        "description": "Reviews changed tests against shared assertion-quality guidance and applicable ordinary-language project test standards.",
+        "mode": "agentic",
+        "contract": "./verifications/test-assertion-focus.json",
+        "pathTriggers": [
+          "test/**",
+          "tests/**",
+          "__tests__/**",
+          "**/*.test.js",
+          "**/*.test.cjs",
+          "**/*.test.mjs",
+          "**/*.test.jsx",
+          "**/*.test.ts",
+          "**/*.test.cts",
+          "**/*.test.mts",
+          "**/*.test.tsx",
+          "**/*.spec.js",
+          "**/*.spec.cjs",
+          "**/*.spec.mjs",
+          "**/*.spec.jsx",
+          "**/*.spec.ts",
+          "**/*.spec.cts",
+          "**/*.spec.mts",
+          "**/*.spec.tsx"
+        ]
       },
       {
         "id": "marlens-rules:module-boundary-alignment",
