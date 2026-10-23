@@ -89,6 +89,10 @@ Clarifies [Scenario-Oriented Verification](docs/references/code-organization-ref
 
 Prefers the configured project-root convention for ordinary sibling runtime and type imports. Preserves resolver compatibility, supported Node root spellings, public package boundaries, relative barrel re-exports, and unrelated imports. Self-improvement reuses the [existing import guidance](docs/references/code-organization-reference.md#project-root-imports-and-paths) instead of recommending a conflicting sibling-relative default.
 
+## Version 3.23.0
+
+Adds a [verified shared-standards adoption path](docs/workflows/project-knowledge-base-workflow.md#adopting-shared-standards): load the direct shared base before thin local deltas, preserve project authority, and prove consumer decisions rather than link presence alone. Includes a compact [overlay template](docs/templates/shared-standards-overlay-template.md) and [replayable example](examples/shared-standards-adoption.md). The downstream audit now resolves repository-root and percent-encoded Markdown links without treating valid targets as missing.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

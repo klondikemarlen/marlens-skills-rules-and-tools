@@ -154,8 +154,20 @@ function isPathLike(token) {
   return PATH_PREFIXES.some((prefix) => token.startsWith(prefix))
 }
 
-function markdownTargetExists(baseDir, target) {
-  return !target || existsSync(path.resolve(baseDir, target))
+function markdownTargetExists(root, baseDir, target) {
+  if (!target) return true
+
+  const isRootRelative = target.startsWith("/")
+  const targetBase = isRootRelative ? root : baseDir
+  let localPath = isRootRelative ? target.replace(/^\/+/, "") : target
+
+  try {
+    localPath = decodeURIComponent(localPath)
+  } catch {
+    // Keep malformed percent escapes as literal filename characters.
+  }
+
+  return existsSync(path.resolve(targetBase, localPath))
 }
 
 function backtickPathExists(baseDir, root, token) {
@@ -298,7 +310,7 @@ function scanFile(root, file) {
     if (isUrlOrAnchor(rawTarget)) continue
     const target = cleanTarget(rawTarget)
     if (!target || target.includes("*") || target.startsWith("<")) continue
-    if (!markdownTargetExists(baseDir, target)) {
+    if (!markdownTargetExists(root, baseDir, target)) {
       results.push(
         finding(
           root,
@@ -464,31 +476,55 @@ function runSelfTest() {
     const repo = path.join(tempRoot, "repo")
     const docs = path.join(repo, "docs", "workflows")
     const refs = path.join(repo, "docs", "references")
+    const nestedRefs = path.join(refs, "nested docs")
     mkdirSync(docs, { recursive: true })
-    mkdirSync(refs, { recursive: true })
+    mkdirSync(nestedRefs, { recursive: true })
     writeFileSync(path.join(refs, "ok.md"), "# ok\n")
+    writeFileSync(path.join(nestedRefs, "encoded name.md"), "# ok\n")
     writeFileSync(path.join(docs, "ok.md"), "# ok\n")
     writeFileSync(
+      path.join(nestedRefs, "links.md"),
+      [
+        "[root encoded](/docs/references/nested%20docs/encoded%20name.md?view=full#details)",
+        "[relative encoded](encoded%20name.md#details)",
+        "",
+      ].join("\n")
+    )
+    writeFileSync(
       path.join(repo, "README.md"),
-      "[ok](docs/references/ok.md) [missing](./missing.md) `docs/workflows/nope.md`\n"
+      "[root encoded](/docs/references/nested%20docs/encoded%20name.md?view=full#details)\n"
+    )
+    const clean = auditRoots({ roots: [repo], strict: false, mirrors: [] })
+    if (clean.length !== 0)
+      throw new Error(`expected clean root and encoded link fixture, got ${clean.length}`)
+
+    writeFileSync(
+      path.join(repo, "README.md"),
+      [
+        "[ok](docs/references/ok.md) [missing](./missing.md) `docs/workflows/nope.md`",
+        "[root missing](/docs/references/missing.md?view=full#details)",
+        "[root encoded missing](/docs/references/missing%20name.md#details)",
+        "",
+      ].join("\n")
     )
 
     const dirty = auditRoots({ roots: [repo], strict: false, mirrors: [] })
-    if (dirty.length !== 2) throw new Error(`expected 2 findings, got ${dirty.length}`)
+    if (dirty.length !== 4) throw new Error(`expected 4 findings, got ${dirty.length}`)
     const details = dirty.map(formatFinding).join("\n")
     if (!details.includes("markdown-link missing target ./missing.md"))
-      throw new Error("missing Markdown fixture finding")
+      throw new Error("missing relative Markdown fixture finding")
+    if (!details.includes("markdown-link missing target /docs/references/missing.md"))
+      throw new Error("missing root-relative Markdown fixture finding")
+    if (!details.includes("markdown-link missing target /docs/references/missing%20name.md"))
+      throw new Error("missing encoded root-relative Markdown fixture finding")
     if (!details.includes("backtick-path missing target docs/workflows/nope.md"))
       throw new Error("missing backtick fixture finding")
-    if (details.includes("docs/references/ok.md"))
-      throw new Error("valid relative link was reported")
-
-    writeFileSync(
-      path.join(repo, "README.md"),
-      "[ok](docs/references/ok.md) `docs/workflows/ok.md`\n"
-    )
-    const clean = auditRoots({ roots: [repo], strict: false, mirrors: [] })
-    if (clean.length !== 0) throw new Error(`expected clean fixture, got ${clean.length}`)
+    if (details.includes("nested%20docs") || details.includes("encoded%20name.md"))
+      throw new Error("valid encoded link was reported")
+    if (!details.includes(`${path.join(repo, "README.md")}:2 markdown-link`))
+      throw new Error("missing root-relative fixture line evidence")
+    if (!details.includes(`${path.join(repo, "README.md")}:3 markdown-link`))
+      throw new Error("missing encoded root-relative fixture line evidence")
   } finally {
     rmSync(tempRoot, { recursive: true, force: true })
   }

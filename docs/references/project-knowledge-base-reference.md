@@ -76,3 +76,15 @@ Do not select a generator or add publication infrastructure solely to establish 
 ## Maintenance Signals
 
 Review a knowledge document when its authoritative source changes, a code/document conflict is found, a QA scenario exposes an undocumented rule, or a reader cannot find required information. Document age alone is not evidence that it is stale.
+
+## Adopting Shared Standards
+
+Declare the adopted shared base in existing project-root guidance: its owner, supported direct source, local overlay, and any genuine compatibility requirement. Keep observed installed/released version evidence in the adoption PR or existing verification record, not a second permanent version inventory. The declaration records where generic standards come from; it does not change skill selection or project-local precedence.
+
+Load the task-relevant shared workflow first, then the project overlay. In OMP, use a direct packaged workflow URI such as `skill://code-review/workflow.md`, not a selector that can route back into local workflow selection. Other clients should use the verified workflow file in the resolved release and identify that release/source without personal machine paths.
+
+Inventory local material before replacing it. Remove only duplicated generic guidance, retaining domain, security, cultural, command, tool, and other project constraints, plus compatible deliberate exceptions. Conflicting local rules require an explicit owner decision. If the exact source or version is missing or unavailable, preserve existing local coverage and block only the affected adoption/task until resolved; do not infer that a link or package identity proves replacement.
+
+Semantic consumer proof starts at the project root and applies the loaded base and overlay to a representative authoring, review, backend, or test decision. Preserve project commands and demonstrate one valid local exception; verify source/version availability and absence of circular routing. Link/literal checks establish only that references exist, not that a consumer follows the standard. Runtime or executable adoption is separate, and no permanent duplicate-guidance ledger is needed.
+
+Keep the root declaration and overlay as stable references rather than copied rule lists. When the selected shared release changes, resolve its actual identity and repeat the applicable consumer proof before claiming that release verified; prior-version results remain historical. Do not automatically install or upgrade a tool to satisfy adoption.

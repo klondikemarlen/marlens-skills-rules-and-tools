@@ -19,6 +19,18 @@ Use when establishing or materially revising a repository-local `docs/` knowledg
 - Local workflow and template overlays supplement shared guidance; they do not copy the generic body.
 - Establishing a docs tree does not select a static-site generator or authorize site publication. Repository visibility controls access: confidential material MUST NOT be committed to a public repository.
 
+## Adopting Shared Standards
+
+When a project adopts a packaged shared standard, declare that base in existing project-root guidance: its owner, supported direct source, local overlay, and any genuine compatibility requirement. Keep those references stable rather than maintaining copied rule lists or an installed-version inventory. This makes adoption discoverable without changing skill selectors, overriding local precedence, or copying a shared workflow into root instructions. See [Adopting Shared Standards](../references/project-knowledge-base-reference.md#adopting-shared-standards) for authority and evidence boundaries.
+
+1. **Resolve the source first.** In OMP, point directly to the relevant packaged workflow document, such as `skill://code-review/workflow.md`; do not route back through the selecting skill, which can re-enter local workflow selection. In other clients, identify and verify the corresponding workflow file in the installed or otherwise resolved release. Do not substitute a copied checklist or a personal machine-specific path. Record observed release/version and source identity in the adoption PR or existing verification evidence; keep prior-version results historical when the selected release changes.
+2. **Load only task-relevant shared bases.** For each task, read the directly relevant shared workflow before its local overlay, then apply only the local deltas. Do not load unrelated shared standards merely because they are adopted.
+3. **Inventory and decide rule by rule.** Compare local guidance with the shared base. Replace duplicated generic rules with a concise reference to the direct shared source. Keep a local rule when it expresses a project domain, security, cultural, command, tool, or other genuine constraint, or a compatible deliberate exception. For a real conflict, retain current project-local precedence, report the competing rules, and obtain an explicit project-owner decision before removing coverage or claiming alignment.
+4. **Do not delete before proving replacement.** Before removing local coverage, verify that the exact adopted version/source is available to the intended consumer and that the root declaration and overlay lead to it. If the release/version or required source cannot be resolved, preserve the local coverage and block only the affected adoption or task until the prerequisite is restored; unrelated work may continue.
+5. **Prove consumption, not just links.** From the project root, exercise a representative authoring, review, backend, or test decision as applicable: load the relevant shared source and overlay, apply their standards to the decision, retain local commands and one valid local exception, and confirm the source/version can be identified. Also check that the source is available and that no reference routes back into skill selection. Link checks and literal source presence prove discoverability only, not semantic compliance.
+
+Keep the overlay small; [the shared-standards overlay template](../templates/shared-standards-overlay-template.md) provides a compact form. This documentation adoption procedure does not install tools or change runtime/executable behavior; handle executable adoption separately. Do not maintain a second, permanent ledger of duplicated guidance.
+
 ## Selecting Documentation Content
 
 Before editing repository documentation:
