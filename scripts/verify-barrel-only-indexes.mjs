@@ -220,6 +220,16 @@ try {
     assert.ok(danglingSource.evidence.includes(relativePath))
   }
 
+  // Existing source links are unsupported even when their targets are valid static barrels.
+  const linkedSource = path.join(projectDirectory, "src/lib/linked/index.ts")
+  mkdirSync(path.dirname(linkedSource), { recursive: true })
+  symlinkSync("../grouping/index.ts", linkedSource)
+  const indirectSource = runVerification(projectDirectory, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["src/lib/linked/index.ts"]),
+  })
+  assert.equal(indirectSource.status, "BLOCKED")
+  assert.match(indirectSource.evidence, /src\/lib\/linked\/index\.ts.*regular file/u)
+
   // Reject indirect configuration rather than miss edits to an untriggered symlink target.
   write(projectDirectory, "config/verifications.json", '{"barrelOnlyIndexes": {}}\n')
   rmSync(path.join(projectDirectory, ".marlens-verifications.json"))

@@ -503,16 +503,26 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
       continue
     }
 
+    const sourcePath = path.join(repositoryRoot, relativePath)
+    let sourceDetails
+    try {
+      sourceDetails = lstatSync(sourcePath)
+    } catch (error) {
+      if (error.code === "ENOENT" || error.code === "ENOTDIR") continue
+
+      blocked.push(`${relativePath}: source path cannot be inspected.`)
+      continue
+    }
+
+    if (!sourceDetails.isFile()) {
+      blocked.push(`${relativePath}: source must be a regular file, not a symlink.`)
+      continue
+    }
+
     let realFilePath
     try {
-      realFilePath = realpathSync(path.join(repositoryRoot, relativePath))
-    } catch (error) {
-      try {
-        lstatSync(path.join(repositoryRoot, relativePath))
-      } catch (inspectionError) {
-        if (inspectionError.code === "ENOENT" || inspectionError.code === "ENOTDIR") continue
-      }
-
+      realFilePath = realpathSync(sourcePath)
+    } catch {
       blocked.push(`${relativePath}: existing source path cannot be resolved safely.`)
       continue
     }
