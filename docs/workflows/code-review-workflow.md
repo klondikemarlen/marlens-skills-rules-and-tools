@@ -86,7 +86,7 @@ Inspect the resulting DOM at the affected boundary for leaked component elements
 1. Read the request, issue, PR body, or plan.
 2. Inspect the changed files and identify whether the change is backend, frontend, migration, test-only, documentation-only, or cross-cutting.
 3. Read project-local rules and setup docs that govern the changed area.
-4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant.
+4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant. Apply [Invariant-Preserving Mutations](../references/code-organization-reference.md#invariant-preserving-mutations): ordinary operations preserve their invariant and unrelated valid state rather than invoking general repair; retain explicitly required repair/migration work.
 5. Check type and error handling: avoid unsafe casts, non-null assumptions, swallowed errors, and impossible states represented as runtime branches. Apply [Error Ownership and Local Recovery](../references/code-organization-reference.md#error-ownership-and-local-recovery) for transport/UI separation, positive local handling, application error hierarchies, and operation-specific structured logs.
 6. Check tests and verification: changed behavior should have the smallest meaningful runnable check, and PR testing instructions should match user-visible behavior.
 7. Report evidence-sensitive checks as `PASS`, `FAIL`, or `BLOCKED` using the shared vocabulary in `AGENT_RULES.md`.

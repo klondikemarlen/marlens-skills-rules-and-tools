@@ -517,6 +517,22 @@ At the client/API partial-update boundary, preserve omission of optional associa
 
 Prepare replacement attributes or content before deleting existing records, then keep destructive delete/recreate calls together. Prefer an explicit prepare-then-mutate sequence so preparation can fail before existing state is destroyed. Preserve the existing transaction boundary, required consistency, rollback behavior, and side-effect order; do not add a helper or abstraction just to perform this reorder.
 
+### Invariant-Preserving Mutations
+
+Maintain the domain invariant as part of an ordinary mutation instead of breaking it and running a general repair afterward. Make the intended changes explicit, preserve unrelated valid state, and name helpers for the action they perform, such as `shiftSuccessorPositionsAfterDeletion`, not a broad `repairOrder`. Use the existing transaction and concurrency contract; preserve rollback and required side-effect order. Explicit data repair or migration remains legitimate when corrupt state is the requested target.
+
+For a collection whose accepted invariant is contiguous zero-based positions, deleting `B` from workflow W changes only the deleted row and its successors:
+
+| Record             | Before | After   |
+| ------------------ | ------ | ------- |
+| W / A              | 0      | 0       |
+| W / B              | 1      | Deleted |
+| W / C              | 2      | 1       |
+| W / D              | 3      | 2       |
+| Other workflow / Z | 7      | 7       |
+
+Delete B and shift W's successors within the existing atomic operation; do not globally renumber workflows. Check exact remaining W membership/positions, unchanged A and unrelated Z, and rollback if a required write fails. Sparse-rank collections follow their actual invariant and need not close gaps. This is an operation-specific example, not a universal renumbering algorithm or a reason to add an abstraction.
+
 Do not introduce `findOrCreate` as convenience provisioning. When the lifecycle invariant says a record must be new, use direct `create` and let an unexpected existing record fail through the normal constraints and transaction rather than silently reusing or repairing it. Keep explicitly accepted unchanged-state behavior separate; this preference does not authorize changing that path into creation or repair.
 
 When the lifecycle intentionally permits reuse, prefer an owning-domain `EnsureService` over ORM `findOrCreate`: explicitly look up the record, return it when present, and delegate missing-record creation to that domain's `CreateService`. Keep lookup identity and creation policy with their existing owners. Preserve uniqueness, concurrency, and failure semantics; an explicit lookup alone is not a concurrency guarantee. Do not replace required-new creation or accepted unchanged-state behavior with ensure/repair.
