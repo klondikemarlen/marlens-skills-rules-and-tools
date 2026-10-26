@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.29.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/830) - 2026-10-26
+
+### Changed
+
+- Guides standalone reports to lead with the current evidence-backed failure, place caveats beside introduced diagnostics, and preserve opening safety limits and requested investigation history.
+
 ## [3.29.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/827) - 2026-10-26
 
 ### Changed
