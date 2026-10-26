@@ -97,6 +97,10 @@ Adds a [verified shared-standards adoption path](docs/workflows/project-knowledg
 
 Adds the declared [Test Assertion Focus check](docs/references/test-alignment-verifier-reference.md#semantic-assertion-focus-check) for contextual review against ordinary-language project test standards. It distinguishes independent outcomes and hidden assertions from direct native contracts and valid coupled invariants, without a magic directive or universal assertion quota. Structural test alignment and native advisor scheduling remain unchanged. See the [native QA procedure](examples/test-assertion-focus.md).
 
+## Version 3.24.1
+
+Selects [implementation pace by pattern fit](docs/workflows/outcome-first-planning-workflow.md#choose-execution-mode-by-pattern-fit): precise planning for known-fit changes, bounded runnable modeling iterations for uncertain or model-breaking seams. Strengthens existing [pattern ownership](docs/references/code-organization-reference.md#pattern-fit-and-non-fit) checks so composition preserves responsibilities instead of stretching patterns or leaking their decisions.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

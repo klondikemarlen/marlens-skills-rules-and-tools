@@ -627,11 +627,15 @@ Use patterns only when they earn their keep:
 
 A pattern is a bounded solution to a recurring responsibility, not a container for all related feature code. Before materially extending it, identify its purpose, owned invariants and lifecycle, allowed dependencies, and excluded concerns. Reuse the parts that fit; place the remainder with its actual feature or domain owner.
 
+Establish fit from the closest maintained local implementation and its callers, not from a pattern name alone. Map each changed responsibility to its existing owner, inputs/outputs, invariant, lifecycle, and allowed dependency direction. Code that already fits a standard local rail belongs there; convenience, fewer files, similar syntax, or a plausible justification does not authorize a new home or expanded responsibility. If local implementations conflict, inspect the governing guidance and actual contracts before treating either as precedent.
+
 Minor extensions are valid when they preserve that responsibility and dependency direction. Adding feature modes, unrelated lifecycle state, or presentation callbacks to a resource-fetching contract is a responsibility change, not merely a small implementation detail. Judge the boundary by meaning, not the number of changed lines.
 
 Allow cohesive local growth and intentional duplication while a stable common responsibility has not emerged. Use the existing [Organization Tests](#organization-tests), [Domain Discovery Checkpoint](#domain-discovery-checkpoint), and [Component-Owned Support Modules](#component-owned-support-modules) to choose the smallest appropriate owner. A named operation may own a meaningful invariant with one caller; it does not need to become a generalized pattern. Introduce a second narrow shared pattern when current cases demonstrate common meaning, invariants, or lifecycle—not just similar syntax or a fixed reuse count.
 
 Outside a pattern still means inside architectural ownership. Keep feature-specific interaction with its component or specialized reactive lifecycle, pure feature transformations with their concept owner, and business transactions with the service/use case rather than the controller. Do not create a catch-all module for everything that does not fit.
+
+Composition connects owners through their public contracts; it does not move their decisions into the coordinator. Keep persistence policy out of presentation, transport details out of domain decisions, and consumer-specific lifecycle state out of shared resource mechanisms unless the project's architecture explicitly owns them there. Review both sides of each changed handoff for duplicated rules, parallel state ownership, reach-through access, and reversed dependencies. A non-fitting operation may need a narrow local owner, not a new reusable pattern.
 
 For example:
 
