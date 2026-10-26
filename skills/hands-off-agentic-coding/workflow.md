@@ -34,6 +34,16 @@ Do not automatically launch a full suite known to be too heavy for local develop
 
 Preserve project wrappers, independently required release checks, and automatic CI. If an independently required expensive run lacks permission, name the unrun prerequisite and request direction rather than silently waiving it or claiming it passed. Otherwise continue with relevant verification without a repeated permission check. Do not disable CI to evade a required gate.
 
+### Full-Suite Attempt Budget
+
+Budget 1–5 full-suite CI attempts per applicable PR, targeting one at review readiness—not five as a quota or a minimum run for documentation-only changes with no applicable suite. Count readiness-triggered launches, manual full-suite dispatches, failed/cancelled launches, and rerun attempts across the PR. A workflow run's matrix shards are one attempt, not separate attempts. Inspect existing run history and attempt numbers before another launch; keep the count in the existing evidence location, not a new accounting runtime.
+
+Use focused checks during development, batch fixes, and reuse applicable queued, running, or successful current-head checks. Where the repository already provisions CI on readiness, finish focused local QA and self-review before initial readiness or restoring an agent-temporary draft; let that transition provision CI once. Do not manually dispatch first and then trigger the same-head checks again through readiness. Preserve intentional draft status; neither a full-suite completion ritual nor a desire to obtain CI authorizes making an intentionally draft PR ready.
+
+Reserve manual dispatch/rerun for an explicit maintainer request or a diagnosed CI failure needing another remote attempt. Inspect logs, address the cause, and verify it with focused checks first. Rerun only failed jobs when sufficient and still applicable; never rerun an old revision after pushing a fix. These attempts consume the same PR budget and remain subject to the expensive-run authorization above.
+
+Before a sixth attempt, stop automatic launches and seek explicit maintainer direction. Do not waive required merge checks, disable triggers, or claim missing/failed/cancelled/stale checks passed to stay within budget. Respect project-local readiness, approval, and path-filter rules and preserve independently required release checks and automatic post-merge CI. This is agent guidance, not server-enforced accounting or a mandate to reconfigure workflow triggers.
+
 ## Simple-First Delivery
 
 Deliver the smallest complete change that provides the requested user value. Prove the core path, agreed requirements, and known material security or data-integrity risks. Do not delay useful work for speculative edge cases, exhaustive permutations, optional extensibility, or polish.

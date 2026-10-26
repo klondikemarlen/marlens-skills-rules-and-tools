@@ -223,6 +223,10 @@ Adds `github-bug-reporting` for version-aware, evidence-backed reports with owne
 
 Aligns the triage, review, backend, and factory packaged fallbacks with their canonical contracts while preserving portable links, local precedence, and project-template fallback behavior.
 
+## Version 3.28.0
+
+Budgets full-suite CI attempts across each PR, reuses current-head checks, and separates readiness-triggered CI from merge gates without weakening required verification or intentional draft status.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

@@ -6,7 +6,7 @@ Use when addressing pull request review comments, especially line-level review t
 
 **WHY this workflow exists:** Review feedback can live in review threads, top-level comments, or body edits. Threaded concerns need direct replies and explicit outcomes so reviewers can see what happened without reconstructing commits.
 
-**WHAT this workflow produces:** Each addressed review thread has one direct reply that states the outcome, each resolved thread is true in the current PR state, and a PR made draft temporarily from ready status for follow-up work is returned to ready-for-review only after every applicable review, thread, QA, and required-check gate passes.
+**WHAT this workflow produces:** Each addressed review thread has a direct outcome reply and verified resolution; an agent-temporary draft may return to authorized review entry after focused QA and self-review, while applicable current-head CI and review requirements remain merge gates.
 
 **Decision Rules:**
 
@@ -26,8 +26,8 @@ Use when addressing pull request review comments, especially line-level review t
 - Before correcting accepted feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
 - After a fixup, re-review the complete PR diff and repeat targeted QA and relevant checks before recording the updated evidence.
 - After every fixup commit, repeat the assessment, reaction, resolution, and remote verification protocol for each actionable inline review comment.
-- Keep the PR `BLOCKED` and do not mark it ready or merge while actionable feedback, QA, or required checks are unresolved.
-- Distinguish an agent-temporary draft transition from existing or intentionally draft status. Restore ready-for-review only for a temporary conversion from ready or an explicit user request to return to review, after all review, thread, QA, and required-check gates pass.
+- Keep merge `BLOCKED` while actionable feedback, QA, or required checks are unresolved. Readiness-triggered CI is a merge gate, not a reason to dispatch first while draft.
+- Distinguish agent-temporary draft transitions from intentional draft status. Restore review entry only after feedback/thread resolution, focused QA, and self-review under [CI Run Budget and Readiness](pull-request-management-workflow.md#ci-run-budget-and-readiness), preserving local pre-readiness checks and the cumulative suite budget.
 - Preserve draft status when the user asks to keep it draft or it is intentionally still being built; do not automatically undo that intent. Record explicit contrary user directions separately from the default pre-fixup draft gate.
 
 ## Steps
@@ -47,7 +47,7 @@ Use when addressing pull request review comments, especially line-level review t
    ```
 8. Re-check GitHub: the expected reaction exists and `reviewThread.isResolved` is `true`.
 9. After each fixup, repeat the assessment, reaction, resolution, and verification protocol before marking the PR ready.
-10. After all review, thread, QA, and required-check gates pass, restore ready-for-review only for an agent-temporary conversion from ready or an explicit user request to return to review. Otherwise preserve existing or intentionally draft status. Re-check the remote PR state before reporting it ready.
+10. After review feedback, thread resolution, focused local QA, and self-review are complete, restore ready-for-review only for an agent-temporary conversion from ready or an explicit user request to return to review. Follow [CI Run Budget and Readiness](pull-request-management-workflow.md#ci-run-budget-and-readiness): let readiness provision configured CI once, then require its applicable current-head result before merge. Preserve intentional draft status and local pre-readiness checks; verify the remote state.
 
 ## Output Contract
 
