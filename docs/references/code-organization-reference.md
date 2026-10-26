@@ -471,6 +471,22 @@ Persisted job arguments are a deployment interface even after all current source
 
 Keep clean cutovers when their prerequisites are verified. Support only evidenced prior payloads while they can still exist; do not require permanent unions, aliases, compatibility shims, a queue framework, or hypothetical payload versions.
 
+## Invariant-Preserving Mutations
+
+Maintain the domain invariant as part of an ordinary mutation instead of breaking it and running a general repair afterward. Make the intended changes explicit, preserve unrelated valid state, and name helpers for the action they perform, such as `shiftSuccessorPositionsAfterDeletion`, not a broad `repairOrder`. Use the existing transaction and concurrency contract; preserve rollback and required side-effect order. Explicit data repair or migration remains legitimate when corrupt state is the requested target.
+
+For a collection whose accepted invariant is contiguous zero-based positions, deleting `B` from workflow W changes only the deleted row and its successors:
+
+| Record             | Before | After   |
+| ------------------ | ------ | ------- |
+| W / A              | 0      | 0       |
+| W / B              | 1      | Deleted |
+| W / C              | 2      | 1       |
+| W / D              | 3      | 2       |
+| Other workflow / Z | 7      | 7       |
+
+Delete B and shift W's successors within the existing atomic operation; do not globally renumber workflows. Check exact remaining W membership/positions, unchanged A and unrelated Z, and rollback if a required write fails. Sparse-rank collections follow their actual invariant and need not close gaps. This is an operation-specific example, not a universal renumbering algorithm or a reason to add an abstraction.
+
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.

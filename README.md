@@ -209,6 +209,10 @@ Prefers supported loading-only button presentation for unavailable and in-flight
 
 Keeps controller failures visible at the public action/error boundary and ordinary policy-scoped collection queries inline, retaining meaningful service orchestration and existing response/query contracts.
 
+## Version 3.26.18
+
+Keeps ordinary mutations invariant-preserving and scoped to their intended changes, distinguishing operation-specific ordering updates from explicitly required data repair.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
