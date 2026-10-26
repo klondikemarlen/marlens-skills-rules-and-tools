@@ -125,6 +125,10 @@ Prefers explicit await for readable async navigation/recovery while preserving s
 
 Prefers short, clear public skill/command names when no real alternative needs a qualifier, without abbreviations, extra aliases, or unrelated renames.
 
+## Version 3.25.6
+
+Checks existing frontend/backend libraries before adding overlapping dependencies, with evidence-based runtime/security exceptions and independent configuration policies.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
