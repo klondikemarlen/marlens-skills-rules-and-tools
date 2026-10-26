@@ -612,6 +612,24 @@ Prefer an explicit guard for exceptional control flow. Elsewhere, choose branchi
 
 ## Cleanup Necessity
 
+Register invariant component-wrapper teardown such as `enableAutoUnmount(afterEach)` once in runner-loaded shared setup, not separately in each test file. Inspect `setupFiles` and the installed test utility's lifecycle first; migrate equivalent registrations/imports together to avoid singleton duplicate-registration errors. Keep explicit unmount when disposal is the behavior under test, uncovered-resource cleanup, and scenario-specific setup. This is not permission to centralize asynchronous waits or persisted scenario fixtures.
+
+Present setup registrations before teardown registrations in source, including indirect teardown helpers. For a shared setup that already owns fake timers:
+
+```ts
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+
+enableAutoUnmount(afterEach)
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+```
+
+This setup-then-cleanup order aids reading; moving declarations does not change the runner's separate setup/test/teardown phases. Respect meaningful ordering among hooks in the same phase and the installed utility's behavior.
+
 Before retaining or relocating test cleanup, name the resource, isolation requirement, or observable invariant that requires it. An intentionally pending in-memory mock promise with no I/O or timer does not need to be settled merely to make the test body look complete, especially when existing scope teardown disposes it. Remove unnecessary settlement and its unused fixtures; do not move it to `finally` or a test hook. Keep assertions of pending state pending—do not resolve early, manufacture a snapshot, or weaken coverage.
 
 ```tsx
