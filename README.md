@@ -165,6 +165,10 @@ Clarifies component-family ownership of plain TypeScript interaction helpers/typ
 
 Strengthens persistence assertions with ordinary model results, complete cardinality-sensitive collections, meaningful unchanged attributes, and reuse/reload of known instances.
 
+## Version 3.26.7
+
+Uses factories for scenario setup instead of unrelated production services and keeps retired-feature investigation out of permanent tests, preserving feature-test and meaningful negative-contract coverage.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
