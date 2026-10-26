@@ -407,6 +407,12 @@ If the initiating mutation and job or durable handoff commit independently, eith
 
 Preserve the existing delivery and transaction contract. Reusing lifecycle wiring does not justify replacing required durable delivery with transient post-commit PubSub, changing transaction ownership, or mandating a particular ORM.
 
+### Child-Owned Parent Timestamp Propagation
+
+When sibling models establish parent touching as a child persistence responsibility, keep that timestamp propagation in the child model lifecycle rather than one consuming orchestration service. Reuse the existing touch primitive and transaction conventions, covering every accepted child write path. This synchronous persistence side effect is distinct from validation-only rules and background-job handoffs.
+
+Inspect installed ORM and database behavior before choosing instance versus bulk hooks; do not mandate instance hooks or `individualHooks` when a supported bulk hook is needed. Verify that only affected parents are touched, relevant instance/bulk writes propagate timestamps, and rollback preserves parent/child consistency under the accepted transaction contract. Do not impose hooks on projects without that established model convention or add shared-base persistence infrastructure.
+
 ### Durable Job Payload Changes
 
 Persisted job arguments are a deployment interface even after all current source callers are migrated. Review changes to argument type, position, arity, and representation when old queued jobs can execute new handler code. Require evidence that an actual prior payload remains readable by the current handler, or an explicit verified migration, queue drain, or versioned-handler cutover before deployment. Prefer a focused prior-payload-to-current-handler regression through the existing serializer/processor; a test using only the new producer is insufficient.
