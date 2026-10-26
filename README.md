@@ -173,6 +173,10 @@ Uses factories for scenario setup instead of unrelated production services and k
 
 Centralizes invariant component auto-unmount registration in runner setup and presents setup before teardown in source, preserving actual runner phases and meaningful explicit disposal.
 
+## Version 3.26.9
+
+Prefers supported ORM association includes/serializers over manual hydration and preserves omitted PATCH replacement inputs, with dialect, pagination, explicit replacement, and clearing contracts intact.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
