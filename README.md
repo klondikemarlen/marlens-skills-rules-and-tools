@@ -193,6 +193,10 @@ Uses one filename builder for related download formats with `<type>, <title>, <d
 
 Keeps self-explanatory one-use option literals inline while preserving shared/domain constants, meaningful computed intermediates, and existing option values.
 
+## Version 3.26.14
+
+Pairs positive application-boundary tests with meaningful negative controls that expose incorrect setup or missing filtering/authorization, without duplicate scenarios or assertion quotas.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
