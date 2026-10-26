@@ -137,6 +137,10 @@ Handles ordinary requested-review waiting autonomously, using available comparab
 
 Makes routine issue-closing notes reader-focused through before/after examples, preserving material hosted-verification limits, requested audit detail, and no-comment outcomes.
 
+## Version 3.26.0
+
+Defines model-mirror composable lifetime, editor-workflow ownership, and direct reactive-ref consumption, preserving legitimate detached drafts and accepted navigation/save contracts.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
