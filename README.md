@@ -185,6 +185,10 @@ Keeps established parent timestamp propagation in the child model lifecycle, wit
 
 Keeps validation-only rules in normal model validators or the established service boundary rather than pre-validation hooks, preserving direct-write enforcement, async errors, and genuine lifecycle side effects.
 
+## Version 3.26.12
+
+Uses one filename builder for related download formats with `<type>, <title>, <date>.<extension>`, preserving existing filename/header safety, disposition, and controller-local ownership.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
