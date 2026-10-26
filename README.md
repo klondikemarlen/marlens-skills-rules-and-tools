@@ -189,6 +189,10 @@ Keeps validation-only rules in normal model validators or the established servic
 
 Uses one filename builder for related download formats with `<type>, <title>, <date>.<extension>`, preserving existing filename/header safety, disposition, and controller-local ownership.
 
+## Version 3.26.13
+
+Keeps self-explanatory one-use option literals inline while preserving shared/domain constants, meaningful computed intermediates, and existing option values.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
