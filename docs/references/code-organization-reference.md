@@ -403,6 +403,32 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 API/HTTP transport classifies failures and throws typed errors; it must not import presentation state or open recovery UI. UI consumers or existing application/framework error boundaries own recovery presentation. When intermediate callers swallow a failure needed there, correct their propagation rather than introducing UI side effects in transport. Preserve ordinary local handling and cleanup without mandating a new global handler or layer.
 
+On the server, keep HTTP failure decisions visible in the public controller action or established error boundary. A service that cannot produce its required result should throw through that boundary, not return an `undefined` failure sentinel solely for format-specific helpers to turn into separate HTTP errors. CSV/PDF helpers prepare successful content; complete fallible preparation before setting download headers. Preserve accepted statuses and existing error handling, including streaming contracts; do not introduce a universal status or error hierarchy. Valid empty collections and optional misses remain valid values under their actual contracts.
+
+Here both format services return `{ contentType, filename, body }` or throw their existing errors. The parent forwards failures to established HTTP middleware before setting successful download headers:
+
+```ts
+async function createDownload(format, attributes, services, response, next) {
+  let download
+
+  try {
+    if (format === "csv") {
+      download = await services.csv.perform(attributes)
+    } else {
+      download = await services.pdf.perform(attributes)
+    }
+  } catch (error) {
+    return next(error)
+  }
+
+  response.setHeader("Content-Type", download.contentType)
+  response.attachment(download.filename)
+  return response.send(download.body)
+}
+```
+
+Format validation, authorization, attribute filtering, and filename/header safety remain with the project's request/response contracts; the example assumes a validated CSV/PDF format and buffered content. Verify each service failure reaches the parent boundary without success headers, and both successful formats retain their response semantics.
+
 For navigation and authentication recovery, prefer an explicit `await` in a valid async handler over `void`-discarding a promise when it makes the operation clearer. A framework caller not awaiting callbacks, or no later statement needing sequencing, does not alone make `await` inappropriate. Preserve callbacks that must return synchronously and intentional concurrency. Readability and rejection ownership are separate: neither `await` nor returning a promise guarantees an external caller handles rejection; retain the established error boundary.
 
 Use a shared core base for application-created error types so deliberate application failures remain distinguishable from unexpected third-party, transport, or unknown failures. Preserve concrete subtypes for distinct failure/recovery contracts; base membership alone does not mean locally recoverable. Name errors for their actual failure contract, not a vague response or an unproven vendor source. Do not wrap every foreign failure just to force it into that hierarchy.
@@ -497,7 +523,7 @@ When the lifecycle intentionally permits reuse, prefer an owning-domain `EnsureS
 
 In Sequelize 7 projects configured for automatic transaction propagation and nested reuse, put multi-write orchestration inside `db.transaction(async () => ...)` in `perform()` instead of passing transaction objects through service constructors and helpers. Called services and queries use the active context; preserve each service's standalone atomicity and rollback of its writes when an enclosing transaction fails. Inspect the installed version, project settings, and neighboring services before assuming propagation or reuse; retain explicit transaction passing where those guarantees are unavailable. See the existing [CRUD service slice](../templates/backend/express-sequelize-crud/resource-rail-template.md#service-slice); this does not require wrappers around ordinary reads or single-action lifecycle handoffs.
 
-For an ordinary collection read, prefer the mapped model's normal query API, such as `findAll`, over a service that merely wraps the query. Keep required batching orchestration separate; retain a service when it owns a meaningful action or orchestration rather than forwarding alone. `List` is a reasonable generic name for a collection-returning service, but an established domain convention takes precedence: for example, follow a nested resource bundle's `IndexService` shape when that is how neighboring collection endpoints are organized. Inspect adjacent endpoints and keep the operation name aligned with their domain API.
+For an ordinary collection read, use the mapped model's normal query API directly in the controller when project rails permit it, not a pass-through service. Policy scoping, request-filter narrowing, stock `count`/`findAll` queries (Sequelize examples, not an ORM requirement), distinct joined counts, ordering, pagination, and serializer projection do not by themselves justify an `IndexService`. Preserve authorization, filters, count semantics, ordering, pagination, serializers, and established transaction behavior. Keep services for meaningful domain decisions, complex search, batching, or nontrivial orchestration; do not move those responsibilities into controllers. Choose the service boundary before its name: an established nested `IndexService` convention wins over generic `List` naming only when a service is warranted. Inspect adjacent endpoints and respect explicit local architecture; this does not authorize repository-wide refactoring.
 
 When a response needs existing model associations, prefer the ORM's supported eager-loading/include contract and let owning serializers project them, rather than separately querying children, building ID maps, and manually assigning association arrays. Verify the actual dialect query and preserve authorization, optional associations, soft-delete/cancellation filtering, complete parent pagination/counts, and computed ordering. Keep specialized batching when a demonstrated constraint requires it; this is not one query at any cost. Update consumers only if the accepted response contract changes.
 

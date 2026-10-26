@@ -205,6 +205,10 @@ Alphabetizes new or intentionally changed imports within established groups, pre
 
 Prefers supported loading-only button presentation for unavailable and in-flight actions, with guarded empty-selection and duplicate submission paths.
 
+## Version 3.26.17
+
+Keeps controller failures visible at the public action/error boundary and ordinary policy-scoped collection queries inline, retaining meaningful service orchestration and existing response/query contracts.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
