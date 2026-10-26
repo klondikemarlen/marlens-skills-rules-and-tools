@@ -471,6 +471,22 @@ Persisted job arguments are a deployment interface even after all current source
 
 Keep clean cutovers when their prerequisites are verified. Support only evidenced prior payloads while they can still exist; do not require permanent unions, aliases, compatibility shims, a queue framework, or hypothetical payload versions.
 
+## Invariant-Preserving Mutations
+
+Maintain the domain invariant as part of an ordinary mutation instead of breaking it and running a general repair afterward. Make the intended changes explicit, preserve unrelated valid state, and name helpers for the action they perform, such as `shiftSuccessorPositionsAfterDeletion`, not a broad `repairOrder`. Use the existing transaction and concurrency contract; preserve rollback and required side-effect order. Explicit data repair or migration remains legitimate when corrupt state is the requested target.
+
+For a collection whose accepted invariant is contiguous zero-based positions, deleting `B` from workflow W changes only the deleted row and its successors:
+
+| Record             | Before | After   |
+| ------------------ | ------ | ------- |
+| W / A              | 0      | 0       |
+| W / B              | 1      | Deleted |
+| W / C              | 2      | 1       |
+| W / D              | 3      | 2       |
+| Other workflow / Z | 7      | 7       |
+
+Delete B and shift W's successors within the existing atomic operation; do not globally renumber workflows. Check exact remaining W membership/positions, unchanged A and unrelated Z, and rollback if a required write fails. Sparse-rank collections follow their actual invariant and need not close gaps. This is an operation-specific example, not a universal renumbering algorithm or a reason to add an abstraction.
+
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
@@ -516,22 +532,6 @@ When extracting a bulk replacement operation, let the sub-service own that opera
 At the client/API partial-update boundary, preserve omission of optional association assignment/replacement keys when the caller has not requested that operation. Do not synthesize replacement attributes from embedded response associations during an ordinary PATCH save. Keep explicit replacement and empty-list clearing with the caller that owns the edit, under the API's actual absent/present/empty contract. Inspect backend filtering and established save conventions before replacing a supported whole-record spread with a hand-maintained projection; PATCH does not universally require sparse scalar payloads. Prove that an unrelated save omits replacement attributes while explicit replacement and clearing still reach transport.
 
 Prepare replacement attributes or content before deleting existing records, then keep destructive delete/recreate calls together. Prefer an explicit prepare-then-mutate sequence so preparation can fail before existing state is destroyed. Preserve the existing transaction boundary, required consistency, rollback behavior, and side-effect order; do not add a helper or abstraction just to perform this reorder.
-
-### Invariant-Preserving Mutations
-
-Maintain the domain invariant as part of an ordinary mutation instead of breaking it and running a general repair afterward. Make the intended changes explicit, preserve unrelated valid state, and name helpers for the action they perform, such as `shiftSuccessorPositionsAfterDeletion`, not a broad `repairOrder`. Use the existing transaction and concurrency contract; preserve rollback and required side-effect order. Explicit data repair or migration remains legitimate when corrupt state is the requested target.
-
-For a collection whose accepted invariant is contiguous zero-based positions, deleting `B` from workflow W changes only the deleted row and its successors:
-
-| Record             | Before | After   |
-| ------------------ | ------ | ------- |
-| W / A              | 0      | 0       |
-| W / B              | 1      | Deleted |
-| W / C              | 2      | 1       |
-| W / D              | 3      | 2       |
-| Other workflow / Z | 7      | 7       |
-
-Delete B and shift W's successors within the existing atomic operation; do not globally renumber workflows. Check exact remaining W membership/positions, unchanged A and unrelated Z, and rollback if a required write fails. Sparse-rank collections follow their actual invariant and need not close gaps. This is an operation-specific example, not a universal renumbering algorithm or a reason to add an abstraction.
 
 Do not introduce `findOrCreate` as convenience provisioning. When the lifecycle invariant says a record must be new, use direct `create` and let an unexpected existing record fail through the normal constraints and transaction rather than silently reusing or repairing it. Keep explicitly accepted unchanged-state behavior separate; this preference does not authorize changing that path into creation or repair.
 
