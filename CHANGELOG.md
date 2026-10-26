@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.29.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/823) - 2026-10-26
+
 ### Changed
 
 - Keeps release history in a dedicated changelog and makes evidence-backed Keep a Changelog formatting the shared default while preserving project-local release mechanisms and format exceptions.
