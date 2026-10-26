@@ -55,177 +55,9 @@ The packaged `triage` CLI captures authenticated read-only GitHub snapshots, val
 
 Use [`github-bug-reporting`](skills/github-bug-reporting/SKILL.md) to investigate, draft, or file a GitHub bug with observed artifact/runtime versions, attributable reproduction evidence, and an existing-issue/fix check. It distinguishes old installs and retained process modules from current upstream behavior, preserves original failures separately from recovery, and requires applicable write authority. Filing does not start implementation.
 
-### Version 3.20.1
+## Release History
 
-Renames the skill and CLI to `triage`, removing the former public entrypoints without aliases. The evidence-backed triage rule and read-only snapshot/validate/render behavior remain unchanged. Existing ticket lifecycle and release workflows remain authoritative for separately authorized implementation.
-
-## Version 3.20.2
-
-Clarifies [Pattern Fit and Non-Fit](docs/references/code-organization-reference.md#pattern-fit-and-non-fit): preserve a pattern's responsibility, place non-fitting behavior with its actual owner, and generalize only from demonstrated common meaning or invariants. Planning, domain modeling, and semantic boundary review reuse this guidance; no new skill or executable verifier is introduced.
-
-## Version 3.20.3
-
-Accepts `Act & Assert` alongside `Act / Assert` and `Act and Assert` in the test-alignment check. Existing supported comments need no spelling-only edits; genuinely missing or misordered phases still fail.
-
-## Version 3.21.0
-
-Adds explicitly authorized classification-label application to the triage skill, alongside default read-only assessment and dry-run. The workflow refreshes evidence, uses existing labels additively, preserves unrelated metadata, and verifies live results. The CLI and assessment schema remain read-only and unchanged.
-
-## Version 3.21.1
-
-Moves organization decisions before authoring and rechecks them before the first push. Clarifies top-down service helper order, project-independent library ownership, and debugger-friendly computed values without adding mandatory artifacts, mechanical extraction, or unrelated cleanup.
-
-## Version 3.22.0
-
-Adds a deterministic [library index verification](docs/references/rules-and-verifications-reference.md#library-index-verification): application-library indexes bundle/re-export named modules instead of containing implementations. Supports changed-file checks, configurable library roots, and explicit reasoned runtime/package-entrypoint exceptions; malformed or unavailable evidence is blocked rather than treated as a pass.
-
-## Version 3.22.1
-
-Recognizes trusted current-head Codex review completion in issue comments when the formal Reviews API is empty. Adds bounded recovery for acknowledged reviews that remain running, preserving maintainer wait choices and separate security, approval, CI, and merge gates. See [Requested Codex Reviews](docs/references/github-tooling-reference.md#requested-codex-reviews).
-
-## Version 3.22.2
-
-Clarifies [Scenario-Oriented Verification](docs/references/code-organization-reference.md#scenario-oriented-verification): leave standard dependency API coverage upstream while preserving application-owned invariants and observed integration regressions. Adds a [replayable review example](examples/dependency-test-ownership.md) for cutovers, upgrades, existing consumer coverage, and version-scoped proof.
-
-## Version 3.22.3
-
-Prefers the configured project-root convention for ordinary sibling runtime and type imports. Preserves resolver compatibility, supported Node root spellings, public package boundaries, relative barrel re-exports, and unrelated imports. Self-improvement reuses the [existing import guidance](docs/references/code-organization-reference.md#project-root-imports-and-paths) instead of recommending a conflicting sibling-relative default.
-
-## Version 3.23.0
-
-Adds a [verified shared-standards adoption path](docs/workflows/project-knowledge-base-workflow.md#adopting-shared-standards): load the direct shared base before thin local deltas, preserve project authority, and prove consumer decisions rather than link presence alone. Includes a compact [overlay template](docs/templates/shared-standards-overlay-template.md) and [replayable example](examples/shared-standards-adoption.md). The downstream audit now resolves repository-root and percent-encoded Markdown links without treating valid targets as missing.
-
-## Version 3.24.0
-
-Adds the declared [Test Assertion Focus check](docs/references/test-alignment-verifier-reference.md#semantic-assertion-focus-check) for contextual review against ordinary-language project test standards. It distinguishes independent outcomes and hidden assertions from direct native contracts and valid coupled invariants, without a magic directive or universal assertion quota. Structural test alignment and native advisor scheduling remain unchanged. See the [native QA procedure](examples/test-assertion-focus.md).
-
-## Version 3.24.1
-
-Selects [implementation pace by pattern fit](docs/workflows/outcome-first-planning-workflow.md#choose-execution-mode-by-pattern-fit): precise planning for known-fit changes, bounded runnable modeling iterations for uncertain or model-breaking seams. Strengthens existing [pattern ownership](docs/references/code-organization-reference.md#pattern-fit-and-non-fit) checks so composition preserves responsibilities instead of stretching patterns or leaking their decisions.
-
-## Version 3.25.0
-
-Makes ordinary triage apply supported evidence-backed ticket updates. Explicit read-only modes and narrower exclusions, including indirect board automation, remain binding; the snapshot CLI stays read-only.
-
-## Version 3.25.1
-
-Clarifies descriptive helper names, primary export/file identity, and named-symbol barrel re-exports while preserving framework and multi-function module contracts.
-
-## Version 3.25.2
-
-Keeps model classes as ordinary imports even in type positions and isolates test-subject imports from dependencies, preserving required compiler contracts and scoped cleanup.
-
-## Version 3.25.3
-
-Makes indexed lookups inspectable before property access and groups nested assignment inputs after scalar attributes, preserving optional access and evaluation/override order.
-
-## Version 3.25.4
-
-Prefers explicit await for readable async navigation/recovery while preserving synchronous callback contracts, intentional concurrency, and separate rejection ownership.
-
-## Version 3.25.5
-
-Prefers short, clear public skill/command names when no real alternative needs a qualifier, without abbreviations, extra aliases, or unrelated renames.
-
-## Version 3.25.6
-
-Checks existing frontend/backend libraries before adding overlapping dependencies, with evidence-based runtime/security exceptions and independent configuration policies.
-
-## Version 3.25.7
-
-Handles ordinary requested-review waiting autonomously, using available comparable timings without repeated confirmation, universal deadlines, or implicit review waivers.
-
-## Version 3.25.8
-
-Makes routine issue-closing notes reader-focused through before/after examples, preserving material hosted-verification limits, requested audit detail, and no-comment outcomes.
-
-## Version 3.26.0
-
-Defines model-mirror composable lifetime, editor-workflow ownership, and direct reactive-ref consumption, preserving legitimate detached drafts and accepted navigation/save contracts.
-
-## Version 3.26.1
-
-Scopes asynchronous data, policy, errors, loading completion, and save results to their record/query owner, with controlled stale-request decision coverage and no implied mutation rollback.
-
-## Version 3.26.2
-
-Exposes ordinary writable composable state through toRefs and follows established reset naming, while retaining meaningful invariant-owning actions and distinct operation semantics.
-
-## Version 3.26.3
-
-Shows explicit readonly-computed/model-value/named-update-handler bindings for derived Vue fields, preserving real dependent-field watchers and the accepted save lifecycle.
-
-## Version 3.26.4
-
-Derives recovery-dialog presentation from shared state and avoids redundant mount guards, while preserving independent lifecycle, URL, and close-policy contracts.
-
-## Version 3.26.5
-
-Clarifies component-family ownership of plain TypeScript interaction helpers/types, retaining separate domain, generic-library, and reactive-lifecycle responsibilities.
-
-## Version 3.26.6
-
-Strengthens persistence assertions with ordinary model results, complete cardinality-sensitive collections, meaningful unchanged attributes, and reuse/reload of known instances.
-
-## Version 3.26.7
-
-Uses factories for scenario setup instead of unrelated production services and keeps retired-feature investigation out of permanent tests, preserving feature-test and meaningful negative-contract coverage.
-
-## Version 3.26.8
-
-Centralizes invariant component auto-unmount registration in runner setup and presents setup before teardown in source, preserving actual runner phases and meaningful explicit disposal.
-
-## Version 3.26.9
-
-Prefers supported ORM association includes/serializers over manual hydration and preserves omitted PATCH replacement inputs, with dialect, pagination, explicit replacement, and clearing contracts intact.
-
-## Version 3.26.10
-
-Keeps established parent timestamp propagation in the child model lifecycle, with evidence-selected instance/bulk hooks, affected-parent isolation, and transaction/rollback verification.
-
-## Version 3.26.11
-
-Keeps validation-only rules in normal model validators or the established service boundary rather than pre-validation hooks, preserving direct-write enforcement, async errors, and genuine lifecycle side effects.
-
-## Version 3.26.12
-
-Uses one filename builder for related download formats with `<type>, <title>, <date>.<extension>`, preserving existing filename/header safety, disposition, and controller-local ownership.
-
-## Version 3.26.13
-
-Keeps self-explanatory one-use option literals inline while preserving shared/domain constants, meaningful computed intermediates, and existing option values.
-
-## Version 3.26.14
-
-Pairs positive application-boundary tests with meaningful negative controls that expose incorrect setup or missing filtering/authorization, without duplicate scenarios or assertion quotas.
-
-## Version 3.26.15
-
-Alphabetizes new or intentionally changed imports within established groups, preserving untouched groups, initialization-sensitive order, and stronger local conventions.
-
-## Version 3.26.16
-
-Prefers supported loading-only button presentation for unavailable and in-flight actions, with guarded empty-selection and duplicate submission paths.
-
-## Version 3.26.17
-
-Keeps controller failures visible at the public action/error boundary and ordinary policy-scoped collection queries inline, retaining meaningful service orchestration and existing response/query contracts.
-
-## Version 3.26.18
-
-Keeps ordinary mutations invariant-preserving and scoped to their intended changes, distinguishing operation-specific ordering updates from explicitly required data repair.
-
-## Version 3.27.0
-
-Adds `github-bug-reporting` for version-aware, evidence-backed reports with ownership checks, existing-fix reuse, and separate original/recovery evidence. Includes a reusable report template and contrasting consumer examples.
-
-## Version 3.27.1
-
-Aligns the triage, review, backend, and factory packaged fallbacks with their canonical contracts while preserving portable links, local precedence, and project-template fallback behavior.
-
-## Version 3.28.0
-
-Budgets full-suite CI attempts across each PR, reuses current-head checks, and separates readiness-triggered CI from merge gates without weakening required verification or intentional draft status.
+See [CHANGELOG.md](CHANGELOG.md) for the curated release history, newest versions first.
 
 ## Claude Code Plugin Install
 
@@ -343,9 +175,9 @@ In this repo only, an explicit request to follow the GitHub issue or feature req
 1. Create or identify the GitHub issue with the user story and acceptance criteria.
 2. Branch from current `main` using the issue number and concise, meaningful outcome slug before editing when possible; never use opaque abbreviations or a bare issue number. If the scoped work already exists locally, create the issue-named branch before committing.
 3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
-4. Bump `package.json` for every change before opening the release PR.
+4. Bump `package.json` for every change before opening the release PR, keeping the lockfile and Claude manifest version aligned. Curate the reader-visible outcome under `Unreleased` in [CHANGELOG.md](CHANGELOG.md), following the [release-notes workflow](docs/workflows/release-notes-workflow.md); do not add README version sections.
 5. Open an issue-linked draft PR as soon as the first coherent change can be pushed, using `docs/workflows/pull-request-management-workflow.md`. Continue implementation and update the same draft; do not wait for completed implementation, full review, QA, or screenshots. Report pending work and checks truthfully, and mark it ready only after verification. PR creation is part of the release workflow, but not the release itself.
-6. Merge the PR to `main` so GitHub records the review/merge path; in this repo that merge to `main` is the release.
+6. At final release preparation, move the pending changelog outcome into the selected version heading with a UTC date and real release/PR or immutable comparison link. Merge the PR to `main`; that merge is this package's release. Verify the recorded date against GitHub's observed `mergedAt` before reporting completion, correcting a date mismatch through the normal issue/PR release flow.
 7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
 8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
 
@@ -405,6 +237,7 @@ Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo nam
 - `AGENTS.md` - global agent instructions loaded by OMP or manual symlink consumers
 - `AGENT_RULES.md` - agent-agnostic shared decision rules
 - `COMMITTING.md` - reusable commit-message guidance
+- `CHANGELOG.md` - curated, versioned release history and pending changes
 - `docs/` - authoritative generic workflow, template, reference, and plan discovery docs
 - `examples/` - compact before/after outcomes for packaged skills, rules, and tools
 - `skills/` - thin skill aliases that point at authoritative workflows under `docs/workflows/`

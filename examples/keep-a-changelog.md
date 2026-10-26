@@ -1,0 +1,17 @@
+# Curated Release Histories
+
+## Task
+
+Apply the [release-notes workflow](../docs/workflows/release-notes-workflow.md) without replacing project-local publishing rules or inventing release evidence.
+
+## Contrasting Consumers
+
+| Consumer                   | Evidence and Decision                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| This package               | [CHANGELOG.md](../CHANGELOG.md) preserves the 43 former README entries through 3.28.0. Dates come from observed GitHub merges to main, which is this package's release mechanism. Historical headings link real immutable commit comparisons (the oldest retained entry links its release commit). The README links the history instead of embedding it. No registry publish or deployment is implied.                                        |
+| Fictional registry package | Supplied facts: tags v1.3.0 and v1.4.0 exist; the registry records 1.4.0 publication on 2026-10-25; local install is 1.3.0; deployment is unknown. Use a dedicated changelog with Unreleased first and 1.4.0 dated 2026-10-25 above 1.3.0. Link the verified v1.3.0...v1.4.0 comparison, not invented tags or URLs. State publication separately from installation and unknown deployment. The project's registry procedure remains required. |
+| Deliberate local exception | Supplied facts: a project maintains release notes in a reviewed YAML manifest consumed by its publishing pipeline. Keep that format and pipeline; apply curated outcomes, relevant categories, verified identities/dates, and breaking/security notices within its supported schema. Do not add a competing Markdown ledger, database, or server merely to enforce the shared default.                                                        |
+
+## Check
+
+Run a bounded read-only OMP consumer using the canonical workflow and then the installed packaged fallback. Ask for each consumer's document shape, release/date/link evidence, publish/install/deploy distinction, and scope of the local exception. Add a case with unknown historical dates and a pending version without a release event: neither may become a guessed dated release. Verify decisions, not matching phrases. These fictional scenarios do not authorize publishing or changing external repositories.
