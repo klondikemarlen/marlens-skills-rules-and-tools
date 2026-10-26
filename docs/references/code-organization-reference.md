@@ -325,6 +325,17 @@ Preserve the positions and order of unchanged imports when editing unrelated beh
 
 Group intentionally changed imports by conceptual distance and responsibility, following the project's existing sections rather than imposing a universal alphabetical order. Mark genuine type-only declarations, such as attribute types and interfaces, explicitly with `type` and keep them together within the established groups. Generally keep model classes as ordinary imports even when this file currently uses them only in type positions; do not convert models to `import type` or inline `type` solely for that local usage. Required compiler/runtime contracts still win, including actual runtime model uses in association decorators. Apply an accepted import correction across the in-scope review diff without moving unrelated imports.
 
+Alphabetize new or intentionally changed imports within their established logical groups, not across groups. Insert a new `AdministrationCost` import before `BuildingExpense` without mechanically sorting untouched groups. Preserve initialization-sensitive order and stronger project-specific ordering; this preference does not authorize runtime import-order changes or repository-wide cleanup.
+
+For a project with these supported direct model imports, the third-party dependency group remains separate:
+
+```ts
+import { isEmpty } from "lodash"
+
+import { AdministrationCost } from "@/models/administration-cost"
+import { BuildingExpense } from "@/models/building-expense"
+```
+
 When raw Node runs ESM source directly, prefer Node's native `#/…` package-import namespace instead of `@/…`, which Node treats as an external package. Map it through `package.json` `"imports"` as `"#/*": "./*"`, and require Node v24.14.0 or later, which supports `#/` subpath imports. If a supported Node version cannot use `#/…`, map the package root as `#root/…` through `"#root/*": "./*"`, and map a sibling `tests` root as `#tests/…` through `"#tests/*": "./tests/*"`.
 
 When a directory such as `tests` is a sibling of the source root, give it an explicit root-alias mapping instead of implying that it lives under source. With `@` mapped to `src`, map `@/tests` to `tests`; with Node's package-root import map, use `#/tests/…`.
