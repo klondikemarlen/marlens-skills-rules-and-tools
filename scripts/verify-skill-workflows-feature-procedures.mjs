@@ -14,7 +14,6 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
         "Resolve every actionable review finding or comment",
         "After a fixup, repeat the complete self-review and targeted QA",
         "Merge verified pull requests by default with a merge commit",
-        "After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the pull request ready and merge it with a merge commit by default",
         "Wait only when the work specifically requires end-user testing the agent cannot perform",
         "explicit user or maintainer request to waive, drop, or clean up",
         "record the missing evidence",

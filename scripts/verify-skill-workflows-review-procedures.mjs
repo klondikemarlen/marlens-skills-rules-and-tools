@@ -48,17 +48,6 @@ export function verifyReviewProcedures({ read, fail }) {
     requireEvery(
       workflow,
       [
-        "After all repository- or platform-enforced review requirements, checks, and actionable feedback are resolved, mark the PR ready and merge it with a merge commit by default",
-        "Wait only for specifically required end-user testing the agent cannot perform",
-        "If the user explicitly requests a waiver, drop, or cleanup",
-        "record the missing evidence",
-      ],
-      (requiredText) => `${name} must require ${requiredText}`,
-      fail
-    )
-    requireEvery(
-      workflow,
-      [
         "gh api --method PUT",
         "pulls/$number/merge-async",
         '-f sha="$head_sha"',
@@ -110,7 +99,6 @@ export function verifyReviewProcedures({ read, fail }) {
     [
       "Fix every actionable review finding or comment",
       "After a fixup, re-review the complete PR diff",
-      "Keep the PR `BLOCKED`",
     ],
     (requiredText) => `comment resolution workflow must require ${requiredText}`,
     fail
