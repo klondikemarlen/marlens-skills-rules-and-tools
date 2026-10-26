@@ -182,6 +182,17 @@ Use structure as evidence, not a numeric proxy. Do not impose line-count, functi
 
 Verification code should expose each independently observable contract through a named scenario. Keep literal fixture data beside the scenario it explains. Share only repeated mechanics, such as writing a file or invoking a command, when their names clarify the setup; do not create a generic fixture builder.
 
+Pair positive-path coverage with at least one meaningful negative control for the same application-owned boundary. Choose a plausible rejected or excluded case that would expose incorrect fixtures, missing filtering, or missing authorization—not an unrelated error. Reuse existing coverage when it already protects that boundary; the purpose is detecting ineffective tests, not meeting an assertion quota or creating an exhaustive matrix.
+
+For an access-filtered category listing, keep these as separately arranged scenarios:
+
+| Scenario                                                     | Relevant Setup                                             | Expected Result                                                   |
+| ------------------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| Allowed user sees an accessible category.                    | Alice is a member of category X.                           | Listing as Alice returns X.                                       |
+| Otherwise plausible user cannot see another user's category. | Only another user is a member of X; Bob has no membership. | Listing as Bob returns no categories under the isolated fixtures. |
+
+The second case fails if the query ignores the requesting user, even when the first passes. Keep each scenario's persisted setup explicit; do not mutate the positive fixture into the negative scenario.
+
 Permanent tests prove current user behavior or maintained invariants, not merely that a retired implementation/control is gone. Keep current-state investigation probes disposable. For a replacement interaction, drive the current action and assert its visible or persisted result instead of retaining an absence-only test of the old control. Preserve meaningful negative contracts—authorization denial, cancellation, prohibited writes, meaningful empty states—and regressions tied to an accepted current invariant; negative assertions themselves are not the problem.
 
 Test the application's contract, not the dependency's standard API. Before adding or retaining a dependency-related suite, name the application-owned invariant or concrete compatibility risk and inspect existing consumer coverage. Ordinary builds, persistence, association reuse, and sequence progression belong to the dependency's upstream tests, even when exercised with application models, fixtures, or a real database. Application-owned access helpers, post-save role hooks, category-scoping rules, adapters, and observed integration regressions remain locally testable; external imports alone are not grounds to reject or delete a test. When correcting a test plan, distinguish ownership and uncovered risk before removing meaningful coverage. Do not invent unusual interactions merely to justify another test.
