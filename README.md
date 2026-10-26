@@ -109,6 +109,10 @@ Makes ordinary triage apply supported evidence-backed ticket updates. Explicit r
 
 Clarifies descriptive helper names, primary export/file identity, and named-symbol barrel re-exports while preserving framework and multi-function module contracts.
 
+## Version 3.25.2
+
+Keeps model classes as ordinary imports even in type positions and isolates test-subject imports from dependencies, preserving required compiler contracts and scoped cleanup.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
