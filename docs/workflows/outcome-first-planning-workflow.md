@@ -29,6 +29,19 @@ Capture these before planning:
 
 If any input is missing, record the missing decision as a question or choose the narrowest conservative interpretation before editing.
 
+## Choose Execution Mode by Pattern Fit
+
+After a brief read of local guidance, a comparable implementation, and the affected caller-to-result path, choose the mode from evidence rather than task size or a preference for planning:
+
+| Evidence | Execution Mode | Next Step and Stop Condition |
+| --- | --- | --- |
+| The outcome is clear and existing domain concepts, ownership, lifecycle, and dependency rules cover it. | Plan first, then implement precisely. | Resolve affected contracts, placement, callers, and focused proof before coding; stop planning when the patch is executable and remaining risk is named. Obvious local changes retain the mechanical-change exemption. |
+| A requirement contradicts an invariant, crosses an unsupported boundary, or leaves the concept/owner genuinely uncertain. | Minimal framing, then short runnable modeling iterations. | State the accepted outcome, existing constraints, one uncertain hypothesis, and the smallest experiment that distinguishes candidate models. Observe the result, revise the model or boundary, and repeat only for unresolved uncertainty. |
+
+For mixed work, plan the known-fit portion normally and isolate exploration to the uncertain seam; do not redesign stable rails because one part does not fit. Switch from plan-first to exploration when source or a runnable result contradicts the assumed fit, rather than extending the plan to defend it. Switch back to precise implementation when evidence establishes the owner, invariant, handoff, and runnable acceptance check.
+
+Exploration is not permission for random patches, weakened accepted behavior, or speculative shared abstractions. Keep each iteration small and reversible; record the hypothesis, result, and resulting decision in the existing plan or session. Retain a cohesive local solution until shared meaning warrants a pattern. Stop iterating when the accepted outcome and boundary are proven; do not keep experimenting to manufacture a new domain concept. Both modes retain the same review, verification, and release gates.
+
 ## Process
 
 ### 1. Frame the Outcome First
@@ -37,7 +50,7 @@ Write the desired end state in user-visible terms. Name the unacceptable outcome
 
 ### 2. Fit-Check Examples
 
-List representative good examples, bad examples, and one missing or ambiguous example. For each, state the expected result and the rule it exercises. Resolve counter-examples before committing to an interface.
+List representative good examples, bad examples, and one missing or ambiguous example. For each, state the expected result and the rule it exercises. Resolve counter-examples before committing to an interface; when evidence requires an experiment, use the exploratory mode above rather than speculating through a complete design.
 
 #### Interaction-Contract Activation
 
