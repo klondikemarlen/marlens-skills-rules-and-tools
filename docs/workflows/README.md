@@ -37,6 +37,7 @@ Examples:
 - `hands-off-agentic-coding-workflow.md`
 - `learn-workflow.md`
 - `jira-reporting-workflow.md`
+- `github-bug-reporting-workflow.md`
 - `domain-modeling-workflow.md`
 - `outcome-first-planning-workflow.md`
 - `project-knowledge-base-workflow.md`
