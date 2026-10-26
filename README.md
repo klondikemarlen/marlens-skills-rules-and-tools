@@ -181,6 +181,10 @@ Prefers supported ORM association includes/serializers over manual hydration and
 
 Keeps established parent timestamp propagation in the child model lifecycle, with evidence-selected instance/bulk hooks, affected-parent isolation, and transaction/rollback verification.
 
+## Version 3.26.11
+
+Keeps validation-only rules in normal model validators or the established service boundary rather than pre-validation hooks, preserving direct-write enforcement, async errors, and genuine lifecycle side effects.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
