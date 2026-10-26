@@ -177,6 +177,10 @@ Centralizes invariant component auto-unmount registration in runner setup and pr
 
 Prefers supported ORM association includes/serializers over manual hydration and preserves omitted PATCH replacement inputs, with dialect, pagination, explicit replacement, and clearing contracts intact.
 
+## Version 3.26.10
+
+Keeps established parent timestamp propagation in the child model lifecycle, with evidence-selected instance/bulk hooks, affected-parent isolation, and transaction/rollback verification.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
