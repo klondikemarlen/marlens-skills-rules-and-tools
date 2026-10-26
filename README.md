@@ -149,6 +149,10 @@ Scopes asynchronous data, policy, errors, loading completion, and save results t
 
 Exposes ordinary writable composable state through toRefs and follows established reset naming, while retaining meaningful invariant-owning actions and distinct operation semantics.
 
+## Version 3.26.3
+
+Shows explicit readonly-computed/model-value/named-update-handler bindings for derived Vue fields, preserving real dependent-field watchers and the accepted save lifecycle.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

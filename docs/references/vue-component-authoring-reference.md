@@ -16,6 +16,31 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Explicit Derived-Field Bindings
+
+Prefer a readonly `computed` → `:model-value` → named `@update:model-value` handler pipeline for derived form fields. Keep writes visible in the handler rather than a computed setter or watcher-mirrored copy of derived state. Separate state declarations, computed blocks, and handlers with blank lines. Preserve the form's accepted edit/save lifecycle and genuine form-owned dependent-field watchers; this preference does not mandate a draft-storage design.
+
+For an already-available record whose established edit contract permits this field assignment:
+
+```vue
+<script setup lang="ts">
+const selectedTagIds = computed(() => record.value.tagIds)
+
+function updateSelectedTagIds(tagIds: string[]) {
+  record.value.tagIds = tagIds
+}
+</script>
+
+<template>
+  <v-select
+    :model-value="selectedTagIds"
+    @update:model-value="updateSelectedTagIds"
+  />
+</template>
+```
+
+The example shows binding and ownership only; reuse the project's actual record availability, types, and write/save operation rather than copying an assignment into an incompatible contract.
+
 ## Model-Mirror Composables and Editor Ownership
 
 Inspect established sibling composables and any user-designated architecture before extending a `use` module. When singular/plural data-access composables mirror the model layer, retain those mirrors while the underlying model exists, even with zero current callers. An editor-specific wrapper does not replace the model mirror. Remove obsolete mirrors when their model is deleted; do not use this exception to preserve arbitrary dead code or invent speculative wrappers.
