@@ -169,6 +169,10 @@ Strengthens persistence assertions with ordinary model results, complete cardina
 
 Uses factories for scenario setup instead of unrelated production services and keeps retired-feature investigation out of permanent tests, preserving feature-test and meaningful negative-contract coverage.
 
+## Version 3.26.8
+
+Centralizes invariant component auto-unmount registration in runner setup and presents setup before teardown in source, preserving actual runner phases and meaningful explicit disposal.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
