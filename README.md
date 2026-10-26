@@ -161,6 +161,10 @@ Derives recovery-dialog presentation from shared state and avoids redundant moun
 
 Clarifies component-family ownership of plain TypeScript interaction helpers/types, retaining separate domain, generic-library, and reactive-lifecycle responsibilities.
 
+## Version 3.26.6
+
+Strengthens persistence assertions with ordinary model results, complete cardinality-sensitive collections, meaningful unchanged attributes, and reuse/reload of known instances.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
