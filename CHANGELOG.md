@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.29.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/827) - 2026-10-26
+
 ### Changed
 
 - Clarifies when optional nullable creation inputs can pass directly to the ORM without redundant null defaults, preserving required guards, meaningful mappings, and omission-versus-null behavior.
