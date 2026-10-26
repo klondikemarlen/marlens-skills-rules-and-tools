@@ -117,6 +117,10 @@ Keeps model classes as ordinary imports even in type positions and isolates test
 
 Makes indexed lookups inspectable before property access and groups nested assignment inputs after scalar attributes, preserving optional access and evaluation/override order.
 
+## Version 3.25.4
+
+Prefers explicit await for readable async navigation/recovery while preserving synchronous callback contracts, intentional concurrency, and separate rejection ownership.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
