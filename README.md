@@ -105,6 +105,10 @@ Selects [implementation pace by pattern fit](docs/workflows/outcome-first-planni
 
 Makes ordinary triage apply supported evidence-backed ticket updates. Explicit read-only modes and narrower exclusions, including indirect board automation, remain binding; the snapshot CLI stays read-only.
 
+## Version 3.25.1
+
+Clarifies descriptive helper names, primary export/file identity, and named-symbol barrel re-exports while preserving framework and multi-function module contracts.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
