@@ -79,4 +79,42 @@ Preserve framework/theme values, appearance, interactions, accessibility state, 
 
 ## Loading and Disabled State
 
-For Vue/Vuetify controls that support a loading binding, prefer `:loading` to `:disabled` for loading state. Keep `disabled` for independent reasons a control cannot be used; do not automatically add it alongside `loading`. Classify combined predicates by their actual meaning: preserve independent disabled conditions without duplicating loading-only predicates or assuming every missing-data check is a separate disabled reason. Follow the component's supported contract; do not invent a loading prop on a control that lacks one or rewrite unrelated controls.
+For Vue/Vuetify button actions that support a loading binding, prefer loading-only presentation for both in-flight work and unavailable actions, including an empty selection. Combine those conditions in `:loading` rather than retaining `:disabled` solely because empty selection is independent of pending work. Keep submission guards for unavailable actions and duplicate requests: presentation is not protection against form submission, keyboard activation, or direct handler calls. Follow the component's supported contract; do not invent a loading prop on a control that lacks one or rewrite unrelated controls.
+
+This example accepts the existing download operation as a prop. Reuse the project's established error boundary; the `finally` restores pending state on success or failure.
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue"
+
+const props = defineProps<{
+  selectedIds: number[]
+  download: (ids: number[]) => Promise<void>
+}>()
+
+const pending = ref(false)
+
+async function downloadSelected() {
+  if (pending.value || props.selectedIds.length === 0) return
+
+  const selectedIds = [...props.selectedIds]
+  pending.value = true
+
+  try {
+    await props.download(selectedIds)
+  } finally {
+    pending.value = false
+  }
+}
+</script>
+
+<template>
+  <form @submit.prevent="downloadSelected">
+    <v-btn
+      type="submit"
+      :loading="pending || selectedIds.length === 0"
+      >Download</v-btn
+    >
+  </form>
+</template>
+```

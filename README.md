@@ -201,6 +201,10 @@ Pairs positive application-boundary tests with meaningful negative controls that
 
 Alphabetizes new or intentionally changed imports within established groups, preserving untouched groups, initialization-sensitive order, and stronger local conventions.
 
+## Version 3.26.16
+
+Prefers supported loading-only button presentation for unavailable and in-flight actions, with guarded empty-selection and duplicate submission paths.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
