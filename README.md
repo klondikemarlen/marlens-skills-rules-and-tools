@@ -219,6 +219,10 @@ Keeps ordinary mutations invariant-preserving and scoped to their intended chang
 
 Adds `github-bug-reporting` for version-aware, evidence-backed reports with ownership checks, existing-fix reuse, and separate original/recovery evidence. Includes a reusable report template and contrasting consumer examples.
 
+## Version 3.27.1
+
+Aligns the triage, review, backend, and factory packaged fallbacks with their canonical contracts while preserving portable links, local precedence, and project-template fallback behavior.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
