@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.29.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/826) - 2026-10-26
+
 ### Changed
 
 - Guides new backfills to preserve usable legacy records while handling known anomalies within project retention rules, without suppressing database failures or treating schema rollback as data recovery.
