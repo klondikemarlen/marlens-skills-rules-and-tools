@@ -157,6 +157,14 @@ Put exported `up`/`down` entry points before local implementation helper functio
 
 Where soft-delete exclusion is the routine convention, omit `Active` and `DeletedAtNull`/`deleted_at_null` from index names, decorator identifiers, and matching filenames. Preserve the deleted-at-null predicate and uniqueness semantics, and align model and migration index names. Continue naming other meaningful filter conditions under the project's convention; do not rename unrelated historical indexes.
 
+### Best-Effort Backfills
+
+For new or actively reviewed unreleased backfills, prefer converting usable legacy records and skipping known unusable inputs when the project's data-preservation contract permits. Define the tolerated anomaly explicitly, such as an invalid cross-section reference, rather than treating every failure as corrupt data. Skipping conversion does not authorize deleting source records; deletion requires explicitly accepted cleanup scope. Preserve usable neighboring records and unrelated data. Financial, audit, or other mandatory reconciliation requirements take precedence: unresolved records may require blocking completion rather than discarding them. Before dropping legacy storage, establish the accepted disposition of skipped records.
+
+Keep tolerated input validation separate from database execution. Prefer an explicit migration-local anomaly check before conversion; if a known validation exception must be handled, bound that handling to the affected input and proven exception. Propagate unexpected conversion errors and SQL, schema, constraint, or connection failures through the existing transaction/error contract. A catch around the whole backfill that returns success on any error is not best effort.
+
+Prove the boundary with valid records on both sides of a malformed record: the valid records convert with their intended values, only the accepted anomaly is skipped, and source/unrelated data remains intact unless its cleanup was authorized. Inject a genuine database failure and verify migration failure and the project's required rollback behavior, not a successful partial run. For accepted data deletion or lossy conversion, state the loss and verify the required backup/recovery path before discarding originals; a `down` that recreates schema cannot reconstruct discarded values. Do not rewrite released migrations to apply this policy.
+
 ## Oversized Responsibility Clusters
 
 Treat a large source file as a review signal, not an automatic split mandate. Inspect whether it combines independently changing responsibilities such as boundary parsing, state/persistence, external adapters, policy decisions, orchestration, and CLI or transport wiring.
