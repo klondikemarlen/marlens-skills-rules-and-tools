@@ -208,6 +208,28 @@ Place queries whose sole purpose is observing persisted results in Assert, immed
 
 In ORM-backed projects, use the table's normal model API, such as `findAll`, for routine persisted-state observations instead of handwritten `SELECT` SQL. If a domain table lacks its expected model, add a schema-matching model using the actual table definition and existing project conventions rather than making raw SQL the default. Retain specialized SQL when batching, locking, version-safe acknowledgement, or another concrete database semantic requires it. Preserve needed predicates, projections, options, and Assert placement; do not impose an ORM on projects without that convention.
 
+Prefer ordinary `findAll` model results for persistence assertions. Do not add `attributes` projections or `raw: true` only to manufacture a narrow expected shape; match meaningful persisted attributes directly through supported model matchers and literal expectations, including unchanged state relevant to the scenario. Preserve predicates, raw/projection options, and ordering when the behavior actually needs them.
+
+When duplicate or unexpected writes are a risk, observe the complete relevant persisted collection and assert its exact membership/cardinality; `findOne` or a filtered subset can hide the regression. Keep single-record observations when only that record's state is the contract. Reuse an already-known model instance for in-memory assertions, and reload that same instance for persisted state rather than refetching by primary key solely for assertion. Retain separate instances for intentional stale-state or independent-consumer scenarios.
+
+For isolated fixtures where exactly one updated record should exist, direct singleton matching proves cardinality without relying on retrieval order:
+
+```ts
+// Assert
+const records = await Record.findAll()
+
+expect(records).toEqual([
+  expect.objectContaining({
+    id: record.id,
+    title: "Updated",
+    ownerId: owner.id,
+    status: "draft",
+  }),
+])
+```
+
+Here ownership and draft status are relevant unchanged state. For multiple unordered records, use the project's supported exact unordered collection/model matcher; do not normalize SQL order or use a subset matcher that misses extra rows.
+
 Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
 
 ## Input-Heavy Utility Tests
