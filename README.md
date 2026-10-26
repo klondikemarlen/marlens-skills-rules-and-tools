@@ -121,6 +121,10 @@ Makes indexed lookups inspectable before property access and groups nested assig
 
 Prefers explicit await for readable async navigation/recovery while preserving synchronous callback contracts, intentional concurrency, and separate rejection ownership.
 
+## Version 3.25.5
+
+Prefers short, clear public skill/command names when no real alternative needs a qualifier, without abbreviations, extra aliases, or unrelated renames.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

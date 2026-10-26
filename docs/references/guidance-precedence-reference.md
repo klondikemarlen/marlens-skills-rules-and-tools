@@ -35,6 +35,8 @@ Before applying a workflow from this package, read the target project’s local 
 | Skills                      | `skills/`          | Compatibility entrypoints that route agents to authoritative workflows.  |
 | OMP rules                   | `rules/`           | Reusable OMP rule snippets that may be copied or linked into user rules. |
 
+For a single public skill or command whose purpose remains clear, prefer the shorter name, such as `triage` rather than `ticket-triage` or `triage-tickets`. Add qualifiers only to distinguish actual alternatives. Keep internal filenames descriptive; this preference does not mandate abbreviations, aliases, or unrelated renames.
+
 ## Workflow Outputs and Publication
 
 A workflow's output contract describes the knowledge, decisions, and evidence needed to complete the work. It is not a mandatory public document shape or permission to post. Keep execution records in the session or the existing designated check, artifact, or work record unless the user or project explicitly selects another destination. Required verification, review, ownership, and honest limitations still apply.
