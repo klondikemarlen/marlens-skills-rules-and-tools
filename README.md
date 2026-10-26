@@ -145,6 +145,10 @@ Defines model-mirror composable lifetime, editor-workflow ownership, and direct 
 
 Scopes asynchronous data, policy, errors, loading completion, and save results to their record/query owner, with controlled stale-request decision coverage and no implied mutation rollback.
 
+## Version 3.26.2
+
+Exposes ordinary writable composable state through toRefs and follows established reset naming, while retaining meaningful invariant-owning actions and distinct operation semantics.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
