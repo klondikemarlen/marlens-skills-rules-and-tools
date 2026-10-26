@@ -39,6 +39,8 @@ For a requested review, publish the exact `@codex review` comment on the PR. Pub
 
 After acknowledgement, observe in bounded intervals. Read the actual current PR head and fully paginate formal reviews, PR issue comments, and inline review comments; inspect unresolved review threads as well. An empty formal Reviews API response alone means neither running nor failed: the connector can publish its terminal result in issue comments.
 
+Routine observation within an authorized review task is already authorized: do not ask the maintainer to approve another normal waiting interval. Use available comparable request-to-result timings to inform a context-appropriate observation window and abnormal-wait threshold; identify small samples honestly, without deriving a universal deadline or requiring historical research on every review. When no comparable timing is available, choose a bounded interval and reassess actual progress. Short polling windows are observations, not repeated permission gates. Escalate genuinely abnormal, ambiguous, or exhausted recovery under the procedure below; timeout never establishes completion or waives review.
+
 Verify the result's author is the target repository's trusted Codex connector bot (normally `chatgpt-codex-connector[bot]`), not a human quoting a marker or an account with a similar display name. Compare the full reviewed commit SHA with the actual current PR head. Use the current canonical summary and corroborating receipts, not an older favorable comment; conflicting states, unknown marker versions, missing fields, inaccessible pages, or an unclear association with the intended request leave completion unverified.
 
 Recognize these observed comment forms conservatively:

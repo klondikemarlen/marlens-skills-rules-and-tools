@@ -129,6 +129,10 @@ Prefers short, clear public skill/command names when no real alternative needs a
 
 Checks existing frontend/backend libraries before adding overlapping dependencies, with evidence-based runtime/security exceptions and independent configuration policies.
 
+## Version 3.25.7
+
+Handles ordinary requested-review waiting autonomously, using available comparable timings without repeated confirmation, universal deadlines, or implicit review waivers.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
