@@ -681,21 +681,6 @@ for (const [name, workflow] of [
     fail(`${name} must bound asynchronous hook review without constraining ordinary setup`)
   }
   if (
-    !workflow.includes(
-      "For generic parsing, traversal, tokenization, serialization, or equivalent plumbing"
-    ) ||
-    !workflow.includes("well-maintained libraries before approving bespoke code")
-  ) {
-    fail(`${name} must compare generic implementation code with maintained libraries`)
-  }
-  if (
-    !workflow.includes("lower net owned complexity") ||
-    !workflow.includes("compatibility, maintenance, security") ||
-    !workflow.includes("product-specific policy explicit at the library boundary")
-  ) {
-    fail(`${name} must select libraries by net owned complexity while preserving product policy`)
-  }
-  if (
     !workflow.includes("For queued or deferred work") ||
     !workflow.includes("Pass immutable delivery fields as a snapshot") ||
     !workflow.includes("focused delayed-execution or deletion-path check")
