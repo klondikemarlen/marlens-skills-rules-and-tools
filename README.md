@@ -133,6 +133,10 @@ Checks existing frontend/backend libraries before adding overlapping dependencie
 
 Handles ordinary requested-review waiting autonomously, using available comparable timings without repeated confirmation, universal deadlines, or implicit review waivers.
 
+## Version 3.25.8
+
+Makes routine issue-closing notes reader-focused through before/after examples, preserving material hosted-verification limits, requested audit detail, and no-comment outcomes.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

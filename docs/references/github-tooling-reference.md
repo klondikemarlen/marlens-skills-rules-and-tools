@@ -13,6 +13,8 @@ Use when you need source-of-truth issue or pull request data from GitHub.
 - Do not print credentials, tokens, or private URLs in issue/PR bodies or final summaries.
 - Keep ordinary project issue/PR comments brief, natural, and human, not just upstream comments. Include the useful response, question, new evidence, link, or limitation; omit repetitive audit narration and boilerplate. Preserve requested detail and required facts without turning the comment into a large process report.
 
+For an already-fixed issue, write to the maintainer: what changed, the useful link, and the closing decision—not the execution log. Omit ordinary local “I checked the app” assurances; keep that evidence in its existing record. If deployed behavior is material, identify the actual environment and observed result, or retain the missing verification as a blocker. Merge/local smoke do not prove deployment. Do not add a note when the conversation already covers the outcome and nobody needs a response. See [Issue Closing Notes](../../examples/reader-focused-publication.md#issue-closing-notes) for illustrations, not canned wording; preserve detail when explicitly requested.
+
 ## Common Reads
 
 ```bash

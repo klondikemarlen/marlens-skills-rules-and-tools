@@ -23,6 +23,27 @@ Apply [Workflow Outputs and Publication](../docs/references/guidance-precedence-
 | A merged PR already closed its issue and no new information is missing.                  | Do not add a release-finalization diary. An explicit dependent-ticket update instead supplies the newly available prerequisite, not the whole release history.       |
 | Downstream report URLs are examples for improving shared instructions.                   | Inspect them read-only and change the shared owner. A broad follow-up does not authorize downstream history cleanup.                                                 |
 
+## Issue Closing Notes
+
+An already-fixed issue needs a useful decision, not a smaller audit report. These examples illustrate the judgment; they are not mandatory wording.
+
+**Before:**
+
+> Verified in a local browser using an isolated worktree, a fictional record, and several account switches. No duplicate PR is needed. This does not claim deployment.
+
+**After:**
+
+> This was fixed in #284—the heading is now **Travel Desk Request**, so I’m closing this one.
+
+The changed heading explains why the report is resolved; the PR supplies the relevant link. Local browser/version/worktree details stay in the execution record, not as an assurance about the live application.
+
+| Situation                                                                                                | Useful Public Action                                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The existing conversation already explains the fix and closure.                                          | No new comment.                                                                                                                                                                                     |
+| Closure requires staging behavior, but only merge and local smoke are known.                             | Keep the issue open: “The fix is merged in #284, but the required staging check is still missing.”                                                                                                  |
+| Staging version 3.4 was actually observed with the corrected heading, and that check determines closure. | “Staging 3.4 now shows **Travel Desk Request**; that resolves this report.” Do not generalize to another environment.                                                                               |
+| The maintainer explicitly requests a detailed local QA audit.                                            | Update the existing designated report with the requested evidence and local-only limit, keeping sensitive workstation details private. Do not replace requested evidence with a terse closing note. |
+
 ## Why
 
 Completing required work, retaining evidence, and communicating with a reader are separate responsibilities. Good publication answers a real question or changes a decision; a workflow field alone does neither. Historical results remain tied to their revision rather than implying approval of later code.
