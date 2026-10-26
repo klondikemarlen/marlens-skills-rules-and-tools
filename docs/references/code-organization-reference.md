@@ -111,6 +111,8 @@ Where the project uses `lib` for reusable mechanisms, reserve it for code meanin
 
 Use application-library `index` files for bundling and re-exports; put implementations in descriptive named sibling modules. Keep named functions and their matching default exports in those implementation modules under the existing export convention. A barrel may re-export values/types, import named/default/namespace bindings and re-export them, or default-export a static object of imported bindings. Do not hide functions, classes, locally computed values, side-effect imports, or executable initialization in a library barrel.
 
+For a single-purpose function module, declare `export function someName(...)` and a separate `export default someName`; its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
+
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
 
 ### Default-Safe Lifecycle APIs
@@ -302,6 +304,10 @@ For model declarations, follow sibling models' meaningful groups, section-commen
 ## Function Action Names
 
 Name functions, including event/error callbacks, for the concrete operation, effect, or result they perform rather than their caller or triggering event. Prefer `openVerificationDialog` over a vague `handleChallenge` when opening the dialog is the operation. Preserve established framework-required names and keep renames scoped to affected functions and callers; do not rename unrelated code.
+
+Prefer operation-specific verbs over generic `get...` for project-owned helpers: `readResponseHeader` for reading a header and `extractCurrentGapRectangle` for extracting or deriving a rectangle from supplied state. Keep the extracted result descriptive. Preserve ordinary accessors, third-party APIs, framework names, and stronger local precedent; do not mechanically rename unrelated methods.
+
+Match a module's primary named/default export to its filename under the project's casing convention, such as `apiResponseErrorPlugin` in `api-response-error-plugin.ts`. Choose the clearer export or file rename within scope, then align exports, callers, mirrored tests, and test descriptions without changing behavior. Secondary exports and framework-required entrypoints retain their own contracts.
 
 Prefer `assert...` for condition-checking functions that throw on failure, naming the asserted condition so the failure contract is apparent at the call site. Do not mechanically rename boolean predicates or framework-required methods.
 
