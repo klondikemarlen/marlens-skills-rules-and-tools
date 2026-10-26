@@ -141,6 +141,8 @@ For a pure TypeScript helper that operates on component/editor-specific concepts
 
 Choose the home by concept ownership, not single-caller count: a generic or domain-owned helper keeps its actual owner even with one component caller. Promote component support code to a shared feature/domain home when genuinely shared ownership emerges, not merely because another caller appears. Preserve project-local directory conventions; real reactive state or lifecycle needs remain independent reasons to use a composable.
 
+This preference extends to a component family: related editors may share plain TypeScript DOM-interaction helpers and types beside that family, in a Vuetify-style organization without requiring Vuetify itself. Component directories are not restricted to component files. Keep pure domain rules with their domain, genuinely project-independent algorithms in libraries, and reactive lifecycle coordination in composables. Existing project conventions still win; do not move unrelated code to manufacture a uniform tree.
+
 ## Self-Contained Migrations
 
 Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
