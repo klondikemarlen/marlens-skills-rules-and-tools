@@ -41,6 +41,14 @@ function updateSelectedTagIds(tagIds: string[]) {
 
 The example shows binding and ownership only; reuse the project's actual record availability, types, and write/save operation rather than copying an assignment into an incompatible contract.
 
+## State-Driven Dialogs and Recovery
+
+Application error handlers/plugins update shared recovery/error state, through its ordinary writable refs or meaningful state operations, rather than imperative dialog `show`/`hide` commands. The presentation component derives visibility from error presence and owns display lifecycle. Preserve genuine close/recovery policies and the [transport/UI error boundary](code-organization-reference.md#error-ownership-and-local-recovery); do not add a new store or trivial setter layer.
+
+When a dialog already has a supported visibility model, do not add an outer `v-if` solely to duplicate show/hide state. Keep conditional inner content for transient availability, and retain an outer mount guard when an independent lifecycle requirement actually needs it. Verify observable closure/hidden content, not mandatory DOM removal from a dialog whose supported contract keeps hidden nodes mounted.
+
+If a URL reflects runtime-only recovery, make state ownership and synchronization direction explicit instead of maintaining competing URL/runtime truth through paired reconciliation watchers. Preserve actual route, navigation, and dismissal contracts; do not impose a universal URL mirror or hide a legitimate close policy.
+
 ## Model-Mirror Composables and Editor Ownership
 
 Inspect established sibling composables and any user-designated architecture before extending a `use` module. When singular/plural data-access composables mirror the model layer, retain those mirrors while the underlying model exists, even with zero current callers. An editor-specific wrapper does not replace the model mirror. Remove obsolete mirrors when their model is deleted; do not use this exception to preserve arbitrary dead code or invent speculative wrappers.

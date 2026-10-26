@@ -153,6 +153,10 @@ Exposes ordinary writable composable state through toRefs and follows establishe
 
 Shows explicit readonly-computed/model-value/named-update-handler bindings for derived Vue fields, preserving real dependent-field watchers and the accepted save lifecycle.
 
+## Version 3.26.4
+
+Derives recovery-dialog presentation from shared state and avoids redundant mount guards, while preserving independent lifecycle, URL, and close-policy contracts.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
