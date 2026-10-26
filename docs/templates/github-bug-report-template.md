@@ -2,6 +2,8 @@
 
 Use after [version and ownership investigation](../workflows/github-bug-reporting-workflow.md); prefer the target project's existing issue template. Replace fields with observed facts or explicit `unknown`/`unavailable`, never guessed evidence. Omit irrelevant optional details rather than filling them with speculation.
 
+Apply [Standalone Reports](../references/guidance-precedence-reference.md#standalone-reports) within the selected issue shape. Lead with the current failure and impact, not the investigation's discarded assumptions. Introduce each diagnostic before its qualification; retain decision-critical uncertainty or safety limits in the opening and requested historical detail where useful.
+
 ```markdown
 ## Problem and Impact
 

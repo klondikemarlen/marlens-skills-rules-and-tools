@@ -54,6 +54,12 @@ Write the smallest useful answer, result, risk, or next action with the supporti
 
 Downstream links supplied as examples of a shared instruction problem are read-only research inputs. Improve the shared owner when that is the requested outcome; a broad follow-up such as “do what you think is best” does not turn those examples into cleanup targets. Editing or deleting downstream history requires an explicit cleanup request and target scope.
 
+### Standalone Reports
+
+Compose a report from the final evidence-backed understanding: lead with the current observable problem and its impact, then give expected versus actual behavior and relevant supporting evidence within the project's report shape. Do not make the opening a rebuttal to the agent's earlier assumptions. Omit superseded hypotheses and conversational corrections unless they independently help the receiving reader; a reader should not need the troubleshooting conversation to understand the report.
+
+Introduce a diagnostic observation before discussing its limits or possible relevance. Place a qualification beside the evidence it qualifies, rather than foregrounding an unexplained comparison. Keep a material uncertainty or safety limitation in the opening when it changes how the reader must interpret the problem or act. Preserve necessary diagnostics, affected versions, regression history, and explicitly requested chronological detail, clearly distinguishing historical hypotheses from current findings. This is a relevance and placement rule, not a ban on caveats, technical detail, or investigation history.
+
 ## Rules
 
 - Keep project-specific commands, services, routes, domain terms, auth, schemas, deployment details, and UI labels in the target project.

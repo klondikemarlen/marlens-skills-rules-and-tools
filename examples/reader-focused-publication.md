@@ -44,6 +44,36 @@ The changed heading explains why the report is resolved; the PR supplies the rel
 | Staging version 3.4 was actually observed with the corrected heading, and that check determines closure. | “Staging 3.4 now shows **Travel Desk Request**; that resolves this report.” Do not generalize to another environment.                                                                               |
 | The maintainer explicitly requests a detailed local QA audit.                                            | Update the existing designated report with the requested evidence and local-only limit, keeping sensitive workstation details private. Do not replace requested evidence with a terse closing note. |
 
+## Standalone Reports
+
+Apply [Standalone Reports](../docs/references/guidance-precedence-reference.md#standalone-reports) inside the receiving project's report shape. The [reported shutdown example](https://bugs.launchpad.net/bugs/2172253) motivates this illustration; it is not permission to edit that report or prescribed wording.
+
+**Before:**
+
+> Shutdown/reboot hung after installing updates, and I had to hold down the physical power button to turn the laptop off. This is a system shutdown hang, not just a Slack application crash. The final journal messages do not establish that the machine actually restarted.
+
+The unexplained Slack comparison answers an earlier investigative assumption, not a question the receiving reader has been given.
+
+**After — Opening:**
+
+> Shutdown/reboot hung after installing updates, and I had to hold down the physical power button to turn the laptop off.
+
+**After — Supporting Evidence:**
+
+> Slack also generated a SIGTRAP crash report during desktop teardown. It is unclear whether this is related to the shutdown hang.
+>
+> The final journal messages from the shutdown attempt do not establish that a restart completed.
+
+The diagnostic observations and their limits remain; the conversational rebuttal does not. The timing after updates does not establish a cause.
+
+**Contrasting Safety Limitation:**
+
+In a fictional restore report, an unrelated file was overwritten in a disposable sandbox, while production behavior is untested. An opening such as “Restore 2.1 overwrote a non-target file in the sandbox; do not run it against the only copy of important data pending isolated safety verification” keeps the action-critical warning and scope of evidence visible. Moving that warning to the end merely to shorten the opening would mislead the reader.
+
+**Requested Chronological Detail:**
+
+If the receiving reader explicitly asks for an investigation timeline, retain the initial Slack-only hypothesis, the later confirmation of a whole-machine shutdown hang, and the crash-report observation in their actual order. Label the hypothesis as historical and the causal relationship as unknown; do not present the abandoned hypothesis as the current diagnosis or delete requested history as “noise.”
+
 ## Why
 
 Completing required work, retaining evidence, and communicating with a reader are separate responsibilities. Good publication answers a real question or changes a decision; a workflow field alone does neither. Historical results remain tied to their revision rather than implying approval of later code.
@@ -51,5 +81,7 @@ Completing required work, retaining evidence, and communicating with a reader ar
 ## Check
 
 Run a bounded, read-only OMP authoring/review consumer against the supplied situations and the applicable canonical or packaged workflows. Ask for the chosen action, destination, and minimal public text or no write. Include contrasting no-template, explicit-detail, material-blocker, and shared-versus-downstream cases rather than checking for matching phrases.
+
+For report authoring, supply troubleshooting notes with an abandoned hypothesis and request an actual standalone draft, not just a placement recommendation. Check the opening and retained evidence together. Contrast a safety-critical opening and an explicitly requested chronological handoff; do not accept a shortened draft that loses a material warning or requested history.
 
 Compare actual decisions before and after a guidance change in the existing execution record. A baseline that already makes the correct decision is preserved coverage, not evidence of a model defect or a measured improvement. Do not mutate downstream records to validate this example.
