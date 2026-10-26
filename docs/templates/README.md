@@ -26,6 +26,7 @@ Examples:
 - `outcome-first-plan-template.md`
 - `project-knowledge-base-template.md`
 - [`github-bug-report-template.md`](github-bug-report-template.md) — versioned, attributable GitHub bug reports.
+- [`changelog-template.md`](changelog-template.md) — curated release history with observed dates and supported links.
 
 Template families should include their own `README.md` that lists the focused templates and when to use the family.
 
