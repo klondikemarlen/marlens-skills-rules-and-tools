@@ -47,9 +47,9 @@ For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` run
 
 ## Evidence-Backed Ticket Triage
 
-Use [`triage`](skills/triage/SKILL.md) for evidence-backed ticket assessment, bounded backlog ranking, or explicitly authorized classification-label additions without claiming ownership or beginning implementation. It separates work type, owner proposal, readiness, impact, relationships, and next action; classifications cite inspected evidence and retain uncertainty.
+Use [`triage`](skills/triage/SKILL.md) for evidence-backed ticket assessment, bounded backlog ranking, and supported ticket updates without claiming ownership or beginning implementation. It separates work type, owner proposal, readiness, impact, relationships, and next action; classifications cite inspected evidence and retain uncertainty.
 
-Say “triage these tickets” for assessment, “triage and show proposed labels; dry run only” for a no-write plan, or “triage and apply classification labels to these tickets” to authorize bounded label additions. Labeling does not authorize assignment, closure, comments, board transitions, or implementation.
+Say “triage these tickets” to apply supported evidence-backed updates, or “assessment only,” “dry run,” or “no writes” for read-only assessment. Narrower exclusions remain independent: “don't move board items” preserves board locations, including automation effects, while permitting other safe updates. See the workflow for supported operations; triage does not implicitly authorize assignment, closure, report rewrites, or implementation.
 
 The packaged `triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
 
@@ -100,6 +100,10 @@ Adds the declared [Test Assertion Focus check](docs/references/test-alignment-ve
 ## Version 3.24.1
 
 Selects [implementation pace by pattern fit](docs/workflows/outcome-first-planning-workflow.md#choose-execution-mode-by-pattern-fit): precise planning for known-fit changes, bounded runnable modeling iterations for uncertain or model-breaking seams. Strengthens existing [pattern ownership](docs/references/code-organization-reference.md#pattern-fit-and-non-fit) checks so composition preserves responsibilities instead of stretching patterns or leaking their decisions.
+
+## Version 3.25.0
+
+Makes ordinary triage apply supported evidence-backed ticket updates. Explicit read-only modes and narrower exclusions, including indirect board automation, remain binding; the snapshot CLI stays read-only.
 
 ## Claude Code Plugin Install
 

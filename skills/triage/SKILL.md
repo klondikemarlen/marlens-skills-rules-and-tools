@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Use for evidence-backed ticket assessment, bounded backlog ranking, or explicitly authorized classification-label application without starting implementation.
+description: Use for evidence-backed ticket assessment, bounded backlog ranking, and supported triage updates by default; explicit assessment-only or dry-run requests remain read-only.
 ---
 
 # Triage
