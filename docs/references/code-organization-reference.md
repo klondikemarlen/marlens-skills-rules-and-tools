@@ -397,6 +397,8 @@ In ORM-backed application code, keep ordinary trimming, blank-value handling, ac
 
 Retain relational constraints such as foreign keys, uniqueness, and nullability. Necessary narrowly scoped legacy cleanup belongs in its self-contained migration, not a mutable application-model import. This preference does not ban database constraints or remove an independently required database invariant.
 
+For validation-only rules, including cross-field persistence invariants, prefer normal model validators or the established service validation boundary over introducing pre-validation lifecycle hooks. Choose the owner from the invariant and existing write paths: a model-owned invariant must remain enforced for supported direct model writes, not only one service route. Preserve valid, optional, and invalid input behavior, async validation, normal validation-error semantics, and existing constraints when moving enforcement. Keep genuine lifecycle side effects distinct; this is not a hook ban, mandatory service extraction, or requirement for a particular ORM decorator.
+
 ## Thin Persistence Lifecycle Handoffs
 
 For domain-specific background work scheduled from persistence changes, reuse existing ORM lifecycle subscriptions or established event wiring rather than building parallel infrastructure. Keep the lifecycle callback thin: hand off to the owning service/job, which owns affected-record discovery and processing. Do not add domain-specific discovery, orchestration, or transaction overrides to a shared base model.
