@@ -33,6 +33,23 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 - When a derived collection needs distinct values from potentially many persisted parent rows, prefer database-side projection, splitting/aggregation, deduplication, and ordering over loading every parent's values and hydrating ORM instances for application-side aggregation. Selecting fewer columns does not bound row count. Apply authorization and supported filters in the source query; use a raw query or supported read projection following local conventions. Do not mandate normalization, a new table, or a view solely for this optimization; schema normalization is a separate evidence-backed modeling decision.
 - Before adding a resource picker or collection service, inspect neighboring domain inputs and collection endpoints. Compose an owning-domain input when existing resource-input components own fetching, loading/error state, and autocomplete rendering; keep model bindings and contextual hints in the parent. Follow the established collection-service bundle and naming, including nested `IndexService` conventions where present, rather than introducing a flat `List<Resource>Service`. Preserve selection, visibility-triggered loading, errors, and authorization. Do not add wrappers for trivial controls or impose a universal layout.
 
+## Download Filenames
+
+For related download formats, reuse one filename-building function and the consistent layout `<type>, <title>, <date>.<extension>`. Keep title/date preparation shared rather than constructing different layouts per response. Reuse the project's accepted date formatting, filename safety, and header encoding; do not change attachment versus inline behavior or introduce streaming requirements.
+
+For example, with `title` and `formattedDate` already prepared once under that contract:
+
+```ts
+function buildDownloadFilename(type: string, title: string, date: string, extension: string) {
+  return `${type}, ${title}, ${date}.${extension}`
+}
+
+const csvFilename = buildDownloadFilename("Report", title, formattedDate, "csv")
+const pdfFilename = buildDownloadFilename("Report", title, formattedDate, "pdf")
+```
+
+Both response paths use the same composition and retain their format's extension. Keep the helper local when the concern is controller-local; a shared global utility is not mandatory.
+
 ## Process
 
 1. Read the nearest live backend slice for the same area: route, controller/handler, service/use-case, policy/auth, serializer, model, and tests.
