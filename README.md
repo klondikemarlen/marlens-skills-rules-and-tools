@@ -113,6 +113,10 @@ Clarifies descriptive helper names, primary export/file identity, and named-symb
 
 Keeps model classes as ordinary imports even in type positions and isolates test-subject imports from dependencies, preserving required compiler contracts and scoped cleanup.
 
+## Version 3.25.3
+
+Makes indexed lookups inspectable before property access and groups nested assignment inputs after scalar attributes, preserving optional access and evaluation/override order.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
