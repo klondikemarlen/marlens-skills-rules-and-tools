@@ -25,6 +25,7 @@ Examples:
 - `prompt-improvement-template.md`
 - `outcome-first-plan-template.md`
 - `project-knowledge-base-template.md`
+- [`github-bug-report-template.md`](github-bug-report-template.md) — versioned, attributable GitHub bug reports.
 
 Template families should include their own `README.md` that lists the focused templates and when to use the family.
 

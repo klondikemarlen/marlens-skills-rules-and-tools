@@ -53,6 +53,8 @@ Say “triage these tickets” to apply supported evidence-backed updates, or �
 
 The packaged `triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
 
+Use [`github-bug-reporting`](skills/github-bug-reporting/SKILL.md) to investigate, draft, or file a GitHub bug with observed artifact/runtime versions, attributable reproduction evidence, and an existing-issue/fix check. It distinguishes old installs and retained process modules from current upstream behavior, preserves original failures separately from recovery, and requires applicable write authority. Filing does not start implementation.
+
 ### Version 3.20.1
 
 Renames the skill and CLI to `triage`, removing the former public entrypoints without aliases. The evidence-backed triage rule and read-only snapshot/validate/render behavior remain unchanged. Existing ticket lifecycle and release workflows remain authoritative for separately authorized implementation.
@@ -213,6 +215,10 @@ Keeps controller failures visible at the public action/error boundary and ordina
 
 Keeps ordinary mutations invariant-preserving and scoped to their intended changes, distinguishing operation-specific ordering updates from explicitly required data repair.
 
+## Version 3.27.0
+
+Adds `github-bug-reporting` for version-aware, evidence-backed reports with ownership checks, existing-fix reuse, and separate original/recovery evidence. Includes a reusable report template and contrasting consumer examples.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:
@@ -311,6 +317,7 @@ Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common ro
 | Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md)                                                                                                                    |
 | Mine session insights and route durable lessons                           | [`docs/workflows/session-insight-mining-workflow.md`](docs/workflows/session-insight-mining-workflow.md)                                                                                                        |
 | Draft or file Jira reports                                                | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting`                                                                                                   |
+| Draft or file version-aware GitHub bugs                                   | [`docs/workflows/github-bug-reporting-workflow.md`](docs/workflows/github-bug-reporting-workflow.md) and `github-bug-reporting`                                                                                 |
 | Run one task with a temporarily enabled MCP server                        | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md)                                                                                                                |
 
 ## Task-Proportionate Execution
