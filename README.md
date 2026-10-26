@@ -141,6 +141,10 @@ Makes routine issue-closing notes reader-focused through before/after examples, 
 
 Defines model-mirror composable lifetime, editor-workflow ownership, and direct reactive-ref consumption, preserving legitimate detached drafts and accepted navigation/save contracts.
 
+## Version 3.26.1
+
+Scopes asynchronous data, policy, errors, loading completion, and save results to their record/query owner, with controlled stale-request decision coverage and no implied mutation rollback.
+
 ## Claude Code Plugin Install
 
 Install this repo as a Claude Code marketplace, then install the plugin from it:

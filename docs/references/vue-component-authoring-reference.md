@@ -24,6 +24,14 @@ Keep component-specific editing workflows—drafts, queued writes, reconciliatio
 
 Consumers use the composable's returned reactive record/collection refs as the model source. Do not copy them into a parallel record map and watch fetches to merge fields or revision counters. Keep genuine pending commands and failure feedback with the editor. If accepted edits must survive navigation, inspect editor lifetime and supported framework retention before adding parallel model ownership; preserve the accepted save/navigation guarantee. An explicitly contracted detached draft remains valid; neither `KeepAlive` nor a particular draft-storage design is mandatory.
 
+## Record-Scoped Async Ownership
+
+For record/list data-access composables, name the owner of fetched records, policy, loading/error state, pending edits, and save completion. Bind request publication to the record/query context that started it: an obsolete read must not publish data, policy, errors, or `finally` loader completion into a newer context. Check both identity and overlapping request ownership, including success, failure, and completion paths. Reuse the project's supported cancellation and stale-result mechanisms; do not prescribe a new queue, global cache, retry policy, or state library.
+
+Canceling an obsolete read does not roll back a committed mutation. A save for A finishing while B is displayed must settle A's accepted operation without overwriting B's model or recovery state. If edits/failures/retry must survive navigation, give them explicit record-scoped ownership under the existing editor lifetime/draft contract rather than silently dropping them or creating a parallel canonical model.
+
+Verify controlled completion order: start A, select/query B, finish A last; deliver A's failure and `finally` while B is pending; finish save A after selecting B. Observe the displayed record, policy, loading/error state, and persisted outcome. Add failed-draft retry only when it is part of the accepted contract. A cited risk or a shared-guidance change is not proof of a reproduced or fixed downstream application defect.
+
 ## Utility-Style Scoped Presentation
 
 Compose presentation from small utility-style classes inline in the template, including conditional class bindings, rather than semantic component/state classes bundling multiple styling decisions. Reuse suitable framework utilities when they preserve appearance; define missing custom utilities in the component's local `<style scoped>` block. This is Tailwind-like composition, not a request to install Tailwind or introduce global CSS.
