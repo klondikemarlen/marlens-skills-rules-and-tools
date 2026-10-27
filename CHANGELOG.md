@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/897) - 2026-10-27
+
+### Changed
+
+- Prefers flat operation-named serializers and operation-specific response types over single-action folders, preserving meaningful namespaces and existing response contracts.
+
 ## [3.32.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/911) - 2026-10-27
 
 ### Added
