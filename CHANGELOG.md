@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/894) - 2026-10-27
+
+### Changed
+
+- Groups composable return bindings into meaningful sections, with derived helpers after resource functions and existing API and evaluation semantics preserved.
+
 ## [3.32.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/912) - 2026-10-27
 
 ### Changed
