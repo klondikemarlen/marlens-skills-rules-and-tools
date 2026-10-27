@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/907) - 2026-10-27
+
+### Changed
+
+- Clarifies when to remove repetitive source-header provenance prose while preserving required legal notices, central attribution, and useful technical rationale.
+
 ## [3.32.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/906) - 2026-10-27
 
 ### Changed
