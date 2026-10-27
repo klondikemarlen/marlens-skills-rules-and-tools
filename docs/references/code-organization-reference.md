@@ -165,6 +165,8 @@ Where the project uses `lib` for reusable mechanisms, reserve it for code meanin
 
 Prefer one primary operation or independently named builder per implementation file, using a descriptive filename and the existing import/barrel/export conventions. Keep distinct operations separate rather than consolidating them merely because they are related. This is an ownership preference, not a one-function quota: retain a primary operation's local implementation steps, cohesive supporting types, and constants, as well as documented framework requirements and genuinely cohesive multi-function modules.
 
+For an operation-specific response, prefer a flat operation-named serializer beside the owning resource's other serializers when a new folder would only wrap that representation. For example, use `workflow-templates/clone-serializer.ts` exporting `CloneSerializer`, with `WorkflowTemplateAsClone` and the established `AsClone` barrel alias, rather than `clone/create-serializer.ts` and a generic creation name. Keep ordinary `IndexSerializer` and `ShowSerializer` contracts distinct and unchanged. Reuse an existing serializer when the representation and its contract are identical. Retain meaningful multi-module operation namespaces and stronger local/framework conventions. Update every affected in-scope caller and supported barrel/type export without changing response fields, loading, or error behavior; naming does not authorize a response redesign or unrelated flattening.
+
 For example, suppose reference inspection in a search feature establishes these consumers:
 
 | Query Builder File             | Observed Consumer Locations                                                           |
