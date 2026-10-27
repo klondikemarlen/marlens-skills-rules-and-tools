@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/861) - 2026-10-27
+
 ### Added
 
 - Adds a default maintainer-approval rule that keeps externally requested features in audit/triage until their scope is explicitly authorized, without repeating approval for directly requested work.
