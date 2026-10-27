@@ -232,6 +232,8 @@ Prefer the project's existing schema builder for ordinary changes when it suppli
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
+Use migration-specific checks/tests and dedicated fixtures as disposable implementation verification. After proving the checked migration's contract, retain focused commands and observed outcomes in the task's existing evidence, then remove check files and fixtures created solely for that migration before committing. Keep application-behavior tests, shared fixtures, and any required recovery/audit artifacts. This does not waive correctness, database-failure, rollback, or accepted-loss/recovery proof under [Best-Effort Backfills](#best-effort-backfills), authorize a historical test sweep, or make stale results valid after a change.
+
 Where soft-delete exclusion is the routine convention, omit `Active` and `DeletedAtNull`/`deleted_at_null` from index names, decorator identifiers, and matching filenames. Preserve the deleted-at-null predicate and uniqueness semantics, and align model and migration index names. Continue naming other meaningful filter conditions under the project's convention; do not rename unrelated historical indexes.
 
 ### Best-Effort Backfills
