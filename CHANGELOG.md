@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/884) - 2026-10-27
+
+### Changed
+
+- Keeps main README capability and usage guidance aligned with released artifacts, placing pending previews in release history or maintainer documentation instead.
+
 ## [3.31.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/888) - 2026-10-27
 
 ### Added
