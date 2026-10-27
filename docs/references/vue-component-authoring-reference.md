@@ -75,6 +75,27 @@ Follow the established reactive-state plus `...toRefs(state)` return pattern for
 
 When an operation restores initial/empty state and siblings call that operation `reset`, use `reset` rather than a specialized synonym such as `clearError`. Inspect sibling contracts first and retain names for genuinely different operations. Apply accepted API changes to affected callers and tests together, preserving behavior and required invariant boundaries.
 
+## Composable Return-Object Sections
+
+Group related returned values so a composable's public API is easy to scan. Inspect nearby composables for meaningful section labels; when following the established `// helpers` pattern, put derived helper values in a separate section after the returned resource functions. This organizes the return object, not declaration order or domain ownership.
+
+With existing state refs, resource functions, and a derived `itemCount`, the returned bindings can be grouped as follows:
+
+```typescript
+return {
+  items,
+  loading,
+
+  fetchItems,
+  refresh,
+
+  // helpers
+  itemCount,
+}
+```
+
+Keep the same property names, values, refs, and function identities. Preserve spreads, property precedence, getters, evaluation order, and any order-sensitive consumer behavior; do not mechanically reorder behavior-sensitive entries to obtain the layout. Keep declarations beside their dependencies and direct derived state. Do not add empty or unnecessary sections, move domain logic into a composable, or sweep unrelated modules.
+
 ## Record-Scoped Async Ownership
 
 For record/list data-access composables, name the owner of fetched records, policy, loading/error state, pending edits, and save completion. Bind request publication to the record/query context that started it: an obsolete read must not publish data, policy, errors, or `finally` loader completion into a newer context. Check both identity and overlapping request ownership, including success, failure, and completion paths. Reuse the project's supported cancellation and stale-result mechanisms; do not prescribe a new queue, global cache, retry policy, or state library.
