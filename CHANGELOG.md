@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/846) - 2026-10-27
+
+### Fixed
+
+- Keeps Firefox screenshot-upload checks headless until the user agrees to a separate visible login/MFA window, preserving manual window switching, cancellation, owned-profile cleanup, and headless continuation.
+
 ## [3.30.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/845) - 2026-10-27
 
 ### Changed

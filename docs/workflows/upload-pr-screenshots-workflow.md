@@ -22,7 +22,7 @@ REST/`gh api` can edit Markdown text but cannot create the required `user-attach
 
 ## Default Browser and Login Handoff
 
-Use an agent-owned browser with a unique disposable profile; keep automation headless unless a user interaction or project/browser requirement needs a visible window. Application QA and GitHub publication may use separate browsers: honor a required application browser without forcing GitHub's Chromium/CDP helper onto that application.
+Use an agent-owned browser with a unique disposable profile; keep automation headless unless the user explicitly requests visible QA or agrees to a necessary manual login/MFA handoff before the visible launch. A browser-engine request such as “Firefox” alone does not authorize a visible window or automatic window switching. Application QA and GitHub publication may use separate browsers: honor a required application browser without forcing GitHub's Chromium/CDP helper onto that application.
 
 For GitHub attachments, use an already-authorized owned session only when it meets the requested browser-engine requirement. When signed out, honor the requested engine: an explicit Firefox request uses **Firefox GitHub Login and Upload**; otherwise start the installed `github-headless-session` command in **Authenticated Session Bootstrap** below. That Chromium-only command opens only its own temporary sign-in window, waits for the user to finish login/MFA, then closes that owned window and relaunches headless with the same owned profile. The caller signals continuation only after the user's confirmation and verifies actual signed-in state after relaunch. Do not restart or terminate the personal browser at any stage.
 
@@ -36,7 +36,7 @@ When Firefox is explicitly requested, do not invoke `github-headless-session` or
 
 A Firefox launch or reaching GitHub's sign-in form proves only startup/control and the manual handoff, not authentication or publication. Report authentication, file transfer, saved-body verification, and rendered placement separately; do not call the route passed until each requested phase succeeds.
 
-Use a unique private profile directory outside the repository in a location the Firefox process can read; keep it separate from the screenshot run directory. Retain the owned process handle and profile path locally. Open a visible window only for the user's real GitHub login/MFA handoff, then close that owned browser and relaunch headless with the same disposable profile. Never automate credentials, bypass authentication protections, copy personal profiles/cookies, or terminate a personal browser. The isolated profile does not reduce the account's normal GitHub permissions; use an authorized dedicated account with only the repository access needed.
+Use a unique private profile directory outside the repository in a location the Firefox process can read; keep it separate from the screenshot run directory. Retain the owned process handle and profile path locally. Start headless and inspect sign-in state. When manual login/MFA is necessary, explain that a separate visible Firefox window is needed and obtain the user's agreement before launching it. If the user declines, closes the request, or an interactive handoff is unavailable, stop the affected authentication/upload phase without opening a window. Let the user switch windows manually; do not foreground or focus it automatically. After real login, close that owned browser and continue headlessly with the same disposable profile. Never automate credentials, bypass authentication protections, copy personal profiles/cookies, or terminate a personal browser. The isolated profile does not reduce the account's normal GitHub permissions; use an authorized dedicated account with only the repository access needed.
 
 The following bounded Node example assumes an already-installed `puppeteer` binding (or `puppeteer-core`; change the import below to match discovery), `firefoxExecutable`, an existing browser-visible `profileParent` outside the repository, `prUrl`, `uploadDirectory`, `screenshotDirectory`, and `uploaderUrl` (the installed `file:` URL returned by `github_pr_screenshot_upload_path`) are supplied from the current QA run:
 
@@ -94,28 +94,48 @@ try {
     }
   }
 
-  browser = await puppeteer.launch({ ...launchOptions, headless: false })
+  browser = await puppeteer.launch({ ...launchOptions, headless: true })
   let page = await browser.newPage()
   await page.goto(prUrl, { waitUntil: "domcontentloaded" })
 
   if (await page.$('a[href^="/login"]')) {
+    if (!stdin.isTTY || !stdout.isTTY) {
+      throw new Error("GitHub login needs an agreed interactive Firefox handoff.")
+    }
+
     const terminal = createInterface({ input: stdin, output: stdout })
+    const handoff = new AbortController()
+    terminal.once("close", () => handoff.abort())
     try {
-      await terminal.question(
-        "Complete GitHub login/MFA in the owned Firefox window, then press Enter here: "
+      const agreement = await terminal.question(
+        "GitHub login/MFA needs a separate visible Firefox window. Open it now? Type yes to continue: ",
+        { signal: handoff.signal }
       )
+      if (agreement.trim().toLowerCase() !== "yes") {
+        throw new Error("The visible Firefox login handoff was declined.")
+      }
+
+      await closeOwnedBrowser()
+      browser = await puppeteer.launch({ ...launchOptions, headless: false })
+      page = await browser.newPage()
+      await page.goto(prUrl, { waitUntil: "domcontentloaded" })
+      await terminal.question(
+        "Switch to the owned Firefox window manually, complete GitHub login/MFA, then press Enter here: ",
+        { signal: handoff.signal }
+      )
+      if (await page.$('a[href^="/login"]')) {
+        throw new Error("GitHub still shows a sign-in link after the manual Firefox handoff.")
+      }
     } finally {
       terminal.close()
     }
-  }
-  if (await page.$('a[href^="/login"]')) {
-    throw new Error("GitHub still shows a sign-in link after the manual Firefox handoff.")
+
+    await closeOwnedBrowser()
+    browser = await puppeteer.launch({ ...launchOptions, headless: true })
+    page = await browser.newPage()
+    await page.goto(prUrl, { waitUntil: "domcontentloaded" })
   }
 
-  await closeOwnedBrowser()
-  browser = await puppeteer.launch({ ...launchOptions, headless: true })
-  page = await browser.newPage()
-  await page.goto(prUrl, { waitUntil: "domcontentloaded" })
   if (await page.$('a[href^="/login"]')) {
     throw new Error("The owned Firefox profile is signed out after headless continuation.")
   }
