@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/847) - 2026-10-27
+
+### Added
+
+- Documents optional collection summaries through an attributed Travel Authorization example, preserving authorized full-population totals across pagination and omitting unused or forbidden aggregates.
+
 ## [3.31.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/864) - 2026-10-27
 
 ### Changed

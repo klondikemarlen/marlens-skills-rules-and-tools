@@ -4,6 +4,8 @@ Use these for Node.js + Express + TypeScript backend slices that follow a light 
 
 These templates are centralized starting points. Project-local templates and live sibling code win.
 
+For a list whose current UI needs full-population aggregates, use [Optional Collection Summaries](../../../references/express-light-rail-backend-concepts-reference.md#optional-collection-summaries) and its attributed Travel Authorization example. Keep ordinary controller reads and existing local collection-service conventions; summaries are not a required template rail.
+
 ## Templates
 
 - `route-template.md` - Express router wiring and middleware order.
