@@ -26,6 +26,8 @@ The consumer requires OMP Verifier 0.10.0 or later. The runtime must surface uns
 
 An agentic verification result is not by itself a hard completion gate. The provider contract and runtime protocol are documented in the [Module Boundary Alignment guidance](code-organization-reference.md#semantic-module-boundary-review) and the [OMP Verifier scope and manifest contract](https://github.com/klondikemarlen/omp-verifier/blob/main/README.md); final completion-veto behavior depends on OMP's native advisor.
 
+`marlens-rules:documentation-purpose-alignment` selects changed root and nested `.md` and `.mdx` files. Its [governing standard](../workflows/code-review-workflow.md#documentation-purpose-and-placement) requires complete changed passages, applicable project guidance, and material referenced implementation/owner documents captured before a cited whole-scope assessment. Recover missing context through Verifier's supported `review --context` path; unavailable required evidence remains `BLOCKED`. Legitimate source-local patterns, operator procedures, and discovery links are accepted. See the contrasting [documentation-purpose examples](../../examples/documentation-purpose-review.md); formatting/link checks and primary assertions are not semantic evidence.
+
 For cross-project responsibility and promotion of prose into checks, use [`quality-ownership-reference.md#correction-coverage-and-verification-evidence`](quality-ownership-reference.md#correction-coverage-and-verification-evidence). It distinguishes Learner's correction-coverage result from an accepted rule, a supplied supported contract, and Verifier's evidence from applicable current code. This package owns reusable policy and check assets; Verifier owns discovery, execution, and correction; Learner owns eligible feedback and proposal routing.
 
 The default `whitespace-matters` rule selects commit/push and PR creation/readiness/merge commands, not an operation merely named `review`. Request/evidence inspection is not a readiness claim. The rule still requires project formatter/checker use and `git diff --check` at delivery, with existing project/user precedence and explicit overrides.
@@ -46,6 +48,7 @@ The default `whitespace-matters` rule selects commit/push and PR creation/readin
 | `test-alignment`                                  | Verification         | Changed tests follow deterministic naming/structure rules plus explicit local syntax policies.                 |
 | `test-assertion-focus`                            | Agentic verification | Changed tests receive semantic review against shared assertion guidance and ordinary-language local standards. |
 | `module-boundary-alignment`                       | Agentic verification | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes.              |
+| `documentation-purpose-alignment`                 | Agentic verification | Changed Markdown/MDX is assessed for reader purpose, ownership, placement, and material code accuracy.         |
 
 ## Default-Enabled Package Policies
 

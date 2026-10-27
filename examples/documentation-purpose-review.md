@@ -36,6 +36,20 @@ Apply [Documentation Purpose and Placement](../docs/workflows/code-review-workfl
 | A developer workflow legitimately documents commands and execution order | Assess against that procedural reader task; do not apply a source-README implementation-inventory prohibition to every document.                                                                       |
 | Required project rule or referenced source is unavailable                | `BLOCKED` for the affected purpose assessment; name the missing source and continue independent checks. Do not infer project policy from a pathname.                                                   |
 
-Report semantic purpose, formatting, links, behavioral tests, and module verification as separate evidence. This guidance does not declare an automatic documentation verifier or imply that another check covers Markdown meaning.
+The supplied `marlens-rules:documentation-purpose-alignment` contract applies these distinctions to changed Markdown/MDX through OMP Verifier. Report semantic purpose and material code alignment separately from formatting, links, behavioral tests, and module verification. Discovery and automatic selection require the installed provider and supported Verifier runtime; a supplied contract does not itself prove a current assessment or hard completion gate.
+
+## Material Code-Alignment Cases
+
+Consider an operator guide whose current implementation pushes an artifact, confirms access, then applies it once. A failed apply propagates its error; an `applied: false` result does not mean deployment succeeded. These are illustrative source facts, not claims about WRAP or another consuming project.
+
+| Changed Passage                                                                                          | Expected Semantic Decision                                                                                   |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Source README enumerates internal helper state without an authoring decision                             | `FAIL` under the stated source-README rule; replace the inventory with local when/why/how/boundary guidance. |
+| Models README copies listener registration/removal instructions from the channel guide                   | `FAIL` competing ownership; retain a local usage decision and link the existing channel owner.               |
+| Operator guide says access is confirmed before the push                                                  | `FAIL` code alignment; cite the actual push-before-access sequence and correct the procedure.                |
+| Operator guide promises automatic retry or equates a fresh invocation with retrying only the failed step | `FAIL` code alignment when the source makes one attempt and a fresh invocation repeats preparation.          |
+| Operator guide claims successful artifact preparation proves deployment, including partial failure       | `FAIL` code alignment; distinguish preparation from the apply result and preserve failure semantics.         |
+| Source-local pattern guidance, an accurate operator procedure, and a discovery link to an existing owner | `PASS` when the complete captured scope and material current source support those purposes and claims.       |
+| Referenced deployment implementation or governing owner cannot be captured                               | `BLOCKED`; name the missing dependency rather than inferring behavior from the guide.                        |
 
 Sources: [Project Documentation Selection](../docs/workflows/project-knowledge-base-workflow.md#selecting-documentation-content), [WRAP Documentation Philosophy](https://github.com/icefoganalytics/wrap/blob/4e170b491a72ba011c045f073021cd8475748585/AGENTS.md#L7-L21).

@@ -74,6 +74,10 @@ For changed documentation, read the applicable ordinary-language project rules a
 
 Source-directory READMEs may teach when and why to use a layer or pattern, how to author within it, and its boundaries, with small usage examples. Flag passages that merely inventory implementation behavior or repeat another layer's instructions. Identify the affected passage, governing rule, and concrete correction: explain the authoring decision, link to the existing owner, or retain implementation-local rationale beside code. Use the knowledge base for an actual durable domain or architecture question, not as a destination for displaced implementation summaries. Do not ban source READMEs or force new documentation when an existing owner already answers the question.
 
+Compare material documentation claims with current implementation and supported configuration, including execution order, parallel prerequisites, retries versus reruns, partial failure, and the meaning of success when relevant. Recover referenced implementation and existing owner documents into the semantic request before assessment; unavailable required evidence is `BLOCKED`, not approval based on formatting, links, or author assertions.
+
+The supplied `marlens-rules:documentation-purpose-alignment` contract selects changed root/nested Markdown and MDX through OMP Verifier. Assess the complete changed passages and governing guidance with cited whole-scope results; a clean subsection or empty selection does not establish semantic coverage. The provider supplies policy, while Verifier owns capture, evaluation, and native blocker delivery; this contract does not add a hard completion veto or unattended reassessment.
+
 Report documentation-purpose coverage separately from formatting, link validity, behavioral tests, and code-module verification; none proves the others. If the required rules or source are unavailable, name the missing prerequisite rather than claiming semantic coverage. Exercise the contrasting [documentation-purpose examples](../../examples/documentation-purpose-review.md) when verifying this review path.
 
 ## CSS Diagnostics for Style Changes

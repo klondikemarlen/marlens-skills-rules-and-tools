@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "standardId": "marlens-rules:documentation-purpose-alignment",
+  "source": "./docs/workflows/code-review-workflow.md#documentation-purpose-and-placement",
+  "gold": "Every changed documentation passage serves its intended reader question in the correct existing owner, honors applicable project guidance, and accurately describes material current implementation. Legitimate source-local authoring guidance, operator procedures, and discovery links remain valid; missing required evidence is BLOCKED, not semantic approval.",
+  "requiredContext": ["changed-code", "project-guidance"],
+  "rubric": [
+    {
+      "id": "complete-current-documentation",
+      "question": "Assess the complete changed Markdown/MDX passages and enough surrounding document context to establish their purpose, not only added lines or a filename. Capture applicable governing project guidance and every material referenced implementation or existing documentation owner into the current semantic request with targeted context recovery before assessment. Incomplete or unavailable required passages, rules, owners, or source require BLOCKED with the exact missing dependency; empty selection, primary assertions, stale results, formatting, and working links do not establish semantic PASS. Do not require unrelated optional files."
+    },
+    {
+      "id": "reader-purpose-and-project-authority",
+      "question": "Identify each passage's intended reader question, document role, governing ordinary-language project rule, and existing authoritative owner. Honor explicit project conventions rather than inferring policy from a pathname. Distinguish source-local when/why/how/boundary guidance, operator procedures, discovery links, durable domain knowledge, and implementation-local detail; a valid source README or procedural command sequence is not inherently misplaced."
+    },
+    {
+      "id": "placement-and-duplicate-ownership",
+      "question": "Flag implementation inventories that do not serve the reader task, accumulated review feedback, and copied cross-layer instructions that create competing owners under the applicable project rule. Cite the affected passage and governing rule, identify the existing owner, and give the smallest correction: explain the authoring decision, link the owner, or keep implementation-local rationale beside code. Preserve legitimate source-local patterns and examples; do not ban READMEs, force every detail into docs, or invent documentation when an existing owner already answers the question."
+    },
+    {
+      "id": "material-code-alignment",
+      "question": "Compare material behavior claims with captured current implementation and supported configuration, not the documentation's own assertions. Where relevant, inspect actual ordering and parallel prerequisites, retry versus rerun behavior, partial failure, and what success means. Cite the source and document discrepancy and a concrete correction for unsupported or contradictory claims. If required implementation evidence cannot be recovered, return BLOCKED rather than assuming the claim is accurate or treating a speculative risk as a proven defect."
+    },
+    {
+      "id": "whole-scope-cited-result",
+      "question": "Return one current whole-scope PASS, FAIL, or BLOCKED judgment supported by exact citations to changed documentation and the material governing guidance and implementation used. Explain reader purpose, legitimate placement, and material code alignment for a clean result; do not invent findings. Keep semantic coverage separate from formatting, links, behavioral tests, and module checks. Missing evidence cannot be waived by those checks, author self-certification, or a partial clean subsection."
+    }
+  ]
+}
