@@ -160,6 +160,21 @@ Co-locate code until there is a real change axis, invariant boundary, duplicated
 
 Where the project uses `lib` for reusable mechanisms, reserve it for code meaningfully usable outside the application, not merely code shared by two screens. A generic type parameter or multiple callers does not establish project independence: application models, status policy, and persisted-order mappings remain with their domain owner. A pure contiguity algorithm can belong in `lib` even with one caller. Keep an already-clean generic mechanism separate from domain mappings, but do not build adapters, a framework, or speculative genericization solely to qualify for `lib`. Stronger project-local directory conventions win.
 
+### Primary Operations and Local Implementation
+
+Prefer one primary operation or independently named builder per implementation file, using a descriptive filename and the existing import/barrel/export conventions. Keep distinct operations separate rather than consolidating them merely because they are related. This is an ownership preference, not a one-function quota: retain a primary operation's local implementation steps, cohesive supporting types, and constants, as well as documented framework requirements and genuinely cohesive multi-function modules.
+
+For example, suppose reference inspection in a search feature establishes these consumers:
+
+| Query Builder File             | Observed Consumer Locations                                                           |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
+| `active-workflow-ids-query.ts` | `resolve-workflow-ids-service.ts` and `synchronize-workflow-search-service.ts`        |
+| `workflow-player-ids-query.ts` | `resolve-workflow-player-ids-service.ts` and `synchronize-workflow-search-service.ts` |
+
+Keep both reused SQL builders in their own descriptive files and import each where needed; their common synchronization consumer is not a reason to combine them into `workflow-queries.ts`. The locations above illustrate the decision, not a claim about a particular project's files. In an actual review, identify the real importing files or call sites when explaining reuse instead of implying that a request to find consumers means the user wants consolidation.
+
+An implementation helper owned by an already-existing service is a different boundary: keep it private in that service under [Service Orchestration Readability](#service-orchestration-readability). A genuinely independent function or definition retains its own owner even with one caller; do not use caller count alone to choose between these homes or reorganize unrelated code.
+
 ### Library Index Barrels
 
 Use application-library `index` files for bundling and re-exports; put implementations in descriptive named sibling modules. Keep named functions and their matching default exports in those implementation modules under the existing export convention. A barrel may re-export values/types, import named/default/namespace bindings and re-export them, or default-export a static object of imported bindings. Do not hide functions, classes, locally computed values, side-effect imports, or executable initialization in a library barrel.
@@ -545,6 +560,8 @@ Delete B and shift W's successors within the existing atomic operation; do not g
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
 
 Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.
+
+When a helper implements an existing service's own responsibility, prefer a private method of that service rather than a standalone function beside the class. For example, a `workflowIdsQuery(sourceIds, sourceType)` that implements only `ResolveWorkflowIdsService`'s source-to-workflow lookup belongs below its calling action as a private method with those explicit inputs and unchanged query behavior. Keep a genuinely shared query definition, schema, domain rule, or independently owned pure function with its actual owner, even with one current caller. Do not invent a schema abstraction solely to relocate a service implementation detail, mandate classes for standalone functions, or move unrelated helpers based on caller count. Apply the [primary-operation distinction](#primary-operations-and-local-implementation) within the requested authoring or review scope.
 
 When a create service follows a partial creation-attributes contract, accept the general `Partial<CreationAttributes<Model>>` payload and explicitly guard required field presence inside `perform()` before persistence. Destructure required fields, then pass the narrowed values alongside supported optional creation attributes; do not discard policy-filtered optional fields or use a type assertion to bypass missing required values. Reuse the project's validation error and presence semantics, preserving legitimate falsy values. Keep blank-text handling, normalization, format validation, and persisted constraints with their existing [validation owners](#text-validation-ownership).
 

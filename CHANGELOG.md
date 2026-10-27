@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/856) - 2026-10-27
+
+### Changed
+
+- Keeps independently owned operations and reused query builders discoverable in separate files while placing service-owned implementation helpers privately below their callers, without imposing classes or file/function quotas.
+
 ## [3.30.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/855) - 2026-10-27
 
 ### Changed
