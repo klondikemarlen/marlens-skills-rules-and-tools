@@ -14,6 +14,8 @@ The command reads one JSON object from stdin, with a 64 KiB input limit. It writ
 
 `--manual` is the bounded no-open option for an operator who will visit the local preview URL themselves, including controlled headless/browser QA. The command does not invoke any browser opener in this mode. It prints one `preview-ready` JSON line containing the private loopback URL and expiry, then waits for Continue, Cancel, page close, or expiry. The URL contains a random capability; keep it local and do not publish or retain it. `--expires-in` accepts 30–900 seconds and defaults to 300 seconds.
 
+For a user-facing Firefox handoff, do not assume the system opener selects Firefox. Use `--manual`, read the private `preview-ready` URL, and open that loopback preview through ordinary Firefox without a profile override, following [Browser Opening Modes](../workflows/browser-qa-workflow.md#browser-opening-modes). Keep the helper running until the user acts or it expires; a failed Firefox launch must end that invocation without opening the npm destination. Do not change OS associations or automate the personal profile.
+
 ## Request Schema
 
 The request has exactly these top-level fields; unknown fields are rejected:

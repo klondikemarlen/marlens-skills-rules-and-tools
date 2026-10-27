@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/900) - 2026-10-27
+
+### Changed
+
+- Uses ordinary Firefox for user-led browser review and handoffs, prefers compatible installed Playwright Firefox for automation, and preserves isolated QA profiles and unattended headless Chromium use.
+
 ## [3.32.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/899) - 2026-10-27
 
 ### Added
