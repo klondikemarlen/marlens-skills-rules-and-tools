@@ -14,3 +14,4 @@ These outcome cases show the smallest useful difference made by one packaged ski
 - [`outcome-skills.md`](./outcome-skills.md) — memorable task intentions with bounded progress, evidence-backed simplification, and safe session closure.
 - [`github-bug-reporting.md`](./github-bug-reporting.md) — current upstream defects, older released fixes, and integration/agent errors.
 - [`keep-a-changelog.md`](./keep-a-changelog.md) — dedicated release history, registry publishing, and a deliberate local format exception.
+- [`documentation-purpose-review.md`](./documentation-purpose-review.md) — content-aware source-README review that preserves legitimate authoring guidance and links existing owners.

@@ -68,6 +68,14 @@ Use when reviewing a branch, pull request, or local diff.
 - Before proposing a reorganization, run the domain-discovery checkpoint in [`docs/references/code-organization-reference.md`](../references/code-organization-reference.md): inspect topology, cohesive concepts, repeated change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling conventions. Treat churn, growing branches, context-heavy helpers, and repeated boundary crossings as evidence to investigate—not proof of a new abstraction—and record each candidate's evidence, responsibilities, boundary, and smallest safe next action.
 - Flag private helpers that read instance fields when a caller can pass those values explicitly. Do not force parameters when the helper is inherently bound to object state. For service classes, apply the conventions linked above: constructor-backed action inputs stay in `perform`, developer preload guards precede side effects, and returned instances preserve caller preload graphs.
 
+## Documentation Purpose and Placement
+
+For changed documentation, read the applicable ordinary-language project rules and identify the intended reader question, purpose, placement, and existing authoritative owner. Apply [Selecting Documentation Content](project-knowledge-base-workflow.md#selecting-documentation-content); assess the passage's content, not just its pathname.
+
+Source-directory READMEs may teach when and why to use a layer or pattern, how to author within it, and its boundaries, with small usage examples. Flag passages that merely inventory implementation behavior or repeat another layer's instructions. Identify the affected passage, governing rule, and concrete correction: explain the authoring decision, link to the existing owner, or retain implementation-local rationale beside code. Use the knowledge base for an actual durable domain or architecture question, not as a destination for displaced implementation summaries. Do not ban source READMEs or force new documentation when an existing owner already answers the question.
+
+Report documentation-purpose coverage separately from formatting, link validity, behavioral tests, and code-module verification; none proves the others. If the required rules or source are unavailable, name the missing prerequisite rather than claiming semantic coverage. Exercise the contrasting [documentation-purpose examples](../../examples/documentation-purpose-review.md) when verifying this review path.
+
 ## CSS Diagnostics for Style Changes
 
 When style declarations change, inspect the project's configured CSS diagnostic provider for the changed standalone CSS files and supported embedded Vue `<style>` blocks, in addition to formatting, type checks, and rendered behavior. A Vue script/template-only change or another unrelated change does not acquire CSS-only verification work.
@@ -87,6 +95,7 @@ Inspect the resulting DOM at the affected boundary for leaked component elements
 1. Read the request, issue, PR body, or plan.
 2. Inspect the changed files and identify whether the change is backend, frontend, migration, test-only, documentation-only, or cross-cutting.
 3. Read project-local rules and setup docs that govern the changed area.
+   For documentation changes, perform [Documentation Purpose and Placement](#documentation-purpose-and-placement) before reporting review completion.
 4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant. Apply [Invariant-Preserving Mutations](../references/code-organization-reference.md#invariant-preserving-mutations): ordinary operations preserve their invariant and unrelated valid state rather than invoking general repair; retain explicitly required repair/migration work.
 5. Check type and error handling: avoid unsafe casts, non-null assumptions, swallowed errors, and impossible states represented as runtime branches. Apply [Error Ownership and Local Recovery](../references/code-organization-reference.md#error-ownership-and-local-recovery) for transport/UI separation, positive local handling, application error hierarchies, and operation-specific structured logs.
 6. Check tests and verification: changed behavior should have the smallest meaningful runnable check, and PR testing instructions should match user-visible behavior.
