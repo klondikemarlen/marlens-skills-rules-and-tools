@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/868) - 2026-10-27
+
+### Added
+
+- Adds an automatically selected Markdown/MDX semantic contract for documentation purpose, ownership, placement, and material code alignment, preserving legitimate source-local guidance and blocking missing required evidence.
+
 ## [3.31.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/887) - 2026-10-27
 
 ### Changed
