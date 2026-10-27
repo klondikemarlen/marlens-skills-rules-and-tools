@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/885) - 2026-10-27
+
+### Changed
+
+- Makes service ownership visible through existing named namespace bundles, including same-domain calls, while retaining full domain paths and initialization-safe direct dependencies.
+
 ## [3.31.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/890) - 2026-10-27
 
 ### Changed
