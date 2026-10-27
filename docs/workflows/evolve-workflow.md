@@ -8,6 +8,16 @@ Read project-local guidance and the user's target, constraints, and exit intent 
 
 Carry context forward rather than repeat whole-project discovery. Reuse checks only while their relevant inputs and acceptance requirements remain unchanged. Later changes that invalidate earlier proof require focused revalidation before claiming the cycle complete. No-change stages require evidence, not an assumption that earlier work covered them.
 
+## Ticket Triage Within the Cycle
+
+When selecting work from tickets, load [Triage](../../skills/triage/SKILL.md) and its selected project-local workflow or packaged fallback before advance chooses an outcome. Establish the authoritative tracker, bounded selection/query, retrieval limits, and capture time; assess readiness, blockers, relationships, and coherent grouping within that selection. The user does not need a separate triage invocation.
+
+Apply the triage workflow's supported updates under the cycle's existing authority, including reconciliation of evidenced blockers with supported tracker-visible markers. Preserve explicit assessment-only, dry-run, no-write, and narrower exclusions; report missing vocabulary or authority rather than inventing markers. An assessment-only cycle evaluates and proposes stage outcomes without implementation or other writes. Triage itself does not claim tickets, authorize implementation, or expand repository scope.
+
+Carry the resulting evidence, grouping, applied/unapplied dispositions, and unresolved prerequisites into advance and later relevant stages using the existing issue, plan, or session. Reuse a current triage already supplied with the request; do not recapture the backlog or repeat related-issue discovery unless changed evidence or scope makes it necessary. Refresh only affected decisions when later information changes a blocker or acceptance requirement. This is selection within the existing pass, not another implementation stage or an automatic backlog loop.
+
+When no tickets are available or relevant, continue advance's selection from accepted direction, plans, or evidenced blockers without manufacturing a backlog for triage. Preserve any ticket creation required by the selected outcome's actual delivery workflow.
+
 ## Ordered Pass
 
 Evaluate these stages once, in order. Read each linked skill entrypoint and select its project-local workflow or packaged fallback before performing that stage; local stage procedures retain their authority.

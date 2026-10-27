@@ -43,7 +43,15 @@ Name the outcome; the skill selects the existing workflows and owns verification
 
 Readability is a [default engineering expectation](rules/human-readable-code.md), not another command to remember. The portable [`readable-code`](skills/readable-code/SKILL.md) modifier can emphasize it during an existing task without launching a refactoring campaign. These entrypoints preserve project-local guidance, repository authorization, and release gates; `wrap-up` alone does not authorize exit or filing issues in arbitrary repositories.
 
-For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` runs **advance → improve → simplify → wrap-up** once. It carries evidence forward, permits justified no-change stages, and completes each distinct outcome's delivery gates without combining unrelated work into a large PR. Say “Use evolve on this repo, then exit” only when you also want the session to end after successful completion; bare `evolve` keeps it open.
+For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` runs **advance → improve → simplify → wrap-up** once, including bounded triage before selecting ticket work. No separate triage invocation is needed. It carries evidence forward, permits justified no-change stages, and completes each distinct outcome's delivery gates without combining unrelated work into a large PR. Say “Use evolve on this repo, then exit” only when you also want the session to end after successful completion; bare `evolve` keeps it open.
+
+### Human and Agent Skill Discovery
+
+The everyday vocabulary is six entrypoints: **evolve**, **advance**, **improve**, **simplify**, **wrap-up**, and **triage**. Start with `evolve` for the whole cycle; use another entrypoint when you want only that outcome. This is a curated navigation guide, not a restriction on available skills.
+
+Agents still discover the specialist skills from their task descriptions and load the relevant procedure on demand. Humans can browse the [full skill catalog](skills/) or type a known `/skill:<name>`, such as `/skill:testing-instructions`, when they want a specialist directly. Both paths preserve project-local-first workflow selection.
+
+OMP 18.13.1 does not document a per-skill menu-only visibility flag. Its `hide` / `disable-model-invocation` metadata removes the skill from the model's advertised list, while include/ignore filters remove skills from discovery; neither provides a smaller human menu while preserving agent discovery. Keep specialist skills enabled and advertised. The native `/skill:` autocomplete list remains the full discovered catalog; this package does not claim to filter it. Other hosts may differ, so verify a host's presentation and model-availability controls separately before adopting a visibility setting.
 
 ## Evidence-Backed Ticket Triage
 
