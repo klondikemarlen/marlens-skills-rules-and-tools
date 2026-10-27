@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/874) - 2026-10-27
+
+### Changed
+
+- Places ID uniqueness with producing services and genuine merge boundaries instead of repeated defensive consumer normalization, preserving external validation and intentional operation multiplicity.
+
 ## [3.31.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/872) - 2026-10-27
 
 ### Changed
