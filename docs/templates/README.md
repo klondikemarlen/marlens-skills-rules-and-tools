@@ -27,6 +27,7 @@ Examples:
 - `project-knowledge-base-template.md`
 - [`github-bug-report-template.md`](github-bug-report-template.md) — versioned, attributable GitHub bug reports.
 - [`changelog-template.md`](changelog-template.md) — curated release history with observed dates and supported links.
+- [`public-tooling-intake-template.md`](public-tooling-intake-template.md) — approval-aware issue intake, pull requests, and contribution policy for public tooling repositories.
 
 Template families should include their own `README.md` that lists the focused templates and when to use the family.
 
