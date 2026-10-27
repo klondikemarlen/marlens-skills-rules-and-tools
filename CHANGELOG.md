@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/883) - 2026-10-27
+
+### Changed
+
+- Clarifies the narrow private domain-step delegation case for shared validators, preserving rule ownership and validation behavior without requiring wrappers around every external call.
+
 ## [3.31.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/874) - 2026-10-27
 
 ### Changed

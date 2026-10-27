@@ -611,7 +611,23 @@ This is worse because the helper names hide queries, decisions, side effects, an
 
 Extraction is warranted when the helper name captures a cohesive domain decision or side-effect step, such as `recipientsEligibleForEmailDelivery`, `deliverInAppNotifications`, or `shouldNotifyRecipient`.
 
-Extraction is not warranted for a trivial one-line transform, direct delegation, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
+Extraction is not warranted for a trivial one-line transform, direct delegation that adds no meaningful domain-step clarity, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
+
+One narrow delegation case is preserving an action's established flow of named private domain steps. If a direct shared-validator call interrupts that flow, a private `validateArrangement` step may delegate to the existing `assertContiguousGroups` owner without copying its rules or relocating the shared validator. For example, within an existing service whose replacement operation and `Arrangement` type are already defined:
+
+```typescript
+perform() {
+  const arrangement = this.proposedArrangement
+  this.validateArrangement(arrangement)
+  return this.replaceArrangement(arrangement)
+}
+
+private validateArrangement(arrangement: Arrangement): void {
+  assertContiguousGroups(arrangement)
+}
+```
+
+Keep the validation at the same point before mutation, pass the same inputs, and preserve thrown errors and side effects. This example delegates a synchronous assertion with no result; retain meaningful return values and existing asynchronous awaiting/rejection behavior when applicable. The private step names the service's role in orchestration; the shared validator still owns the rule. Leave an already-clear external call inline, and do not add wrappers around every external dependency merely for uniformity. Apply this exception only within the requested authoring/review scope.
 
 When extracting a bulk replacement operation, let the sub-service own that operation's validation and persistence while the higher-level action continues to orchestrate related side effects, such as notification-preference transitions. Preserve the existing transaction boundary, rollback and safety invariants, and required side-effect order across that call. Prefer straightforward existing orchestration over combining responsibilities or adding machinery without a concrete gain; this does not require extracting trivial forwarding steps.
 
