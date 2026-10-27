@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.29.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/832) - 2026-10-27
+
+### Changed
+
+- Reconciles evidenced triage blockers with supported tracker-visible markers, preserving independent readiness, read-only modes, automation exclusions, and verified-update reporting.
+
 ## [3.29.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/834) - 2026-10-27
 
 ### Changed
