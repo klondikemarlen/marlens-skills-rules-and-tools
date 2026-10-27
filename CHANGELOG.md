@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/851) - 2026-10-27
+
+### Changed
+
+- Composes Ruby action services through class-level `.call` and reuses matching local callable bases instead of duplicate keyword forwarders, while preserving meaningful class-method behavior, client instance APIs, framework callbacks, and parallel result flow.
+
 ## [3.31.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/861) - 2026-10-27
 
 ### Added
