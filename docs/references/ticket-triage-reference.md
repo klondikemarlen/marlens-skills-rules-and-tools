@@ -136,6 +136,8 @@ Each relationship URL must identify an issue supplied in `snapshot.related`, not
 
 `needs-info` requires one or more concrete questions. `implement` requires `readiness: "ready"`, a known `workType`, and `owner` equal to the current repository owner. Do not select it just because implementation seems plausible. Unknown or conflicting information remains explicit; the tool checks structure and references, not semantic support.
 
+For project-declared `periodic-review` reminders, use the existing `summary` and `nextAction.reason` to explain the keep-open disposition and evidenced review timing. Select `defer` when not due, `investigate` for a due review, or `clarify` when its cadence/trigger is unknown; a completed cycle alone is not `propose-closure`. Follow the [periodic-review procedure](../workflows/ticket-triage-workflow.md#periodic-reviews). The helper retains issue labels but does not interpret recurrence, calculate due dates, enforce open state, or schedule work; no recurrence fields are added to this schema.
+
 ## Complete Synthetic Example
 
 The following pair is illustrative and uses fictitious issue data. `id` and `snapshotId` are the same computed SHA-256 hash of the snapshot's canonical payload. This example is structurally complete, but its fictitious source data does not establish semantic correctness or live state.
