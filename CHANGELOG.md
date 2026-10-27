@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/879) - 2026-10-27
+
+### Changed
+
+- Omits redundant argument-free Sequelize model decorators only when registration and defaults prove equivalence, retaining option-bearing and runtime-required declarations.
+
 ## [3.32.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/900) - 2026-10-27
 
 ### Changed

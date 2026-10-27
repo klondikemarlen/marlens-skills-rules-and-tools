@@ -442,6 +442,10 @@ Reserve relationship-style `Id`/`id` field names for record references and forei
 
 For model declarations, follow sibling models' meaningful groups, section-comment headings, and order. Keep persisted fields together, associations together, and lifecycle hooks distinct from unrelated static helpers where those categories exist. Preserve initialization dependencies and behavior, and do not move unrelated imports, invent empty sections, or impose one framework-specific layout everywhere.
 
+### Sequelize Model Decorators
+
+In Sequelize models, omit an argument-free `@Table` when existing registration and defaults already provide the same behavior and the decorator is not required for runtime metadata. Remove its now-unused `Table` import with it. Retain option-bearing declarations, such as `@Table({ tableName: "workflow_templates", timestamps: false })`, and decorators required by the installed registration/discovery path. Establish equivalence from the actual model initialization and registration conventions; uncertainty is not proof that metadata is redundant. Preserve initialization, defaults, and runtime behavior within the requested authoring/review scope.
+
 ## Function Action Names
 
 Name functions, including event/error callbacks, for the concrete operation, effect, or result they perform rather than their caller or triggering event. Prefer `openVerificationDialog` over a vague `handleChallenge` when opening the dialog is the operation. Preserve established framework-required names and keep renames scoped to affected functions and callers; do not rename unrelated code.
