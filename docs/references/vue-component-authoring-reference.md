@@ -87,6 +87,8 @@ Verify controlled completion order: start A, select/query B, finish A last; deli
 
 Compose presentation from small utility-style classes inline in the template, including conditional class bindings, rather than semantic component/state classes bundling multiple styling decisions. Reuse suitable framework utilities when they preserve appearance; define missing custom utilities in the component's local `<style scoped>` block. This is Tailwind-like composition, not a request to install Tailwind or introduce global CSS.
 
+Prefer avoiding authored `!important` overrides that fight framework utilities or child layout rules. Resolve conflicting declarations at the owning component; reuse suitable framework utilities and define missing small utility-style classes in the local `<style scoped>` block rather than escalating specificity. Preserve responsive behavior, theme values, and interactions. This is a preference within the affected scope, not a ban on framework-generated important declarations or a reason to remove an explicitly required local exception, install Tailwind, or rewrite unrelated CSS.
+
 Preserve framework/theme values, appearance, interactions, accessibility state, and behavioral, drag, or test-selector hooks. The preference concerns presentation, not every class name. Apply it within the affected scope rather than renaming unrelated classes. The intent is easier Vuetify upgrades without adding another styling framework.
 
 ## Loading and Disabled State
