@@ -77,6 +77,8 @@ Compare material documentation claims with current implementation and supported 
 
 The supplied `marlens-rules:documentation-purpose-alignment` contract selects changed root/nested Markdown and MDX through OMP Verifier. Assess the complete changed passages and governing guidance with cited whole-scope results; a clean subsection or empty selection does not establish semantic coverage. The provider supplies policy, while Verifier owns capture, evaluation, and native blocker delivery; this contract does not add a hard completion veto or unattended reassessment.
 
+For main README capability and usage claims, apply the [released-artifact boundary](../release-notes/workflow.md#shared-release-history-default). An `Unreleased` label does not make a source-only capability preview appropriate in the main README.
+
 Report documentation-purpose coverage separately from formatting, link validity, behavioral tests, and code-module verification; none proves the others. If the required rules or source are unavailable, name the missing prerequisite rather than claiming semantic coverage. Exercise the contrasting [documentation-purpose examples](../../examples/documentation-purpose-review.md) when verifying this review path.
 
 ## CSS Diagnostics for Style Changes
