@@ -10,7 +10,7 @@ Validate behavior with user-equivalent browser actions when the claim is user-fa
 
 Before declaring browser automation unavailable or substituting an engine:
 
-1. Read the project's QA/setup wrapper and installed automation dependencies. Prefer its maintained binding or helper with the requested engine. OMP's managed Chromium/CDP failure does not establish Firefox availability or controllability; remembered tool names are discovery leads, not proof that a runtime exists.
+1. Read the project's QA/setup wrapper and installed automation dependencies. Select the engine and launch purpose under [Browser Opening Modes](../workflows/browser-qa-workflow.md#browser-opening-modes), then prefer the project's maintained binding or helper. Where compatible Playwright and its supported Firefox build are already installed, prefer that Firefox route. [Playwright's Firefox requires patches](https://playwright.dev/docs/browsers#firefox): the ordinary branded/system Firefox is not a supported substitute for its browser build. Do not install another browser/runtime merely to satisfy the preference; retain a working installed Firefox binding such as Geckodriver when appropriate. OMP's managed Chromium/CDP failure does not establish Firefox availability or controllability; remembered tool names are discovery leads, not proof that a runtime exists.
 2. For requested Firefox, check the already-installed executables without installing anything:
 
    ```bash
