@@ -16,6 +16,18 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Task-Focused Help and Supplemental Table Information
+
+Before adding or polishing explanatory UI, identify the end-user task or decision it supports. Keep QA-only ranking mechanics, count explanations, and verification notes in testing instructions or reviewer evidence, not the product. When feedback questions a panel's value or existence, reconsider removing it before improving its layout. Preserve administrative counts and help that serve an evidenced user need.
+
+Write help in plain language using recognizable actions and outcomes, not unexplained implementation geometry. If the supported interaction is dragging a step outside its group, explain that action rather than saying "The left gutter ungroups a step in place." Verify the actual behavior and visible labels before choosing wording; this example does not prescribe a gesture or ordering policy.
+
+Review nearby page-level help before adding another blurb. Consolidate overlapping explanations for the same reader need into one coherent guide using the existing informational component, preserving necessary assignment, saving, and other task instructions. Keep distinct contextual help separate when it serves different tasks; this is not a one-card quota.
+
+Place useful supplemental table explanations below the complete table, including pagination, following stronger project-local conventions. Match nearby pages' vertical gaps, edge alignment, and surrounding padding, not only their component choice. Warnings, required controls, and task-critical instructions may need a different position.
+
+Verify settled desktop and narrow-screen layouts: pagination remains usable, help wraps without overflow, and spacing/alignment match the page's conventions. Component names and spacing values stay project-local. Guidance review does not establish rendered application behavior; changes to a consuming UI still require actual-surface verification.
+
 ## Explicit Derived-Field Bindings
 
 Prefer a readonly `computed` → `:model-value` → named `@update:model-value` handler pipeline for derived form fields. Keep writes visible in the handler rather than a computed setter or watcher-mirrored copy of derived state. Separate state declarations, computed blocks, and handlers with blank lines. Preserve the form's accepted edit/save lifecycle and genuine form-owned dependent-field watchers; this preference does not mandate a draft-storage design.
