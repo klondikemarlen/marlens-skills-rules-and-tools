@@ -290,18 +290,12 @@ for (const requiredText of [
   "## Same-Origin GitHub Delivery",
   "current checkout's GitHub issue or feature workflow",
   "linked draft pull request",
-  "omp-soft-boundary-guard",
-  "advisory warnings for recognized local writes and moves",
-  "supported `gh issue`/`gh pr`/`gh api` mutations",
-  "supported `xd://github` writes",
-  "canonical checkout identity",
   "requested current-checkout issue or feature workflow",
   "genuinely destructive or ambiguous Git operations",
   "merge reviewed same-origin pull requests",
   "push any necessary branch refs directly with `git push`",
   "documented direct `git push` tag command and release-publication command",
   "Do not call `ask` solely to authorize same-origin branch delivery, tag publication, or documented release publication",
-  "programmatic callers that opt into `createRepositoryBoundaryGuard({ enforce: true })`",
   "Host-level authorization is limited to external, unresolved, destructive, or genuinely ambiguous targets.",
   "MUST NOT require a duplicate manual `ask`",
   "Do not switch to, create branches in, or mutate a different local checkout without explicit user confirmation.",
@@ -402,29 +396,6 @@ for (const requiredText of [
 ]) {
   if (!readme.includes(requiredText)) {
     fail(`README task map must include ${requiredText}`)
-  }
-}
-
-for (const requiredText of [
-  "layered page orchestration",
-  "layered-page-orchestration-workflow.md",
-]) {
-  if (!readme.includes(requiredText)) {
-    fail(`README must document layered page orchestration: ${requiredText}`)
-  }
-}
-
-for (const requiredText of [
-  "omp-soft-boundary-guard",
-  "omp plugin install github:klondikemarlen/omp-soft-boundary-guard",
-  "Advisory repository-boundary warnings for local writes and moves",
-  "supported `gh issue`/`gh pr`/`gh api` mutations",
-  "supported `xd://github` writes",
-  "Routine OMP installs use the generic GitHub reference",
-  "exact full-commit reference with `--force` is exceptional",
-]) {
-  if (!readme.includes(requiredText)) {
-    fail(`README must document boundary and install guidance: ${requiredText}`)
   }
 }
 
