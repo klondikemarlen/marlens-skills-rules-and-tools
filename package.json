@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "3.31.6",
+  "version": "3.31.7",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -185,6 +185,17 @@
           "**/*.tsx",
           "**/*.mts",
           "**/*.cts"
+        ]
+      },
+      {
+        "id": "marlens-rules:documentation-purpose-alignment",
+        "label": "Documentation Purpose and Code Alignment",
+        "description": "Assesses changed Markdown and MDX for reader purpose, ownership, placement, and material current-code accuracy.",
+        "mode": "agentic",
+        "contract": "./verifications/documentation-purpose-alignment.json",
+        "pathTriggers": [
+          "**/*.md",
+          "**/*.mdx"
         ]
       }
     ]
