@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/895) - 2026-10-27
+
+### Fixed
+
+- Refreshes current-use discovery for Send Context and Project Time, Learner's proposal-first role, changed-path export verification, and the boundary guard's supported approval behavior.
+
 ## [3.31.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/896) - 2026-10-27
 
 ### Changed
