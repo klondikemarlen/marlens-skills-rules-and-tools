@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/878) - 2026-10-27
+
+### Changed
+
+- Keeps migration-only implementation checks and fixtures disposable while retaining observed evidence, application coverage, and required rollback/recovery proof.
+
 ## [3.32.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/907) - 2026-10-27
 
 ### Changed
