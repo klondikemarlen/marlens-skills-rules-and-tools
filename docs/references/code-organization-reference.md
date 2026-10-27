@@ -377,13 +377,26 @@ Follow the project's established source-to-test layout and keep a dedicated beha
 
 Prefer the configured project-root convention for ordinary internal imports, including immediately co-located sibling runtime and type dependencies. Require every supported compiler, test runner, bundler, and editor/language server to resolve it consistently. Use the project's supported root spelling, such as `@/…` for a configured source-root alias or the native Node package-import convention described below; do not impose `@/…` on an incompatible runtime. Co-location alone is not a reason to prefer a relative import.
 
-For production dependencies across domain boundaries, prefer an existing named domain bundle and access its members through that namespace rather than importing an implementation leaf, even when both paths are supported. For example, an external caller can use `import { Search } from "@/services"` and `Search.Workflows.WorkflowSearchIndex` when that is the existing public bundle shape. This names the owning domain at the use site; it is not a request for a new namespace alias or a broader barrel.
+Prefer existing named domain bundles and namespace-qualified member access for production dependencies across domain boundaries. For service collaborators, apply the same preference within a domain using the deepest existing supported named bundle instead of implementation leaves. For example, an external caller can use `import { Search } from "@/services"` and `Search.Workflows.WorkflowSearchIndex` when that is the existing public bundle shape. This names the owning domain at the use site; it is not a request for a new namespace alias or a broader barrel.
 
-For collaborators inside the owning domain/module bundle, prefer direct named imports from the deepest matching supported domain entry point or leaf, using the configured project-root convention for the specifier. This retains domain-owned query imports without making a relative sibling path the default. A supported domain barrel remains valid; never bypass a public package/export boundary for a private file.
+Keep the complete ownership path from the chosen named bundle at call sites rather than shortening it with an alias or an implementation-level namespace-star import. For application-domain bundles, reserve `import * as ...` for assembling exports in existing bundle index files, such as `index.ts`, not service implementation imports. Preserve third-party API export shapes and stronger project-local conventions.
+
+For example, when these are existing supported exports, a same-domain search service uses:
+
+```ts
+import { Workflows } from "@/services/search"
+
+const workflowIds = await Workflows.ResolveWorkflowIdsService.perform(input)
+await Workflows.RefreshDocumentsService.perform(workflowIds)
+```
+
+When the existing public services bundle exports `Centres`, prefer `import { Centres } from "@/services"` and `Centres.FundingPeriods.EmployeeBenefits.BulkEnsureService.perform(input)` over `import * as EmployeeBenefits` from its implementation directory and `EmployeeBenefits.BulkEnsureService.perform(input)`. A barrel may still use `import * as Workflows` to assemble and export that existing namespace.
+
+Retain direct named imports from supported entry points or leaves for base classes and module-local definitions without a matching bundle. Do not force a service through its own barrel when that introduces an initialization cycle; preserve the safe supported dependency and verify the actual changed import path in a fresh process. Service-collaborator grouping does not change model/enum import ownership.
 
 Reuse the project's actual export shape and module resolution. This preference concerns import declarations, not barrel re-exports; relative specifiers such as `export { itemsShareGroup } from "./items-share-group"` remain valid. Do not create bundles, widen exports, introduce cycles, or reorganize unrelated imports solely to satisfy the preference. Explicit project-local conventions remain authoritative.
 
-In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production cross-domain preference does not override those explicit test conventions.
+In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production service-collaborator preference does not override those explicit test conventions.
 
 Give the primary subject-under-test import its own group, separated from dependency imports by one blank line. Preserve the project's section order, supported paths, and explicit exceptions; apply an accepted grouping correction across the requested test scope without unrelated cleanup.
 
