@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/905) - 2026-10-27
+
+### Changed
+
+- Prefers registered Sequelize association selectors while preserving query options, visibility, and installed-ORM compatibility.
+
 ## [3.32.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/903) - 2026-10-27
 
 ### Changed

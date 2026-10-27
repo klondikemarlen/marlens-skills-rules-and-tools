@@ -687,6 +687,29 @@ For an ordinary collection read, use the mapped model's normal query API directl
 
 When a response needs existing model associations, prefer the ORM's supported eager-loading/include contract and let owning serializers project them, rather than separately querying children, building ID maps, and manually assigning association arrays. Verify the actual dialect query and preserve authorization, optional associations, soft-delete/cancellation filtering, complete parent pagination/counts, and computed ordering. Keep specialized batching when a demonstrated constraint requires it; this is not one query at any cost. Update consumers only if the accepted response contract changes.
 
+For a registered Sequelize association, prefer its supported named selector, such as `association: "creator"`, over restating `model: User, as: "creator"`. Use the actual registered association name, not an inferred class or table name. Preserve every other include option, including attributes, optional joins, deletion predicates, nested includes, ordering, and scopes. Remove a replaced model import only if it has no remaining runtime or type use. Verify selector support and equivalent returned records with the installed ORM and production dialect; a shorter selector is not proof of query equivalence.
+
+For example, when `creator` is the registered association, only its selector changes:
+
+```typescript
+const creatorIncludeBefore = {
+  model: User,
+  as: "creator",
+  attributes: ["id", "name"],
+  required: false,
+  where: { deletedAt: null },
+  include: [{ association: "organization", required: false }],
+}
+
+const creatorInclude = {
+  association: "creator",
+  attributes: ["id", "name"],
+  required: false,
+  where: { deletedAt: null },
+  include: [{ association: "organization", required: false }],
+}
+```
+
 When refactoring a query through an ORM, preserve its existing projection, predicates (including cancellation and deleted-record filtering), ordering, and batching semantics. Verify the returned records and exclusions, not just that the replacement query runs. This preference does not authorize changing a downstream table mapping or unrelated query behavior.
 
 In service classes whose constructor stores values for an action, keep reads of those constructor-backed instance attributes in `perform`; pass required IDs, models, and actor context explicitly to private functional helpers. Direct expressions such as `this.currentUser` passed from `perform` are fine; do not add local aliases just to pass them along. Keep stateful helpers that own or coordinate object state separate from functional helpers, and do not invent parameters for state inherently bound to the object.
