@@ -56,6 +56,8 @@ For an authorized npm release, an authentication failure may require a fresh [`n
 
 Keep sign-in separate from publication approval. Follow the existing manual-authentication and opaque-prompt safeguards; do not automatically retrigger a prompt the user reported as opaque. Complete required authentication through npm's native local/browser flow, never by requesting credentials or one-time codes in chat or public records. A successful login does not prove publication: verify the native publish result and the remote artifact independently under [Release Artifact Identity](#release-artifact-identity), and report any remaining prerequisite truthfully.
 
+Use [npm Authorization Preview](../../docs/references/npm-authorization-preview-reference.md) when handing an authorized npm sign-in, publication, or staged-publication decision to the user. Supply truthful structured context and the exact current npm-issued URL; keep the private request and challenge out of public records. The helper opens only its explanation first, and **Continue to npm** merely navigates to npm. Cancel, expiry, or an unavailable preview must not fall back to the opaque prompt. It does not acquire a fresh challenge or authorize repeating one the user reported as opaque.
+
 ## Dockerized Worktree Cleanup
 
 Use this procedure only when an agent-owned Dockerized worktree must be removed.

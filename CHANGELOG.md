@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/831) - 2026-10-27
+
+### Added
+
+- Adds contextual npm authorization previews with an explicit browser continuation, exact destination binding, cancellation, and bounded local cleanup. The preview explains the requested operation without claiming npm approval.
+
 ## [3.31.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/898) - 2026-10-27
 
 ### Fixed
