@@ -179,7 +179,23 @@ An implementation helper owned by an already-existing service is a different bou
 
 Use application-library `index` files for bundling and re-exports; put implementations in descriptive named sibling modules. Keep named functions and their matching default exports in those implementation modules under the existing export convention. A barrel may re-export values/types, import named/default/namespace bindings and re-export them, or default-export a static object of imported bindings. Do not hide functions, classes, locally computed values, side-effect imports, or executable initialization in a library barrel.
 
-For a single-purpose function module, declare `export function someName(...)` and a separate `export default someName`; its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
+For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations, then put the matching `export default someName` statement last. Keep imports, supporting types, and initialization-sensitive declarations where module semantics require them. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
+
+For example, the primary operation precedes its supporting function and the matching default export ends the module:
+
+```typescript
+type WorkflowStep = { position: number; title: string }
+
+export function formatWorkflowStepLabel(step: WorkflowStep): string {
+  return `${formatStepPosition(step.position)}: ${step.title}`
+}
+
+function formatStepPosition(position: number): string {
+  return String(position + 1).padStart(2, "0")
+}
+
+export default formatWorkflowStepLabel
+```
 
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
 
