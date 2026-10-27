@@ -660,6 +660,31 @@ Prefer CRUD-style operation names for new or refactored services when they accur
 
 Group service barrel exports with standard CRUD/read entries first, special actions next, and bundled namespaces last. Read-only definition or value exports belong in the ordinary CRUD/read group, alphabetized with its entries; do not create a separate category merely because they are definitions. Alphabetize exported symbols within each group, not globally across the groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Add another meaningful category when needed rather than forcing unrelated operations into a group or rewriting unrelated established barrels. Preserve exported names.
 
+### Producer-Owned ID Collections
+
+ID-producing services own uniqueness of their returned entity IDs. A consumer of that trusted internal contract should use the IDs directly, not repeat `Array.from(new Set(workflowIds))` at every handoff. If duplicates violate the contract, correct the producing boundary and cover its output with a focused regression check; do not conceal the producer defect with consumer normalization or replace it with redundant consumer uniqueness assertions.
+
+Keep deduplication where genuine fan-out, relationship expansion, or merging introduces overlap. For example, a producer combining independently unique ownership and relationship results owns their union:
+
+```javascript
+function mergeWorkflowIds(ownedWorkflowIds, relatedWorkflowIds) {
+  const workflowIds = new Set(ownedWorkflowIds)
+
+  for (const workflowId of relatedWorkflowIds) {
+    workflowIds.add(workflowId)
+  }
+
+  return Array.from(workflowIds)
+}
+
+const workflowIds = mergeWorkflowIds(ownedWorkflowIds, relatedWorkflowIds)
+await RefreshSearchService.perform(workflowIds)
+```
+
+With inputs `[8, 3]` and `[3, 5]`, this illustrative producer returns `[8, 3, 5]`; the refresh consumer does not deduplicate again. Preserve the actual producer's accepted identity and ordering contract rather than sorting IDs merely to simplify a check. Verify overlap, no overlap, and empty input against explicit expected outputs at that owner. Do not impose a set contract on an ordered operation sequence where repeated IDs represent intentional separate work.
+
+Trusting an internal producer contract does not remove validation or authorization at an untrusted request/import boundary, database constraints, or domain validation with its existing owner. Preserve those checks and any deduplication genuinely required at an aggregation boundary. Apply this distinction within the requested authoring/review scope, not as a repository-wide normalization cleanup.
+
 ## Query Names and Cohesive Projections
 
 For SQL aliases and query variables, prefer descriptive entity-and-role names over generic or terse labels. Name the records represented (for example, SQL aliases `pending_workflow_search_document_changes` and `processed_workflow_search_document_changes`) and apply accepted naming changes consistently across the affected query scope without changing predicates or behavior.
