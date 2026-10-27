@@ -6,6 +6,11 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Adds a default maintainer-approval rule that keeps externally requested features in audit/triage until their scope is explicitly authorized, without repeating approval for directly requested work.
+- Provides approval-aware GitHub intake and contribution templates as the default for new public tooling repository setup, without account-wide inheritance or a deployed bot.
+
 ## [3.30.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/856) - 2026-10-27
 
 ### Changed

@@ -56,10 +56,12 @@ Do not treat a failed or unavailable memory operation as successful persistence.
 
 Use this path for GitHub issues titled or labeled as `learner:` proposals in this shared package, including requests like "implement new tickets" when the open tickets are learner-generated proposals.
 
+Learner authorship or a finding that guidance is reusable does not authorize implementation. Apply [External Feature Approval](feature-workflow.md#external-feature-approval) before selecting work; a direct maintainer instruction for a defined ticket or explicitly bounded set already satisfies the gate.
+
 1. For requests like "implement new tickets", list currently open `learner:` issues in this shared package and handle the full set before reporting done.
 2. Read each issue body and cited evidence before deciding; do not infer scope from the title alone.
 3. Classify each proposal:
-   - **Shared and missing:** implement the smallest reusable workflow, reference, rule, or template change that fits this package.
+   - **Shared and missing:** after [External Feature Approval](feature-workflow.md#external-feature-approval) establishes authority, implement the smallest reusable workflow, reference, rule, or template change that fits this package. Otherwise retain it as an audited proposal awaiting the maintainer's decision.
    - **Shared but already covered:** file or update the OMP Learner bug for duplicate/spam behavior, then close the shared issue with both existing-guidance citations and the learner bug link; do not add duplicate wording.
    - **Project-specific, learner-local, or over-generalized:** do not implement it here. If the owning repository is evidenced, create or update the proposal there; always file or update an OMP Learner bug with the misrouting evidence; then close the shared issue with both links. If ownership is not evidenced, report only the learner bug instead of guessing a destination.
    - **Unclear evidence:** file or update an OMP Learner bug for insufficient source evidence, then close the shared issue with the bug link instead of broadening the guidance.

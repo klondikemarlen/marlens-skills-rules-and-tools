@@ -37,6 +37,8 @@ An ordinary request such as “triage these issues” authorizes existing classi
 
 Assignment/claiming work, closure, report/title rewrites, application implementation, and routine report comments are not implicit triage operations. Use their separately authorized workflow. A ready ticket is not an implementation request, and a suspected duplicate is not grounds for closure.
 
+For externally requested features, readiness and a suggested `implement` next action remain separate from [External Feature Approval](feature-workflow.md#external-feature-approval). Keep an unapproved feature in audit/triage even when its owner and implementation path are known; classification or a bot-applied label cannot authorize its delivery.
+
 Apply narrower exclusions independently. “Triage, but don't move board items” still permits labels or links whose effects are verified not to move them. Inspect direct and automated consequences before mutation: withhold a label/status/link if it triggers an excluded board transition. When effects cannot be established, report that operation as blocked and continue independently safe updates. Do not treat an exclusion as a reason to make the whole task read-only.
 
 For each supported non-label update, refresh the affected native fields, establish the exact evidence and documented mapping, use the narrowest field-specific operation preserving unrelated/concurrent values, then read back the result and any affected board state. Withhold ambiguous/conflicting or unsupported operations rather than guessing or replacing the whole ticket. A dry run applies none of them.
