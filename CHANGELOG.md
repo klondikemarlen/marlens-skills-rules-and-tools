@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/877) - 2026-10-27
+
+### Added
+
+- Supports explicitly requested selected-file reviews with conditional personal viewed-state updates, exact-path readback, reviewed-revision checks, and truthful API-race limits.
+
 ## [3.32.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/908) - 2026-10-27
 
 ### Changed

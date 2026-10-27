@@ -128,6 +128,14 @@ gh api repos/OWNER/REPOSITORY/pulls/NUMBER --jq '{title,body}'
 
 Use the same `gh api -X PATCH` endpoint with `{title: "New Title"}` for title updates. After every mutation, perform a fresh API-backed read and verify the intended title or body before reporting success. Do not pass shell-sensitive Markdown inline.
 
+## Pull Request File Viewed State
+
+For the explicitly requested, finding-free [selected-file review mode](../workflows/code-review-workflow.md#optional-selected-file-pr-review-and-viewed-state), GitHub GraphQL supports `markFileAsViewed(input: MarkFileAsViewedInput!)` and `unmarkFileAsViewed(input: UnmarkFileAsViewedInput!)`. Both inputs require `pullRequestId: ID!` and the exact relative `path: String!`; `clientMutationId` is optional. Confirm the authenticated viewer, query `headRefOid`, and resolve each exact selected path through the paginated `files` connection, reading `viewerViewedState`.
+
+State is viewer-specific: `VIEWED` means marked viewed, `UNVIEWED` means not marked, and `DISMISSED` means new changes since it was viewed. Immediately before marking, require the current head to equal the reviewed OID. After mutation, freshly query both head and exact-path state; only the same reviewed OID with `VIEWED` confirms the observed result. A different head, unresolved path, or failed/incomplete readback does not confirm success.
+
+The mutation has no expected-head input: pre-write and post-write queries detect observed head changes but cannot make this an atomic revision-pinned operation or guarantee future head stability. Report a mismatch separately and review the changed revision before another attempt. Do not infer approval, merge readiness, or authority to mark other paths. See the [GitHub GraphQL pull request reference](https://docs.github.com/en/graphql/reference/pulls) for these inputs, `PullRequest.files`, `PullRequestChangedFile.path`/`viewerViewedState`, and `FileViewedState`.
+
 ## Review Comment Thread Actions
 
 For this repository, use local script helpers before touching write-sensitive GitHub APIs:

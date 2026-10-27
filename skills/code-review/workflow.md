@@ -109,6 +109,14 @@ Inspect the resulting DOM at the affected boundary for leaked component elements
 9. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem. Apply [Default-Safe Lifecycle APIs](../../docs/references/code-organization-reference.md#default-safe-lifecycle-apis) when ordinary safety is opt-in or implementation bookkeeping leaks into a framework-like caller interface.
 10. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
+## Optional Selected-File PR Review and Viewed State
+
+Use this mode when the request names a pull request and one or more repository-relative changed paths. Confirm the GitHub API identity is the intended account. Reuse the review process above, inspecting enough PR/base, relevant source, caller/test, and project-local context for each selected file; record the exact reviewed `headRefOid` and focused verification.
+
+Only when explicitly requested, mark a selected file viewed if it has no finding and sufficient review evidence. Do not mark files with findings, missing relevant context, unresolved verification, or absent exact paths. Follow [Pull Request File Viewed State](../../docs/references/github-tooling-reference.md#pull-request-file-viewed-state): require the current head to match the reviewed OID immediately before the mutation, then freshly read back both the head and exact file's viewed state. Claim success only for a matching head and `VIEWED`; changed heads require fresh review, not a stale success claim. These checks are not an atomic revision-conditioned mutation.
+
+Report selected paths, reviewed revision, findings or verification limits, and observed viewed state. Keep mutation/readback failures separate from review conclusions. Viewed state records personal progress, not PR approval or merge readiness; this mode does not authorize source edits, commits, pushes, approval, merge, or marking unrelated files.
+
 ## Output Contract
 
 List findings first, ordered by severity.
