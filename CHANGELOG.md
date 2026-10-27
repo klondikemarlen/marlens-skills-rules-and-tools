@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/848) - 2026-10-27
+
+### Changed
+
+- Aligns equivalent job/service operation vocabulary and reserves Enqueue names for fan-out jobs, preserving meaningful responsibility distinctions and durable job identities.
+
 ## [3.31.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/883) - 2026-10-27
 
 ### Changed

@@ -441,6 +441,12 @@ Prefer `assert...` for condition-checking functions that throw on failure, namin
 
 Name conversion helpers for the concrete operation and both source and destination, such as `convertPlacementToReorderRequest`, rather than a destination-only `toReorderRequest`. Apply accepted names to the affected helper and every caller while preserving framework-required names and behavior.
 
+When a background job and its primary service represent the same operation, prefer the same operation vocabulary across those entry points. For example, `SyncSearchIndexJob` delegating to `SyncIndexService` makes their shared action clearer than an unexplained Sync/Reconcile mismatch; resource qualifiers and framework suffixes need not be identical. Prefer the more human-understandable verb when both are accurate. Retain different verbs when they express a real responsibility distinction; this is not a ban on `Reconcile`.
+
+Reserve the `Enqueue` class/operation name or prefix for a job whose responsibility is to fan out into multiple other jobs. Name an ordinary service or single-job scheduling operation for its actual action rather than giving it an `Enqueue` name. This does not prohibit the verb enqueue in prose or an existing private delivery helper such as `enqueueEmailDelivery`.
+
+Apply accepted naming changes only to the affected operation, declarations, callers, and documentation. Preserve resource qualifiers, framework-required names, and durable queued-job identities unless an explicit migration requires changing them; do not introduce compatibility aliases solely for cosmetic consistency or rename unrelated existing code.
+
 Use [UI Navigation Handler Names](#ui-navigation-handler-names) for route changes and [Service Orchestration Readability](#service-orchestration-readability) for intention-revealing domain steps.
 
 ## UI Navigation Handler Names
@@ -673,6 +679,8 @@ Treat required caller-loaded associations as developer preconditions: check them
 Preserve the caller's loaded association graph when returning an updated instance. Avoid an unnecessary reload followed by manually restoring one association. If reload is necessary, use the normal loading contract with the complete required include graph; restoring one parent association does not preserve nested or sibling preloads.
 
 Prefer CRUD-style operation names for new or refactored services when they accurately describe the action; use `Update...Service` over `Set...Service` for changes to existing state. Do not force unrelated domain actions into misleading CRUD names. For search-index lifecycle services, explicitly include `Index` in the class and file name (for example, `UpdateIndexService` and `update-index-service.ts`), even when a containing directory already names the index. Do not apply index naming to unrelated document or workflow operations.
+
+For job/service operation vocabulary and the fan-out meaning of `Enqueue` names, apply [Function Action Names](#function-action-names). Naming does not change scheduling ownership or delivery semantics.
 
 Group service barrel exports with standard CRUD/read entries first, special actions next, and bundled namespaces last. Read-only definition or value exports belong in the ordinary CRUD/read group, alphabetized with its entries; do not create a separate category merely because they are definitions. Alphabetize exported symbols within each group, not globally across the groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Add another meaningful category when needed rather than forcing unrelated operations into a group or rewriting unrelated established barrels. Preserve exported names.
 
