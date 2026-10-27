@@ -22,6 +22,26 @@ Controllers should not own business rules. Services should not own HTTP status c
 
 Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
 
+## Detail Responses and Association Visibility
+
+Keep an established show/detail loader for a selected record. If its consumer needs an additional association or field, extend the owning response-loading contract and show serializer, then carry the typed result through the existing frontend detail composable. For example, keep `useWorkflowTemplate(workflowTemplateId)` and add the permitted category reference to the show response instead of replacing it with `useWorkflowTemplates({ where: { id: workflowTemplateId }, perPage: 1 })` solely to obtain category data. Reuse existing serializers and loading conventions; serializers still do not query. Genuine collection search, filtering, and pickers remain collection operations.
+
+Required response associations do not authorize broader visibility. Preserve normal policy and soft-delete filtering in show queries, association includes, and any necessary post-mutation reload. In a Sequelize project whose category model uses paranoid deletion, these options contrast ordinary loading with an unjustified bypass:
+
+```typescript
+// Normal category loading, subject to the existing policy/loading contract.
+const include = [{ association: "category" }]
+
+// Do not use this merely to satisfy a non-null category response type.
+const visibilityBypass = [{ association: "category", paranoid: false }]
+```
+
+Apply the same normal include graph when a mutation response genuinely requires reloading; do not add a reload solely for this example or query from a serializer. Association presence, visibility, and requiredness are separate contracts: inspect creation requirements, same-organization/existence validation, and deletion restrictions before claiming that a category is guaranteed. A required foreign key or non-null TypeScript annotation alone is not that proof. Do not hide a broken loading/domain invariant with deleted data, a type assertion, or invented response fields; resolve it at its actual owner using the project's established failure behavior.
+
+Inactive is not deleted. Preserve the domain's existing inactive-record rules rather than treating inactivity as permission to bypass deletion filtering or as an automatic reason to hide an otherwise visible association. Explicitly requested recovery or administrative deleted-record views may deliberately include deleted data under their own authorization and response contract; this exception does not widen ordinary user-facing reads.
+
+Review the distinction with a selected record missing category data, a legitimate collection search, and a post-mutation response requiring the same association. Check live/inactive/deleted visibility against the actual model and policy, separately from the response type. These are authoring decisions, not authorization to migrate a consuming application or add a new endpoint abstraction.
+
 ## Optional Collection Summaries
 
 Add collection summaries only when a current caller needs an aggregate over the complete authorized, filtered population. An ordinary policy-scoped list with no aggregate consumer stays unchanged, including an ordinary read in its controller. Do not add unused fields, aggregate queries, an `IndexService`, a base class, or a runtime helper merely to match this example. A real aggregate/orchestration need can use the project's existing collection-service pattern.
