@@ -242,7 +242,7 @@ When an authorized existing browser/profile is reused, release only the owned ta
 
 ## Authenticated Session Bootstrap
 
-Use this Chromium/CDP bootstrap only when the requested browser is not explicitly Firefox. For explicit Firefox, follow **Firefox GitHub Login and Upload** instead; do not invoke this adapter as a fallback. Discover the existing `github-headless-session` command with `command -v github-headless-session`; it is packaged by this plugin, not a separate screenshot-uploader binary. If unavailable, inspect the installed package and its `bin/README.md` before declaring the route unavailable.
+Use this Chromium/CDP bootstrap only for a separately requested Chromium handoff with agreement to its temporary visible login window. Default or explicitly selected Firefox uses **Firefox GitHub Login and Upload** instead; do not invoke this adapter as a headless-only fallback. Discover the existing `github-headless-session` command with `command -v github-headless-session`; it is packaged by this plugin, not a separate screenshot-uploader binary. If unavailable, inspect the installed package and its `bin/README.md` before declaring the route unavailable.
 
 Use only a browser session the user explicitly authorized for this repository. Do not adopt an unrelated signed-in tab, transfer cookies or credentials, use `gh` tokens as browser authentication, or automate passwords/2FA.
 
@@ -300,7 +300,7 @@ Call `github_pr_screenshot_upload_path` first and retain its returned installed 
 
 On success, the existing result contract remains an ordered array of `{ markdown, attachmentUrl }`. On failure, inspect `error.uploadEvidence` for the phase, known URLs, save status, read-back URLs, and body-match result; a generated URL or returned submit click alone is not proof of persistence. Follow **Read-Only Recovery After Save** instead of repeating the batch after a post-save failure.
 
-This `browser.open`/`tab.run` example is the Chromium/CDP route. For an explicit Firefox request, use the direct Puppeteer/WebDriver BiDi procedure in **Firefox GitHub Login and Upload**; do not attach OMP Browser to a Firefox process or fall back to Chromium.
+This `browser.open`/`tab.run` example is the unattended headless Chromium/CDP route. When Firefox is selected under [Browser Opening Modes](browser-qa-workflow.md#browser-opening-modes), use the direct Puppeteer/WebDriver BiDi procedure in **Firefox GitHub Login and Upload**; do not attach OMP Browser to a Firefox process or fall back to Chromium.
 
 The read-back opens the saved editor for the exact target and cancels that read-only edit after inspection. GitHub may render images through signed proxy URLs; comparing original attachment URLs with rendered HTML can falsely report failure. Verify loaded images and caption placement separately, and never publish signed proxy URLs instead of the generated attachment URLs.
 
