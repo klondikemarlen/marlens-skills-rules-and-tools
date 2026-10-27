@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/872) - 2026-10-27
+
+### Changed
+
+- Keeps selected-record data in its owning detail response and preserves normal soft-delete visibility for required associations, includes, and mutation-response reloads.
+
 ## [3.31.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/870) - 2026-10-27
 
 ### Added
