@@ -86,6 +86,22 @@ test("when a caller supplies hidden unknown context fields, the CLI rejects rath
   assert.match(result.stderr, /unknown field/)
 })
 
+test("when a private URL is passed as an unsupported argument, the error does not disclose it", () => {
+  // Arrange
+  const privateUrl = "https://www.npmjs.com/login?challenge=synthetic-private-marker"
+
+  // Act
+  const result = spawnSync(process.execPath, [executable, privateUrl], {
+    encoding: "utf8",
+    timeout: 5000,
+  })
+
+  // Assert
+  assert.equal(result.status, 1)
+  assert.equal(result.stdout, "")
+  assert.ok(!result.stderr.includes("synthetic-private-marker"))
+})
+
 test(
   "when the executable completes local continuation, its result does not claim npm completion",
   { timeout: 5000 },
