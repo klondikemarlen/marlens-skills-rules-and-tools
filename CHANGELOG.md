@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.31.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/889) - 2026-10-27
+
+### Changed
+
+- Keeps UI help focused on useful end-user tasks, clear actions, and coherent explanations, with supplemental table information below pagination and spacing verified across screen sizes.
+
 ## [3.31.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/891) - 2026-10-27
 
 ### Changed
