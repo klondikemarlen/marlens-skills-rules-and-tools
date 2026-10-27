@@ -1,6 +1,6 @@
 ---
 name: evolve
-description: Run one ordered project-improvement cycle through advance, improve, simplify, and wrap-up; reuse evidence, allow justified no-change stages, and exit only when explicitly requested after completion.
+description: Run one ordered project-improvement cycle through advance, improve, simplify, and wrap-up, including bounded triage when selecting ticket work; reuse evidence, allow justified no-change stages, and exit only when explicitly requested after completion.
 ---
 
 # Evolve a Project

@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/838) - 2026-10-27
+
+### Changed
+
+- Includes bounded ticket triage in evolve without a separate invocation, carrying selection evidence forward and preserving read-only and blocked-marker safeguards.
+- Defines six everyday skill entrypoints while retaining specialist agent discovery and documenting the current host's unfiltered autocomplete boundary.
+
 ## [3.29.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/836) - 2026-10-27
 
 ### Changed
