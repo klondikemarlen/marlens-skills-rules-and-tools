@@ -561,7 +561,24 @@ Do not introduce `findOrCreate` as convenience provisioning. When the lifecycle 
 
 When the lifecycle intentionally permits reuse, prefer an owning-domain `EnsureService` over ORM `findOrCreate`: explicitly look up the record, return it when present, and delegate missing-record creation to that domain's `CreateService`. Keep lookup identity and creation policy with their existing owners. Preserve uniqueness, concurrency, and failure semantics; an explicit lookup alone is not a concurrency guarantee. Do not replace required-new creation or accepted unchanged-state behavior with ensure/repair.
 
-In Sequelize 7 projects configured for automatic transaction propagation and nested reuse, put multi-write orchestration inside `db.transaction(async () => ...)` in `perform()` instead of passing transaction objects through service constructors and helpers. Called services and queries use the active context; preserve each service's standalone atomicity and rollback of its writes when an enclosing transaction fails. Inspect the installed version, project settings, and neighboring services before assuming propagation or reuse; retain explicit transaction passing where those guarantees are unavailable. See the existing [CRUD service slice](../templates/backend/express-sequelize-crud/resource-rail-template.md#service-slice); this does not require wrappers around ordinary reads or single-action lifecycle handoffs.
+In Sequelize 7 projects configured for automatic transaction propagation and nested reuse, put multi-write orchestration inside `db.transaction(async () => ...)` in `perform()` instead of threading transaction objects through service constructors and helpers solely for ordinary ORM queries. Called services and queries use the active context; preserve each service's standalone atomicity and rollback of its writes when an enclosing transaction fails. Inspect the installed version, project settings, and neighboring services before assuming propagation or reuse; retain explicit transaction passing where those guarantees are unavailable. See the existing [CRUD service slice](../templates/backend/express-sequelize-crud/resource-rail-template.md#service-slice); this does not require wrappers around ordinary reads or single-action lifecycle handoffs.
+
+Commit-bound side effects need a separate handoff even when ordinary queries propagate automatically. When a transaction-owning lock service protects the action, supply its managed transaction to the protected callback and pass that handle through the relevant helper to publication or commit-hook registration. Do not rediscover the owner transaction through an ambient getter when it is already available at that boundary. This exception does not require transaction parameters throughout ordinary services and queries, or a new locking layer.
+
+For example, with an existing lock service and a transaction API supporting `afterCommit`:
+
+```javascript
+await WithLockService.perform(record, async (transaction) => {
+  await applyRequestedOrder(record, requestedOrder)
+  publishOrderAfterCommit(record.id, transaction)
+})
+
+function publishOrderAfterCommit(recordId, transaction) {
+  transaction.afterCommit(() => publishOrderChanged(recordId))
+}
+```
+
+The helper registers publication; it does not publish before commit. Use the project's actual lock, commit-hook, and async error contracts rather than adding a wrapper just to match these illustrative names. Verify with the installed ORM that the hook belongs to the lock-owned transaction, no publication occurs before commit, successful commit publishes, and rollback suppresses publication. Preserve existing durable-delivery requirements under [Thin Persistence Lifecycle Handoffs](#thin-persistence-lifecycle-handoffs); an explicit handle does not make transient publication atomic or durable.
 
 For an ordinary collection read, use the mapped model's normal query API directly in the controller when project rails permit it, not a pass-through service. Policy scoping, request-filter narrowing, stock `count`/`findAll` queries (Sequelize examples, not an ORM requirement), distinct joined counts, ordering, pagination, and serializer projection do not by themselves justify an `IndexService`. Preserve authorization, filters, count semantics, ordering, pagination, serializers, and established transaction behavior. Keep services for meaningful domain decisions, complex search, batching, or nontrivial orchestration; do not move those responsibilities into controllers. Choose the service boundary before its name: an established nested `IndexService` convention wins over generic `List` naming only when a service is warranted. Inspect adjacent endpoints and respect explicit local architecture; this does not authorize repository-wide refactoring.
 

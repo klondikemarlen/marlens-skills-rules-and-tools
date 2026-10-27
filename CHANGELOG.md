@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/835) - 2026-10-27
+
+### Changed
+
+- Distinguishes managed query propagation from explicit lock-owned transaction handles for commit-bound publication, preserving after-commit timing, rollback suppression, and durable-delivery requirements.
+
 ## [3.30.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/846) - 2026-10-27
 
 ### Fixed
