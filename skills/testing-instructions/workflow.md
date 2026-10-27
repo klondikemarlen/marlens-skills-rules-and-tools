@@ -6,7 +6,7 @@ Use when writing or updating pull request testing instructions.
 
 1. Read the PR body, diff, and any existing testing section.
 2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs.
-3. Identify behavior a reviewer can actually verify.
+3. Identify behavior a reviewer can actually verify. Before selecting scenarios, establish the target environment, required deployment, reviewer roles, available data, and permitted setup actions under [Reviewer and Data Feasibility](#reviewer-and-data-feasibility).
 4. Start from the success condition: name the behavior, invariant, or regression risk each scenario must prove.
 5. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
 6. Write steps in execution order, checking each action is available in the state produced by the previous action. When repairing instructions, preserve the scenario's intended transitions and invariant coverage: restore a required real user action rather than moving setup earlier if that removes the behavior under test. For a completed-record edit scenario, this may mean reopen/revert, reassign/edit, then re-complete; an initial-assignment scenario needs no unnecessary revert.
@@ -14,6 +14,14 @@ Use when writing or updating pull request testing instructions.
 8. State real prerequisites before the first action that needs them, even when developer setup is presented afterward. Keep end-user scenario prerequisites distinct from optional or developer-only checks; do not move a prerequisite later if doing so makes an earlier action unavailable or changes the behavior under test.
 9. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end.
 10. Separate independent scenarios with numbered test cases when the flow is complex.
+
+## Reviewer and Data Feasibility
+
+Choose scenarios for the reviewer's actual environment and permissions, not the agent's local proof. For deployed/shared environments, explain how to find suitable existing records through verified normal UI filters, search, or navigation, and state the observable properties that make them suitable. Expect mixed unrelated data and unknown personal history; do not require local fixture names, IDs, fixed counters, or a pristine dataset.
+
+Keep manual setup small and practical. Do not require database access, counter resets, bulk generation, or repeated actions solely to manufacture usage thresholds. Separate observable manual checks from exact algorithm, ranking-weight, threshold, and edge-case proof in controlled developer tests; preserve that precise coverage rather than describing a plausible displayed order as mathematical proof.
+
+When a scenario needs unavailable data, deployment, role, or setup permission, name the exact missing prerequisite and the owner who can supply it, mark that coverage `BLOCKED`, and continue independent checks. Do not invent access, claim an unrun result, or ask reviewers to manufacture large datasets. Keep legitimate isolated fixtures and seeding under developer-only setup, never as implicit prerequisites for deployed-app QA. Preserve the scenario's intended transitions and behavior assertions when adapting its data requirements.
 
 ## Real-Authentication E2E Preflight
 
