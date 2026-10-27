@@ -57,12 +57,12 @@ const groupedSteps = groupSteps(sourceIndex, destinationIndex, orderedWorkflowSt
 
 ### Explicit Ruby Workflow Results
 
-In Ruby `perform` or `call` orchestration, return intermediate results and pass named locals between steps. A command with a different name should not hide its result by writing an orchestration instance variable, including from a parallel callback. Keep parallel work parallel: collect its results through the existing execution primitive rather than introducing hidden shared state or serializing the workflow.
+In Ruby `#call` orchestration, return intermediate results and pass named locals between steps, following [Ruby Callable Actions](#ruby-callable-actions). A command with a different name should not hide its result by writing an orchestration instance variable, including from a parallel callback. Keep parallel work parallel: collect its results through the existing execution primitive rather than introducing hidden shared state or serializing the workflow.
 
 Before, the callback owns an otherwise invisible output:
 
 ```ruby
-def perform
+def call
   authorization = Thread.new { @authorization_deadline = acquire_authorization }
   rows = prepare_rows
   authorization.value
@@ -73,7 +73,7 @@ end
 After, the orchestration owns the result handoff:
 
 ```ruby
-def perform
+def call
   authorization = Thread.new { acquire_authorization }
   rows = prepare_rows
   authorization_deadline = authorization.value
@@ -557,7 +557,7 @@ Delete B and shift W's successors within the existing atomic operation; do not g
 
 ## Service Orchestration Readability
 
-A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible.
+A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
 Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.
 
@@ -865,6 +865,32 @@ Use patterns only when they earn their keep:
 - **Adapter/gateway:** use when external details would otherwise leak into domain/application code or when a volatile platform/API branch needs one owner.
 - **Interface/factory/registry:** use when there are multiple real implementations or one volatile external boundary. Delete one-implementation abstractions that only prepare for imagined future variation.
 - **Folder/module split:** use when it groups code that changes together or hides volatility. Do not split files by technical phase if every feature change crosses all of those folders.
+
+### Ruby Callable Actions
+
+Invoke Ruby action services through class-level `SomeAction.call(...)` and implement their instance action entrypoint as `#call`. Compose returned results through named locals under [Explicit Ruby Workflow Results](#explicit-ruby-workflow-results), rather than retaining an action instance solely to invoke `#perform` or `#call`. Integration clients, value objects, and objects that genuinely own a lifecycle retain their useful instance APIs; this is not a ban on ordinary instance methods.
+
+Before adding a class-level constructor-to-instance forwarder, inspect the local callable service/operation base and sibling consumers. Reuse an existing base when its forwarding, initialization, instance entrypoint, return values, and failure behavior match. Keep constructor argument declarations in the initializer rather than repeating every keyword in a trivial subclass `.call` wrapper. Preserve supported positional arguments, keywords, and blocks where the actual local contract requires them.
+
+For example, given an existing local `DeployService.call(**arguments)` that invokes `new(**arguments).call`, inherit that contract instead of redeclaring the same forwarder:
+
+```ruby
+class PrepareRelease < DeployService
+  def initialize(repository:, version:)
+    @repository = repository
+    @version = version
+  end
+
+  def call
+    @repository.prepare_release(@version)
+  end
+end
+
+prepared_release = PrepareRelease.call(repository: repository, version: version)
+publication = PublishRelease.call(prepared_release: prepared_release, client: client)
+```
+
+`DeployService` and `PublishRelease` illustrate existing local owners, not new universal classes to introduce. A class-level method that validates, authorizes, normalizes, selects an implementation, or otherwise adds real behavior is not a trivial forwarder: preserve that behavior at its established boundary. Do not collapse a framework-required `perform` callback or another language's action protocol into `call`. Apply this convention to requested Ruby authoring/review scope, not a repository-wide migration or a new client framework.
 
 ### Pattern Fit and Non-Fit
 
