@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Preserves project-declared `periodic-review` reminders across completed reviews, separates due reviews from deferred reminders and delivery work, and retains read-only and existing-label safeguards without adding scheduling or helper schema changes.
+
 ## [3.30.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/841) - 2026-10-27
 
 ### Changed
