@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/841) - 2026-10-27
+
+### Changed
+
+- Recognizes fresh npm login as a possible publication-authentication recovery step while preserving manual approval, opaque-prompt safeguards, credential privacy, and independent publication verification.
+
 ## [3.30.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/839) - 2026-10-27
 
 ### Changed

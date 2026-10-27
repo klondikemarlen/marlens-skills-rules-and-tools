@@ -50,6 +50,12 @@ Start release QA from the intended merged/release commit and its exact publishin
 
 An older same-day release, mismatched commit, or missing required provenance fails the intended-change identity check even when installation succeeds. Find the correct artifact or report the exact missing evidence; do not fabricate metadata or claim deployment from a pull/install.
 
+## npm Publication Authentication
+
+For an authorized npm release, an authentication failure may require a fresh [`npm login`](https://docs.npmjs.com/cli/v11/commands/npm-login/) for the intended registry and maintainer identity before publication can proceed. Consider that recovery even if a previous session worked, rather than treating an authentication error as an immediate dead end. Do not require login before every publish or promise that it resolves every `EOTP`, permission, or challenge failure.
+
+Keep sign-in separate from publication approval. Follow the existing manual-authentication and opaque-prompt safeguards; do not automatically retrigger a prompt the user reported as opaque. Complete required authentication through npm's native local/browser flow, never by requesting credentials or one-time codes in chat or public records. A successful login does not prove publication: verify the native publish result and the remote artifact independently under [Release Artifact Identity](#release-artifact-identity), and report any remaining prerequisite truthfully.
+
 ## Dockerized Worktree Cleanup
 
 Use this procedure only when an agent-owned Dockerized worktree must be removed.
