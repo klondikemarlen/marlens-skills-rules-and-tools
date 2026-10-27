@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.29.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/834) - 2026-10-27
+
+### Changed
+
+- Makes deployed shared-environment QA feasible with existing data and reviewer permissions, separating controlled algorithm proof from manual checks and identifying unavailable coverage.
+
 ## [3.29.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/830) - 2026-10-26
 
 ### Changed
