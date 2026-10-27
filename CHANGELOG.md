@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/844) - 2026-10-27
+
+### Fixed
+
+- Makes documentation-purpose review explicit in authoring and code review, distinguishing useful source-local patterns from implementation inventories and duplicated ownership without conflating semantic coverage with formatting or code checks.
+
 ## [3.30.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/849) - 2026-10-27
 
 ### Changed
