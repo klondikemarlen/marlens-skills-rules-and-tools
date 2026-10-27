@@ -40,6 +40,51 @@ During feature or PR work, incidental cleanup is eligible only in an existing fi
 
 When this scope correction is accepted, inspect the complete in-scope PR for equivalent incidental-only files, not just the selected review line. Preserve other owners' work and remove only the unrelated cleanup from the proposed change.
 
+### Named Helper Results
+
+When a helper returns a small set of independent computed values, prefer destructuring its named object result into explanatory locals at the use site when that makes subsequent steps clearer. Pass the values each functional helper needs rather than forwarding a wrapper solely as a packet. Keep named object returns; do not require positional tuples or flatten a meaningful domain object whose identity, invariants, or lifecycle belong together. Preserve evaluation order, property-access behavior, and the requested scope rather than mechanically destructuring every result.
+
+For example, retain the placement helper's named result while exposing the three inputs to the grouping step:
+
+```javascript
+const { sourceIndex, destinationIndex, orderedWorkflowSteps } = locatePlacement(
+  workflowSteps,
+  sourceId,
+  destinationId
+)
+const groupedSteps = groupSteps(sourceIndex, destinationIndex, orderedWorkflowSteps)
+```
+
+### Explicit Ruby Workflow Results
+
+In Ruby `perform` or `call` orchestration, return intermediate results and pass named locals between steps. A command with a different name should not hide its result by writing an orchestration instance variable, including from a parallel callback. Keep parallel work parallel: collect its results through the existing execution primitive rather than introducing hidden shared state or serializing the workflow.
+
+Before, the callback owns an otherwise invisible output:
+
+```ruby
+def perform
+  authorization = Thread.new { @authorization_deadline = acquire_authorization }
+  rows = prepare_rows
+  authorization.value
+  export(rows, @authorization_deadline)
+end
+```
+
+After, the orchestration owns the result handoff:
+
+```ruby
+def perform
+  authorization = Thread.new { acquire_authorization }
+  rows = prepare_rows
+  authorization_deadline = authorization.value
+  export(rows, authorization_deadline)
+end
+```
+
+The example uses Ruby's standard thread result; reuse the project's actual parallel primitive and preserve start/wait order, overlap, error propagation, and external effects. It does not prescribe threads or a new client framework.
+
+Same-named memoized getters remain useful for appropriately cached derived values or reusable clients, such as `def file_name; @file_name ||= build_file_name; end` or `def client; @client ||= StorageClient.new(configuration); end`. These expose the value named by the getter rather than storing a command output under an unrelated method. Do not memoize side-effectful authorization acquisition merely to make it look like a property. Preserve legitimate object-owned lifecycle state and caches; apply this distinction within requested authoring and review, not a repository-wide instance-variable rewrite.
+
 ## Libraries for Generic Mechanism
 
 Keep application code focused on product-specific policies and behavior. When a change needs generic parsing, traversal, tokenization, serialization, or equivalent plumbing, compare the standard library, installed dependencies, a well-maintained library, and bespoke code.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.30.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/833) - 2026-10-27
+
+### Changed
+
+- Makes small helper results and Ruby workflow outputs explicit through named locals, preserving meaningful domain objects, parallel execution, legitimate memoized values and clients, and owned lifecycle state.
+
 ## [3.30.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/853) - 2026-10-27
 
 ### Fixed
