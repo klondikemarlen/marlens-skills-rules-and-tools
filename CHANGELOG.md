@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.27](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/946) - 2026-10-28
+
+### Changed
+
+- Prefers provide/inject for simple shared Vue values and an appropriate composable or store for object collections, preserving component-tree ownership and lifetime.
+
 ## [3.32.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/944) - 2026-10-28
 
 ### Changed

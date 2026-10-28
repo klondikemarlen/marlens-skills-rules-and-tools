@@ -146,6 +146,14 @@ When a dialog already has a supported visibility model, do not add an outer `v-i
 
 If a URL reflects runtime-only recovery, make state ownership and synchronization direction explicit instead of maintaining competing URL/runtime truth through paired reconciliation watchers. Preserve actual route, navigation, and dismissal contracts; do not impose a universal URL mirror or hide a legitimate close policy.
 
+## Component-Tree State Sharing
+
+Choose the state owner, consumers, and lifetime from the actual component tree before selecting a sharing mechanism. Prefer `provide`/`inject` for simple shared values, such as a display-density setting. For shared object collections, such as an editable array of records, prefer an appropriate existing composable or store rather than making injection the default collection API.
+
+Keep component-tree state scoped to its owning tree when that is its lifetime; choosing a composable or store does not make the state application-global. Independent editor trees must retain their intended isolation, while consumers within one tree share the intended instance. Use application-wide ownership only when the actual contract calls for it. Preserve model-access and editor ownership described below rather than creating another canonical collection.
+
+This is a maintainability preference, not a universal prohibition on providing collections, a requirement to use Pinia, or permission to add a dependency or migrate unrelated state. Respect stronger project-local contracts and genuine existing injection boundaries.
+
 ## Model-Mirror Composables and Editor Ownership
 
 Inspect established sibling composables and any user-designated architecture before extending a `use` module. When singular/plural data-access composables mirror the model layer, retain those mirrors while the underlying model exists, even with zero current callers. An editor-specific wrapper does not replace the model mirror. Remove obsolete mirrors when their model is deleted; do not use this exception to preserve arbitrary dead code or invent speculative wrappers.
