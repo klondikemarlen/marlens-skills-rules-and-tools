@@ -59,6 +59,18 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Inferred Static Template Refs
+
+For statically named SFC template refs, prefer `useTemplateRef("name")` without an explicit generic when the installed Vue version and language tooling infer the actual contract. Avoid repeating an inferred component instance type with `ref<InstanceType<typeof Component> | null>(null)`. For the existing `WorkflowStepsEditCard` and its static `ref="workflowStepsEditCard"`:
+
+```typescript
+const workflowStepsEditCard = useTemplateRef("workflowStepsEditCard")
+
+workflowStepsEditCard.value?.refresh()
+```
+
+Check the installed tooling and typecheck existing exposed-method calls, such as `validate()` or `refresh()`, with their availability guards unchanged. Retain explicit typing when inference cannot represent the actual contract, including genuinely dynamic or otherwise uninferable refs; do not add casts merely to silence errors. Keep template names, script bindings, and callers aligned, and apply accepted corrections to analogous refs within the affected change rather than sweeping unrelated code. This preference does not require a dependency upgrade.
+
 ## Component Refs at Consumer Boundaries
 
 Inspect the installed consumer's runtime and type contract before projecting a component ref into a second DOM-root ref. When it already accepts the original component or element ref, pass that ref directly rather than adding a page-local `computed(() => liveStepsDiv.value?.$el ?? null)` solely as an adapter. Component instances and DOM elements are not interchangeable; runtime support alone does not establish type compatibility.
