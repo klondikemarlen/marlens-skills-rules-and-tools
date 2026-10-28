@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/918) - 2026-10-28
+
+### Changed
+
+- Prefers explicit coordinated Vue wrapper branches while preserving one rendered root, slot content, accessibility, and descendant lifecycle requirements.
+
 ## [3.32.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/917) - 2026-10-28
 
 ### Changed
