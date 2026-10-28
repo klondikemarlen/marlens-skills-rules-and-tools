@@ -98,6 +98,24 @@ Consumers use the composable's returned reactive record/collection refs as the m
 
 Follow the established reactive-state plus `...toRefs(state)` return pattern for ordinary writable composable state. Prefer caller-side `error.value = capturedError` over `readonly(error)` plus a trivial `setError` wrapper when no accepted invariant requires the action. Keep meaningful operations, including reset and actions that actually protect invariants; this is not a blanket removal of store actions or permission to rewrite unrelated composables.
 
+When writable state fields need declared types, prefer a complete object type on `reactive<{ ... }>(...)` over assertions on individual initializers such as `items: [] as Item[]`. For example, with the existing `Item` type:
+
+```typescript
+const state = reactive<{
+  items: Item[]
+  loading: boolean
+  error: Error | null
+}>({
+  items: [],
+  loading: false,
+  error: null,
+})
+
+return { ...toRefs(state) }
+```
+
+Preserve initial values, writable returned refs, and runtime state ownership. Leave accurately inferred values alone and retain genuinely necessary assertions; this is a scoped typing preference, not a mandate to annotate every value or a blanket assertion ban.
+
 When an operation restores initial/empty state and siblings call that operation `reset`, use `reset` rather than a specialized synonym such as `clearError`. Inspect sibling contracts first and retain names for genuinely different operations. Apply accepted API changes to affected callers and tests together, preserving behavior and required invariant boundaries.
 
 ## Composable Return-Object Sections

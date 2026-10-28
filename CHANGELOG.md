@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/929) - 2026-10-28
+
+### Changed
+
+- Prefers complete Vue reactive-state object types over assertions on individual initializers while preserving writable refs and runtime behavior.
+
 ## [3.32.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/928) - 2026-10-28
 
 ### Changed
