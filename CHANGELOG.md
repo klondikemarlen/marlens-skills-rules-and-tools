@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.22](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/932) - 2026-10-28
+
+### Changed
+
+- Allows multi-root Vue templates only for Vue Router-registered `Page` components, preserving single-root reusable components and existing page ownership.
+
 ## [3.32.21](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/934) - 2026-10-28
 
 ### Changed

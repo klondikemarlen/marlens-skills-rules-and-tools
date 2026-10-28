@@ -13,6 +13,7 @@ Use when a frontend page combines route dispatch, asynchronous availability data
 - When the initial route only decides between concrete pathways from asynchronously loaded availability data, make it a small resolver route or page.
 - A resolver loads only the data needed to choose a route, then uses route replacement so the transient entry route is not left in history.
 - Every concrete page owns its direct-entry loading, error, invalid-parameter, and unavailable-data guards. A resolver is unmounted after redirect and cannot protect later navigation or deep links.
+- Identify a page by both Vue Router registration and a `Page` suffix, not directory placement or the suffix alone. Apply the [routed-page root exception](../../docs/references/vue-component-authoring-reference.md#one-template-root-and-existing-components); reusable presentation remains single-root, and pages need not use fragments.
 - After its guard succeeds, a concrete page should branch only over its actual UI modes, such as a selection list and selected-item preview.
 - Do not add a resolver layer when it does not remove a distinct route-dispatch responsibility.
 

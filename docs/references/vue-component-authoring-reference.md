@@ -6,7 +6,9 @@ For coupled interaction corrections, fit-check the whole contract before the nex
 
 ## One Template Root and Existing Components
 
-Keep exactly one top-level rendered root per component, even where Vue permits fragments. Static footer controls and informational content belong inside the existing root rather than as simultaneous sibling roots. For drag containers, use the supported row selector or slot contract so only intended rows are draggable; static content must remain non-draggable. Preserve the existing layout and interaction behavior.
+Keep exactly one top-level rendered root in reusable components, even where Vue permits fragments. Only a page registered with Vue Router and named with a `Page` suffix may render multiple roots; neither the suffix nor directory placement alone establishes page ownership. A routed component without that suffix is not eligible for this exception. Pages may retain a single root; do not promote a reusable component into a route solely to permit a fragment.
+
+For reusable components, static footer controls and informational content belong inside the existing root rather than as simultaneous sibling roots. For drag containers, use the supported row selector or slot contract so only intended rows are draggable; static content must remain non-draggable. Preserve existing route/component responsibilities, layout, and interaction behavior.
 
 Prefer complete `v-if`/`v-else` wrapper branches over repeating one condition across coordinated styling and semantic attributes when they express distinct alternatives. These mutually exclusive branches still produce one rendered root. Keep shared slot content and spacing consistent, and put branch-specific attributes such as `role` or `aria-label` on the branch that needs them. This is not a ban on ternaries or conditional class bindings when they express the contract more clearly.
 
