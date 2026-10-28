@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.33](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/957) - 2026-10-28
+
+### Changed
+
+- Orders intentionally changed frontend application import groups as utilities, API clients, then composables, preserving local overrides and the boundary against unrelated churn.
+
 ## [3.32.32](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/956) - 2026-10-28
 
 ### Changed

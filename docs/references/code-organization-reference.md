@@ -448,6 +448,8 @@ Preserve the positions and order of unchanged imports when editing unrelated beh
 
 Group intentionally changed imports by conceptual distance and responsibility, following the project's existing sections rather than imposing a universal alphabetical order. Mark genuine type-only declarations, such as attribute types and interfaces, explicitly with `type` and keep them together within the established groups. Generally keep model classes as ordinary imports even when this file currently uses them only in type positions; do not convert models to `import type` or inline `type` solely for that local usage. Required compiler/runtime contracts still win, including actual runtime model uses in association decorators. Apply an accepted import correction across the in-scope review diff without moving unrelated imports.
 
+For frontend utility, API client, and composable group order, follow [Frontend Import Groups](../../rules/whitespace-matters.md#frontend-import-groups).
+
 Alphabetize new or intentionally changed imports within their established logical groups, not across groups. Insert a new `AdministrationCost` import before `BuildingExpense` without mechanically sorting untouched groups. Preserve initialization-sensitive order and stronger project-specific ordering; this preference does not authorize runtime import-order changes or repository-wide cleanup.
 
 For a project with these supported direct model imports, the third-party dependency group remains separate:

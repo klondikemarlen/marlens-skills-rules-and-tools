@@ -14,6 +14,22 @@ Before presenting a changed file as ready:
 5. Keep asynchronous setup in the narrowest behavior-specific nested describe; do not put scenario-only setup in a broad test body or shared hook.
    Project-local guidance may refine grouping order but does not weaken these defaults; only explicit user direction permits a departure.
 
+## Frontend Import Groups
+
+For new or intentionally corrected frontend application imports, prefer utilities before API clients, and API clients before composables. Keep each group contiguous with exactly one blank line between groups, within the existing broad standard-library, third-party, and project-local ordering. Follow documented project overrides and preserve imported bindings and initialization-sensitive order; this preference does not authorize unrelated import churn.
+
+With these existing supported project-local imports:
+
+```typescript
+import { formatDate } from "@/utils/format-date"
+
+import { api } from "@/api"
+
+import { useWorkflow } from "@/composables/use-workflow"
+```
+
+Use the project's actual supported paths and exports; the example does not require a new alias, module, or import dependency.
+
 ## Explanatory Comment Sections
 
 Treat a standalone explanatory comment and the code it introduces as one section: put one blank line before the comment and one after its associated code, while keeping the comment adjacent to the first statement. Separate surrounding sibling sections, not every statement; do not add padding at a block's start or end.
