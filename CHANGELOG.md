@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.35](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/964) - 2026-10-28
+
+### Changed
+
+- Prefers simplifying avoidable initialization workarounds before documenting them, preserving behavior, isolation, and necessary framework rationale.
+
 ## [3.32.34](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/959) - 2026-10-28
 
 ### Changed
