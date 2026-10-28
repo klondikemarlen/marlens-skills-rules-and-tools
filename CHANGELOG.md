@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.31](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/952) - 2026-10-28
+
+### Changed
+
+- Prefers inferred `useTemplateRef` declarations for supported static Vue template refs, preserving exposed-method calls and necessary explicit types.
+
 ## [3.32.30](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/951) - 2026-10-28
 
 ### Changed
