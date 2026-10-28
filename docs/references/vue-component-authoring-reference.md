@@ -45,6 +45,14 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Optional Live-Update Composition
+
+Compose optional live-update behavior between the routed page and the existing base component: the page renders the feature wrapper, and the wrapper renders the base component. Reserve the `Page` suffix for route-level components; feature components sit below pages rather than wrapping an existing page.
+
+Keep normal model-backed editors in their established component families. Reuse existing models, resource composables, and API clients rather than relocating or reimplementing them to introduce the capability. The wrapper owns live subscriptions and refresh coordination through the project's existing lifecycle mechanisms; the base component keeps its ordinary editing responsibilities and remains usable without live behavior.
+
+During authoring and review, ask whether introducing the capability unnecessarily moved existing base components or broadened the PR. Preserve existing route contracts, permissions, record/state ownership, and required descendant lifecycle behavior; changing composition is not permission to reset an active editor. This boundary does not mandate feature directories or wrappers for ordinary UI work, override stronger local ownership conventions, or collapse legitimate separate interaction capabilities.
+
 ## State-Specific Content Owners
 
 When application states own different instructions or controls, prefer separate, explicitly named components over a boolean mode prop that combines their content. Accept modest duplicated presentation when it keeps each state's wording and actions directly readable. Reuse genuinely shared, context-neutral presentation primitives, but do not move the state switch into another wrapper.

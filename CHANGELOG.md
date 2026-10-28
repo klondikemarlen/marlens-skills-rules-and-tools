@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.21](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/934) - 2026-10-28
+
+### Changed
+
+- Places optional live-update behavior between routed pages and existing base components, preserving component ownership and keeping subscriptions and refresh coordination in the optional wrapper.
+
 ## [3.32.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/933) - 2026-10-28
 
 ### Changed

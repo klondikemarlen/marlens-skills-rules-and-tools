@@ -205,6 +205,8 @@ Choose the home by concept ownership, not single-caller count: a generic or doma
 
 This preference extends to a component family: related editors may share plain TypeScript DOM-interaction helpers and types beside that family, in a Vuetify-style organization without requiring Vuetify itself. Component directories are not restricted to component files. Keep pure domain rules with their domain, genuinely project-independent algorithms in libraries, and reactive lifecycle coordination in composables. Existing project conventions still win; do not move unrelated code to manufacture a uniform tree.
 
+For optional live-update behavior around an existing editor, follow [Optional Live-Update Composition](vue-component-authoring-reference.md#optional-live-update-composition): preserve the established base-component home and keep the capability's wrapper below the routed page.
+
 ## Self-Contained Migrations
 
 Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
