@@ -982,6 +982,20 @@ By contrast, dispose resources that remain live beyond the assertion, such as ti
 
 Inspect the active test-runner configuration before adding local mock-restoration hooks. Rely on configured cleanup for the mocks, globals, or environment state it already covers rather than duplicating it in `afterEach`. Retain local cleanup for uncovered resources or state and preserve intentional mid-test restoration; apply an accepted correction consistently within the reviewed scope.
 
+When a scheduler test file does not test real timer execution, give scheduler registration a safe file-scoped mock instead of relying on each scenario to install a constructor spy. The default must prevent real scheduling for every test, including newly added scenarios and tests running after configured mock reset/restoration. Keep the domain callbacks real when their behavior is under test; scenarios can inspect captured registrations, invoke the captured callback, or override the registration mock without enabling the real scheduler by default.
+
+For example, with Vitest's supported hoisted module mocking and an existing `croner` dependency:
+
+```typescript
+import { vi } from "vitest"
+
+vi.mock("croner", () => ({
+  Cron: vi.fn(function CronRegistration() {}),
+}))
+```
+
+Match the consumer's actual registration and returned-handle contract when supplying a mock. Inspect the runner's configured isolation and reset behavior, rely on cleanup it already provides, and verify the safe default still holds across tests; do not replace the business callback or its domain/database coverage with this registration mock. Keep explicit real-timer lifecycle tests on a supported unmocked path with necessary disposal, and do not impose this file's mock on unrelated test files.
+
 When tests repeatedly track and delete the same class of external test resources, prefer a named shared cleaner integrated with the existing before-test isolation lifecycle instead of repeated per-test cleanup bookkeeping. Restrict destructive cleanup to test-owned resources and preserve isolation from other suites or workers. Apply the existing narrowest-scope and asynchronous fan-out rules rather than adding an unconditional global hook; keep necessary cleanup for unique or otherwise uncovered resources.
 
 ```ts

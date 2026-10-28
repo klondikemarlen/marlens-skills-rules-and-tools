@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.37](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/963) - 2026-10-28
+
+### Changed
+
+- Keeps scheduler-registration mocks safe across an entire test file while preserving real business callbacks, configured isolation, and explicit timer-lifecycle coverage.
+
 ## [3.32.36](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/965) - 2026-10-28
 
 ### Changed
