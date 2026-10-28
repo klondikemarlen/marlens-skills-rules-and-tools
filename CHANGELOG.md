@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/933) - 2026-10-28
+
+### Changed
+
+- Prefers model-first Vue component names with the actual root type last and matching camelCase template refs, applying accepted corrections across analogous in-scope consumers.
+
 ## [3.32.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/930) - 2026-10-28
 
 ### Changed
