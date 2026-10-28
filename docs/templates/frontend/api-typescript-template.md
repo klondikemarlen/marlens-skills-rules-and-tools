@@ -101,6 +101,42 @@ export default resourcesApi
 5. `WhereOptions`, `FiltersOptions`, `QueryOptions`.
 6. API methods.
 
+## Resource-Owned POST Actions
+
+Keep collection and item CRUD methods on the parent resource client. Put a POST action that operates on one resource in a separate client module under that resource's API directory, exposing it as `create(resourceId)` rather than adding a custom action verb to the parent CRUD client. Re-export the named client from the existing resource barrel and use the application's existing API bundle. The action client owns its HTTP request; its caller owns workflow coordination, sequencing, refreshes, and user-facing error handling.
+
+Match the backend's actual route, request body, success response contract, and HTTP error behavior. The route below is illustrative, not a required spelling. Do not add guessed response fields or catch/transform errors merely because the action is nested.
+
+`src/api/resources/replicate-estimates-api.ts`
+
+```typescript
+import http from "@/api/http-client"
+
+export const replicateEstimatesApi = {
+  async create(resourceId: number): Promise<void> {
+    await http.post(`/api/resources/${resourceId}/replicate-estimates`)
+  },
+}
+
+export default replicateEstimatesApi
+```
+
+This example has no request body and no consumed response. Preserve the real endpoint's existing body, response type, and return handling when they are part of its contract; do not replace them with this example's `void` contract.
+
+`src/api/resources/index.ts`
+
+```typescript
+export { replicateEstimatesApi } from "./replicate-estimates-api"
+```
+
+Call through the resource namespace already exposed by the application's API bundle:
+
+```typescript
+await api.resources.replicateEstimatesApi.create(resource.id)
+```
+
+Keep the parent `resourcesApi` CRUD methods and surrounding caller-owned workflow behavior unchanged.
+
 ## Checklist
 
 - Verify frontend types against backend models and serializers.
