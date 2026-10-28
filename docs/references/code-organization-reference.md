@@ -41,6 +41,21 @@ During feature or PR work, incidental cleanup is eligible only in an existing fi
 
 When this scope correction is accepted, inspect the complete in-scope PR for equivalent incidental-only files, not just the selected review line. Preserve other owners' work and remove only the unrelated cleanup from the proposed change.
 
+### Independently Mutable Nested Copies
+
+When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.
+
+With an existing `cloneDeep` binding:
+
+```javascript
+const sourceRows = [{ assignees: [{ name: "Original" }] }]
+const editableRows = cloneDeep(sourceRows)
+
+editableRows[0].assignees[0].name = "Updated"
+```
+
+Verify isolation by editing nested output data, such as an assignee, and asserting that the original nested input remains unchanged. A different outer array alone does not prove independence. Keep reference sharing when intentional, including immutable/shared values; do not deep-clone every array or arbitrary identity-bearing resource. Choose the copy boundary from the actual ownership and data-type contract.
+
 ### Named Helper Results
 
 When a helper returns a small set of independent computed values, prefer destructuring its named object result into explanatory locals at the use site when that makes subsequent steps clearer. Pass the values each functional helper needs rather than forwarding a wrapper solely as a packet. Keep named object returns; do not require positional tuples or flatten a meaningful domain object whose identity, invariants, or lifecycle belong together. Preserve evaluation order, property-access behavior, and the requested scope rather than mechanically destructuring every result.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.25](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/943) - 2026-10-28
+
+### Changed
+
+- Prefers Lodash `cloneDeep` at independently mutable nested-data boundaries, with clone-once ownership and nested-mutation isolation checks.
+
 ## [3.32.24](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/941) - 2026-10-28
 
 ### Changed
