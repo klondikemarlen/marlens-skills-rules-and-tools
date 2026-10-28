@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.38](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/651) - 2026-10-28
+
+### Added
+
+- Requires project-appropriate linting and current passing command evidence at readiness, with an executable project requirement for the existing OMP Verifier and explicit language-coverage boundaries.
+
 ## [3.32.37](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/966) - 2026-10-28
 
 ### Changed

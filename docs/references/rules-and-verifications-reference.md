@@ -32,23 +32,52 @@ For cross-project responsibility and promotion of prose into checks, use [`quali
 
 The default `whitespace-matters` rule selects commit/push and PR creation/readiness/merge commands, not an operation merely named `review`. Request/evidence inspection is not a readiness claim. The rule still requires project formatter/checker use and `git diff --check` at delivery, with existing project/user precedence and explicit overrides.
 
+## Project Linting Verification
+
+Projects need working lint configuration appropriate to their maintained source. Use the project's existing linter and documented non-fixing command: ESLint with suitable language/framework support, or an equivalent native tool. Inspect effective configuration, included files, parsers/plugins, and the configured warning policy; a dependency or a successful command that ignores the changed source does not establish coverage. Formatting, typechecking, tests, and rendered behavior protect different contracts.
+
+The shared [`project-linting`](../../rules/project-linting.md) rule requires applicable lint evidence at readiness. When using OMP Verifier, express the executable check through its existing [project-specific requirements](https://github.com/klondikemarlen/omp-verifier#project-specific-verifier-requirements), not a new command runner, package manifest entry for an unspecified command, or generic model judgment.
+
+For a project whose documented `npm run lint` checks `src/**/*.js` without fixing files, merge this requirement into its existing project `WATCHDOG.yml` verifier entry:
+
+```yaml
+advisors:
+  - name: verifier
+    tools: [bash]
+    instructions: |
+      @/home/<user>/.omp/agent/verifier/WATCHDOG.md
+
+      - Check id project:lint. When src/**/*.js, eslint.config.js, package.json, or package-lock.json changes, run `npm run lint`. The quality standard is that the configured ESLint rules pass for the maintained JavaScript source, evidenced by actual command exit 0 and its lint output. Report lint violations as FAIL; missing or broken tooling/configuration or an unexecuted check is BLOCKED. Correct violations and execute a fresh check after changes.
+```
+
+Use the actual generated Verifier guidance path for the active user/profile, preserving existing verifier model routing and other requirements. Replace the illustrative paths and command with the project's real source/configuration triggers and documented wrapper; for Dockerized projects use their development/test wrapper, not a host command that bypasses it. This example assumes an already configured JavaScript linter, not a universal npm convention or automatic project setup. A new `WATCHDOG.yml` is read by a fresh OMP process.
+
+Separate source languages or independently configured subprojects need their actual commands and coverage named in that entry. For changed CSS or embedded Vue styles, inspect whether the configured linter supports those blocks; use the project's supported style diagnostic provider where the main linter does not. A diagnostic's source and rule id establish its provider, not the word "lint". See [CSS Diagnostics for Style Changes](../workflows/code-review-workflow.md#css-diagnostics-for-style-changes).
+
+Observe execution rather than merely recommending the command. PASS requires a current successful run covering the applicable source and configuration. A real lint violation is FAIL; missing tooling/configuration, unsupported required source, or an unexecuted check is BLOCKED with the missing prerequisite. Preserve the project's warning policy and fix violations without disabling rules or excluding affected files merely to pass. Following a correction, run the command again; an earlier PASS cannot clear later changes.
+
+Fit checks: an unused binding under an enabled error rule must fail, then pass after its correction; a project with no working lint command cannot pass; a Vue script-only configuration cannot clear a changed style block; and a documentation-only change outside the declared trigger is N/A rather than a whole-project lint verdict.
+
+MSSRT supplies this policy and requirement example; the consuming project owns its lint configuration and setup, and Verifier owns execution and result delivery. The requirement does not register a new `/verifier checks` manifest id, install tools, or provide a hard host-level completion veto. Direct lint execution without a working verifier is command evidence, not proof of native advisor delivery.
+
 ## Current Package Classification
 
-| Asset                                             | Layer                | Why                                                                                                            |
-| ------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `whitespace-matters`                              | Rule                 | Formatting and sibling grouping require project-local tools and structure judgment.                            |
-| `solve-real-user-needs`                           | Rule                 | User value needs request/product context; use contextual review, not keyword or edge-case counts.              |
-| `no-envrc-example-commits` and `no-envrc-example` | Both                 | The rule prevents staging; the verifier backstops tracked repository state.                                    |
-| `omp-not-opencode-target-check`                   | Rule                 | Product identity depends on the user request and target package.                                               |
-| `use-dev-wrapper-for-development-compose`         | Rule                 | Wrapper availability and command intent require repository context.                                            |
-| `no-oversized-source-files`                       | Verification         | Tracked source paths and line ceilings are deterministic.                                                      |
-| `default-function-exports`                        | Verification         | TypeScript paths are checked by default; projects may explicitly opt out.                                      |
-| `barrel-only-indexes`                             | Verification         | Explicit library indexes contain static barrel constructs, with reasoned runtime-entrypoint exclusions.        |
-| `typescript-runtime-entrypoints`                  | Verification         | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                   |
-| `test-alignment`                                  | Verification         | Changed tests follow deterministic naming/structure rules plus explicit local syntax policies.                 |
-| `test-assertion-focus`                            | Agentic verification | Changed tests receive semantic review against shared assertion guidance and ordinary-language local standards. |
-| `module-boundary-alignment`                       | Agentic verification | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes.              |
-| `documentation-purpose-alignment`                 | Agentic verification | Changed Markdown/MDX is assessed for reader purpose, ownership, placement, and material code accuracy.         |
+| Asset                                             | Layer                        | Why                                                                                                               |
+| ------------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `whitespace-matters`                              | Rule                         | Formatting and sibling grouping require project-local tools and structure judgment.                               |
+| `project-linting`                                 | Rule and project requirement | Readiness requires applicable lint evidence; the existing Verifier executes each project's explicit lint command. |
+| `solve-real-user-needs`                           | Rule                         | User value needs request/product context; use contextual review, not keyword or edge-case counts.                 |
+| `no-envrc-example-commits` and `no-envrc-example` | Both                         | The rule prevents staging; the verifier backstops tracked repository state.                                       |
+| `omp-not-opencode-target-check`                   | Rule                         | Product identity depends on the user request and target package.                                                  |
+| `use-dev-wrapper-for-development-compose`         | Rule                         | Wrapper availability and command intent require repository context.                                               |
+| `no-oversized-source-files`                       | Verification                 | Tracked source paths and line ceilings are deterministic.                                                         |
+| `default-function-exports`                        | Verification                 | TypeScript paths are checked by default; projects may explicitly opt out.                                         |
+| `barrel-only-indexes`                             | Verification                 | Explicit library indexes contain static barrel constructs, with reasoned runtime-entrypoint exclusions.           |
+| `typescript-runtime-entrypoints`                  | Verification                 | Finite runtime compiler commands expose lazy declaration-loading mismatches.                                      |
+| `test-alignment`                                  | Verification                 | Changed tests follow deterministic naming/structure rules plus explicit local syntax policies.                    |
+| `test-assertion-focus`                            | Agentic verification         | Changed tests receive semantic review against shared assertion guidance and ordinary-language local standards.    |
+| `module-boundary-alignment`                       | Agentic verification         | Contextual evidence establishes meaningful ownership; size and count metrics are not substitutes.                 |
+| `documentation-purpose-alignment`                 | Agentic verification         | Changed Markdown/MDX is assessed for reader purpose, ownership, placement, and material code accuracy.            |
 
 ## Default-Enabled Package Policies
 
