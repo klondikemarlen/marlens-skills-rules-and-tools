@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/924) - 2026-10-28
+
+### Fixed
+
+- Restores module-boundary standard loading with a dedicated canonical reference, preserving policy and migrating authoring, review, and verification links.
+
 ## [3.32.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/923) - 2026-10-28
 
 ### Changed
