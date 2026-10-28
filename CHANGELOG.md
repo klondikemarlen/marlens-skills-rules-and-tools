@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.32](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/956) - 2026-10-28
+
+### Changed
+
+- Preserves behavior-oriented feature suites alongside source-aligned tests, choosing organization by the protected contract rather than forcing production extractions.
+
 ## [3.32.31](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/954) - 2026-10-28
 
 ### Changed

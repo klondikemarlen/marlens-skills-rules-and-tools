@@ -396,7 +396,24 @@ Split a growing module by the domain action or external integration it owns—no
 
 Co-locate focused unit tests with the pure policy, parser, or small domain operation they protect. Use a boundary integration test for the adapter contract. Keep request payloads, inputs, and expected output local to each test; intentional duplication is clearer than a helper that hides those facts. Follow [Scenario-Oriented Verification](#scenario-oriented-verification) for persisted-record setup; shared environment mechanics or fixed literal data must not hide scenario inputs. Before a structural move, run the existing behavior check; after the move, rerun the same check and add only the smallest missing behavior test. A folder split that cannot name its owned action or preserve that check should stay a module.
 
-Follow the project's established source-to-test layout and keep a dedicated behavioral suite aligned with the source unit whose behavior it owns; do not split one service's tests into ad hoc topic-suffixed files. If a distinct domain responsibility warrants its own suite, extract that responsibility into an appropriately named subservice or use case with a matching test file, while orchestration and persistence checks remain with their owning service. Do not extract for every test category, impose a test-file size quota, or add an abstraction solely to reduce file length. Follow [Scenario-Oriented Verification](#scenario-oriented-verification) for visible outcomes and scenario-local inputs.
+For source-aligned suites, follow the project's established source-to-test layout and keep a dedicated behavioral suite aligned with its source unit, using source-path/component/method nesting where that is the local convention. Do not split one source owner's tests into ad hoc topic-suffixed files. A genuinely distinct production responsibility may have its own matching suite, but a test category alone is not a reason to extract a subservice or use case, impose a file-size quota, or add an abstraction.
+
+Preserve behavior-oriented feature suites when the project supports them: these protect a feature or domain behavior independently of any single source file. Organize them by feature/domain/behavior rather than forcing a source-file owner. Choose the style by the contract protected, not merely by whether the test runs real collaborators. Do not extract production code solely to give a feature test a matching source unit.
+
+For example, these illustrate the two styles under a project's existing test conventions:
+
+```text
+Source-aligned:
+  source: src/checkout/discount-service.ts
+  suite: tests/checkout/discount-service.test.ts
+  nesting: checkout/discount-service.ts -> DiscountService -> apply
+
+Feature-oriented:
+  suite: tests/features/checkout/discount-application.test.ts
+  nesting: checkout -> discounts -> when eligible, applies the discount
+```
+
+The paths and nesting are illustrative, not a required framework or layout. If a project reserves `features` for testing, keep production grouping names distinct using its existing conventions; do not impose a global production namespace or migrate unrelated code. Both styles follow [Scenario-Oriented Verification](#scenario-oriented-verification) for visible outcomes and scenario-local inputs.
 
 ## Project-Root Imports and Paths
 
