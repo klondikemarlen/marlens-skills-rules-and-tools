@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.29](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/950) - 2026-10-28
+
+### Changed
+
+- Keeps scheduled actions and intended local execution times visible at scheduler declarations, distinguishing business schedules from polling cadence.
+
 ## [3.32.28](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/949) - 2026-10-28
 
 ### Changed
