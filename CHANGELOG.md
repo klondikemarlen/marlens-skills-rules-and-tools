@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/930) - 2026-10-28
+
+### Changed
+
+- Prefers explicit state-specific Vue content owners over mode-flag cards while retaining shared neutral presentation, ordinary visibility/loading, and accepted lifecycle behavior.
+
 ## [3.32.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/929) - 2026-10-28
 
 ### Changed
