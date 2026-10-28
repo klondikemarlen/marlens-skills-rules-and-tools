@@ -17,6 +17,8 @@ This packaged fallback preserves the local workflow contract when a target proje
 
 Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
 
+For HTTP-response and recovery design, apply [Intermediary Responses to JSON Requests](../../docs/references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) when fit-checking failure outcomes, loaded-state preservation, uncertain writes, existing error boundaries, and optional-preview trust.
+
 ## Process
 
 1. **Frame the outcome.** State the success condition, unacceptable outcome, and complexity ceiling before naming implementation files.

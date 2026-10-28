@@ -100,6 +100,8 @@ Focused diffs can make change amplification and recurring change clusters easier
 
 For changes that introduce or materially change module ownership or data flow, apply [Organization Before Authoring](../../docs/workflows/hands-off-agentic-coding-workflow.md#organization-before-authoring) before implementation and again before the first push. Reuse its conditional checkpoint and the existing plan or session; do not create a new checklist artifact or require an organization report for a small local edit.
 
+When HTTP response ownership or recovery is in scope, apply [Intermediary Responses to JSON Requests](../../docs/references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) to expected-JSON consumers, UI recovery, uncertain writes, event propagation, and optional-preview trust. Reuse the existing application boundaries rather than introducing a parallel recovery mechanism.
+
 ## Verify Existing Behavior Before Policy Changes
 
 For a review request that could change defaults, fallback behavior, precedence, or opt-outs:

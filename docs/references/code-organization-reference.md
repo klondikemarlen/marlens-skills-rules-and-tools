@@ -521,6 +521,8 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 API/HTTP transport classifies failures and throws typed errors; it must not import presentation state or open recovery UI. UI consumers or existing application/framework error boundaries own recovery presentation. When intermediate callers swallow a failure needed there, correct their propagation rather than introducing UI side effects in transport. Preserve ordinary local handling and cleanup without mandating a new global handler or layer.
 
+For expected-JSON requests affected by intermediary HTML, apply [Intermediary Responses to JSON Requests](engineering-techniques-reference.md#intermediary-responses-to-json-requests): classify at transport, recover through the existing UI boundary, preserve uncertain-write safety and listener lifecycle, and prefer metadata-only diagnostics over optional untrusted previews.
+
 On the server, keep HTTP failure decisions visible in the public controller action or established error boundary. A service that cannot produce its required result should throw through that boundary, not return an `undefined` failure sentinel solely for format-specific helpers to turn into separate HTTP errors. CSV/PDF helpers prepare successful content; complete fallible preparation before setting download headers. Preserve accepted statuses and existing error handling, including streaming contracts; do not introduce a universal status or error hierarchy. Valid empty collections and optional misses remain valid values under their actual contracts.
 
 Here both format services return `{ contentType, filename, body }` or throw their existing errors. The parent forwards failures to established HTTP middleware before setting successful download headers:

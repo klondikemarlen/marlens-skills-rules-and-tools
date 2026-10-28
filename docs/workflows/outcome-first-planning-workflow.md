@@ -18,6 +18,8 @@ Use when a request has a material design choice and needs a bounded implementati
 - Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
 - Stop planning when the residual risk is named and the next implementation step is runnable.
 
+For HTTP-response and recovery design, apply [Intermediary Responses to JSON Requests](../references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) when fit-checking failure outcomes, loaded-state preservation, uncertain writes, existing error boundaries, and optional-preview trust.
+
 ## Required Inputs
 
 Capture these before planning:
@@ -33,9 +35,9 @@ If any input is missing, record the missing decision as a question or choose the
 
 After a brief read of local guidance, a comparable implementation, and the affected caller-to-result path, choose the mode from evidence rather than task size or a preference for planning:
 
-| Evidence | Execution Mode | Next Step and Stop Condition |
-| --- | --- | --- |
-| The outcome is clear and existing domain concepts, ownership, lifecycle, and dependency rules cover it. | Plan first, then implement precisely. | Resolve affected contracts, placement, callers, and focused proof before coding; stop planning when the patch is executable and remaining risk is named. Obvious local changes retain the mechanical-change exemption. |
+| Evidence                                                                                                                  | Execution Mode                                            | Next Step and Stop Condition                                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The outcome is clear and existing domain concepts, ownership, lifecycle, and dependency rules cover it.                   | Plan first, then implement precisely.                     | Resolve affected contracts, placement, callers, and focused proof before coding; stop planning when the patch is executable and remaining risk is named. Obvious local changes retain the mechanical-change exemption.                     |
 | A requirement contradicts an invariant, crosses an unsupported boundary, or leaves the concept/owner genuinely uncertain. | Minimal framing, then short runnable modeling iterations. | State the accepted outcome, existing constraints, one uncertain hypothesis, and the smallest experiment that distinguishes candidate models. Observe the result, revise the model or boundary, and repeat only for unresolved uncertainty. |
 
 For mixed work, plan the known-fit portion normally and isolate exploration to the uncertain seam; do not redesign stable rails because one part does not fit. Switch from plan-first to exploration when source or a runnable result contradicts the assumed fit, rather than extending the plan to defend it. Switch back to precise implementation when evidence establishes the owner, invariant, handoff, and runnable acceptance check.
