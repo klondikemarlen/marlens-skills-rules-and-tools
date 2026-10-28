@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/938) - 2026-10-28
+
+### Changed
+
+- Passes original component refs to compatible consumers and keeps necessary DOM-root conversions at the consuming boundary, preserving type and lifecycle contracts.
+
 ## [3.32.25](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/943) - 2026-10-28
 
 ### Changed

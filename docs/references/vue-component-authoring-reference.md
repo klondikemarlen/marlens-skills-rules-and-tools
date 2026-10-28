@@ -47,6 +47,29 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Component Refs at Consumer Boundaries
+
+Inspect the installed consumer's runtime and type contract before projecting a component ref into a second DOM-root ref. When it already accepts the original component or element ref, pass that ref directly rather than adding a page-local `computed(() => liveStepsDiv.value?.$el ?? null)` solely as an adapter. Component instances and DOM elements are not interchangeable; runtime support alone does not establish type compatibility.
+
+For example, with an existing `liveStepsDiv` component ref and resize callback, pass the original ref when the installed VueUse `useResizeObserver` runtime and types support it:
+
+```typescript
+useResizeObserver(liveStepsDiv, onResize)
+```
+
+When a different consumer actually requires an element, keep the necessary conversion at that consuming boundary. For an existing DOM-only scrolling handler using its supported `unrefElement` helper:
+
+```typescript
+function scrollToCurrentRoot() {
+  const element = unrefElement(liveStepsDiv)
+  if (!(element instanceof HTMLElement)) return
+
+  element.scrollIntoView()
+}
+```
+
+Resolve the current root when that operation needs it instead of retaining a stale element in page state. Preserve mounting, unmounting, scrolling, and exposed component methods through the original ref. Retain a genuinely necessary reactive element conversion when the actual consumer requires one, with its existing lifecycle tracking; do not move or duplicate it into every page. Follow project imports and installed types, without adding a dependency for this example. This is not a ban on computed values, optional chaining, or null handling.
+
 ## Route Inputs and Internal Resources
 
 When an existing routed page receives a slug, resolve its resource inside the page through the established model-access composable before passing record-derived inputs to children. An internal feature's database ID requirement does not justify adding a required route prop or threading that ID through parents and tabs without an accepted route-contract change.
