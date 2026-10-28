@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.34](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/958) - 2026-10-28
+
+### Changed
+
+- Keeps component-owned public Vue types in normal script blocks with type-only consumer imports, preserving domain and component-family ownership.
+
 ## [3.32.33](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/957) - 2026-10-28
 
 ### Changed
