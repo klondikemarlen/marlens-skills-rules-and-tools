@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/921) - 2026-10-28
+
+### Changed
+
+- Treats copied production algorithms in test setup as a production-testability warning, preserving real-operation coverage and independent expectations.
+
 ## [3.32.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/918) - 2026-10-28
 
 ### Changed
