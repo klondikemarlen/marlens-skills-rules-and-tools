@@ -4,6 +4,18 @@ Use for Vue authoring and review. Project-local conventions and supported compon
 
 For coupled interaction corrections, fit-check the whole contract before the next gesture patch using [Interaction-Contract Activation](../workflows/outcome-first-planning-workflow.md#interaction-contract-activation) in the outcome-first planning workflow. Preserve adjacent accepted behavior; component structure and presentation guidance do not define which operations are allowed.
 
+## Multiline Prop Object Types
+
+Prefer multiline object types passed to `defineProps`, even for a single property. Put the opening brace, each property, and the closing brace on separate lines:
+
+```typescript
+const props = defineProps<{
+  administrationCostCategoryId: string
+}>()
+```
+
+Apply an accepted correction to equivalent declarations within the requested authoring or review scope, preserving prop names, types, optionality, defaults, and behavior. Formatter success does not establish this structural preference; inspect the declaration itself rather than treating a compact form accepted by a formatter as sufficient. Do not sweep unrelated files.
+
 ## One Template Root and Existing Components
 
 Keep exactly one top-level rendered root in reusable components, even where Vue permits fragments. Only a page registered with Vue Router and named with a `Page` suffix may render multiple roots; neither the suffix nor directory placement alone establishes page ownership. A routed component without that suffix is not eligible for this exception. Pages may retain a single root; do not promote a reusable component into a route solely to permit a fragment.
