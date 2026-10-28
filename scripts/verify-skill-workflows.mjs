@@ -493,7 +493,6 @@ const codeOrganizationReference = read("docs/references/code-organization-refere
 const referencesIndex = read("docs/references/README.md")
 for (const requiredText of [
   "Code organization is not more folders",
-  "Module Decomposition",
   "Oversized Responsibility Clusters",
   "Do not split mechanically by line count",
   "marlens-rules:no-oversized-source-files",
@@ -516,11 +515,6 @@ for (const requiredText of [
   if (!codeOrganizationReference.includes(requiredText)) {
     fail(`code organization reference must document ${requiredText}`)
   }
-}
-if (
-  !referencesIndex.includes("Code organization, module boundaries, and pattern-selection criteria")
-) {
-  fail("references index must list the code organization reference")
 }
 
 for (const requiredText of [

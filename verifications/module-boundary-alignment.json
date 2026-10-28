@@ -1,7 +1,7 @@
 {
   "version": 1,
   "standardId": "marlens-rules:module-boundary-alignment",
-  "source": "./docs/references/code-organization-reference.md#module-decomposition",
+  "source": "./docs/references/module-boundary-reference.md#module-decomposition",
   "gold": "Each changed module boundary owns a meaningful invariant, domain action, volatile dependency, independent change axis, or actual reusable behavior. A boundary must not exist only for a trivial transformation or direct forwarding; preserve useful short boundaries when evidence shows real ownership.",
   "requiredContext": ["changed-code", "callers", "siblings", "project-guidance"],
   "rubric": [
