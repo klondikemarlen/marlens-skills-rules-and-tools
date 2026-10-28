@@ -23,7 +23,7 @@ Use when a frontend page combines route dispatch, asynchronous availability data
 2. Make the initial route a resolver only when that decision is its own responsibility; render its loading and error states, then replace the route with the chosen concrete path.
 3. Give each concrete path a page or top-level component with independent direct-entry guards for loading, errors, missing resources, invalid route/query input, and empty availability.
 4. Keep successful concrete-page rendering to its real UI modes; place reusable presentation and actions below the page layer.
-5. Verify resolver entry and direct entry to every concrete path, including loading, error, empty, invalid-query, back, cancel, and alternate-path behavior.
+5. Verify resolver entry, direct navigation, and tab entry to every concrete path using its existing route inputs, including loading, error, empty, invalid-query, back, cancel, and alternate-path behavior. Apply [Route Inputs and Internal Resources](../references/vue-component-authoring-reference.md#route-inputs-and-internal-resources) when children need record-derived identifiers.
 
 ## Routing Example
 

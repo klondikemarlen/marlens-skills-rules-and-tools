@@ -47,6 +47,14 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Route Inputs and Internal Resources
+
+When an existing routed page receives a slug, resolve its resource inside the page through the established model-access composable before passing record-derived inputs to children. An internal feature's database ID requirement does not justify adding a required route prop or threading that ID through parents and tabs without an accepted route-contract change.
+
+For example, an existing `/workflows/:workflowSlug` route supplies `workflowSlug="approval-flow"` to its page. The page uses its existing resource composable to resolve that slug; when the record `{ id: 42, slug: "approval-flow" }` is available, its live-update child receives `workflow.id`. The route and tab entry still require only `workflowSlug`, not a new `workflowId`. Follow the actual project's composable API and record types rather than introducing another loader or parallel record owner.
+
+During review, verify direct navigation and tab entry using only the existing route inputs. Reuse [Layered Page Orchestration](../workflows/layered-page-orchestration-workflow.md) for page-owned loading, errors, invalid/missing resources, and direct-entry guards; do not render a child requiring an ID before its current record is available. Preserve authorization and existing request/lifecycle ownership. Intentional route-contract changes and established ID-based routes remain valid when accepted; this preference applies to extending a feature without such a change.
+
 ## Optional Live-Update Composition
 
 Compose optional live-update behavior between the routed page and the existing base component: the page renders the feature wrapper, and the wrapper renders the base component. Reserve the `Page` suffix for route-level components; feature components sit below pages rather than wrapping an existing page.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.23](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/940) - 2026-10-28
+
+### Changed
+
+- Preserves existing slug-based route inputs when internal features need record IDs, resolving resources inside pages and checking direct and tab entry.
+
 ## [3.32.22](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/939) - 2026-10-28
 
 ### Changed
