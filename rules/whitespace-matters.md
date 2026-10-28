@@ -13,3 +13,21 @@ Before presenting a changed file as ready:
 4. Keep whitespace-only edits scoped to the changed area.
 5. Keep asynchronous setup in the narrowest behavior-specific nested describe; do not put scenario-only setup in a broad test body or shared hook.
    Project-local guidance may refine grouping order but does not weaken these defaults; only explicit user direction permits a departure.
+
+## Explanatory Comment Sections
+
+Treat a standalone explanatory comment and the code it introduces as one section: put one blank line before the comment and one after its associated code, while keeping the comment adjacent to the first statement. Separate surrounding sibling sections, not every statement; do not add padding at a block's start or end.
+
+With existing preview and geometry operations:
+
+```javascript
+const preview = createInsertionPreview()
+
+// The preview can enlarge the wrapper; measure the card itself.
+const cardBounds = card.getBoundingClientRect()
+const insertionIndex = findInsertionIndex(cardBounds, pointerY)
+
+movePreview(preview, insertionIndex)
+```
+
+Prefer explanatory names over comments that repeat obvious behavior; retain rationale for non-obvious constraints. This layout does not require adding comments, removing useful comments, or sweeping unrelated whitespace. Preserve tooling directives, attached documentation, and language/framework requirements; do not separate them from the statements or declarations they govern.

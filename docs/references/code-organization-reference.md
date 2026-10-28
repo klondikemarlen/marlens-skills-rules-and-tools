@@ -783,6 +783,8 @@ For explanatory comments, prefer JSDoc-style blocks that explain the mechanism a
 
 During edits and simplification, retain accurate comments that explain framework/library callback execution conditions, mechanisms, or rationale not obvious from nearby statements. Move them with the relevant handler when needed; remove or revise them when obsolete or misleading. Redundant comments may still be removed, and this does not require converting inline comments to JSDoc.
 
+For the boundaries around a standalone explanatory comment and its associated code, follow [Explanatory Comment Sections](../../rules/whitespace-matters.md#explanatory-comment-sections). Keep the comment attached to that code rather than isolating it from its first statement.
+
 Preserve existing TODOs and improvement suggestions until their requested outcome is actually implemented. Compare the suggestion's full scope with the change before removing it as completed; an adjacent fix or partial improvement is not fulfillment. Restore prematurely removed suggestions. Explicit user-directed removal remains authoritative; this does not require a TODO inventory or unrelated implementation.
 
 When adding an explanatory comment convention, apply it consistently across comparable in-scope code or omit redundant commentary instead of leaving a one-off explanation. Preserve comments with distinct non-obvious rationale and functional tooling directives; consistency does not mean identical comments everywhere or broader cleanup.
