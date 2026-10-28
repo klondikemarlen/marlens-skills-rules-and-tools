@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.24](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/941) - 2026-10-28
+
+### Changed
+
+- Separates standalone explanatory comment-led code sections with blank lines while preserving comment/code attachment, useful rationale, and tooling directives.
+
 ## [3.32.23](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/940) - 2026-10-28
 
 ### Changed
