@@ -609,6 +609,18 @@ For a collection whose accepted invariant is contiguous zero-based positions, de
 
 Delete B and shift W's successors within the existing atomic operation; do not globally renumber workflows. Check exact remaining W membership/positions, unchanged A and unrelated Z, and rollback if a required write fails. Sparse-rank collections follow their actual invariant and need not close gaps. This is an operation-specific example, not a universal renumbering algorithm or a reason to add an abstraction.
 
+## Scheduler Declaration Readability
+
+Keep each scheduled action and its intended business schedule visible together at the scheduler entry point. When the scheduler polls for work that becomes due in different time zones, distinguish the polling cadence from the intended local execution time there; a descriptive dispatcher name alone does not reveal what runs and when.
+
+For example, the scheduling declaration should make this distinction inspectable, using the project's existing scheduler API:
+
+| Scheduled Action     | Polling Cadence    | Intended Execution                             |
+| -------------------- | ------------------ | ---------------------------------------------- |
+| Send daily summaries | Every five minutes | 09:00 in each recipient's configured time zone |
+
+The values illustrate two different cadences, not a required interval, framework, or callback signature. Extract discovery and due-time mechanics behind a small explicit interface while retaining the business action and schedule at the declaration, rather than relocating all schedules into an opaque background dispatcher. Preserve existing time-zone, timing, and delivery contracts; apply this within the requested authoring or review scope.
+
 ## Service Orchestration Readability
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
