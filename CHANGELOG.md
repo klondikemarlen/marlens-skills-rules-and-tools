@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.39](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/973) - 2026-10-28
+
+### Added
+
+- Recommends pull requests of at most 50 changed files throughout ticket planning and readiness, with cohesive dependent GitHub stacks, parent-relative review scope, and justified atomic exceptions.
+- Requires native registration and remote membership/order verification when GitHub stacking is requested, preserving source heads, draft states, and authorization boundaries.
+
 ## [3.32.38](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/968) - 2026-10-28
 
 ### Added

@@ -25,6 +25,34 @@ Push coherent progress and revise that existing description as implementation an
 
 Reconcile linked implementation tickets through [Ticket Lifecycle](feature-workflow.md#ticket-lifecycle) when starting a draft, requesting review, handling rework, or completing a merge. PR assignment does not assign its linked ticket, and merging a PR does not prove that Jira status or GitHub Project Status advanced. After merge, use the project's actual next state; retain QA/release requirements rather than marking incomplete delivery Done.
 
+### PR Size and Stack Planning
+
+Use [Plan Reviewable PR Slices](hands-off-agentic-coding-workflow.md#plan-reviewable-pr-slices) for the advisory per-PR changed-file threshold. Reassess at planning, whenever a planned or active PR grows, and before marking it ready. Measure each PR against its actual review base, not cumulatively against trunk; a stacked child is reviewed against its immediate parent.
+
+Prefer cohesive dependent slices as a bottom-to-top PR stack and separate PRs for unrelated work. Each slice retains the callers, tests, verification, review/CI gates, and dependencies needed for review. Keep atomic contract changes together when splitting would invalidate an intermediate slice. State whether the PRs are coordinated review units that must be integrated or released together, or independently deployable increments. Keep every ticket acceptance criterion in scope; merging one slice does not complete the ticket.
+
+When native GitHub stack registration is requested, distinguish it from ordinary PR base chaining. First record each PR's repository, state, base and head branches, exact head SHA, draft state, and current native membership using the read-only REST pull-request resource:
+
+```bash
+repo=OWNER/REPO
+number=PULL_NUMBER
+gh api "repos/$repo/pulls/$number" \
+  --jq '{number, state, base: .base.ref, base_sha: .base.sha, head: .head.ref, head_sha: .head.sha, draft, stack}'
+```
+
+Confirm all requested PR URLs match the explicitly authorized repository and, in bottom-to-top order, the bottom targets the intended trunk and every child targets its immediate predecessor's head branch. Registration does not authorize rewriting commits, merging, or changing readiness. Preserve the observed base and head SHAs and draft state for comparison. Use the installed `gh stack link --help` contract and existing full PR URLs:
+
+```bash
+gh stack link \
+  https://github.com/OWNER/REPO/pull/BOTTOM_PR \
+  https://github.com/OWNER/REPO/pull/NEXT_PR \
+  https://github.com/OWNER/REPO/pull/TOP_PR
+```
+
+Do not pass branch arguments, which the command pushes automatically, or `--open`, which marks new and existing PRs ready for review. Re-read every PR through the same REST resource and verify its exact base and head SHAs, draft state, and base chain are unchanged; verify all PRs report the same non-null `stack.id` and `stack.number`, the expected `stack.size`, and consecutive `stack.position` values from bottom to top. A body link or correct base chain alone does not prove native membership. If the CLI, authentication, API membership, or any required state cannot be verified, report the exact missing prerequisite and do not claim registration. Ordinary dependent base chains remain valid when native registration was not requested.
+
+See [GitHub's stacked pull request APIs](https://docs.github.com/en/pull-requests/reference/stacked-pull-requests-apis-and-webhooks) for the REST membership fields and [stack CLI commands](https://docs.github.com/en/pull-requests/reference/stacked-prs-cli-commands#gh-stack-link) for the registration command contract.
+
 ### Repository Metadata
 
 Before every agent-created PR handoff, including drafts and documentation-only work, reconcile ownership and applicable existing labels unless an explicit user instruction or repository policy directs otherwise. Reviewer requests remain separately authorized.
