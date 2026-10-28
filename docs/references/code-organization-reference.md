@@ -479,6 +479,8 @@ Prefer operation-specific verbs over generic `get...` for project-owned helpers:
 
 Match a module's primary named/default export to its filename under the project's casing convention, such as `apiResponseErrorPlugin` in `api-response-error-plugin.ts`. Choose the clearer export or file rename within scope, then align exports, callers, mirrored tests, and test descriptions without changing behavior. Secondary exports and framework-required entrypoints retain their own contracts.
 
+For domain projection helpers, prefer a parent-qualified `<Parent><Thing>` name that remains meaningful outside its containing folder. For example, use `workflowStepsAsGroups` in `workflow-steps/workflow-steps-as-groups.ts` rather than `asGroups` in `workflow-steps/as-groups.ts`. Apply the export, filename, caller, and mirrored-test alignment above when making an accepted rename. This preference concerns domain projections, not unrelated predicates or action helpers; stronger project-local naming conventions still win.
+
 Prefer `assert...` for condition-checking functions that throw on failure, naming the asserted condition so the failure contract is apparent at the call site. Do not mechanically rename boolean predicates or framework-required methods.
 
 Name conversion helpers for the concrete operation and both source and destination, such as `convertPlacementToReorderRequest`, rather than a destination-only `toReorderRequest`. Apply accepted names to the affected helper and every caller while preserving framework-required names and behavior.

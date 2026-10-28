@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.28](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/945) - 2026-10-28
+
+### Changed
+
+- Prefers parent-qualified names for domain projection helpers, with matching modules and coordinated in-scope renames.
+
 ## [3.32.27](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/946) - 2026-10-28
 
 ### Changed
