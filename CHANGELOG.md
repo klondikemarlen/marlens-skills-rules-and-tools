@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/902) - 2026-10-28
+
+### Changed
+
+- Places resource-specific frontend POST actions in nested create clients while preserving transport contracts and caller-owned workflows.
+
 ## [3.32.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/916) - 2026-10-27
 
 ### Changed
