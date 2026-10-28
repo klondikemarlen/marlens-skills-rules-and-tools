@@ -4,6 +4,32 @@ Use for Vue authoring and review. Project-local conventions and supported compon
 
 For coupled interaction corrections, fit-check the whole contract before the next gesture patch using [Interaction-Contract Activation](../workflows/outcome-first-planning-workflow.md#interaction-contract-activation) in the outcome-first planning workflow. Preserve adjacent accepted behavior; component structure and presentation guidance do not define which operations are allowed.
 
+## Component-Owned Public Types
+
+When a small public prop or emitted-event type belongs to a component's own contract, prefer exporting it from a normal `<script lang="ts">` block alongside `<script setup lang="ts">`, rather than extracting a standalone file solely to expose that type. For example, an `ItemPicker.vue` event-typing excerpt:
+
+```vue
+<script lang="ts">
+export type SelectionChange = {
+  selectedIds: number[]
+}
+</script>
+
+<script setup lang="ts">
+const emit = defineEmits<{
+  change: [payload: SelectionChange]
+}>()
+</script>
+```
+
+External type consumers use the owning component without introducing a runtime dependency for the type:
+
+```typescript
+import type { SelectionChange } from "@/components/ItemPicker.vue"
+```
+
+Use the project's actual component path, resolver, and existing type shape. Verify the installed Vue type compilation and affected consumers; keep type-only imports type-only rather than exporting types from `script setup` or adding runtime imports. Apply an accepted move to affected in-scope exports and consumers together, removing a superseded type-only module when nothing else needs it. Retain independently owned domain/shared types and legitimate component-family support modules with their actual owners; do not relocate unrelated types or infer ownership solely from caller count.
+
 ## Multiline Prop Object Types
 
 Prefer multiline object types passed to `defineProps`, even for a single property. Put the opening brace, each property, and the closing brace on separate lines:
