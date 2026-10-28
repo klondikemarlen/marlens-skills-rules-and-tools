@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/923) - 2026-10-28
+
+### Changed
+
+- Adds Instance Control and Worklog to companion discovery, distinguishing native wrapper participation, local evidence, reviewed filing, and the former Cost Status identity.
+
 ## [3.32.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/922) - 2026-10-28
 
 ### Added
