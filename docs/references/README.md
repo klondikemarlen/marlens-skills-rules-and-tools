@@ -11,7 +11,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Tool-specific caveats.
 - Express Light Rail backend concepts.
 - Code organization and pattern-selection criteria: [`code-organization-reference.md`](./code-organization-reference.md).
-- Module ownership, public surfaces, implementation-file layout, and semantic verification: [`module-boundary-reference.md`](./module-boundary-reference.md).
+- Module ownership, public surfaces, and semantic verification: [`module-boundary-reference.md`](./module-boundary-reference.md).
 - Outcome-first planning and fit checks: [`outcome-first-planning-reference.md`](./outcome-first-planning-reference.md).
 - Project knowledge base taxonomy, authority boundaries, and publication safety: [`project-knowledge-base-reference.md`](./project-knowledge-base-reference.md).
 - OMP plugin routine and exact-hash installation policy: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).

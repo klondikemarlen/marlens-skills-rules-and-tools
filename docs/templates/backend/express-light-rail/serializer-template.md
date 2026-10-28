@@ -1,6 +1,6 @@
 # Serializer Template
 
-Use for explicit API response shape. For operation-specific placement and naming, follow [Primary Operations and Local Implementation](../../../references/module-boundary-reference.md#primary-operations-and-local-implementation); retain explicit fields and existing type/barrel conventions.
+Use for explicit API response shape. For operation-specific placement and naming, follow [Primary Operations and Local Implementation](../../../references/code-organization-reference.md#primary-operations-and-local-implementation); retain explicit fields and existing type/barrel conventions.
 
 ## Template
 
