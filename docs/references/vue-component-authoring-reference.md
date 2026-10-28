@@ -90,19 +90,13 @@ When one field's value updates another field within a particular form or card, k
 In ordinary user-facing descriptions, prefer a related record's readable name over its internal identifier. When a descriptive label is unavailable after the existing loading/error handling, use `Unknown` rather than stringifying the identifier. Preserve available labels and the existing data flow; intentional technical identifier displays remain valid. For example, with an existing description primitive's `label` and `value` props:
 
 ```vue
-<DescriptionElement
-  label="Fiscal year"
-  :value="fundingPeriod?.fiscalYear ?? 'Unknown'"
-/>
+<DescriptionElement label="Fiscal year" :value="fundingPeriod?.fiscalYear ?? 'Unknown'" />
 ```
 
 When only a stable related-record ID is available and the description needs a lookup, reuse a model-specific description wrapper, or compose the existing description primitive in one. The wrapper accepts that ID, uses the existing model-access composable, and owns the lookup and loading presentation. Keep the contextual label in the consuming page rather than duplicating the lookup there. For example, a page using its project's category-description wrapper:
 
 ```vue
-<CategoryDescriptionElement
-  :category-id="record.categoryId"
-  label="Category"
-/>
+<CategoryDescriptionElement :category-id="record.categoryId" label="Category" />
 ```
 
 Component, prop, and model names are illustrative; follow the project's actual contracts. The wrapper presents the resolved category name, with the missing-label fallback above, while preserving existing errors, authorization, and reactive ID/lifecycle ownership. Already-resolved values do not require a new wrapper. Apply accepted corrections to equivalent descriptions within the requested scope, not unrelated identifier displays; do not add caches, new data-access mechanisms, persistence changes, or elaborate recovery states for this presentation preference.
