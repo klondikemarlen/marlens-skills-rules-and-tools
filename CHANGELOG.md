@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.30](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/948) - 2026-10-28
+
+### Changed
+
+- Prefers multiline Vue `defineProps` object types, including single-property declarations, with scoped corrections and unchanged prop contracts.
+
 ## [3.32.29](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/950) - 2026-10-28
 
 ### Changed
