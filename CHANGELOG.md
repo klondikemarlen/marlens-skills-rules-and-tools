@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.36](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/961) - 2026-10-28
+
+### Changed
+
+- Prefers readable related-record descriptions with `Unknown` for unavailable labels, keeping ID-based lookups and loading inside model-owned description wrappers.
+
 ## [3.32.35](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/964) - 2026-10-28
 
 ### Changed
