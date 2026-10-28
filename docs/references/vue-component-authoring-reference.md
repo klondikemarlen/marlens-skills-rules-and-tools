@@ -41,6 +41,21 @@ Before adding an inline resource picker, inspect neighboring domain inputs and r
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## State-Specific Content Owners
+
+When application states own different instructions or controls, prefer separate, explicitly named components over a boolean mode prop that combines their content. Accept modest duplicated presentation when it keeps each state's wording and actions directly readable. Reuse genuinely shared, context-neutral presentation primitives, but do not move the state switch into another wrapper.
+
+For a parent whose status is already known to be either draft or published:
+
+```vue
+<template>
+  <DraftGuidanceCard v-if="status === 'draft'" />
+  <PublishedGuidanceCard v-else />
+</template>
+```
+
+Each card owns its state's instructions and controls without an `isDraft` mode prop; the parent selects the state explicitly. Preserve the existing instructions, controls, layout, and required descendant state/lifecycle when changing that selection. Ordinary dynamic visibility, a button's loading state, and genuinely neutral shared components do not justify separate state-specific owners. This is not a boolean-prop ban or permission to split unrelated components.
+
 ## Task-Focused Help and Supplemental Table Information
 
 Before adding or polishing explanatory UI, identify the end-user task or decision it supports. Keep QA-only ranking mechanics, count explanations, and verification notes in testing instructions or reviewer evidence, not the product. When feedback questions a panel's value or existence, reconsider removing it before improving its layout. Preserve administrative counts and help that serve an evidenced user need.
