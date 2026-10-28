@@ -6,7 +6,32 @@ For coupled interaction corrections, fit-check the whole contract before the nex
 
 ## One Template Root and Existing Components
 
-Keep exactly one top-level template element per component, even where Vue permits fragments. Keep static footer controls and informational content inside the existing root rather than adding sibling roots. For drag containers, use the supported row selector or slot contract so only intended rows are draggable; static content must remain non-draggable. Preserve the existing layout and interaction behavior.
+Keep exactly one top-level rendered root per component, even where Vue permits fragments. Static footer controls and informational content belong inside the existing root rather than as simultaneous sibling roots. For drag containers, use the supported row selector or slot contract so only intended rows are draggable; static content must remain non-draggable. Preserve the existing layout and interaction behavior.
+
+Prefer complete `v-if`/`v-else` wrapper branches over repeating one condition across coordinated styling and semantic attributes when they express distinct alternatives. These mutually exclusive branches still produce one rendered root. Keep shared slot content and spacing consistent, and put branch-specific attributes such as `role` or `aria-label` on the branch that needs them. This is not a ban on ternaries or conditional class bindings when they express the contract more clearly.
+
+For example, both branches preserve the slot and gap while only one applies status semantics:
+
+```vue
+<template>
+  <div
+    v-if="isLabeled"
+    class="d-flex align-center ga-2"
+    role="status"
+    aria-label="Status message"
+  >
+    <slot />
+  </div>
+  <div
+    v-else
+    class="d-flex ga-2"
+  >
+    <slot />
+  </div>
+</template>
+```
+
+Switching `v-if` branches can unmount and remount slot descendants. Preserve required descendant state and lifecycle behavior; a stable root with conditional attributes/classes may be more appropriate when separate branch roots are unnecessary. Inspect the actual wrapper/accessibility contract rather than assuming the structures are behaviorally equivalent. Reuse the project's existing utilities and scoped-style conventions; the example's classes are illustrative.
 
 Before writing custom informational UI, inspect shared components and nearby usage. Reuse the stock component when it serves the need; keep specific component names project-local.
 
