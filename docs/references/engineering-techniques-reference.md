@@ -44,6 +44,26 @@ Synchronize against an observable runtime condition, not a guessed delay. Keep b
 
 Use a unique marker per test so parallel execution cannot satisfy another test's barrier. The marker belongs in the observed request, query, job, or other runtime record—not only in test-process memory.
 
+## Intermediary Responses to JSON Requests
+
+Classify responses at the HTTP transport boundary before consuming expected JSON, on both successful and rejected statuses. Inventory authenticated and public routes, startup, health/status, and release-note consumers; a `/api` prefix does not identify every JSON request. Preserve intentionally requested downloads and other non-JSON contracts.
+
+Recognize a Cloudflare challenge only when `cf-mitigated` is exactly `challenge`; the documented challenge response is HTML regardless of requested resource type. A 403, `server: cloudflare`, or Ray ID alone is insufficient. Other unexpected HTML must fail visibly through the existing application-error path without retaining or displaying its body. Preserve ordinary JSON authentication, permission/validation, cancellation, transport, and unknown-error semantics; neither HTML nor JSON parse failure may masquerade as successful data.
+
+Recover at the UI boundary through the existing application/framework error path. Preserve safely loaded forms or drafts where feasible, and offer an explicit reload or normal-browser verification route with an unsaved-changes warning. Startup failure must reach a terminal recovery state rather than an endless loader; protected views must not mount before account readiness. An interrupted response does not establish whether the origin applied a write: never automatically replay it. Check current server state before an explicit manual retry, and do not promise that reloading clears a challenge or block.
+
+Trace awaited callbacks, catches, and rethrows before adding another error bus, interceptor subscription, or recovery channel. Background refreshes, detached editors, and socket/event listeners must forward synchronous exceptions and rejected listener promises through the existing boundary. Remove lifecycle-owned listeners on teardown so remounts do not duplicate requests or error delivery. Preserve intentionally synchronous callback contracts and intentional concurrency.
+
+Use application-owned messages and safe minimal diagnostics, such as method, sanitized path, status, and Ray ID. Exclude credentials, cookies, query secrets, and response bodies from routine logs and support reports.
+
+### Optional Diagnostic Previews
+
+Metadata-only recovery is the simpler default; a diagnostic preview is not a baseline feature. If an evidenced product need warrants one, accept only bounded content from a marked challenge. Require acknowledgement followed by a separate reveal action, and keep a persistent trusted warning outside the preview.
+
+Reuse a compatible existing sanitizer with the stricter preview-specific policy, not permissive defaults. Remove complete hidden, metadata, control, and media subtrees rather than exposing fallback text. Render sanitized content only in an inert opaque-origin sandbox with restrictive CSP and no referrer; permit no scripts, controls, navigation, or external resources. Sanitization does not make persuasive content trustworthy, and a static preview cannot complete verification or establish clearance.
+
+The [Cloudflare marker contract](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/), merged [WRAP #699](https://github.com/icefoganalytics/wrap/pull/699) and [WRAP #718](https://github.com/icefoganalytics/wrap/pull/718), and [WRAP's recovery architecture](https://github.com/icefoganalytics/wrap/blob/fd3c59824e88158db86adad9e6591ff78502e801/docs/architecture/Docs%2C%20API%20Response%20Error%20Recovery%2C%202026-10-21.md) are design evidence, not a shared runtime or proof of another application's behavior. Preserve local architecture and protection policy; do not add automatic retries, weaken WAF/authentication, or copy an application's implementation wholesale.
+
 ## TypeScript Declaration Ownership and Loading
 
 Keep library augmentations with their owning module. Expose real global augmentations through package-shaped `typeRoots` entries rather than an arbitrary declaration file that a runtime loader may miss.

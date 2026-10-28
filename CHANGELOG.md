@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.32.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/909) - 2026-10-28
+
+### Added
+
+- Adds discoverable intermediary-response recovery guidance covering JSON classification, safe state and writes, existing error boundaries, listener lifecycle, and optional-preview trust.
+
 ## [3.32.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/921) - 2026-10-28
 
 ### Changed
