@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.33.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/991) - 2026-10-29
+
+### Changed
+
+- Adds value-first test-selection guidance for user-visible behavior and maintained invariants.
+
 ## [3.33.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/987) - 2026-10-29
 
 ### Changed
