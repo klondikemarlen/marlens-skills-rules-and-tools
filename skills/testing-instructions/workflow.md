@@ -13,7 +13,7 @@ Use when writing or updating pull request testing instructions.
 7. Write the user-visible end-user/QA checks first, in the order a reviewer can perform them. Keep any local developer setup or developer-only checks in a separate section afterward when needed; the project's existing PR template chooses section labels and structure, so do not impose a new heading or skeleton.
 8. State real prerequisites before the first action that needs them, even when developer setup is presented afterward. Keep end-user scenario prerequisites distinct from optional or developer-only checks; do not move a prerequisite later if doing so makes an earlier action unavailable or changes the behavior under test.
 9. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end.
-10. Separate independent scenarios with numbered test cases when the flow is complex.
+10. Separate independent scenarios into short numbered test cases when the flow is complex. Keep each numbered step focused on one primary tester action, with its visible expected result immediately beside it; split bundled independent actions into separate steps.
 
 ## Reviewer and Data Feasibility
 
@@ -76,7 +76,7 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 - Prefer user-visible verification over internal plumbing.
 - Include setup commands only when they are needed for the scenario.
 - Use exact labels for buttons, fields, tabs, pages, and messages.
-- Write from the tester's point of view: explain where they are, what state they should start from, what to do, and what should happen next. Use plain user-facing terms; implementation-specific UI terminology is optional.
+- Write from the tester's point of view: use plain user-facing terms and exact product labels. Briefly explain unfamiliar product terms needed to follow the scenario; do not substitute implementation jargon. Put verified data and access prerequisites once before the first action that needs them. Keep internal setup, developer-only proof, and reporting separate from tester steps.
 - Screenshots are optional supporting evidence. Do not require agents to create or annotate screenshots, and do not rely on an image to supply missing action or expected-result context.
 - Do not include credentials, secrets, or local-only state values.
 - If something was not verified, say so explicitly.
@@ -92,15 +92,14 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 
 Prerequisite: <required app/account/data state, established before the first action that needs it>.
 
-1. Navigate to `<page>`.
-2. Perform `<action>`.
-3. Verify `<observable result>`.
+1. Open `<page>` and confirm its visible heading.
+2. Perform `<one primary action>`; confirm `<visible result>`.
 
 ### <project template's developer setup/checks section, when needed>
 
 Prerequisite: <local developer environment or credentials, when required by these checks>.
 
-1. Run `<focused developer check>`.
+1. Run `<focused developer check>` and confirm `<check result>`.
 
 Use the project's existing template headings and structure; these labels illustrate ordering, not required new headings.
 ```
