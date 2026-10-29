@@ -81,7 +81,42 @@ Apply an accepted naming correction to analogous components within the affected 
 
 Prefer camelCase component names for component template refs. For an existing `LiveStepsDiv`, use `liveStepsDiv`; for an existing `EditWorkflowStepsCard`, use `editWorkflowStepsCard`. If the component itself is renamed under the naming convention above, derive its ref from the final component name. For example, with an existing `WorkflowStepsEditCard` exposing `refresh`, pair `<WorkflowStepsEditCard ref="workflowStepsEditCard" />` with the script binding `workflowStepsEditCard` and its existing caller `workflowStepsEditCard.value?.refresh()`. Keep the project's supported Vue ref API; align the template ref string, script binding, and callers without changing the exposed operation or its availability checks. Retain descriptive native-element refs and meaningful distinctions between repeated component instances; do not sweep unrelated refs.
 
-Before adding an inline resource picker, inspect neighboring domain inputs and reuse an existing resource-input component when it owns fetching, loading/error state, and autocomplete rendering. Compose the owning-domain input from the dashboard or form; keep model bindings and contextual hints in its parent. Preserve selection behavior, visibility-triggered loading, errors, and authorization. Follow local component contracts and do not add a wrapper for a trivial control.
+For persisted-record selection, prefer a reusable model-specific searchable input rather than making each form own resource lookup. Inspect neighboring domain inputs first: reuse a suitable input, or implement the owning-model input when it is missing. Small fixed option sets, such as roles, may remain ordinary selects; do not add wrappers for trivial controls.
+
+The model input owns debounced server-side search, bounded pagination, autocomplete rendering, and selected-record hydration so a selected label survives changes to the current results. Avoid duplicate client filtering of server-filtered results. Adapt to the project's supported APIs and component contract; this does not authorize new backend search features, unrelated picker migrations, or dependency installation. Keep contextual filters, model bindings, and contextual hints in the parent; preserve loading, authorization, selection/clearing, and visibility-triggered loading behavior.
+
+For example, with the page's existing bindings and a model input supporting its funding-period filter, a persisted category and a fixed role are different controls:
+
+```vue
+<template>
+  <CategorySearchableAutocomplete
+    v-model="categoryId"
+    :funding-period-id="fundingPeriodId"
+  />
+  <v-select
+    v-model="role"
+    :items="roles"
+    label="Role"
+  />
+</template>
+```
+
+For routine fetch failures, prefer the application's established shared request-error feedback path over adding error flags/messages to every lookup control. The existing UI/application boundary owns toast/snackbar presentation, not low-level HTTP transport; follow [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery). Keep loading and selection state in the model input. Preserve component-local validation or accepted contextual recovery when it serves the workflow; removing redundant inline feedback does not authorize replacement feedback infrastructure or hiding failures.
+
+Inside that model input, an existing Vuetify autocomplete can retain its model/results/loading bindings without routine request-error bindings when shared feedback owns those failures:
+
+```vue
+<v-autocomplete
+  v-model="categoryId"
+  :items="categories"
+  :loading="isLoadingCategories"
+  item-title="title"
+  item-value="id"
+  no-filter
+/>
+```
+
+These excerpts illustrate ownership, not a new universal prop or data-access API. Use the input's existing search, hydration, and supported clearing contracts.
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 

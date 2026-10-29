@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefers reusable searchable model inputs for persisted-record selection and established shared request-error feedback, while preserving fixed-option selects, parent-owned form dependencies, and legitimate local recovery.
+
 ## [3.34.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/992) - 2026-10-29
 
 ### Changed
