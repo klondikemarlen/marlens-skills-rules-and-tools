@@ -53,6 +53,21 @@ Do not pass branch arguments, which the command pushes automatically, or `--open
 
 See [GitHub's stacked pull request APIs](https://docs.github.com/en/pull-requests/reference/stacked-pull-requests-apis-and-webhooks) for the REST membership fields and [stack CLI commands](https://docs.github.com/en/pull-requests/reference/stacked-prs-cli-commands#gh-stack-link) for the registration command contract.
 
+### Creating a GitHub Stack
+
+Create dependent slices as a bottom-to-top chain. For the bottom slice, create its branch from the intended trunk; for each child slice, create its branch from the immediate predecessor's head branch so its diff contains only its own work. Push each branch and open each PR as a draft targeting its predecessor's head branch (the bottom targets trunk), following [Initial Draft Publication](#initial-draft-publication). Do not mark the whole ticket ready while any slice remains unmerged; each PR must carry its own callers, tests, and verification.
+
+Before native registration, preflight the chain with the installed `github-pr-stack` helper, which confirms every PR is in the same repository, reports each base/head branch, exact SHAs, draft state, and current stack membership, and prints the `gh stack link` command without running it:
+
+```bash
+github-pr-stack \
+  https://github.com/OWNER/REPO/pull/BOTTOM_PR \
+  https://github.com/OWNER/REPO/pull/NEXT_PR \
+  https://github.com/OWNER/REPO/pull/TOP_PR
+```
+
+Run the emitted `gh stack link` command only when registration is explicitly requested, then re-verify membership, order, heads, and draft state as above. Fix any base-chain error by retargeting the PR base, not by rewriting history, unless the user explicitly authorizes history changes.
+
 ### Repository Metadata
 
 Before every agent-created PR handoff, including drafts and documentation-only work, reconcile ownership and applicable existing labels unless an explicit user instruction or repository policy directs otherwise. Reviewer requests remain separately authorized.

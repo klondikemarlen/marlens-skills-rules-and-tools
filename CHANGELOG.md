@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Recommends pull requests of at most 30 changed files, adds gradual-deprecation wrappers as an explicit slicing strategy, and adds a `github-pr-stack` preflight helper plus stack-creation guidance for turning dependent PRs into a verified GitHub stack.
+
 ## [3.32.39](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/973) - 2026-10-28
 
 ### Added
