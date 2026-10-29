@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "3.32.39",
+  "version": "3.33.0",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -27,6 +27,7 @@
     "github-review-thread": "./bin/github-review-thread",
     "npm-authorization-preview": "./bin/npm-authorization-preview",
     "triage": "./bin/triage",
+    "github-pr-stack": "./bin/github-pr-stack",
     "check-title-case": "./bin/check-title-case"
   },
   "files": [

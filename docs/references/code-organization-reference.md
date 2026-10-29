@@ -612,7 +612,7 @@ Inspect installed ORM and database behavior before choosing instance versus bulk
 
 Persisted job arguments are a deployment interface even after all current source callers are migrated. Review changes to argument type, position, arity, and representation when old queued jobs can execute new handler code. Require evidence that an actual prior payload remains readable by the current handler, or an explicit verified migration, queue drain, or versioned-handler cutover before deployment. Prefer a focused prior-payload-to-current-handler regression through the existing serializer/processor; a test using only the new producer is insufficient.
 
-Keep clean cutovers when their prerequisites are verified. Support only evidenced prior payloads while they can still exist; do not require permanent unions, aliases, compatibility shims, a queue framework, or hypothetical payload versions.
+Keep clean cutovers when their prerequisites are verified. Support only evidenced prior payloads while they can still exist; do not require permanent unions, aliases, compatibility shims, a queue framework, or hypothetical payload versions. A deliberate gradual-deprecation migration is the exception: a wrapper that defers to the old or new implementation with the old path marked deprecated and a named removal step may keep pull requests reviewable, but it is transitional, not permanent.
 
 ## Invariant-Preserving Mutations
 
