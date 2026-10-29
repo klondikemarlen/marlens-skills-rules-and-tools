@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.33.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/977) - 2026-10-29
+
+### Fixed
+
+- Covers the `github-pr-stack` preflight helper with a focused fake-`gh` contract test and aligns its naming and structure with the shared test baseline.
+
 ## [3.33.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/975) - 2026-10-29
 
 ### Added
