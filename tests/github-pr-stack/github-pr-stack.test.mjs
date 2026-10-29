@@ -77,15 +77,17 @@ function runHelper(env, args, extraEnv = {}) {
   })
 }
 
-test("a valid open bottom-to-top chain preflights cleanly and does not register", () => {
-  const result = withFakeGh(
-    {
-      10: pullFixture(10, { base: "main", head: "slice-one" }),
-      11: pullFixture(11, { base: "slice-one", head: "slice-two" }),
-    },
-    (env) => runHelper(env, ["--json", pullUrl(10), pullUrl(11)])
-  )
+test("when the chain is a valid open bottom-to-top stack, preflight passes without registering", () => {
+  // Arrange
+  const fixtures = {
+    10: pullFixture(10, { base: "main", head: "slice-one" }),
+    11: pullFixture(11, { base: "slice-one", head: "slice-two" }),
+  }
 
+  // Act
+  const result = withFakeGh(fixtures, (env) => runHelper(env, ["--json", pullUrl(10), pullUrl(11)]))
+
+  // Assert
   assert.equal(result.status, 0, result.stderr)
   const report = JSON.parse(result.stdout)
   assert.deepEqual(report.errors, [])
@@ -94,15 +96,19 @@ test("a valid open bottom-to-top chain preflights cleanly and does not register"
   assert.match(report.linkCommand, /gh stack link/)
 })
 
-test("a broken base chain fails preflight and refuses --link mutation", () => {
-  const result = withFakeGh(
-    {
-      10: pullFixture(10, { base: "main", head: "slice-one" }),
-      11: pullFixture(11, { base: "main", head: "slice-two" }),
-    },
-    (env) => runHelper(env, ["--json", "--link", pullUrl(10), pullUrl(11)])
+test("when the base chain is broken, --link preflight fails and refuses to mutate", () => {
+  // Arrange
+  const fixtures = {
+    10: pullFixture(10, { base: "main", head: "slice-one" }),
+    11: pullFixture(11, { base: "main", head: "slice-two" }),
+  }
+
+  // Act
+  const result = withFakeGh(fixtures, (env) =>
+    runHelper(env, ["--json", "--link", pullUrl(10), pullUrl(11)])
   )
 
+  // Assert
   assert.equal(result.status, 1)
   const report = JSON.parse(result.stdout)
   assert.ok(
@@ -112,17 +118,20 @@ test("a broken base chain fails preflight and refuses --link mutation", () => {
   assert.match(result.stderr, /Refusing --link while preflight errors exist/)
 })
 
-test("a gh stack link failure propagates its exit status", () => {
-  const result = withFakeGh(
-    {
-      10: pullFixture(10, { base: "main", head: "slice-one" }),
-      11: pullFixture(11, { base: "slice-one", head: "slice-two" }),
-    },
-    (env) =>
-      runHelper(env, ["--json", "--link", pullUrl(10), pullUrl(11)], {
-        GH_LINK_EXIT: "7",
-      })
+test("when gh stack link fails, the helper propagates its exit status", () => {
+  // Arrange
+  const fixtures = {
+    10: pullFixture(10, { base: "main", head: "slice-one" }),
+    11: pullFixture(11, { base: "slice-one", head: "slice-two" }),
+  }
+
+  // Act
+  const result = withFakeGh(fixtures, (env) =>
+    runHelper(env, ["--json", "--link", pullUrl(10), pullUrl(11)], {
+      GH_LINK_EXIT: "7",
+    })
   )
 
+  // Assert
   assert.equal(result.status, 7, result.stderr)
 })
