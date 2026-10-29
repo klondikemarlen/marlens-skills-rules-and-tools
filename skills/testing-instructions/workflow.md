@@ -76,7 +76,7 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 - Prefer user-visible verification over internal plumbing.
 - Include setup commands only when they are needed for the scenario.
 - Use exact labels for buttons, fields, tabs, pages, and messages.
-- Write from the tester's point of view: explain where they are, what state they should start from, what to do, and what should happen next. Use plain user-facing terms; implementation-specific UI terminology is optional.
+- Write from the tester's point of view: explain where they are, the starting state, one primary action per numbered step, and its nearby visible result. Use plain user-facing terms and exact product labels; briefly explain unfamiliar product terms needed to follow the scenario instead of substituting implementation jargon.
 - Screenshots are optional supporting evidence. Do not require agents to create or annotate screenshots, and do not rely on an image to supply missing action or expected-result context.
 - Do not include credentials, secrets, or local-only state values.
 - If something was not verified, say so explicitly.
@@ -92,15 +92,14 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 
 Prerequisite: <required app/account/data state, established before the first action that needs it>.
 
-1. Navigate to `<page>`.
-2. Perform `<action>`.
-3. Verify `<observable result>`.
+1. Open `<page>` and confirm its visible heading.
+2. Perform `<one primary action>`; confirm `<visible result>`.
 
 ### <project template's developer setup/checks section, when needed>
 
 Prerequisite: <local developer environment or credentials, when required by these checks>.
 
-1. Run `<focused developer check>`.
+1. Run `<focused developer check>` and confirm `<check result>`.
 
 Use the project's existing template headings and structure; these labels illustrate ordering, not required new headings.
 ```
