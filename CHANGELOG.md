@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1006) - 2026-10-29
+
 ### Changed
 
 - Keeps nullable numeric conversion at reusable input boundaries so clearing emits `null` and zero remains numeric, without changing validation or precision contracts.
