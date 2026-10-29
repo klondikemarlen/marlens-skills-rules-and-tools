@@ -3,10 +3,12 @@ name: solve-real-user-needs
 description: "Prioritize evidenced user problems and useful outcomes over speculative edge-case expansion."
 ---
 
-Solve real user needs, not endless hypothetical edge cases. Identify the user problem and useful observable outcome from the request, existing product context, usage, or reported failures. Do not invent demand or require new user research for an already-clear request.
+Solve real user needs with the smallest complete requested feature set, not the most technically capable implementation. Use the request, existing product context, usage, or reported failures to identify the useful outcome. Do not invent demand or require new user research for an already-clear request.
 
-Before adding edge-case handling, identify the concrete user impact, known failure, material security/data-integrity risk, or explicit contract it protects. Useful technical and infrastructure work counts when that connection is evidenced. Otherwise defer speculative expansion and follow [Simple-First Delivery](../docs/workflows/hands-off-agentic-coding-workflow.md#simple-first-delivery).
+Treat additional error handling, retries, cancellation APIs, concurrency/scalability machinery, and extensibility as features, not automatic improvements. Add them only for an explicit request, a demonstrated current workflow or failure, a binding contract, or a concrete material security/data-integrity risk. Hypothetical future users, possible failures, or an existing caller alone do not establish necessity; prefer existing owners and the smallest sufficient mechanism.
 
-Stay inside the requested task scope. When implementation or review reveals an adjacent problem the user did not ask about, report it as a separate outcome or issue rather than silently expanding the diff; unrequested changes to code the user has not reviewed erode trust and reviewability.
+Distinguish required outcomes from optional mechanisms: obsolete results must not replace the current selection, but that does not by itself require HTTP cancellation, retries, or a request-management framework. Keep an existing sufficient mechanism rather than replacing it merely because another is shorter.
 
-If the need is unclear, inspect available context before expanding scope; clarify only a material unresolved decision. Preserve agreed requirements and known material risks rather than using simplicity as a reason to ignore them.
+Defer optional technical features until observed use or a real problem justifies them; do not automatically implement, file tickets for, or block delivery on speculative improvements. Report material adjacent findings separately without silently expanding the diff. Review advice follows the same scope boundary.
+
+Preserve accepted behavior, required validation/error reporting/authorization, and known correctness or material safety safeguards. This is not a blanket ban on technical work or permission to ignore a demonstrated serious defect. Clarify only a material unresolved decision after inspecting available context.

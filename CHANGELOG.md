@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.33.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/987) - 2026-10-29
+
+### Changed
+
+- Keeps authoring and review focused on the requested feature set, deferring speculative error handling, retries, cancellation interfaces, and future-scale machinery while preserving demonstrated correctness and safety needs.
+
 ## [3.33.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/980) - 2026-10-29
 
 ### Added

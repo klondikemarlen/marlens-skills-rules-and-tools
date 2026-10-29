@@ -46,9 +46,9 @@ Before a sixth attempt, stop automatic launches and seek explicit maintainer dir
 
 ## Simple-First Delivery
 
-Deliver the smallest complete change that provides the requested user value. Prove the core path, agreed requirements, and known material security or data-integrity risks. Do not delay useful work for speculative edge cases, exhaustive permutations, optional extensibility, or polish.
+Deliver the smallest complete change that provides the requested user value. Apply [Solve Real User Needs](../../rules/solve-real-user-needs.md) before adding technical capabilities: future scale or extra robustness is not automatically part of the requested feature. Prove the core path, agreed requirements, and known material security or data-integrity risks; defer speculative edge cases, optional extensibility, and polish.
 
-Ship small, coherent increments once their acceptance criteria and required checks pass. Prioritize follow-up from observed use, reported failures, and concrete risk instead of expanding scope before release. If an agreed requirement needs deferring, obtain explicit agreement rather than declaring unfinished work complete.
+Ship small, coherent increments once their acceptance criteria and required checks pass. Prioritize follow-up from observed use, reported failures, and concrete risk instead of expanding scope before release; do not turn hypothetical improvements into automatic tickets or blockers. If an agreed requirement needs deferring, obtain explicit agreement rather than declaring unfinished work complete.
 
 ### Plan Reviewable PR Slices
 
