@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1008) - 2026-10-29
+
+### Fixed
+
+- Reconciles module-boundary review with useful named private orchestration steps while retaining rejection of needless forwarding wrappers and one-implementation registries.
+
 ## [3.34.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1007) - 2026-10-29
 
 ### Changed
