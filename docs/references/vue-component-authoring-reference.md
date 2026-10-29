@@ -295,6 +295,8 @@ The conversion is representation handling, not business validation. Keep accepte
 
 ## Explicit Derived-Field Bindings
 
+Prefer a readonly `computed` → `:model-value` → named `@update:model-value` handler pipeline for derived form fields. Keep writes visible in the handler rather than a computed setter or watcher-mirrored copy of derived state. Separate state declarations, computed blocks, and handlers with blank lines. Preserve the form's accepted edit/save lifecycle and genuine form-owned dependent-field watchers; this preference does not mandate a draft-storage design.
+
 For an already-available record whose established edit contract permits this field assignment:
 
 ```vue
