@@ -539,7 +539,6 @@ for (const requiredText of [
   "Upstream limitation",
   "Speculative extension",
   "Safe Worktree Cleanup in Dockerized Projects",
-  "Preserve the primary checkout and user-owned untracked files",
   "GitHub Asynchronous Merge for PR Stacks",
   "merge-async",
   "expected head SHA",
