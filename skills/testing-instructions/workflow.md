@@ -5,7 +5,7 @@ Use when writing or updating pull request testing instructions.
 ## Process
 
 1. Read the PR body, diff, and any existing testing section.
-2. Read project-local setup docs and command-wrapper documentation, such as the project README, package scripts, or dev-wrapper docs.
+2. Read project-local setup docs and command wrappers, such as `README.md`, `bin/README.md`, package scripts, or dev-wrapper docs.
 3. Identify behavior a reviewer can actually verify. Before selecting scenarios, establish the target environment, required deployment, reviewer roles, available data, and permitted setup actions under [Reviewer and Data Feasibility](#reviewer-and-data-feasibility).
 4. Start from the success condition: name the behavior, invariant, or regression risk each scenario must prove.
 5. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
@@ -13,7 +13,7 @@ Use when writing or updating pull request testing instructions.
 7. Write the user-visible end-user/QA checks first, in the order a reviewer can perform them. Keep any local developer setup or developer-only checks in a separate section afterward when needed; the project's existing PR template chooses section labels and structure, so do not impose a new heading or skeleton.
 8. State real prerequisites before the first action that needs them, even when developer setup is presented afterward. Keep end-user scenario prerequisites distinct from optional or developer-only checks; do not move a prerequisite later if doing so makes an earlier action unavailable or changes the behavior under test.
 9. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end.
-10. Separate independent scenarios into short numbered test cases when the flow is complex. Keep each numbered step focused on one primary tester action, with its visible expected result immediately beside it; split bundled independent actions into separate steps.
+10. Separate independent scenarios with numbered test cases when the flow is complex.
 
 ## Reviewer and Data Feasibility
 
@@ -76,7 +76,7 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 - Prefer user-visible verification over internal plumbing.
 - Include setup commands only when they are needed for the scenario.
 - Use exact labels for buttons, fields, tabs, pages, and messages.
-- Write from the tester's point of view: use plain user-facing terms and exact product labels. Briefly explain unfamiliar product terms needed to follow the scenario; do not substitute implementation jargon. Put verified data and access prerequisites once before the first action that needs them. Keep internal setup, developer-only proof, and reporting separate from tester steps.
+- Write from the tester's point of view: explain where they are, the starting state, one primary action per numbered step, and its nearby visible result. Use plain user-facing terms and exact product labels; briefly explain unfamiliar product terms needed to follow the scenario instead of substituting implementation jargon.
 - Screenshots are optional supporting evidence. Do not require agents to create or annotate screenshots, and do not rely on an image to supply missing action or expected-result context.
 - Do not include credentials, secrets, or local-only state values.
 - If something was not verified, say so explicitly.
