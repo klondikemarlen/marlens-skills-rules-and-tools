@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Requires passage-to-rule comparison for changed source READMEs during authoring preflight and review, separating useful layer guidance from concrete event catalogs and cross-layer consumer details.
+
 ## [3.34.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1008) - 2026-10-29
 
 ### Fixed
