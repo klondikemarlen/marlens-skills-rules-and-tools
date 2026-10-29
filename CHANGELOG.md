@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/992) - 2026-10-29
+
 ### Changed
 
 - Makes worktree and topic-branch disposition an explicit feature/wrap-up gate, including ignored-file preservation, rewritten-history equivalence, checked-out merged topics, absent remote refs, and Docker ownership safeguards.
