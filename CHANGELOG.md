@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1004) - 2026-10-29
+
+### Changed
+
 - Clarifies tester-facing terminology and pairs one primary QA action with its nearby visible result, while keeping prerequisites and developer proof in their proper place.
 
 ## [3.34.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1002) - 2026-10-29
