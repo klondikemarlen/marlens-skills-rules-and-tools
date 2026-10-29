@@ -63,6 +63,10 @@ Discover the supported marker and its mapping, permissions, current state, and a
 
 For every evidenced blocker, report whether its marker was verified applied, already present, proposed only in a read-only mode, withheld by an exclusion/conflict, unavailable because vocabulary/mapping/authority is missing, or attempted but unverified. Name the exact missing prerequisite rather than creating a label/status or implying prose marked the tracker. Preserve dry-run, assessment-only, no-write, narrower exclusions, and fresh-read safeguards; continue independently safe updates.
 
+An explicitly authorized blocker reminder is separate from ordinary triage updates. Keep it brief: state that work remains blocked and name the decision or prerequisite needed to proceed. When the sender lacks authority to direct external recipients, use neutral dependency language rather than asking them to perform work, confirm decisions, or produce deliverables. A mention identifies a relevant person; it does not grant that authority.
+
+For example: “Still blocked on the rejection rules for the first step and creators without a step. Agreement on these cases is needed to proceed.” This preserves the blocker and unblocking condition without assigning actions or adding a task list. Follow the existing [Workflow Outputs and Publication](../../docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication) guidance; do not post a reminder without communication authorization. Direct work requests and necessary detail remain appropriate when the sender has the relevant authority or the user explicitly authorizes that communication.
+
 ## Authorized Label Application
 
 This label path uses authenticated tracker-native tools. It does not add a CLI write command or extend the helper's assessment schema. Keep the per-ticket update plan separate from that machine assessment.

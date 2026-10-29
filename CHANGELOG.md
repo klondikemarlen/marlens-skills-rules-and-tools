@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keeps authorized external blocker reminders brief and neutral when the sender cannot direct recipients, without expanding ordinary triage comment permissions.
+
 ## [3.34.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1004) - 2026-10-29
 
 ### Changed
