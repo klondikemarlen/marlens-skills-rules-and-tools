@@ -332,3 +332,27 @@ async function downloadSelected() {
   </form>
 </template>
 ```
+
+## Workflow-Entry Gating on Known Prerequisites
+
+When a creation or navigation action opens a workflow that cannot succeed without an already-known data prerequisite, gate the entry action instead of relying on a warning inside the destination. A late unavailable-data complaint is a dead end the user could have avoided; hide the entry action when hiding is the accepted UX, and keep the availability decision with the page that owns the entry action.
+
+Evaluate the actual prerequisite, not an incidental selection or filtered search result. A New action that requires a parent record exists only when that record exists, independently of the current list filter or selection state:
+
+```vue
+<script setup lang="ts">
+const props = defineProps<{
+  fundingPeriodExists: boolean
+}>()
+</script>
+
+<template>
+  <v-btn
+    v-if="props.fundingPeriodExists"
+    :to="{ name: 'category-new' }"
+    >New</v-btn
+  >
+</template>
+```
+
+Preserve required backend validation and legitimate direct-entry safety; UI gating is not authorization, and an empty state remains appropriate for optional or user-created data. During review, check both the unavailable and available prerequisite states without conflating entry gating with backend validation.

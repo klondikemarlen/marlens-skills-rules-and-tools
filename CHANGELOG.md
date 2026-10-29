@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.33.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/979) - 2026-10-29
+
+### Added
+
+- Gates workflow-entry actions on known data prerequisites before navigation in the Vue authoring reference, keeping the availability decision with the entry action's page and preserving backend validation and legitimate empty states.
+
 ## [3.33.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/977) - 2026-10-29
 
 ### Fixed
