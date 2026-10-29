@@ -41,6 +41,8 @@ Before editing repository documentation:
 4. Retain historical context when it explains a current decision, invariant, compatibility constraint, or operator procedure, and make that relevance clear.
 5. Preserve actual documentation needs and project-local changelog, release-metadata, verification, and publishing requirements. Do not attribute an unverified instruction to this workflow or package; if its actual owner is established, reconcile it there separately. Translate corrective feedback into a positive, durable explanation of product design and reader value. Avoid preserving conversation rebuttals, dismissing legitimate preferences as arbitrary quotas, or framing complementary goals as a false choice; retain concrete tradeoffs that still explain the design.
 
+For a changed source-directory README, read the actual proposed paragraphs alongside the project's documentation-purpose rule and the existing owner before keeping the addition. Separate layer-authoring advice from concrete domain payload fields, current implementation inventories, and another layer's consumer decisions. Keep useful when/why/how/boundary guidance; replace duplicated detail with a concise link to its existing owner, or leave the README unchanged when no authoring question changed. Repeat this passage-to-rule comparison during the touched-area preflight before the first push; a generic statement that documentation was reviewed is not evidence that the changed passage serves its reader.
+
 ## Required Inputs
 
 - The project’s local documentation, agent, and contribution guidance.
