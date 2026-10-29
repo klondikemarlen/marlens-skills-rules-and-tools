@@ -214,6 +214,52 @@ Place useful supplemental table explanations below the complete table, including
 
 Verify settled desktop and narrow-screen layouts: pagination remains usable, help wraps without overflow, and spacing/alignment match the page's conventions. Component names and spacing values stay project-local. Guidance review does not establish rendered application behavior; changes to a consuming UI still require actual-surface verification.
 
+## Creation Drafts and Named Ref Inputs
+
+For model-backed creation forms, inspect the user-designated or nearby new-page precedent before choosing state, types, and initial values. Prefer one descriptively named attributes draft typed from the existing API/model creation contract, such as `Partial<CategoryCreationAttributes>` when that API accepts a validated partial payload. Bind ordinary inputs directly to its fields and submit the validated draft through the existing API client instead of rebuilding it from parallel field refs. Use the required validated shape when the accepted API does not support a partial payload; do not submit server-owned response metadata or weaken backend validation.
+
+For example, with the existing `CategoryCreationAttributes`, API client, form ref, and title-validation rules:
+
+```ts
+const categoryAttributes = ref<Partial<CategoryCreationAttributes>>({
+  title: "",
+})
+
+async function createCategory() {
+  const validation = await categoryForm.value?.validate()
+  if (!validation?.valid) {
+    return
+  }
+
+  await categoriesApi.create(categoryAttributes.value)
+}
+```
+
+```vue
+<v-form ref="categoryForm" @submit.prevent="createCategory">
+  <v-text-field
+    v-model="categoryAttributes.title"
+    :rules="titleRules"
+    label="Title"
+  />
+  <v-btn type="submit">Create</v-btn>
+</v-form>
+```
+
+Keep independent UI state separate from model attributes. Retain form-owned dependent-field resets and established edit/save/reset lifecycles; this creation-form preference is not a storage rewrite for existing editors. During authoring and review, preserve the consuming contract's omitted/undefined/null distinctions, numeric values, and exact decimal strings rather than normalizing them for the draft. These excerpts assume the existing API's validated partial-payload contract; adapt their names and required fields to the designated source.
+
+Declare caller-owned ref inputs in a descriptive `const` before passing the same ref to a composable or other consumer. Do not hide its construction inside the call, such as `useFundingPeriods(ref({ perPage: 1 }))`. With the existing bindings, make the query state visible:
+
+```ts
+const fundingPeriodsQuery = ref({
+  perPage: 1,
+})
+
+const { fundingPeriods } = useFundingPeriods(fundingPeriodsQuery)
+```
+
+Keep the existing ref type, initializer, identity, and query lifecycle. This preference concerns caller-owned ref definitions, not ordinary inline literals, default parameter expressions, or established reactive-state return patterns; do not add state-management helpers or sweep unrelated code.
+
 ## Explicit Derived-Field Bindings
 
 Prefer a readonly `computed` → `:model-value` → named `@update:model-value` handler pipeline for derived form fields. Keep writes visible in the handler rather than a computed setter or watcher-mirrored copy of derived state. Separate state declarations, computed blocks, and handlers with blank lines. Preserve the form's accepted edit/save lifecycle and genuine form-owned dependent-field watchers; this preference does not mandate a draft-storage design.

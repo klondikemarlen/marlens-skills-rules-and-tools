@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/996) - 2026-10-29
+
+### Changed
+
+- Keeps model-backed creation attributes in one API/model-typed draft and caller-owned ref inputs in descriptive declarations, preserving payload representations, validation, and established editor lifecycles.
+
 ## [3.34.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/995) - 2026-10-29
 
 ### Changed
