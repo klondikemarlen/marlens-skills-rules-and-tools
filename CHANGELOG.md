@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.33.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/980) - 2026-10-29
+
+### Added
+
+- Lets the configured I/O boundary own abort checks it already enforces in the service orchestration reference, requiring evidence of the client's pre-abort and active-cancellation behavior before removing redundant guards while preserving distinct-purpose guards and signal propagation.
+
 ## [3.33.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/979) - 2026-10-29
 
 ### Added
