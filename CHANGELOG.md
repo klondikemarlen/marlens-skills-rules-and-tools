@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Preserves source-relative naming and layout when adapting an explicitly designated exact implementation pattern, allowing required contract differences without copying unrelated features.
+
 ## [3.34.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1001) - 2026-10-29
 
 ### Changed

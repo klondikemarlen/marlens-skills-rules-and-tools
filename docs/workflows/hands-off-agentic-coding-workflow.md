@@ -85,7 +85,7 @@ Focused diffs can make change amplification and recurring change clusters easier
    - preserve required self-review and repository review gates whether or not a separate reviewer is useful.
 5. Implement the first runnable prototype:
    - before changing policy, use [Verify Existing Behavior Before Policy Changes](#verify-existing-behavior-before-policy-changes) to establish the actual gap; an already-satisfied request may need no production-policy diff.
-   - reuse existing project patterns;
+   - reuse existing project patterns; for explicitly requested exact alignment, apply [Exact Reference Alignment](#exact-reference-alignment);
    - apply [Organization Before Authoring](#organization-before-authoring) when the change introduces or materially changes module ownership or data flow;
    - keep tests focused on one observable contract, assert real returned values/persisted records directly, and split independent outcomes rather than inventing assertion bundles. HTTP status and body together form one response contract; prefer a native or meaningful matcher such as [`toHaveHttpResponse`](../references/http-response-matcher-reference.md), and use two direct assertions only as a narrow, reasoned fallback where no suitable matcher exists and local policy permits it. Keep independent persistence effects separate. Preserve framework-native matchers and use [Assertion Quality Requires Review](../references/test-alignment-verifier-reference.md#assertion-quality-requires-review) for examples and verifier limits;
    - before adding or retaining dependency-related tests, apply [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification) to identify the application-owned contract, uncovered compatibility risk, and existing consumer coverage;
@@ -98,6 +98,14 @@ Focused diffs can make change amplification and recurring change clusters easier
    - run broader checks only when the changed surface warrants them; apply [Full-Suite Cost](#full-suite-cost) without adding routine permission checks for affordable suites.
 7. Preserve the required completion evidence in the session or existing designated record, including changed files and links, final `PASS`/`FAIL`/`BLOCKED` results, required review/QA and current-head checks, learner or tracker outcomes, and residual risks or missing prerequisites. Do not omit or relabel a required gate.
 8. Give the user the relevant outcome, proof, link, or blocker. Choose useful details for the reader and destination; do not turn internal execution bookkeeping into a mandatory public schema or repeat evidence already available in the linked record or CI. If there is no useful reader-needed information beyond the existing record, do not add a separate public report. Honor any explicitly requested report format. Apply [Workflow Outputs and Publication](../references/guidance-precedence-reference.md#workflow-outputs-and-publication): this workflow specifies evidence to retain, not permission to publish.
+
+## Exact Reference Alignment
+
+When the user designates an implementation as the exact pattern, inspect that actual source before authoring. Prefer copying the closest applicable file and adapting it rather than regenerating an approximation. General inspiration and ordinary nearby precedent do not require exact source fidelity.
+
+Preserve the reference's naming structure, declaration order, whitespace, and line wrapping outside necessary adaptations. Apply resource renames consistently. Respect stronger local constraints and actual application contracts; do not copy unsupported APIs or unrelated features. Compare the adapted implementation directly with the reference before the first push, separating required contract differences from accidental stylistic drift. Formatter success alone does not prove fidelity.
+
+For example, adapting a designated funding-period picker into a category picker may require category-specific names, resource fields, supported API calls, and different selection behavior. Keep the corresponding naming structure and unaffected layout; those adaptations do not authorize copying an unrelated chip menu. This applies within the requested change, not as a mandate to adopt WRAP across projects or rewrite unrelated files.
 
 ## Organization Before Authoring
 
