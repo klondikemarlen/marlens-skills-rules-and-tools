@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Distinguishes component-owned load failures from successful empty data through dedicated error/content branches while retaining shared error ownership and recovery contracts.
+
 ## [3.34.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1006) - 2026-10-29
 
 ### Changed

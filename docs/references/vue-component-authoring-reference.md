@@ -202,6 +202,27 @@ For a parent whose status is already known to be either draft or published:
 
 Each card owns its state's instructions and controls without an `isDraft` mode prop; the parent selects the state explicitly. Preserve the existing instructions, controls, layout, and required descendant state/lifecycle when changing that selection. Ordinary dynamic visibility, a button's loading state, and genuinely neutral shared components do not justify separate state-specific owners. This is not a boolean-prop ban or permission to split unrelated components.
 
+## Failed Loads and Empty Data
+
+When a component owns a load-error state, render it in a dedicated `v-if` branch using the application's existing standard error presentation, with normal content in `v-else`. Do not disguise failure as a successful empty collection through bindings such as `:items="isErrored ? [] : records"`; the normal controls should not remain rendered as though loading succeeded.
+
+For example, with existing error and record bindings in a Vuetify component:
+
+```vue
+<template>
+  <v-empty-state
+    v-if="isErrored"
+    title="Unable to load records"
+  />
+  <v-data-table
+    v-else
+    :items="records"
+  />
+</template>
+```
+
+A successful empty result still reaches the normal data component and its accepted empty state. Reuse supported stock components and preserve existing recovery actions and required descendant state/lifecycle when changing mounted branches. This is not a ban on scalar ternaries, a requirement for local error flags on every lookup, or permission to replace established shared request-error feedback; retain [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery).
+
 ## Task-Focused Help and Supplemental Table Information
 
 Before adding or polishing explanatory UI, identify the end-user task or decision it supports. Keep QA-only ranking mechanics, count explanations, and verification notes in testing instructions or reviewer evidence, not the product. When feedback questions a panel's value or existence, reconsider removing it before improving its layout. Preserve administrative counts and help that serve an evidenced user need.
