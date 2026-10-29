@@ -260,9 +260,40 @@ const { fundingPeriods } = useFundingPeriods(fundingPeriodsQuery)
 
 Keep the existing ref type, initializer, identity, and query lifecycle. This preference concerns caller-owned ref definitions, not ordinary inline literals, default parameter expressions, or established reactive-state return patterns; do not add state-management helpers or sweep unrelated code.
 
-## Explicit Derived-Field Bindings
+## Nullable Numeric Input Boundaries
 
-Prefer a readonly `computed` → `:model-value` → named `@update:model-value` handler pipeline for derived form fields. Keep writes visible in the handler rather than a computed setter or watcher-mirrored copy of derived state. Separate state declarations, computed blocks, and handlers with blank lines. Preserve the form's accepted edit/save lifecycle and genuine form-owned dependent-field watchers; this preference does not mandate a draft-storage design.
+When a reusable numeric input accepts values for a nullable numeric model, normalize the cleared value at that input boundary before emitting the parent update. Keep the contract explicit as `number | null`: an empty input emits `null`, while numeric values—including `0`—remain numbers. Vue's [`v-model.number` modifier](https://vuejs.org/guide/essentials/forms.html#number) parses numeric input, but preserves an empty string when the field is cleared; it does not supply this nullable contract on its own.
+
+Reuse a suitable supported input first; add a small wrapper only when needed. For an input contract that accepts valid numeric text, the conversion can remain visible:
+
+```vue
+<script setup lang="ts">
+const props = defineProps<{
+  modelValue: number | null
+}>()
+
+const emit = defineEmits<{
+  "update:modelValue": [value: number | null]
+}>()
+
+function updateValue(event: Event) {
+  const input = event.target as HTMLInputElement
+  emit("update:modelValue", input.value === "" ? null : Number(input.value))
+}
+</script>
+
+<template>
+  <input
+    type="number"
+    :value="props.modelValue ?? ''"
+    @input="updateValue"
+  />
+</template>
+```
+
+The conversion is representation handling, not business validation. Keep accepted-value rules, authorization, and persisted constraints with their existing owners. Define the component's accepted input contract rather than prescribing malformed or intermediate input behavior; preserve precision, and retain financial decimal-string representations. During authoring and review, check that clearing emits `null`, accepted numeric values remain numbers, and zero remains `0`. Remove duplicated empty-string-to-null repair only from affected downstream save or model-access paths once the input owns that conversion; do not broaden the cleanup.
+
+## Explicit Derived-Field Bindings
 
 For an already-available record whose established edit contract permits this field assignment:
 
