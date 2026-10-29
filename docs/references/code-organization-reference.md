@@ -425,6 +425,17 @@ Prefer existing named domain bundles and namespace-qualified member access for p
 
 Keep the complete ownership path from the chosen named bundle at call sites rather than shortening it with an alias or an implementation-level namespace-star import. For application-domain bundles, reserve `import * as ...` for assembling exports in existing bundle index files, such as `index.ts`, not service implementation imports. Preserve third-party API export shapes and stronger project-local conventions.
 
+When an existing owning namespace already supplies the domain name, prefer concise public type aliases at its barrel: `WorkflowStepPlayers.CreationAttributes` rather than `WorkflowStepPlayers.WorkflowStepPlayerCreationAttributes`. The implementation may retain its descriptive type name when that remains useful independently:
+
+```ts
+export {
+  CreateService,
+  type WorkflowStepPlayerCreationAttributes as CreationAttributes,
+} from "./create-service"
+```
+
+This aliases the public type member, not the owning namespace at call sites. Keep the complete namespace ownership path above; do not introduce new namespaces or shorten domain projection helper names. Apply the preference within requested authoring/review scope, not as an unrelated type/import rewrite.
+
 For example, when these are existing supported exports, a same-domain search service uses:
 
 ```ts
@@ -792,7 +803,18 @@ Prefer CRUD-style operation names for new or refactored services when they accur
 
 For job/service operation vocabulary and the fan-out meaning of `Enqueue` names, apply [Function Action Names](#function-action-names). Naming does not change scheduling ownership or delivery semantics.
 
-Group service barrel exports with standard CRUD/read entries first, special actions next, and bundled namespaces last. Read-only definition or value exports belong in the ordinary CRUD/read group, alphabetized with its entries; do not create a separate category merely because they are definitions. Alphabetize exported symbols within each group, not globally across the groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Add another meaningful category when needed rather than forcing unrelated operations into a group or rewriting unrelated established barrels. Preserve exported names.
+Group service barrel exports with standard CRUD/read entries first, special actions next, and bundled namespaces last. Independently owned read-only definitions and values belong in the ordinary CRUD/read group, alphabetized with its entries; do not create a separate category merely because they are definitions. Re-export a service and its accompanying public types together in one declaration from their owning module, retaining inline `type` markers. Place that declaration by the service's role instead of sorting its companion types independently into CRUD/read. Do not combine declarations from different source modules. Alphabetize exports within each group, not globally across groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Preserve exported names and runtime behavior; do not reorganize unrelated barrels.
+
+For example, a special-action service keeps its companion request type beside it, while an independently owned read-only definition remains in CRUD/read:
+
+```ts
+// CRUD / Read
+export { CreateService } from "./create-service"
+export { type IndexStatus } from "./index-status"
+
+// Special Actions
+export { ReorderService, type ReorderRequest } from "./reorder-service"
+```
 
 ### Producer-Owned ID Collections
 

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/998) - 2026-10-29
+
+### Changed
+
+- Uses concise public type members within existing domain namespaces and keeps services with their companion types in one role-grouped barrel declaration, preserving complete namespace access and independently owned read-only definitions.
+
 ## [3.34.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/996) - 2026-10-29
 
 ### Changed
