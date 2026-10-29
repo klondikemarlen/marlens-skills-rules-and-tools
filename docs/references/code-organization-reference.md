@@ -489,6 +489,22 @@ When the project adopts this convention, record it in project-local guidance. Co
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
 
+Use the established domain collection name for an ordinary resource result. Avoid a qualifier such as `loaded` when it merely restates the result's normal availability. For an existing `useWorkflowSteps` result, prefer the direct binding:
+
+Before:
+
+```ts
+const { workflowSteps: loadedWorkflowSteps } = useWorkflowSteps(query)
+```
+
+After:
+
+```ts
+const { workflowSteps } = useWorkflowSteps(query)
+```
+
+Reserve a meaningful role name such as `displayedWorkflowSteps` for a genuinely distinct snapshot-backed display projection. Keep qualifiers that distinguish a real lifecycle state, domain filter, or separate role, and honor stronger local conventions. Update affected uses within the requested change; do not turn a collection-name correction into unrelated cleanup.
+
 Keep each query or composable result adjacent to its direct derived state. Put broader coordination state and action handlers after their inputs, and lower-priority shared helpers further down.
 
 This is a review heuristic, not an alphabetical rule. Preserve an existing stronger project convention when one exists.

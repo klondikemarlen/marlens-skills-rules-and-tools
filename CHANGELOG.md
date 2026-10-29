@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefers established domain collection names over redundant availability qualifiers while retaining meaningful lifecycle, filter, and display-projection distinctions.
+
 ## [3.34.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/998) - 2026-10-29
 
 ### Changed
