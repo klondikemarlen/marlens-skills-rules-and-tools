@@ -2,7 +2,7 @@
   "version": 1,
   "standardId": "marlens-rules:module-boundary-alignment",
   "source": "./docs/references/module-boundary-reference.md#module-decomposition",
-  "gold": "Each changed module boundary owns a meaningful invariant, domain action, volatile dependency, independent change axis, or actual reusable behavior. A boundary must not exist only for a trivial transformation or direct forwarding; preserve useful short boundaries when evidence shows real ownership.",
+  "gold": "Each changed module boundary owns a meaningful invariant, domain action, volatile dependency, independent change axis, or actual reusable behavior. A boundary must not exist only for a trivial transformation or direct forwarding; preserve useful short boundaries when evidence shows real ownership. In service orchestration, a named private domain step may clarify an established flow even when it delegates to an existing owner: assess the step's role and preserved result/error behavior, not line count alone. Naming or maintainer preference alone is not blanket approval; leave an already-clear call inline when wrapping adds no clarity, and do not introduce a registry for one implementation.",
   "requiredContext": ["changed-code", "callers", "siblings", "project-guidance"],
   "rubric": [
     {
@@ -23,11 +23,11 @@
     },
     {
       "id": "extraction-value",
-      "question": "Does each extraction make ownership, a domain decision, or a side effect easier to find, rather than merely wrapping a trivial transform, direct delegation, short clear branch, or unrelated mechanics? Would keeping the behavior co-located be clearer?"
+      "question": "Does each extraction make ownership, a domain decision, or a side effect easier to find, rather than merely wrapping a trivial transform, direct delegation, short clear branch, or unrelated mechanics? Apply the narrow Service Orchestration Readability exception: a named private domain step may clarify an established flow while delegating to its existing owner, preserving meaningful return values and asynchronous rejection behavior. Evaluate concrete clarity and ownership; one-line delegation alone is not sufficient failure evidence, but naming or maintainer preference alone does not approve a wrapper. Would keeping the behavior co-located be clearer?"
     },
     {
       "id": "orchestration-clarity",
-      "question": "For service or use-case changes, does top-level orchestration reveal guards, domain decisions, side effects, and results? Do extracted helpers name cohesive domain decisions or side-effect steps instead of hiding queries, permissions, transactions, or unrelated operations?"
+      "question": "For service or use-case changes, does top-level orchestration reveal guards, domain decisions, side effects, and results? Do extracted helpers name cohesive domain decisions or side-effect steps instead of hiding queries, permissions, transactions, or unrelated operations? For a private composition step that delegates to an existing operation, inspect how its named role clarifies the surrounding flow and whether it preserves the meaningful result, awaiting, and rejection path; distinguish it from an already-clear call wrapped without benefit. Do not require generic participant machinery or a one-implementation registry solely to justify composition."
     },
     {
       "id": "project-conventions",
