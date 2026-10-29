@@ -10,7 +10,7 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ### Changed
 
-- Makes worktree and topic-branch disposition an explicit feature/wrap-up gate, including ignored-file preservation, rewritten-history equivalence, checked-out merged topics, absent remote refs, and Docker ownership safeguards.
+- Makes worktree and topic-branch disposition an explicit feature/wrap-up gate, including authorized disposal of task-local environment and database/search data, rewritten-history equivalence, checked-out merged topics, absent remote refs, and shared-resource safeguards.
 
 ## [3.33.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/987) - 2026-10-29
 
