@@ -155,6 +155,28 @@ Before adding a helper, service, class, repository, value object, adapter, folde
 
 If none apply, inline it, delete it, or follow the existing local pattern.
 
+## Known Application Types
+
+For application data with an available model, serializer, snapshot, or domain contract, use that existing type rather than widening parameters or intermediate values to `Record<string, unknown>`. Both a broad annotation and `as Record<string, unknown>` can erase an already-known shape; an indexing error is a reason to correct the key or transformation's typing at its owner, not bypass the contract. Preserve meaningful key/value relationships through transformations, using the actual allowed keys and their corresponding value types rather than an unrestricted dictionary.
+
+For example, when the application already exports `WorkflowSnapshot`, avoid discarding its title contract:
+
+```ts
+function snapshotTitle(snapshot: Record<string, unknown>): unknown {
+  return snapshot.title
+}
+```
+
+Use the existing snapshot contract instead of copying it into a local alias or asserting a broad record:
+
+```ts
+function snapshotTitle(snapshot: WorkflowSnapshot): WorkflowSnapshot["title"] {
+  return snapshot.title
+}
+```
+
+Keep genuine generic dictionaries generic and genuinely unknown external input unknown until the established validation boundary proves its shape. Do not assert an unvalidated payload as a model, ban necessary assertions, add a generic wrapper to avoid an indexing error, or turn this correction into an unrelated type rewrite.
+
 ## Simplification After Scope Changes
 
 When a feature is deferred or removed, remove its supporting abstractions if accepted work no longer needs them. Prefer restoring the original simple code shape over retaining a behavior-equivalent refactor solely from the deferred feature. Keep refactors required by accepted work and preserve unrelated changes.
