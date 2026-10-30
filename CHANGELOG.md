@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keeps live resource-change notifications focused on the client's saved-state refresh decision, preserving authorization and sufficient synchronization metadata.
+
 ## [3.34.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1019) - 2026-10-30
 
 ### Changed

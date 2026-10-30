@@ -940,6 +940,33 @@ When content requirements appear to conflict with a shared field limit or saniti
 
 When an initiating application service creates an event containing user-authored rich text, prepare the accepted sanitized content there before handing off the event. Notification coordinators, channels, and mailers consume that explicit prepared payload rather than owning normal-path sanitization policy or reconstructing content from raw source records. Reuse the existing sanitizer and representation contract; this does not require storing HTML universally or removing independently necessary final-boundary safety checks.
 
+## Resource-Change Notifications
+
+For live resource-update notifications, derive the payload from the consumer's refresh decision rather than broadcasting a full serialized resource graph. Carry resource identity, relevant change/version information, and only essential decision fields; keep full representations behind the application's authorized resource-read path. Authorization still applies to notification subscriptions and delivery; a small payload is not permission to disclose a resource.
+
+For example, when the consumer only needs to decide whether its saved workflow needs refreshing, replace a serialized association collection:
+
+```javascript
+broadcast({
+  workflowStepPlayers: WorkflowStepPlayers.IndexSerializer.perform(orderedPlayers),
+})
+```
+
+with the metadata that supports that decision:
+
+```javascript
+broadcast({
+  workflowId: workflow.id,
+  workflowRevision: workflow.revision,
+})
+```
+
+These field names are illustrative, not a new protocol. Use the application's existing identity and change contract, and verify that it reflects relevant association changes as well as resource changes. Retain any additional metadata necessary for correct synchronization; do not prescribe a timestamp/version scheme or drop information merely to make the payload smaller.
+
+Consumers compare the notification with their observed saved resource state before deciding to refresh. Receipt alone is not proof that displayed data changed: an already-observed change need not trigger another read. Preserve existing ordering, stale-update protection, and unsaved-edit/recovery behavior when obtaining the current representation through the authorized read path.
+
+This preference applies to resource-change signals, not every event payload. Events that genuinely deliver content may retain that content and its existing sanitization contract. Apply within the requested authoring/review scope; do not add a size threshold, new protocol, or database migration.
+
 ## Guarded Computations
 
 When one predicate gates multiple related computed fields or a multi-line computation, prefer explicit branching with a descriptively named helper and early return when that makes the normal path easier to follow and removes repeated conditions or nesting.
