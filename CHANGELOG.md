@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Preserves available application model and snapshot contracts through annotations and transformations instead of widening known data to generic records.
+
 ## [3.34.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1018) - 2026-10-30
 
 ### Changed
