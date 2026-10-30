@@ -298,6 +298,37 @@ Keep expected outcomes literal and independent of the implementation, and retain
 
 For example, a page test supplying controlled API responses to the real grouping operation can assert literal groups and catch a production ordering regression. A mocked composable that rebuilds grouping from the same steps can keep passing when the production grouping operation is broken: it protects its copied test algorithm instead of the consumer contract.
 
+Before manually relaying work, polling, waiting for events, or checking queue completion, inspect installed test-support synchronization helpers and their implementations. Reuse one only when its contract covers the scenario's success and drain conditions; its name alone is not evidence. Keep setup and expected outcomes explicit, preserve real worker coverage, and retain a specialized wait for an intentional failure or state the helper does not expose. Do not add a helper merely to satisfy this preference.
+
+For example, when an existing `allQueuedJobsCompleted` helper relays pending work and waits for queue and database-outbox drainage, replace a successful recovery test's manual sequence:
+
+```ts
+await relayPendingWork()
+const job = await queue.getJob(jobId)
+if (!job) throw new Error("Expected queued recovery job")
+
+await job.waitUntilFinished(queueEvents)
+```
+
+Keep the success assertion visible after the existing helper:
+
+```ts
+await allQueuedJobsCompleted()
+expect(await readRecoveryResult()).toEqual({ status: "recovered" })
+```
+
+A separate intentional-provider-failure scenario may still need `await waitForFailedJob(jobId)` and an assertion on the failure because successful drainage does not expose that transition. These names illustrate already-available support, not a requested helper API or permission to replace real worker execution with mocks.
+
+For ongoing suite classification, prefer a supported glob or declarative metadata convention over a hand-maintained catalog of individual test paths. Preserve the complementary suite's discovery and required service setup/isolation. A fixed path list remains reasonable for a deliberately bounded one-off check.
+
+| Selection Purpose               | Per-File Catalog                                                             | Convention-Based Selection                                                                                           |
+| ------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Ongoing service-free suite      | Add each utility test to `unitTestFiles` whenever it is created or moved.    | Select `tests/unit/**/*.test.ts` through the runner's supported glob, or use supported service-free metadata.        |
+| Complementary integration suite | Keep a second independent list that can miss new files or overlap the first. | Discover the runner's normal test set, exclude the service-free selection, and retain required database/queue setup. |
+| One-off regression check        | Explicitly run the two named affected files.                                 | Keep that bounded selection; it is not an ongoing suite catalog.                                                     |
+
+Prove discovery with disposable files: add a matching utility test and an integration test outside that convention; run the runner's supported discovery/setup probe and confirm each reaches exactly its intended suite, with service setup retained only where required. Remove the probes afterward. The paths are illustrative, not a universal layout or framework API.
+
 Before recreating synthetic assertion-summary objects to satisfy a local assertion quota, inspect the nearest test/review guidance for a conflicting rule. Report and correct the project-local conflict in its owner; preserve direct native matchers and independently meaningful outcomes rather than hiding them in a fabricated bundle.
 
 For a straightforward lookup used only to select the final assertion target, keep the lookup and selection together in one readable declaration rather than naming a single-use intermediate collection. Retain an intermediate when it is reused, directly asserted, or clarifies genuinely complex selection. This is not a preference for dense chains: keep selection outside `expect` and expected values literal.
