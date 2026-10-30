@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Reuses existing test synchronization support by its actual contract and classifies ongoing suites through supported conventions, preserving intentional-failure observations and integration setup.
+
 ## [3.34.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1014) - 2026-10-29
 
 ### Fixed
