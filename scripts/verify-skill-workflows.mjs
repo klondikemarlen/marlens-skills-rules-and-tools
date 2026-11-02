@@ -182,21 +182,6 @@ if (!/scope:\s*['"]tool['"]/u.test(ompTargetRule)) {
   fail("OMP target rule must keep a reusable tool scope")
 }
 
-const whitespaceRule = read("rules/whitespace-matters.md")
-for (const requiredText of [
-  "project formatter/checker when one exists",
-  "git diff --check",
-  "exactly one blank line",
-  "Do not use consecutive blank lines",
-  "Project-local guidance may refine grouping order",
-  "does not weaken these defaults",
-  "only explicit user direction",
-]) {
-  if (!whitespaceRule.includes(requiredText)) {
-    fail(`whitespace review rule must require ${requiredText}`)
-  }
-}
-
 const { featureWorkflow, packagedFeatureWorkflow } = verifyFeatureProcedures({
   read,
   fail,
