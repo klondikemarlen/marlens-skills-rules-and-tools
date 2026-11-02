@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1026) - 2026-11-02
+
+### Changed
+
+- Keeps optional orchestration work inside a positive feature block without turning that condition into a return from unrelated work.
+
 ## [3.34.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1024) - 2026-11-02
 
 ### Changed

@@ -1035,6 +1035,24 @@ if (isNil(value)) return
 applyChange(value)
 ```
 
+When a predicate controls one optional block inside shared orchestration, prefer a positive wrapping conditional rather than an inverted function-return guard. Keep unrelated work outside the block so disabling the feature does not exit the surrounding operation or hide which registrations remain unconditional. Preserve the predicate, registration order, awaiting, and exact work gated; a short early return remains appropriate for a genuine whole-operation precondition.
+
+For example, this scheduler always registers the relay and heartbeat, while only search maintenance is optional:
+
+```javascript
+function registerScheduledWork() {
+  registerOutboxRelay()
+
+  if (searchEnabled) {
+    registerSearchMaintenance()
+  }
+
+  registerHeartbeat()
+}
+```
+
+Use the project's existing registration APIs; this example does not require another scheduler wrapper or change the lifetime or behavior of any registered work.
+
 Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
