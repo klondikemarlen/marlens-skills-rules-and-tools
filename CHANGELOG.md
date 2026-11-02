@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.23](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1042) - 2026-11-02
+
 ### Changed
 
 - Updates model-store factories to lower-camel build names and default imports, keeps stores model-owned, and preserves direct editable form bindings without leaking synchronization bookkeeping.
