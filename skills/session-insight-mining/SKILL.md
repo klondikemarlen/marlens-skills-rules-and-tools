@@ -1,6 +1,6 @@
 ---
 name: session-insight-mining
-description: Use after requested work is complete to classify evidence-backed session lessons, route them to the right owner, and avoid duplicate or speculative guidance.
+description: Use after requested work to mine session and task commit-history lessons, or for a bounded history retrospective; classify evidence, deduplicate, and route findings.
 ---
 
 # Session Insight Mining

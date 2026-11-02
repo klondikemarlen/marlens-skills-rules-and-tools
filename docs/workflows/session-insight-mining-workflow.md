@@ -1,16 +1,16 @@
 # Session Insight Mining Workflow
 
-Use after the requested work is complete when a session contains corrections, advisor findings, workflow failures, repeated friction, or other signals that may justify durable guidance or a scoped issue.
+Use after requested work is complete to mine session and task commit-history evidence, or for an explicitly requested bounded commit-history retrospective.
 
 ## Intent
 
-**WHY this workflow exists:** Long sessions contain useful lessons alongside one-off friction. Mining them explicitly prevents missed reusable guidance, duplicate rules, and speculative tickets.
+**WHY this workflow exists:** Conversations and commit diffs preserve complementary evidence of corrections, failed approaches, and accepted decisions. Mining both prevents missed reusable guidance, duplicate rules, and speculative tickets.
 
 **WHAT this workflow produces:** Evidence-backed findings classified by owner and next action: memory, project guidance, shared guidance, verifier/runtime proposal, already covered, or no action. Include Code Style Insights only for actionable repeated user code-review corrections.
 
 ## Decision Rules
 
-- Inspect the current session only; do not infer lessons from unrelated history.
+- Default closeout mining to the current session and the completed task's commit range. A broader history retrospective needs an explicitly selected repository and bounded revision/date/path scope; do not mine unrelated conversations or silently audit the whole repository.
 - Every actionable finding needs source evidence, an owner, a smallest next action, and a duplicate check.
 - For resolved review threads and fixup commits, capture the concrete observable invariant, affected boundary, and smallest regression check; do not preserve only a process summary.
 - Preserve repository boundaries. A finding owned by another repository becomes a scoped ticket or report for that repository; do not edit its checkout.
@@ -25,10 +25,20 @@ Use after the requested work is complete when a session contains corrections, ad
 
 For a mined user correction or accepted decision that changes a durable contract, use [Learn’s Reconciling Accepted Corrections procedure](learn-workflow.md#reconciling-accepted-corrections) before persisting it. This replaces the ordinary duplicate check for that finding: reconcile relevant working facts against an authoritative reviewed/merged source, preserve legitimate branch/version distinctions and historical transcripts, and report corrected, superseded, already-current, and any read-only/unavailable outcomes separately. Do not add a competing “final” memory or guidance entry.
 
+## Commit-History Mining
+
+1. **Retain provenance before cleanup.** Record the authorized repository, immutable task base/head revisions, and relevant paths in the existing session or delivery record before removing worktrees or topic refs. Use the task's recorded starting revision or verified PR comparison, not the now-updated default branch: after merge, `main..HEAD` may be empty or include unrelated work.
+2. **Bound the read.** For wrap-up, inspect only task-owned changes in that range, excluding unrelated changes brought in by merges. For a requested historical retrospective, select and state a revision range or date/commit-count limit plus relevant paths before inspecting patches. Do not expand a sparse result into an unbounded history scan.
+3. **Read changes, not just subjects.** Enumerate commits with `git log --reverse --format='%H %s' "$base..$head" -- "$path"`, then inspect candidate diffs with `git show "$commit" -- "$path"` and the final `git diff "$base" "$head" -- "$path"`. Set these variables from the selected scope; repeat for relevant paths as needed. Follow the actual task comparison when merge topology differs. Subjects, author identity, frequency, and churn are discovery clues, not proof of a bug, user correction, or reusable rule.
+4. **Extract a concrete candidate.** Look for corrected invariants, repeated review fixes, reverted approaches, missing consumer coverage, or workflow friction supported by the diff. Retain the exact commit hash, repository-relative path, changed behavior, and smallest useful check. Cite corroborating issue/review evidence when available; do not invent user intent from commit text.
+5. **Reconcile with the accepted result.** Compare each candidate with current code, reviewed/merged decisions, existing guidance, and issue history. Earlier experiments and subsequently reverted fixes are historical evidence, not current policy. Apply the existing memory-reconciliation procedure when an accepted correction changes a durable contract.
+6. **Handle missing history honestly.** When squash/rebase, shallow history, deleted refs, or unavailable objects prevent recovering intermediate changes, use the verified delivered comparison where available and name the missing provenance. Do not fabricate a fixup narrative, rewrite history, or claim a complete retrospective from a partial range.
+7. **Use the existing disposition path.** Feed supported candidates into the classifications below; an empty range or no durable lesson is a valid no-action outcome. A history-only request is read-only unless changes or filings are independently authorized. Do not create a parallel lesson ledger, automatic issue campaign, or new implementation goal.
+
 ## Process
 
-1. Wait until the requested implementation, verification, and release work is complete.
-2. Collect product behavior and delivery signals from advisor findings, resolved review threads, fixup commits, failed checks, repeated tool friction, project rules, and explicit durable preferences.
+1. For closeout mining, wait until the requested implementation, verification, and release work is complete. An explicitly requested read-only history retrospective can run independently.
+2. Collect product behavior and delivery signals from advisor findings, resolved review threads, failed checks, repeated tool friction, project rules, and explicit durable preferences; apply [Commit-History Mining](#commit-history-mining) to inspect task commits or the requested historical slice.
 3. Collect user code-review corrections separately, preserving each correction's exact review, session, commit, or pull-request evidence.
 4. Record the exact source evidence and classify each product behavior candidate:
    - **Personal preference or project fact** — persist in memory or the owning project guidance.
