@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Makes single-current-resource initialization page-owned and separates background updates from resets, while keeping routine read failures on existing feedback paths instead of redundant stored error state.
+
 ## [3.34.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1020) - 2026-10-30
 
 ### Changed
