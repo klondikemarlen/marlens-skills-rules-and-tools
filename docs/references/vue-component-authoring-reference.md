@@ -375,15 +375,46 @@ This is a maintainability preference, not a universal prohibition on providing c
 
 ### Store Definitions and Instances
 
-For application-owned store definitions, use `define<Resource>Store` for the definition function and `<resource>Store` for its returned instance. Preserve the full resource context in both names; reserve composable-style `use` names for composables rather than mixing those concepts:
+For application-owned store factories, use lower-camel `build<Resource>Store`, a matching kebab-case `build-<resource>-store.ts` module, and default imports. Name the returned instance `<resource>Store`, preserving the resource distinction. Reserve composable-style `use` names for genuine composables rather than mixing those concepts:
 
 ```typescript
-const currentWorkflowStepsStore = defineCurrentWorkflowStepsStore()
+import buildWorkflowStepsStore from "@/stores/build-workflow-steps-store"
+
+const workflowStepsStore = buildWorkflowStepsStore()
 ```
 
-When correcting this pattern, align the affected definition, exports, imports, and callers together. During review, flag aliases such as `stepsStore` when they discard the current-workflow resource context, and imports that make a definition look like an instance or composable. Preserve the existing store's identity, lifetime, reactivity, and component-tree sharing; the naming correction does not introduce another store or change state ownership.
+When correcting this pattern, align the affected factories, modules, default exports/imports, consumers, tests, and examples together. During review, flag PascalCase factory aliases, named-only imports for this pattern, or abbreviations such as `stepsStore` that discard the workflow resource context. Preserve store identity, lifetime, reactivity, and component-tree sharing; naming does not introduce another store or change state ownership.
 
 This preference concerns application-owned names in the requested authoring/review scope. Do not rename third-party store APIs, impose a new state library, replace genuine composables, or sweep unrelated code. Follow stronger project-local naming contracts.
+
+### Model-Owned Stores and Form-Facing Editing
+
+Within model-store refactors, keep application stores aligned with model boundaries rather than individual dialogs or editor screens. Improve the existing workflow-step model store's editing interface instead of introducing a `WorkflowStepEditorStore` merely to shorten a dialog. Keep route selection, form presentation, validation, and dialog lifecycle with the UI; model state and persistence belong to the existing model owner under its accepted editing contract. This does not prohibit component-local form state or genuine shared composables, require a new store/library, or authorize unrelated migrations.
+
+Expose a straightforward editable resource model so ordinary fields retain direct `v-model` bindings. Keep accepted snapshots, change tracking, and live reconciliation behind that model store's form-facing editing interface rather than requiring every field to read `effectiveWorkflow` and call `queueChange`. Preserve explicit actions for meaningful domain operations and the existing model-access composable/editor ownership boundary below; do not move all UI workflows into generic data access.
+
+For example, when the existing store exposes the editable workflow:
+
+```vue
+<script setup lang="ts">
+import { storeToRefs } from "pinia"
+
+import buildWorkflowStore from "@/stores/build-workflow-store"
+
+const workflowStore = buildWorkflowStore()
+const { workflow } = storeToRefs(workflowStore)
+</script>
+
+<template>
+  <v-text-field
+    v-if="workflow"
+    v-model="workflow.title"
+    label="Title"
+  />
+</template>
+```
+
+Use the project's actual resource availability, store API, and form controls. Simpler bindings must preserve Cancel isolation, unsaved local edits during remote refresh, and the accepted lifetime and completion behavior of in-flight saves, including navigation. Keep one canonical model owner; do not introduce a separately reconciled model copy or discard pending work merely to simplify the interface. An accepted local editable view or snapshot needs explicit ownership, not a prescribed watcher, proxy, or draft/reconciliation algorithm.
 
 ## Model-Mirror Composables and Editor Ownership
 
