@@ -21,8 +21,8 @@ Use when addressing pull request review comments, especially line-level review t
   - `Deferred until later because <specific reason>.`
 - Resolve the thread only after the direct reply exists and the fix, non-applicability, or deferral is true.
 - Keep PR body and thread replies separate. The PR body explains overall scope; a thread reply explains one concern.
-- If a comment identifies follow-up outside the PR scope, create or link the appropriate issue before using the deferral reply.
-- Fix every actionable review finding or comment before the PR is marked ready or merged.
+- Apply [Solve Real User Needs](../../rules/solve-real-user-needs.md) before accepting review suggestions: distinguish required fixes from unrequested error handling, retries, scalability, extensibility, and adjacent refactors. For optional or out-of-scope suggestions, give a reasoned not-applicable or deferred reply rather than silently expanding the diff. Create or link an issue only when the follow-up has a concrete justified need and filing is authorized; speculative suggestions do not automatically require code, a ticket, or a delivery blocker.
+- Fix every actionable review finding or comment needed to satisfy accepted behavior, required validation/error reporting/authorization, or demonstrated correctness/security/data-integrity safeguards affected by the change before the PR is marked ready or merged. Report material adjacent findings separately instead of silently editing unrelated code; do not use scope discipline to dismiss a required fix.
 - Before correcting accepted feedback, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit whose body records the concern, corrective outcome, and PR scope checked when that context is not obvious from the subject.
 - After a fixup, re-review the complete PR diff and repeat targeted QA and relevant checks before recording the updated evidence.
 - After every fixup commit, repeat the assessment, reaction, resolution, and remote verification protocol for each actionable inline review comment.
@@ -33,7 +33,7 @@ Use when addressing pull request review comments, especially line-level review t
 ## Steps
 
 1. Inspect unresolved PR review threads and each actionable inline review comment. This and other read-only investigation may happen before checking draft status.
-2. For each comment, assess whether the concern is addressed, rejected as not applicable, or deferred.
+2. Before any fixup, classify each comment against the accepted scope and required safeguards, then assess whether the concern is addressed, rejected as not applicable, or deferred. A suggestion alone does not expand the accepted feature set; explicit maintainer approval may revise that scope.
 3. Before the first fixup mutation for an existing open PR, inspect its live remote state and record current draft/ready status separately from explicit user intent about keeping draft or returning to review. Leave an already-draft PR in draft. Unless the user explicitly asks to keep it ready, convert a ready PR to draft and re-read the remote state before the first fixup edit or commit. If required state or conversion cannot be verified, stop before fixup mutations. Record an explicit user override rather than silently skipping the gate; do not defer the default transition until push.
 4. Before correcting an accepted concern, inspect the complete PR diff for the same underlying issue. Correct every in-scope recurrence in a dedicated `:ok_hand:` commit before resolving the thread.
 5. Check the authenticated user’s reactions and add exactly one `+1` for accepted/addressed feedback or `-1` for rejected/not-applicable feedback.
@@ -53,6 +53,6 @@ Use when addressing pull request review comments, especially line-level review t
 
 ```text
 Resolved threads: <count>
-Deferred threads: <count and linked issues>
+Deferred threads: <count, reasons, and justified issue links when applicable>
 Verification: <command/API/UI check used to confirm thread and PR draft/ready state>
 ```
