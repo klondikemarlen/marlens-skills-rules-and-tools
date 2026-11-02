@@ -113,7 +113,7 @@ function parseCopyPaths(repositoryRoot) {
   try {
     config = JSON.parse(readFileSync(configPath, "utf8"))
   } catch (error) {
-    throw new Error(`Could not parse ${configPath}: ${error.message}`)
+    throw new Error(`Could not parse ${configPath}: ${error.message}`, { cause: error })
   }
 
   if (config === null || Array.isArray(config) || typeof config !== "object") {

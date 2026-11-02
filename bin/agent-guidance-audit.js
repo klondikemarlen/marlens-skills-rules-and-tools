@@ -353,7 +353,7 @@ function markdownInventoryPaths(text) {
   )) {
     paths.add(match[1])
   }
-  for (const match of text.matchAll(/`([^`\/\s]+-workflow\.md)`/g)) {
+  for (const match of text.matchAll(/`([^`/\s]+-workflow\.md)`/g)) {
     paths.add(match[1])
   }
   return paths
