@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1030) - 2026-11-02
+
+### Changed
+
+- Makes process-lifetime infrastructure acquisition explicit at API or worker boot, separate from ordinary registry access and legitimate lazy caches.
+
 ## [3.34.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1029) - 2026-11-02
 
 ### Changed

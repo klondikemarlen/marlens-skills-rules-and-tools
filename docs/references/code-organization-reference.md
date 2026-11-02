@@ -704,6 +704,28 @@ If the initiating mutation and job or durable handoff commit independently, eith
 
 Preserve the existing delivery and transaction contract. Reusing lifecycle wiring does not justify replacing required durable delivery with transient post-commit PubSub, changing transaction ownership, or mandating a particular ORM.
 
+### Boot-Owned Process Resources
+
+For infrastructure whose accepted lifetime is the application process, make resource acquisition explicit in each owning API or worker bootstrap. Importing a registry or calling an ordinary accessor must not create its queues, open connections, or start workers; moving acquisition from module evaluation into a first-access getter still leaves initialization outside the boot boundary. Keep access distinct from initialization.
+
+For example, using an existing queue registry's supported operations:
+
+```typescript
+// API or worker bootstrap: initialize before starting consumers.
+await jobQueues.initialize()
+await startApplication()
+```
+
+```typescript
+// Ordinary consumer: retrieve an already initialized queue.
+const searchQueue = jobQueues.get("search")
+await searchQueue.add("refresh", { workflowId })
+```
+
+Here `initialize` acquires the process-owned resources; `get` only retrieves them and never acquires them implicitly. Adapt the names and synchronous/asynchronous calls to the existing queue API, preserving startup order, failures, shutdown ownership, and delivery behavior. Tests that actually need this infrastructure own equivalent explicit setup and teardown; importing unrelated test helpers must not acquire it.
+
+A class is useful only when it owns meaningful lifecycle state; this does not require a registry class, another initializer framework, or a universal ban on lazy clients and derived-value caches. Preserve legitimate lazy contracts when boot ownership is not required, including the memoized values described above. Apply this distinction only within requested authoring/review scope; fewer connections alone do not prove faster CI.
+
 ### Child-Owned Parent Timestamp Propagation
 
 When sibling models establish parent touching as a child persistence responsibility, keep that timestamp propagation in the child model lifecycle rather than one consuming orchestration service. Reuse the existing touch primitive and transaction conventions, covering every accepted child write path. This synchronous persistence side effect is distinct from validation-only rules and background-job handoffs.
