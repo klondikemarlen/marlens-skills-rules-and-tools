@@ -5,20 +5,17 @@ import typescript from "typescript-eslint"
 
 export default defineConfig([
   {
-    ignores: ["bin/dev", "bin/README.md"],
+    ignores: ["bin/dev"],
   },
   {
-    files: ["**/*.{js,mjs,cjs}", "bin/*"],
+    files: ["**/*.{js,mjs,cjs}", "bin/**/!(*.*)"],
     extends: [javascript.configs.recommended],
     languageOptions: {
       globals: globals.node,
     },
   },
   {
-    files: [
-      "lib/github-markdown-image-upload-helper.mjs",
-      "lib/github-pr-screenshot-upload.mjs",
-    ],
+    files: ["lib/github-markdown-image-upload-helper.mjs", "lib/github-pr-screenshot-upload.mjs"],
     languageOptions: {
       globals: {
         document: "readonly",
