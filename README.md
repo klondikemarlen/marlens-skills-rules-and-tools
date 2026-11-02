@@ -184,6 +184,21 @@ The [hands-off workflow](docs/workflows/hands-off-agentic-coding-workflow.md) ke
 
 The [self-improvement workflow](docs/workflows/self-improvement-workflow.md) prioritizes demonstrated instruction conflicts and unnecessary ceremony before adding guidance. More capable models do not waive safety, review, QA, or release gates, and workflow changes are not measured speedups without comparative evidence.
 
+## Repository Development Checks
+
+Use Node.js 22.13 or newer on the 22.x line, or Node.js 24+, with npm. Run these commands natively from this checkout:
+
+```bash
+npm ci
+npm run lint
+npm test
+npm pack --dry-run --json
+```
+
+`npm run lint` applies ESLint's recommended JavaScript and TypeScript rules to repository source, scripts, tests, the OMP adapter, and extensionless Node commands in `bin/`. It never fixes files and permits no warnings. TypeScript linting is syntax-based, not a substitute for typechecking; Ruby and Markdown are outside this lint command's scope. Browser-evaluated upload helpers permit their required `document` global, and intentional control-character sanitizers retain narrowly documented rule exceptions.
+
+The repository's [Verifier binding](.omp-verifier.json) explicitly selects `npm run lint` for `verifier:project-lint`; it is checkout-specific configuration, not an installed rule for consuming projects. The packaged `bin/dev` is a generic Docker Compose helper for downstream projects, not this repository's development/test wrapper. No Docker service or `dev.config.rb` is needed for these checks. CI runs the same lint command before the existing package checks.
+
 ## Feature and Issue Workflow
 
 Preferred flow for repo issues and feature requests:

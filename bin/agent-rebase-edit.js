@@ -104,7 +104,7 @@ function ensureSafeToRewrite(target) {
   }
 }
 
-function writeSequenceEditor(tempDir, action) {
+function writeSequenceEditor(tempDir) {
   const editorPath = join(tempDir, "sequence-editor.js")
   writeFileSync(
     editorPath,
@@ -133,7 +133,7 @@ writeFileSync(todoPath, lines.join("\\n"));
   return editorPath
 }
 
-function writeMessageEditor(tempDir, message) {
+function writeMessageEditor(tempDir) {
   const editorPath = join(tempDir, "message-editor.js")
   writeFileSync(
     editorPath,
@@ -173,7 +173,7 @@ try {
 
   const shortTarget = run(["rev-parse", "--short", target])
   const tempDir = mkdtempSync(join(tmpdir(), "agent-rebase-edit-"))
-  const sequenceEditor = writeSequenceEditor(tempDir, mode === "message" ? "reword" : "edit")
+  const sequenceEditor = writeSequenceEditor(tempDir)
   const env = {
     GIT_SEQUENCE_EDITOR: sequenceEditor,
     MARLENS_EDIT_COMMIT: target,
@@ -182,7 +182,7 @@ try {
   }
 
   if (mode === "message") {
-    env.GIT_EDITOR = writeMessageEditor(tempDir, message)
+    env.GIT_EDITOR = writeMessageEditor(tempDir)
     env.MARLENS_COMMIT_MESSAGE = message
   }
 

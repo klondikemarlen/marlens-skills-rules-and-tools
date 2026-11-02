@@ -79,7 +79,7 @@ function readConfiguration(repositoryRoot) {
     configurationDetails = lstatSync(configurationPath)
   } catch (error) {
     if (error.code === "ENOENT") return undefined
-    throw new Error(`${CONFIGURATION_FILE} cannot be inspected.`)
+    throw new Error(`${CONFIGURATION_FILE} cannot be inspected.`, { cause: error })
   }
 
   if (!configurationDetails.isFile()) {

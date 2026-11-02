@@ -25,6 +25,8 @@ jobs:
           node-version: 22
       - name: Install package dependencies
         run: npm install
+      - name: Lint repository source
+        run: npm run lint
       - name: Run package checks
         run: npm test
       - name: Validate package contents

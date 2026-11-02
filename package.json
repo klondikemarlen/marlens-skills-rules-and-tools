@@ -1,10 +1,11 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "3.34.25",
+  "version": "3.34.26",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
-    "test": "node --check bin/agent-worktree.js && node --check bin/github-headless-session && node --check bin/github-review-thread && node --check bin/github-pr-stack && node --test tests/ticket-triage/*.test.mjs && node --test tests/agent-worktree/*.test.mjs && node --test tests/github-review-thread/*.test.mjs && node --test tests/github-pr-stack/*.test.mjs && node --test tests/npm-authorization-preview/*.test.mjs && node scripts/verify-domain-discovery.mjs && node scripts/verify-title-case.mjs && node scripts/verify-github-body-file-writes.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-guidance-examples.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs && node scripts/verify-verifications.mjs && node scripts/verify-default-function-exports.mjs && node scripts/verify-barrel-only-indexes.mjs && node scripts/verify-typescript-runtime-entrypoints.mjs && node scripts/verify-test-alignment.mjs && node scripts/verify-oversized-source-files.mjs && node verifications/no-oversized-source-files.mjs"
+    "lint": "eslint . --no-fix --max-warnings 0",
+    "test": "node --check bin/agent-worktree.js && node --check bin/github-headless-session && node --check bin/github-review-thread && node --check bin/github-pr-stack && node --test tests/ticket-triage/*.test.mjs && node --test tests/agent-worktree/*.test.mjs && node --test tests/github-review-thread/*.test.mjs && node --test tests/github-pr-stack/*.test.mjs && node --test tests/npm-authorization-preview/*.test.mjs && node --test tests/project-lint/*.test.mjs && node scripts/verify-domain-discovery.mjs && node scripts/verify-title-case.mjs && node scripts/verify-github-body-file-writes.mjs && node scripts/verify-github-headless-session.mjs && node scripts/verify-skill-workflows.mjs && node scripts/verify-guidance-examples.mjs && node scripts/verify-temporary-mcp-task.mjs && node scripts/verify-commit-scope-check.mjs && node scripts/verify-github-markdown-image-upload-helper.mjs && node scripts/verify-github-pr-screenshot-upload.mjs && node scripts/verify-agent-guidance-audit.mjs && node scripts/verify-omp-plugin-adapter.mjs && node scripts/verify-verifications.mjs && node scripts/verify-default-function-exports.mjs && node scripts/verify-barrel-only-indexes.mjs && node scripts/verify-typescript-runtime-entrypoints.mjs && node scripts/verify-test-alignment.mjs && node scripts/verify-oversized-source-files.mjs && node verifications/no-oversized-source-files.mjs"
   },
   "keywords": [
     "omp-plugin",
@@ -211,9 +212,13 @@
     ]
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "globals": "17.13.0",
     "prettier": "^3.8.3",
     "prettier-plugin-embed": "^0.4.15",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript-eslint": "8.72.1"
   },
   "dependencies": {
     "typescript": "^5.9.3"

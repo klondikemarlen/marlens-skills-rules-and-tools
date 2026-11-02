@@ -99,7 +99,7 @@ export function parseMcpConfig(text, configPath) {
   try {
     config = JSON.parse(text)
   } catch (error) {
-    throw new Error(`invalid JSON in ${configPath}: ${error.message}`)
+    throw new Error(`invalid JSON in ${configPath}: ${error.message}`, { cause: error })
   }
 
   if (!config || typeof config !== "object" || Array.isArray(config)) {
