@@ -86,7 +86,7 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
         "a generic repository-hygiene check is not relevant merely because a source file changed",
         "Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`",
       ],
-      (requiredText) => `${name} must scope verifier gates to relevant contracts`,
+      () => `${name} must scope verifier gates to relevant contracts`,
       fail
     )
   }
