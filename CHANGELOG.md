@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Applies requested-feature scope before review fixups, allowing reasoned deferral of speculative suggestions without automatic code, tickets, or delivery blockers while retaining required fixes and safeguards.
+
 ## [3.34.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1026) - 2026-11-02
 
 ### Changed
