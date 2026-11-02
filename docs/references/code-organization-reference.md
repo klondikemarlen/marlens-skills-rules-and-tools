@@ -73,6 +73,24 @@ const { sourceIndex, destinationIndex, orderedWorkflowSteps } = locatePlacement(
 const groupedSteps = groupSteps(sourceIndex, destinationIndex, orderedWorkflowSteps)
 ```
 
+### Grouped Model Hook Registration
+
+For related Sequelize hooks initialized together for one model, prefer `hooks.addListeners({ ... })` over repeated `hooks.addListener(...)` calls. Keep blank lines between entries so each callback remains distinguishable:
+
+```typescript
+Position.hooks.addListeners({
+  afterCreate: async (position) => {
+    await refreshPositionIndex(position.id)
+  },
+
+  afterDestroy: async (position) => {
+    await removePositionIndex(position.id)
+  },
+})
+```
+
+The names illustrate existing callbacks and owning operations, not APIs or services to introduce. Preserve literal callbacks, registration order, awaiting, and accepted lifecycle behavior. Grouping is not permission to substitute bulk hooks for instance hooks, change before/after semantics, or consolidate independently owned or conditionally registered listeners. Use the installed ORM's supported API; do not generalize this preference into batching every event subscription or refactoring unrelated files.
+
 ### Explicit Ruby Workflow Results
 
 In Ruby `#call` orchestration, return intermediate results and pass named locals between steps, following [Ruby Callable Actions](#ruby-callable-actions). A command with a different name should not hide its result by writing an orchestration instance variable, including from a parallel callback. Keep parallel work parallel: collect its results through the existing execution primitive rather than introducing hidden shared state or serializing the workflow.
