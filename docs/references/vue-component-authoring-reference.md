@@ -373,6 +373,18 @@ Keep component-tree state scoped to its owning tree when that is its lifetime; c
 
 This is a maintainability preference, not a universal prohibition on providing collections, a requirement to use Pinia, or permission to add a dependency or migrate unrelated state. Respect stronger project-local contracts and genuine existing injection boundaries.
 
+### Store Definitions and Instances
+
+For application-owned store definitions, use `define<Resource>Store` for the definition function and `<resource>Store` for its returned instance. Preserve the full resource context in both names; reserve composable-style `use` names for composables rather than mixing those concepts:
+
+```typescript
+const currentWorkflowStepsStore = defineCurrentWorkflowStepsStore()
+```
+
+When correcting this pattern, align the affected definition, exports, imports, and callers together. During review, flag aliases such as `stepsStore` when they discard the current-workflow resource context, and imports that make a definition look like an instance or composable. Preserve the existing store's identity, lifetime, reactivity, and component-tree sharing; the naming correction does not introduce another store or change state ownership.
+
+This preference concerns application-owned names in the requested authoring/review scope. Do not rename third-party store APIs, impose a new state library, replace genuine composables, or sweep unrelated code. Follow stronger project-local naming contracts.
+
 ## Model-Mirror Composables and Editor Ownership
 
 Inspect established sibling composables and any user-designated architecture before extending a `use` module. When singular/plural data-access composables mirror the model layer, retain those mirrors while the underlying model exists, even with zero current callers. An editor-specific wrapper does not replace the model mirror. Remove obsolete mirrors when their model is deleted; do not use this exception to preserve arbitrary dead code or invent speculative wrappers.

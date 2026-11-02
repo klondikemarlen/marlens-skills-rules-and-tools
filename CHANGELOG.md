@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.21](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1031) - 2026-11-02
+
+### Changed
+
+- Distinguishes application-owned store definition functions from returned instances with full resource names, without changing state ownership or third-party APIs.
+
 ## [3.34.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1030) - 2026-11-02
 
 ### Changed
