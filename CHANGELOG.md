@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1046) - 2026-11-02
+
+### Fixed
+
+- Runs real JavaScript/TypeScript repository linting through an explicit Verifier command instead of stopping at the packaged Docker helper's missing lint declaration. CI checks the same non-fixing, zero-warning lint contract, including extensionless Node commands.
+
 ## [3.34.25](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1044) - 2026-11-02
 
 ### Changed
