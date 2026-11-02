@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.25](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1044) - 2026-11-02
+
+### Changed
+
+- Preserves unchanged setup declarations and initialization placement within legitimately edited files, while allowing required dependency ordering and explicitly requested cleanup.
+
 ## [3.34.24](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1043) - 2026-11-02
 
 ### Fixed
