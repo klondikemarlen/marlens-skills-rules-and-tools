@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1029) - 2026-11-02
+
 ### Changed
 
 - Groups related Sequelize hooks for one model while preserving callback order, awaiting, and instance/bulk lifecycle semantics.
