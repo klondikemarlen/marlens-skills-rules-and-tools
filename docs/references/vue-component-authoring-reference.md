@@ -179,6 +179,24 @@ For example, an existing `/workflows/:workflowSlug` route supplies `workflowSlug
 
 During review, verify direct navigation and tab entry using only the existing route inputs. Reuse [Layered Page Orchestration](../workflows/layered-page-orchestration-workflow.md) for page-owned loading, errors, invalid/missing resources, and direct-entry guards; do not render a child requiring an ID before its current record is available. Preserve authorization and existing request/lifecycle ownership. Intentional route-contract changes and established ID-based routes remain valid when accepted; this preference applies to extending a feature without such a change.
 
+## Page-Owned Current-Resource Initialization
+
+When a store's accepted lifetime is one current resource, the routed page owns initialization: pass its ID or slug to the store's existing initialization operation, which resets the prior working state and loads that resource. Initialize again when the page is entered or its resource input changes, even when the same ID or slug is supplied; initialization is an explicit reset, not selection deduplication or ID/slug equivalence matching. Children consume the retained current-resource state rather than initializing it independently.
+
+Background notifications are a separate path. Before applying or refreshing a notification, compare its resource identity with the identity of the resource currently loaded; only a match may affect that resource. A matching notification follows the existing editing contract and is not by itself a page initialization or reset. Keep established request-ownership safeguards for stale asynchronous results. This single-current-resource guidance does not reset independent editor trees, prohibit caching under another accepted contract, or require a new cancellation API or state framework.
+
+For example, with an existing page route input and store contract:
+
+```ts
+watch(
+  () => props.workflowSlug,
+  (workflowSlug) => workflowStore.initialize(workflowSlug),
+  { immediate: true }
+)
+```
+
+The names and watcher are illustrative: use the page's actual route input, lifecycle trigger, and store API. `initialize` represents the existing operation that resets working state and loads the requested resource; do not add a new API solely to match this example. Children read the resulting store state, while the existing notification handler filters against the loaded resource identity and applies the established editing behavior.
+
 ## Optional Live-Update Composition
 
 Compose optional live-update behavior between the routed page and the existing base component: the page renders the feature wrapper, and the wrapper renders the base component. Reserve the `Page` suffix for route-level components; feature components sit below pages rather than wrapping an existing page.
