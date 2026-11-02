@@ -43,6 +43,8 @@ During feature or PR work, incidental cleanup is eligible only in an existing fi
 
 When this scope correction is accepted, inspect the complete in-scope PR for equivalent incidental-only files, not just the selected review line. Preserve other owners' work and remove only the unrelated cleanup from the proposed change.
 
+A legitimately touched file is not permission to relocate its unchanged setup declarations or initialization calls. Preserve their established relative placement unless requested behavior, an actual dependency/initialization order, project tooling, or explicitly requested cleanup requires a move. For example, leave an unchanged `const snack = useSnack()` beside its original form setup rather than moving it solely because the file gains store logic. Necessary new declarations and justified ordering changes remain valid; preserve initialization effects and do not impose a universal declaration order. When this correction is accepted, inspect analogous incidental moves across the complete in-scope PR, preserving other owners' changes rather than restoring only the highlighted line or sweeping unrelated files.
+
 ### Independently Mutable Nested Copies
 
 When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.
