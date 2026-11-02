@@ -10,7 +10,20 @@ A structural test-alignment PASS does not establish that recipients are asserted
 
 ## With
 
-This is bounded read-only release QA for MSSRT issue #470, not implementation in the fixture project. Invoke the installed code-review skill and use the current checkout's code-review workflow. Review ONLY the complete supplied fictional changed test and its supplied nearest test README, service contract, and compliant sibling. No repository/GitHub writes, test execution, browser interaction, memory writes, delegation, model changes, or release workflow. Do not inspect unrelated project files. Findings must identify test/location, the independent outcome or unproven behavior, and a concrete correction. Identify clean cases without inventing findings. Numeric expectation counts alone are not a semantic review. Source line numbers are the lines inside each named code block.
+### Test Selection
+
+Choose permanent tests for the uncovered behavior or invariant and the risk they reduce, not for a one-file/one-suite layout. For a small pure utility, a cheap exhaustive input/output table with literal expected values is useful; avoid adding framework or infrastructure setup to the algorithm. For cross-module workflows, prefer representative consumer-facing feature/boundary scenarios over forwarding tests in every file or mocks that merely echo the same result. Retain lower-level coverage when it protects a distinct uncovered authorization, concurrency, security, data-integrity, compatibility, or error invariant. Check existing consumer coverage and compare setup, runtime, and maintenance cost before adding or consolidating tests; do not remove meaningful coverage without evidence that the remaining checks still protect its risk.
+
+Review these proposed additions as well as the changed test below. Recommend keep, consolidate, or remove, naming the distinct risk and the least costly owning test boundary.
+
+| Proposed Coverage                                              | Existing Protection                                                                 | Execution Cost                                       |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Exhaustive literal cases for a small pure allocation utility.  | No equivalent algorithm-boundary table.                                             | In-memory, bounded input table; no services.         |
+| Three helper suites whose mocks echo the same checkout result. | A feature test already exercises the real helpers and verifies the completed order. | Each helper suite starts a database and queue.       |
+| A cross-organization authorization rejection.                  | The feature suite exercises only an allowed same-organization checkout.             | Focused policy/boundary check.                       |
+| A regression for concurrent reservations exceeding stock.      | Existing checkout scenarios run serially.                                           | Real transactional integration; a demonstrated race. |
+
+This is bounded read-only release QA for the supplied fictional application, not implementation. Invoke the installed code-review skill and use the current checkout's code-review workflow. Review ONLY the proposed test additions above and the complete supplied fictional changed test, nearest test README, service contract, and compliant sibling. No repository/GitHub writes, test execution, browser interaction, memory writes, delegation, model changes, or release workflow. Do not inspect unrelated project files. Findings must identify the test/location, independent outcome or unproven behavior, and a concrete correction. Identify clean cases without inventing findings. Numeric expectation counts alone are not a semantic review. Source line numbers are the lines inside each named code block.
 
 ### Nearest applicable test README: api/tests/README.md
 
@@ -206,5 +219,6 @@ Assess the observed findings semantically, without matching canned reviewer sent
 - Identify the assertion-only summary object as manufactured by the test rather than a service result.
 - Accept the exact mailer call array, direct fetched history, native rejection, independently inspected history rollback, coupled atomic balance invariant, and native HTTP status/body matcher. Matcher API calls are not extra independent expectations.
 - Require actionable findings with test/file location, the unproven behavior or independent outcomes, and a correction. A numeric expectation count is insufficient.
+- Retain the pure utility table, consolidate/remove redundant helper mock-echo suites, and retain the distinct authorization rejection and concurrent-reservation regression. Explain why a happy-path feature test does not replace those negative and concurrency risks; do not prescribe all-E2E coverage or a test-count quota.
 
 Record the actual consumer/model route, supplied guidance revision, observed findings, clean cases, limitations, and PASS/FAIL/BLOCKED in the release PR or locally permitted evidence location. Re-run this bounded check after a relevant guidance change; it is not a per-tool-loop review or a new automatic syntax gate.
