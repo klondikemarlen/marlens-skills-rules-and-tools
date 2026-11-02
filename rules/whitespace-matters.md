@@ -1,6 +1,6 @@
 ---
 name: whitespace-matters
-description: "Before presenting a change as ready, enforce clean-code whitespace defaults and mechanical whitespace checks unless the user explicitly overrides them."
+description: "Before presenting a change as ready, apply clean-code whitespace defaults and mechanical checks, respecting project-local guidance and explicit user overrides."
 condition: "\\bgit\\s+(commit|push)\\b|\\bgh\\s+pr\\s+(create|ready|merge)\\b|\\bready for review\\b"
 scope: "tool:bash"
 ---
@@ -12,7 +12,8 @@ Before presenting a changed file as ready:
 3. Use exactly one blank line between top-level declarations and unrelated logical sibling blocks. Do not use consecutive blank lines. Keep tightly coupled statements and one logical import group together.
 4. Keep whitespace-only edits scoped to the changed area.
 5. Keep asynchronous setup in the narrowest behavior-specific nested describe; do not put scenario-only setup in a broad test body or shared hook.
-   Project-local guidance may refine grouping order but does not weaken these defaults; only explicit user direction permits a departure.
+
+Follow [Guidance Precedence](../docs/references/guidance-precedence-reference.md#precedence): project-local guidance overrides these shared defaults; explicit user direction may override them within its authorized scope.
 
 ## Frontend Import Groups
 

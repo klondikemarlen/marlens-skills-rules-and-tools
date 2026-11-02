@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Defers shared whitespace defaults to project-local guidance and keeps incidental-cleanup eligibility at its existing readability owner instead of repeating the policy.
+
 ## [3.34.21](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1031) - 2026-11-02
 
 ### Changed
