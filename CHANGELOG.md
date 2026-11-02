@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/994) - 2026-11-02
+
+### Changed
+
+- Chooses permanent tests by uncovered behavior and execution cost, preserving cheap exhaustive utility tables and distinct lower-level risks without requiring a suite per source file.
+
 ## [3.34.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1027) - 2026-11-02
 
 ### Fixed
