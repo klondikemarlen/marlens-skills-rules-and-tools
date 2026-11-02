@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.24](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1043) - 2026-11-02
+
+### Fixed
+
+- Keeps idle unavailable actions labeled and disabled without a spinner, while preserving actual pending indicators and duplicate-submission guards.
+
 ## [3.34.23](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1042) - 2026-11-02
 
 ### Changed

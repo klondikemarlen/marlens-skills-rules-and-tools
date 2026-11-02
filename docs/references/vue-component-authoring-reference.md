@@ -489,7 +489,7 @@ Preserve framework/theme values, appearance, interactions, accessibility state, 
 
 ## Loading and Disabled State
 
-For Vue/Vuetify button actions that support a loading binding, prefer loading-only presentation for both in-flight work and unavailable actions, including an empty selection. Combine those conditions in `:loading` rather than retaining `:disabled` solely because empty selection is independent of pending work. Keep submission guards for unavailable actions and duplicate requests: presentation is not protection against form submission, keyboard activation, or direct handler calls. Follow the component's supported contract; do not invent a loading prop on a control that lacks one or rewrite unrelated controls.
+Keep idle unavailability distinct from work in progress. For Vue/Vuetify button actions, use the supported disabled presentation when prerequisites such as a selection are missing, keeping the action labeled without a spinner. Reserve `:loading` for actual pending work rather than combining missing selection with busy state. Selecting an item enables an idle action; clearing it restores the idle unavailable state. Keep submission guards for both unavailable actions and duplicate requests: presentation is not protection against form submission, keyboard activation, or direct handler calls. Preserve genuine preparation/loading states and the component's supported contract; do not invent props or rewrite unrelated controls.
 
 This example accepts the existing download operation as a prop. Reuse the project's established error boundary; the `finally` restores pending state on success or failure.
 
@@ -522,7 +522,8 @@ async function downloadSelected() {
   <form @submit.prevent="downloadSelected">
     <v-btn
       type="submit"
-      :loading="pending || selectedIds.length === 0"
+      :loading="pending"
+      :disabled="pending || selectedIds.length === 0"
       >Download</v-btn
     >
   </form>
