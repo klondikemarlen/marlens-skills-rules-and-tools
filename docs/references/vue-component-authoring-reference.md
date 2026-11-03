@@ -640,6 +640,28 @@ Prefer avoiding authored `!important` overrides that fight framework utilities o
 
 Preserve framework/theme values, appearance, interactions, accessibility state, and behavioral, drag, or test-selector hooks. The preference concerns presentation, not every class name. Apply it within the affected scope rather than renaming unrelated classes. The intent is easier Vuetify upgrades without adding another styling framework.
 
+### Multiline Reactive Class Objects
+
+Format class-object entries on separate lines, including single-entry objects: keep the opening brace, each entry, and the closing brace on separate lines. This readability preference is distinct from caching; a formatter accepting a compact expression does not establish the requested structure.
+
+For a reactive derived class object, consider a named `computed` binding consumed directly by `:class`. With existing reactive `workflowStep` and `activeGroupStartOrder` refs:
+
+```typescript
+const revertButtonClasses = computed(() => {
+  return {
+    "mr-2": workflowStep.value.order < activeGroupStartOrder.value,
+  }
+})
+```
+
+```vue
+<button type="button" :class="revertButtonClasses">Send Back</button>
+```
+
+Vue's [computed caching](https://vuejs.org/guide/essentials/computed.html#computed-caching-vs-methods) reuses the result while its reactive dependencies remain unchanged, so an unrelated component render can reuse the object instead of constructing the inline map again. Changes to the step order or active-group boundary still update the classes. This is cached derivation, not prevention of all component renders or evidence that a render loop was reproduced or fixed. Keep getters free of side effects.
+
+Static class strings, simple boolean conditions, and legitimate inline expressions remain available; do not turn every template expression into a computed value. The named map still composes individual utility classes at the existing control's direct binding, not a semantic styling wrapper. Preserve caller-owned outer spacing, control behavior, and stronger local conventions. Apply an accepted formatting or caching correction to equivalent bindings within the requested authoring/review scope, not unrelated templates or repositories.
+
 ### Caller-Owned Outer Layout
 
 Keep outer spacing and parent-layout placement on a reusable component's invocation at the caller, rather than embedding context-specific margins or placement classes in the child's root. The child still owns intrinsic appearance and internal content layout, including appropriate root classes. Preserve its supported class/attribute forwarding, semantic root, accessibility, and interactions; this is not a ban on root styling.
