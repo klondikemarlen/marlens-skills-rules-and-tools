@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Makes absent-input branches explicit before deriving property locals, retaining stop-date and null-property fallbacks without banning legitimate optional chaining.
+
 ## [3.36.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1098) - 2026-11-03
 
 ### Changed

@@ -21,7 +21,7 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 
 - Choose explanatory function and variable names that reveal domain purpose and effects, not vague mechanisms or unnecessary abbreviations.
 - Keep responsibilities cohesive and related steps together. Make dependencies, state ownership, side effects, and failure paths visible.
-- Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction.
+- Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction. For optional inputs whose absence selects a return or fallback, follow [input-object guards](#guard-clauses-and-exceptional-responses) before deriving property locals.
 - Use consistent formatting and blank lines to separate meaningful logical steps; follow [Whitespace Matters](../../rules/whitespace-matters.md).
 - Extract helpers when a meaningful name and boundary clarify an operation or remove real duplication. Do not lower cyclomatic complexity merely by scattering decisions across trivial helpers or adding layers.
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
@@ -1236,6 +1236,30 @@ if (isNil(value)) return
 
 applyChange(value)
 ```
+
+When an optional input object's absence selects a return or fallback path, prefer an explicit nil guard before deriving a property local. Guard the input object, then read the property directly after narrowing it; testing only a possibly absent derived value hides that input branch.
+
+For an existing date projection that falls back to `stopDate` for a missing segment or departure value, replace:
+
+```typescript
+const departingAt = firstTravelSegment?.departureAt
+if (isNil(departingAt)) return stopDate
+
+return departingAt
+```
+
+With an explicit object guard while retaining the property fallback:
+
+```typescript
+if (isNil(firstTravelSegment)) return stopDate
+
+const departingAt = firstTravelSegment.departureAt
+if (isNil(departingAt)) return stopDate
+
+return departingAt
+```
+
+Use the project's actual types and existing nil/presence predicate; this example's `isNil` means only null or undefined, not truthiness. An existing object does not prove its property is present. Preserve null-property fallback, result values, fallback timing, and property-read effects/counts; do not add validation or dependencies for the example. Apply an accepted correction to analogous helpers, such as departure and return projections, within the requested review scope. Keep optional chaining for simple optional output access; this preference does not authorize a blanket ban or unrelated refactoring.
 
 When a predicate controls one optional block inside shared orchestration, prefer a positive wrapping conditional rather than an inverted function-return guard. Keep unrelated work outside the block so disabling the feature does not exit the surrounding operation or hide which registrations remain unconditional. Preserve the predicate, registration order, awaiting, and exact work gated; a short early return remains appropriate for a genuine whole-operation precondition.
 
