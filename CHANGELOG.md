@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.36.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1091) - 2026-11-03
+
+### Changed
+
+- Keeps reusable Vue components' outer spacing and placement with their callers while preserving child-owned presentation and context-specific rendered-layout checks.
+
 ## [3.36.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1089) - 2026-11-03
 
 ### Changed
