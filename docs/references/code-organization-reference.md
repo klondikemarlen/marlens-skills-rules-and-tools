@@ -297,6 +297,19 @@ Keep both reused SQL builders in their own descriptive files and import each whe
 
 An implementation helper owned by an already-existing service is a different boundary: keep it private in that service under [Service Orchestration Readability](code-organization-reference.md#service-orchestration-readability). A genuinely independent function or definition retains its own owner even with one caller; do not use caller count alone to choose between these homes or reorganize unrelated code.
 
+### Workflow-Owned Executables
+
+For an extracted executable owned by one GitHub Actions workflow, prefer `.github/workflows/<workflow-name>/` beside that workflow's YAML. For example, a `test` workflow's disk-reclamation program belongs at `.github/workflows/test/reclaim-runner-disk.sh`, with an explicit descriptive invocation:
+
+```yaml
+- name: Reclaim Runner Disk
+  run: bash .github/workflows/test/reclaim-runner-disk.sh
+```
+
+This example assumes an existing Bash program and repository-root working directory. Preserve the original program logic, interpreter and shell options, arguments, environment, working directory, permissions needed by its invocation, and exit/failure behavior; adjust the invocation to the actual execution contract rather than silently substituting shell defaults. A path example such as `wait-for-mssql.sh` establishes placement, not permission to copy its recovery logic into another program.
+
+Keep genuinely shared developer commands with their existing shared owner rather than moving them into one consuming workflow's folder. Apply this preference within the requested extraction or review scope, not as a repository-wide relocation, a mandate to extract every inline command, a script-length threshold, or permission to redesign executable behavior.
+
 ### Library Index Barrels
 
 Use application-library `index` files for bundling and re-exports; put implementations in descriptive named sibling modules. Keep named functions and their matching default exports in those implementation modules under the existing export convention. A barrel may re-export values/types, import named/default/namespace bindings and re-export them, or default-export a static object of imported bindings. Do not hide functions, classes, locally computed values, side-effect imports, or executable initialization in a library barrel.
