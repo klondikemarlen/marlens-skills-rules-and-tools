@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefers complete collection expectations over subset-plus-count workarounds, preserving partial object fields, genuine subset contracts, and unordered result semantics.
+
 ## [3.35.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1067) - 2026-11-03
 
 ### Changed
