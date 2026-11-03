@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.36.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1095) - 2026-11-03
+
 ### Changed
 
 - Stages Firefox Snap screenshots in verified OS-managed, self-cleaning runtime storage instead of persistent Downloads directories, preserving isolated runs, real file-input checks, and scoped cleanup.
