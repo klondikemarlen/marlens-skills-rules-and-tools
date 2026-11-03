@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Makes snackbar composable instances explicit before method calls, including single-call test setup, without changing initialization timing or ownership.
+
 ## [3.34.28](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1055) - 2026-11-03
 
 ### Changed

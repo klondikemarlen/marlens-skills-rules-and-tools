@@ -42,6 +42,24 @@ const props = defineProps<{
 
 Apply an accepted correction to equivalent declarations within the requested authoring or review scope, preserving prop names, types, optionality, defaults, and behavior. Formatter success does not establish this structural preference; inspect the declaration itself rather than treating a compact form accepted by a formatter as sufficient. Do not sweep unrelated files.
 
+## Named Snackbar Composable Instances
+
+In components and test setup, bind the existing snackbar composable's returned instance to a local before invoking its methods, even for a single call. Replace inline acquisition:
+
+```typescript
+useSnack().reset()
+```
+
+With a named receiver in the same owning scope:
+
+```typescript
+const snack = useSnack()
+
+snack.reset()
+```
+
+Invoke supported methods through that instance, such as `snack.error(...)` or `snack.success(...)`, not through the factory as `useSnack.error(...)`. Preserve the supported initialization point, branch, dependency order, and component/test lifetime; do not hoist acquisition or relocate unchanged setup solely for grouping. This is a snackbar-composable convention, not a ban on fluent APIs or a requirement to alias every function result.
+
 ## One Template Root and Existing Components
 
 Keep exactly one top-level rendered root in reusable components, even where Vue permits fragments. Only a page registered with Vue Router and named with a `Page` suffix may render multiple roots; neither the suffix nor directory placement alone establishes page ownership. A routed component without that suffix is not eligible for this exception. Pages may retain a single root; do not promote a reusable component into a route solely to permit a fragment.
