@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Reconciles blocked-ticket assignments when explicitly requested, verifying the evidenced blocker owner and preserving ordinary triage authority, existing metadata, and blocked state.
+
 ## [3.35.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1074) - 2026-11-03
 
 ### Changed
