@@ -352,7 +352,25 @@ For dependency adoption, extraction, or upgrades with unchanged application logi
 
 For component tests, drive application-owned behavior through user actions and assert the resulting visible content or records, rather than merely reasserting framework model props, pagination arithmetic, or built-in widget behavior. Keep integration assertions for a concrete application-owned contract; component props and accessibility assertions remain appropriate when they express one. If sensitivity is uncertain, use the bounded diagnostic in [Bounded Mutation Spot-Checks](#bounded-mutation-spot-checks); mutation testing is not required for every scenario.
 
-Keep component mount options and scenario-specific API response setup visible in each test's Arrange section. Use owned or inferred API types; do not add local mount or response-envelope helpers that hide scenario inputs or copy response contracts into test-only aliases. Retain shared environment/infrastructure setup and established entity factories; build each test's scenario-specific overrides inline. A factory build in Arrange does not justify extracting the mount or response setup.
+Keep component mount options and scenario-specific API response setup visible in each test's Arrange section. Use owned or inferred API types; do not add scenario-local mount or response-envelope wrappers that hide inputs or copy response contracts into test-only aliases. Retain shared environment/infrastructure setup and established entity factories; build each test's scenario-specific overrides inline. A factory build in Arrange does not justify extracting the mount or response setup.
+
+Before repeating API-module, configuration, and authentication mocks solely to arrange responses, inspect the project's shared API-response test support and reuse it when its request/response contract fits. If that infrastructure support is missing and repeated scaffolding is needed, add a small shared request/response support helper at the existing test-support owner rather than copying the infrastructure into each component test. Share interception and environment mechanics, not scenario data, mount options, expected results, or the production operation being tested.
+
+For a project whose existing `mockApiResponse(method, path, body)` helper accepts a literal response and whose `WidgetsList` consumes `GET /widgets`, a populated scenario can keep this Arrange excerpt local:
+
+```typescript
+mockApiResponse("GET", "/widgets", [{ id: 7, name: "Compass" }])
+const wrapper = mount(WidgetsList)
+```
+
+An independently arranged empty-result scenario uses the same support without another API/configuration/authentication mock block:
+
+```typescript
+mockApiResponse("GET", "/widgets", [])
+const wrapper = mount(WidgetsList)
+```
+
+These are alternative Arrange excerpts, not a helper API or response shape to impose on other projects. Keep each scenario's actions and visible-result assertions in its test, use the actual API types, and preserve the runner's established isolation and cleanup. Focused collaborator mocks remain valid when the tested contract needs them; this does not mandate a library, global scenario fixtures, or replacing live acceptance verification with mocks.
 
 Treat testability as a production-design concern. When test setup reproduces a production algorithm or reconstructs the behavior being protected, inspect production ownership and the test boundary before expanding the mock. Prefer exercising the real operation with controlled I/O, such as supplying a literal API response while retaining the real loader/grouping path. If the existing boundary prevents that, expose only an already cohesive, meaningful operation for direct testing; do not extract a trivial wrapper or invent an abstraction solely for the test framework.
 
