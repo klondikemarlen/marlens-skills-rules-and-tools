@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.28](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1055) - 2026-11-03
+
 ### Changed
 
 - Groups frontend dependency-store imports below composables across the requested review scope while keeping test subjects separate and preserving project overrides and initialization-sensitive order.
