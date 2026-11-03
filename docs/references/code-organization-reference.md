@@ -625,6 +625,8 @@ When the project adopts this convention, record it in project-local guidance. Co
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
 
+For application-owned boolean state props, prefer an explicit `is` prefix: rename `workflowBusy` to `isWorkflowBusy` or `isBusyWorkflow` when applying this convention. Either meaningful word order is valid; retain the represented domain fact and polarity. Align the prop declaration, default, template bindings, and in-scope callers together without changing values or behavior. Preserve established framework and third-party names, such as `disabled`, and stronger project-local naming contracts. This preference does not authorize unrelated prop renames or a repository-wide sweep.
+
 Use the established domain collection name for an ordinary resource result. Avoid a qualifier such as `loaded` when it merely restates the result's normal availability. For an existing `useWorkflowSteps` result, prefer the direct binding:
 
 Before:
