@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.36.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1096) - 2026-11-03
+
+### Changed
+
+- Returns persisted existence answers through complete parameterized database predicates instead of loading rows solely for application-side filtering, preserving authorization, null semantics, and transaction contracts.
+
 ## [3.36.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1095) - 2026-11-03
 
 ### Changed

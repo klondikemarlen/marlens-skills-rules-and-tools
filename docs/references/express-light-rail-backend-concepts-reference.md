@@ -42,6 +42,48 @@ Inactive is not deleted. Preserve the domain's existing inactive-record rules ra
 
 Review the distinction with a selected record missing category data, a legitimate collection search, and a post-mutation response requiring the same association. Check live/inactive/deleted visibility against the actual model and policy, separately from the response type. These are authoring decisions, not authorization to migrate a consuming application or add a new endpoint abstraction.
 
+## Database-Side Existence Guards
+
+When a caller needs only whether a persisted condition holds, express the complete predicate in one parameterized existence query rather than loading candidate rows solely to finish filtering with application-side `some` or `filter`. Prefer the project's supported ORM existence query when it clearly expresses the full condition; use parameterized raw SQL when that is the clearer supported form. Keep the query in the existing model/service owner, not a new query framework.
+
+For example, suppose an existing guard asks whether the authorized workflow has a later finished step in the current nullable group. Its organization/workflow scope is already authorized, deleted rows are excluded, and two null group IDs count as the same group. This candidate query leaves part of that persisted predicate in JavaScript:
+
+```sql
+SELECT group_id
+FROM workflow_steps
+WHERE organization_id = :authorizedOrganizationId
+  AND workflow_id = :workflowId
+  AND position > :currentPosition
+  AND finished_at IS NOT NULL
+  AND deleted_at IS NULL;
+```
+
+```javascript
+const hasLaterFinishedStep = candidateSteps.some((step) => step.group_id === currentGroupId)
+```
+
+Instead, return the answer directly without transferring candidate records:
+
+```sql
+SELECT CASE WHEN EXISTS (
+  SELECT 1
+  FROM workflow_steps
+  WHERE organization_id = :authorizedOrganizationId
+    AND workflow_id = :workflowId
+    AND position > :currentPosition
+    AND finished_at IS NOT NULL
+    AND deleted_at IS NULL
+    AND (
+      group_id = :currentGroupId
+      OR (group_id IS NULL AND :currentGroupId IS NULL)
+    )
+) THEN 1 ELSE 0 END AS hasLaterFinishedStep;
+```
+
+Use the actual policy-scoped query and supported driver bindings; the minimal organization/workflow predicates are illustrative, not replacements for authorization. Do not interpolate inputs into SQL. Preserve soft-delete/default scopes, null semantics, transaction visibility, isolation, and required locking. A query-form change does not itself prevent concurrent-write races. Decode the driver's numeric/boolean result into the existing boolean contract rather than treating a result row or a string `"0"` as truthy.
+
+Keep record loading when the caller actually needs the records, or when the predicate genuinely depends on application-owned data that cannot be expressed in the database. Do not turn this preference into mandatory raw SQL, unrelated query rewrites, schema changes, or new infrastructure. Verify matching and absent rows, outside-scope and deleted rows, nullable groups, and the existing transaction contract using the consuming project's ORM and production dialect.
+
 ## Optional Collection Summaries
 
 Add collection summaries only when a current caller needs an aggregate over the complete authorized, filtered population. An ordinary policy-scoped list with no aggregate consumer stays unchanged, including an ordinary read in its controller. Do not add unused fields, aggregate queries, an `IndexService`, a base class, or a runtime helper merely to match this example. A real aggregate/orchestration need can use the project's existing collection-service pattern.
