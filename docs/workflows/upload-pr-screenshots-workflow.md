@@ -215,7 +215,7 @@ Screenshot publication is a merge/readiness gate only when the user or project p
 
 ## Screenshot Staging
 
-Before the first capture, allocate one private, unique directory under `/tmp/omp-pr-screenshots/`. Use it for all screenshots and cropped/redacted variants from that QA run, including rendered-PR verification screenshots. Keep the same directory throughout retries; separate concurrent runs. Configure the capture tool's destination where supported. If it assigns its own output location, relocate only the newly created, agent-owned image into this directory immediately and update the local reference; do not leave duplicate working copies scattered elsewhere.
+Before the first capture, select storage for the actual browser and allocate one private, unique run directory. Use ordinary `/tmp/omp-pr-screenshots/` when the selected browser can access host `/tmp`; use the verified Firefox Snap runtime route below when host `/tmp` is hidden. Use that run directory for all screenshots and cropped/redacted variants, including rendered-PR verification captures. Keep it throughout retries and separate concurrent runs. Configure the capture tool's destination where supported. If it assigns its own output location, relocate only the newly created, agent-owned image into the run directory immediately and update the local reference; do not scatter duplicate working copies.
 
 For example, run this once in the agent's persistent JavaScript runtime and retain the returned paths for the capture and upload steps:
 
@@ -228,9 +228,43 @@ const screenshotDirectory = await mkdtemp(path.join(screenshotRoot, "run-"))
 let uploadDirectory = screenshotDirectory
 ```
 
-Upload directly from that directory by default. Only when the selected browser has an evidenced sandbox/file-access limitation that hides host `/tmp`, create a matching private run directory at `~/Downloads/omp-pr-screenshots/<same-run-name>/`, copy only the intended upload images there without overwriting existing files, and set `uploadDirectory` to that directory. Do not copy to loose `~/Downloads` filenames or probe unrelated directories. Host-side readability alone does not prove browser access; verify the exact files reach the browser's file input. This exception concerns image transfer, not browser profile storage or authentication.
+For selected Firefox Snap, use its OS-managed user-runtime directory instead of a Downloads fallback. Confirm the selected executable is the installed Firefox Snap, then resolve `XDG_RUNTIME_DIR` inside that Snap rather than assuming the host value or hard-coding a UID. The following is an alternative to the host `/tmp` allocation above; run only the allocation for the selected browser:
 
-Keep filenames neutral and local directory paths out of published GitHub records. After QA (and saved/rendered verification for uploaded evidence), remove only the owned run directories once the evidence is no longer needed; see the cleanup procedure below for blocked uploads.
+```js
+const { execFileSync } = await import("node:child_process")
+const { mkdir, mkdtemp, stat } = await import("node:fs/promises")
+const path = await import("node:path")
+const firefoxRuntimeDirectory = execFileSync(
+  "snap",
+  ["run", "--shell", "firefox", "-c", 'printf "%s" "$XDG_RUNTIME_DIR"'],
+  { encoding: "utf8" }
+).trim()
+if (!path.isAbsolute(firefoxRuntimeDirectory)) {
+  throw new Error("Firefox Snap did not provide an absolute runtime directory.")
+}
+
+const runtimeDetails = await stat(firefoxRuntimeDirectory)
+if (
+  !runtimeDetails.isDirectory() ||
+  runtimeDetails.uid !== process.getuid() ||
+  (runtimeDetails.mode & 0o777) !== 0o700
+) {
+  throw new Error("Firefox Snap runtime storage is not a private user directory.")
+}
+
+const screenshotRoot = path.join(firefoxRuntimeDirectory, "omp-pr-screenshots")
+await mkdir(screenshotRoot, { recursive: true, mode: 0o700 })
+const screenshotDirectory = await mkdtemp(path.join(screenshotRoot, "run-"))
+let uploadDirectory = screenshotDirectory
+```
+
+The resolved directory may look like `/run/user/<uid>/snap.firefox`; the active Snap's output, not that illustration, selects the path. Verify its OS-managed cleanup lifecycle and local runtime policy, for example with `findmnt -T <resolved-directory>` and the session manager's runtime/linger settings. [XDG runtime storage](https://specifications.freedesktop.org/basedir/latest/#variables) is private, disposable user-runtime data and must not survive reboot or a full logout/login cycle; user-runtime teardown can be extended by local service/linger policy. Do not promise a fixed expiry time or cleanup merely because a path contains `tmp`. Runtime storage may be memory-backed: keep screenshot runs bounded, not an unbounded cache or durable archive.
+
+Capture and upload directly from the same chosen run directory where supported. Host-side `stat` or `access` is not browser-access proof: select a harmless staged image through the actual Firefox file input and verify the browser can read/decode it before using this route for the run. A successful file-input check does not establish GitHub authentication, attachment publication, or saved/rendered placement. Keep filenames neutral, local paths out of published GitHub records, and concurrent runs isolated.
+
+Missing, relative, inaccessible, non-private, or lifecycle-unverified runtime storage, or a failed browser file-input check, leaves the affected staging/transfer phase `BLOCKED` with the exact prerequisite. Do not silently fall back to Downloads, `~/snap/firefox/common`, another persistent home directory, or a hard-coded `/run/user/1000` path. For another sandbox that cannot read host `/tmp`, require a separately verified browser-accessible, OS-managed temporary route or report that prerequisite; do not assume the Firefox route works for it. If capture tooling forces a separate output location, transfer only the newly created owned images into the chosen run directory without overwriting existing files and update the local references. This changes screenshot staging only, not browser profiles, authentication, personal-browser adoption, or existing Downloads contents.
+
+Remove owned run directories promptly after QA and saved/rendered verification when evidence is no longer needed. OS-managed cleanup is a backstop, not a substitute for scoped cleanup and not a new cleanup daemon. When publication is blocked, retain valid captures separately from disposable profiles while work remains, but disclose the runtime lifetime; temporary retention is not durable archival. Any longer-lived evidence destination needs explicit authorization rather than an automatic persistent fallback.
 
 ## Interactive Sign-In Preference
 
