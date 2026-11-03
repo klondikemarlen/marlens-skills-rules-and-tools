@@ -375,17 +375,19 @@ This is a maintainability preference, not a universal prohibition on providing c
 
 ### Store Definitions and Instances
 
-For application-owned store factories, use lower-camel `build<Resource>Store`, a matching kebab-case `build-<resource>-store.ts` module, and default imports. Name the returned instance `<resource>Store`, preserving the resource distinction. Reserve composable-style `use` names for genuine composables rather than mixing those concepts:
+For application-owned public store functions, use a lower-camel resource noun such as `<resource>Store`, a matching kebab-case `<resource>-store.ts` module, and default imports. The callable's name describes the resource, without a `build` prefix; its returned refs and actions are the values consumers use:
 
 ```typescript
-import buildWorkflowStepsStore from "@/stores/build-workflow-steps-store"
+import workflowStepsStore from "@/stores/workflow-steps-store"
 
-const workflowStepsStore = buildWorkflowStepsStore()
+const { commit } = workflowStepsStore()
 ```
 
-When correcting this pattern, align the affected factories, modules, default exports/imports, consumers, tests, and examples together. During review, flag PascalCase factory aliases, named-only imports for this pattern, or abbreviations such as `stepsStore` that discard the workflow resource context. Preserve store identity, lifetime, reactivity, and component-tree sharing; naming does not introduce another store or change state ownership.
+Expose state and getters as reactive refs alongside callable, correctly bound actions so consumers can destructure directly without a separate consumer-side `storeToRefs` step. Preserve each field's accepted writable or read-only contract and its connection to the existing model owner when values are replaced or updated. Returning one-time property values, unbound methods, or a new underlying store per call does not satisfy that interface. Reuse the project's supported reactive/framework mechanisms internally; this contract does not prescribe a new wrapper, state library, or implementation algorithm.
 
-This preference concerns application-owned names in the requested authoring/review scope. Do not rename third-party store APIs, impose a new state library, replace genuine composables, or sweep unrelated code. Follow stronger project-local naming contracts.
+When correcting this pattern, align the affected public functions, modules, default exports/imports, consumers, tests, and examples together. During review, flag superseded build-prefixed public callables/modules, PascalCase factory aliases, named-only imports for this pattern, or abbreviations such as `stepsStore` that discard resource context. Preserve store identity, lifetime, reactivity, action binding, and component-tree sharing; naming and ref returns do not create another store or change state ownership.
+
+This preference concerns application-owned public APIs in the requested authoring/review scope. Do not rename third-party APIs such as Pinia's `defineStore`, replace genuine `use` composables, sweep unrelated code, or infer a required internal definition name or universal ban on `current`. Follow stronger project-local naming contracts.
 
 ### Model-Owned Stores and Form-Facing Editing
 
@@ -397,12 +399,9 @@ For example, when the existing store exposes the editable workflow:
 
 ```vue
 <script setup lang="ts">
-import { storeToRefs } from "pinia"
+import workflowStore from "@/stores/workflow-store"
 
-import buildWorkflowStore from "@/stores/build-workflow-store"
-
-const workflowStore = buildWorkflowStore()
-const { workflow } = storeToRefs(workflowStore)
+const { workflow } = workflowStore()
 </script>
 
 <template>

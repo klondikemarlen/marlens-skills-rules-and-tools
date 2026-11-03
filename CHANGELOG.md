@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.34.27](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1054) - 2026-11-03
+
+### Changed
+
+- Names application-owned public store functions after their resources and returns reactive refs with bound actions for direct destructuring, preserving shared model ownership and edit/save lifecycles.
+
 ## [3.34.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1046) - 2026-11-02
 
 ### Fixed
