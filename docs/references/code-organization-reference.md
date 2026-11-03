@@ -45,6 +45,29 @@ When this scope correction is accepted, inspect the complete in-scope PR for equ
 
 A legitimately touched file is not permission to relocate its unchanged setup declarations or initialization calls. Preserve their established relative placement unless requested behavior, an actual dependency/initialization order, project tooling, or explicitly requested cleanup requires a move. For example, leave an unchanged `const snack = useSnack()` beside its original form setup rather than moving it solely because the file gains store logic. Necessary new declarations and justified ordering changes remain valid; preserve initialization effects and do not impose a universal declaration order. When this correction is accepted, inspect analogous incidental moves across the complete in-scope PR, preserving other owners' changes rather than restoring only the highlighted line or sweeping unrelated files.
 
+### Shared Environment Defaults
+
+When environment configurations repeat common settings, express the shared defaults once and keep environment-specific overrides explicit in the project's existing format. A simplified Rails-style defaults-and-overrides structure does not require YAML, a new parser, or a configuration framework. Reuse a common override when environments intentionally share the same differences rather than copying complete configurations.
+
+For example, suppose existing flat queue options retain 100 completed and failed jobs, with one attempt in tests and three in development/production:
+
+```typescript
+const defaults = {
+  removeOnComplete: 100,
+  removeOnFail: 100,
+  attempts: 1,
+}
+const retryOptions = { attempts: 3 }
+
+const queueOptions = {
+  test: { ...defaults },
+  development: { ...defaults, ...retryOptions },
+  production: { ...defaults, ...retryOptions },
+}
+```
+
+The example preserves those assumed values; it does not prescribe retention or retry policy for another project. Preserve actual override precedence, connection behavior, nested merge semantics, and mutable-object ownership; a shallow spread is not a deep merge and must not silently drop nested settings or introduce shared mutable state. Retain distinct configurations when their settings genuinely differ, follow stronger local conventions, and do not use this preference to change runtime values or migrate unrelated configuration.
+
 ### Independently Mutable Nested Copies
 
 When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.
