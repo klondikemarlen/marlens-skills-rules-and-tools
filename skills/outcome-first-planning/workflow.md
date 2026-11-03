@@ -15,6 +15,8 @@ This packaged fallback preserves the local workflow contract when a target proje
 - **Non-goals:** explicitly excluded behavior, integrations, and abstractions.
 - **Constraints:** repository rules, compatibility, security, ownership, and release boundaries.
 
+When the person needs help articulating these inputs, use [Shape](../shape/workflow.md) to develop the feature spec collaboratively first. Reuse a confirmed spec here; do not repeat its interview. A shaping draft alone does not authorize implementation planning or delivery.
+
 Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
 
 For HTTP-response and recovery design, apply [Intermediary Responses to JSON Requests](../../docs/references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) when fit-checking failure outcomes, loaded-state preservation, uncertain writes, existing error boundaries, and optional-preview trust.

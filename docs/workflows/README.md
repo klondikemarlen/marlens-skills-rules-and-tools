@@ -39,6 +39,7 @@ Examples:
 - `jira-reporting-workflow.md`
 - `github-bug-reporting-workflow.md`
 - `domain-modeling-workflow.md`
+- `shape-workflow.md`
 - `outcome-first-planning-workflow.md`
 - `project-knowledge-base-workflow.md`
 - `node-express-api-workflow.md`

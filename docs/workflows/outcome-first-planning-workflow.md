@@ -31,6 +31,8 @@ Capture these before planning:
 
 If any input is missing, record the missing decision as a question or choose the narrowest conservative interpretation before editing.
 
+When the person needs help articulating these inputs, use [Shape](shape-workflow.md) to develop the feature spec collaboratively first. Reuse a confirmed spec here; do not repeat its interview. A shaping draft alone does not authorize implementation planning or delivery.
+
 ## Choose Execution Mode by Pattern Fit
 
 After a brief read of local guidance, a comparable implementation, and the affected caller-to-result path, choose the mode from evidence rather than task size or a preference for planning:

@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Adds `shape` to turn rough ideas into clear, testable feature specs through guided conversation, with explicit scope, unresolved decisions, and a separate opt-in implementation handoff.
+
 ## [3.36.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1102) - 2026-11-03
 
 ### Changed

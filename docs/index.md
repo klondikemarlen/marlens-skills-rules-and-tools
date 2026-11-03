@@ -44,6 +44,7 @@ Top-level [`examples/`](../examples/) demonstrates the smallest observable diffe
 
 - One ordered project-improvement cycle: [Evolve](workflows/evolve-workflow.md) composes advance → improve → simplify → wrap-up once, reusing evidence and preserving each stage's delivery boundaries.
 - Memorable outcome skills: [Advance](workflows/advance-workflow.md), [Simplify](workflows/simplify-workflow.md), [Improve](workflows/improve-workflow.md), and [Wrap-Up](workflows/wrap-up-workflow.md); see [invocation examples](../README.md#four-verbs-to-remember).
+- Shape a rough idea into a feature spec through guided conversation: [Shape](workflows/shape-workflow.md); use it before implementation planning when the desired behavior or scope is still unclear.
 - Readability during the current task: [Readable Code](workflows/readable-code-workflow.md) and the [Human Readability](references/code-organization-reference.md#human-readability) standard.
 - Session insight mining: [`workflows/session-insight-mining-workflow.md`](workflows/session-insight-mining-workflow.md)
 - Worktree creation: [`workflows/worktree-creation-workflow.md`](workflows/worktree-creation-workflow.md)
