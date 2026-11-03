@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.35.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1067) - 2026-11-03
+
+### Changed
+
+- Keeps straightforward persistence fields visible at creation calls while preserving meaningful preparation, shared contracts, evaluation behavior, and spread precedence.
+
 ## [3.35.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1066) - 2026-11-03
 
 ### Changed
