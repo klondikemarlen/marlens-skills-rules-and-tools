@@ -33,6 +33,34 @@ For a meaningful computed function result used in an object property or nested c
 
 Keep self-explanatory one-use option literals inline when the property already explains their meaning: use `{ arrayLimit: 1000, parameterLimit: 1500 }` rather than one-use `MAX_QUERY_ARRAY_LENGTH` and `MAX_QUERY_PARAMETER_COUNT` aliases. These values illustrate preserved inputs, not parser limits to adopt elsewhere. Retain named constants that express an additional domain rule or are genuinely shared, and retain meaningful computed intermediates; this is not a ban on constants or debugger-friendly locals.
 
+For straightforward persistence payloads made only from stable, already-available fields, prefer an explicit object literal at the creation call instead of staging a trivial `attributes` object and spreading it later. Keep the creation fields visible even when the same simple fields appear in current- and future-period calls. For example, replace this staging:
+
+```typescript
+const attributes = { centreId, categoryId, amount }
+
+await AdministrationCost.create({ ...attributes, fiscalPeriodId: currentFiscalPeriodId })
+await AdministrationCost.create({ ...attributes, fiscalPeriodId: futureFiscalPeriodId })
+```
+
+With the same fields at their uses:
+
+```typescript
+await AdministrationCost.create({
+  centreId,
+  categoryId,
+  amount,
+  fiscalPeriodId: currentFiscalPeriodId,
+})
+await AdministrationCost.create({
+  centreId,
+  categoryId,
+  amount,
+  fiscalPeriodId: futureFiscalPeriodId,
+})
+```
+
+Use the actual persistence API and fields; this is a contextual readability preference, not a ban on variables or spreads. Retain meaningful normalization, computed intermediates, shared domain payloads, and snapshots that clarify or preserve a contract. Preserve values, evaluation count/order/timing, async control flow, and rightmost spread precedence, including an explicit `undefined` override. Do not duplicate getter/computation effects or reread changed bindings merely to inline a payload; retain necessary preparation at its existing evaluation point. Do not apply this preference to duplicate shared configuration or refactor unrelated calls.
+
 Bind an indexed element to an explanatory local before accessing its properties: `const sourceRow = rows[sourceIndex]`, then `sourceRow.workflowStepAttributes.groupIdentifier`. For optional access, retain the original short-circuit boundary, such as `sourceRow?.owner.id`; do not silently make a required nested property optional. Evaluate the index once and preserve evaluation order. Apply accepted corrections to equivalent occurrences within the requested review scope, not unrelated files or trivial helper extractions.
 
 In attribute payloads and matching destructuring, put ordinary scalar fields first and group nested association/assignment inputs at the bottom, such as `title`, `priority`, `dueInDays`, then `tagsAttributes` and `playersAttributes`. Follow stronger local conventions and preserve values, spread precedence, getter/evaluation order, and behavior; do not mechanically reorder arbitrary configuration objects.
