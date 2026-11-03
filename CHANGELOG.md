@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.35.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1052) - 2026-11-02
+
+### Added
+
+- Mines bounded task commit-history diffs during wrap-up and supports read-only history retrospectives through the existing session-insight-mining skill, preserving provenance before cleanup and checking lessons against the accepted result.
+
 ## [3.34.29](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1057) - 2026-11-03
 
 ### Changed
