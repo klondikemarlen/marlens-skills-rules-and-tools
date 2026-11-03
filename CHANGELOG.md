@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Clarifies multiline Vue class-object entries and named computed caching while preserving reactive updates, utility composition, and legitimate inline bindings.
+
 ## [3.36.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1096) - 2026-11-03
 
 ### Changed
