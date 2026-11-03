@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.35.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1065) - 2026-11-03
+
 ### Changed
 
 - Makes application-owned boolean state props explicit with an `is` prefix while preserving behavior, supported external names, and scoped caller alignment.
