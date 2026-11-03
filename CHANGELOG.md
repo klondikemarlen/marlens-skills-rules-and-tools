@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Clarifies shared API-response test support with distinct local response scenarios, preserving visible mount/setup data and focused collaborator mocks instead of repeating infrastructure scaffolding.
+
 ## [3.35.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1060) - 2026-11-03
 
 ### Changed
