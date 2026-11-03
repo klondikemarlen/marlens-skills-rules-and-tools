@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Compares every requested normalization-family member before selecting shared patterns, aligning structure and equivalent behavior while preserving legitimate role differences.
+
 ## [3.35.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1070) - 2026-11-03
 
 ### Changed
