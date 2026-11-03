@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Adds addressed peer-messaging guidance with scoped discovery, deliberate steering, bounded handoffs, and truthful acknowledgement limits; runtime transport remains owned by omp-instance-control.
+
 ## [3.35.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1081) - 2026-11-03
 
 ### Changed
