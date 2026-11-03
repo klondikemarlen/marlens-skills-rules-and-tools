@@ -42,6 +42,40 @@ const props = defineProps<{
 
 Apply an accepted correction to equivalent declarations within the requested authoring or review scope, preserving prop names, types, optionality, defaults, and behavior. Formatter success does not establish this structural preference; inspect the declaration itself rather than treating a compact form accepted by a formatter as sufficient. Do not sweep unrelated files.
 
+## Multiline Emitted-Event Maps
+
+Prefer multiline object event maps passed to `defineEmits`, including a single-event map: put the opening brace, each event, and the closing brace on separate lines. Separate the event declaration from the following declaration using [Whitespace Matters](../../rules/whitespace-matters.md). Formatter acceptance of compact syntax does not establish this structural preference.
+
+For an existing no-argument `updated` event, replace the compact, crowded declaration:
+
+```typescript
+const emit = defineEmits<{ updated: [void] }>()
+const selectedId = ref(null)
+```
+
+With a multiline declaration and separation:
+
+```typescript
+const emit = defineEmits<{
+  updated: []
+}>()
+
+const selectedId = ref(null)
+```
+
+Use one consistent no-payload tuple spelling across the reviewed scope. Preserve a documented project convention such as `[void]`; absent one, prefer `[]`. Preserve accepted caller and framework contracts when choosing or changing the spelling, rather than erasing an accepted argument contract merely for notation.
+
+For an existing map with multiple events, keep each event on its own line and retain payload-bearing types:
+
+```typescript
+const emit = defineEmits<{
+  updated: []
+  selected: [workflowStepId: number]
+}>()
+```
+
+During authoring and review, inspect equivalent single- and multi-event declarations within the requested PR scope when applying a correction. Preserve event names, payload types, supported emit calls, runtime behavior, and framework-mandated contracts; use the project's actual payload types rather than introducing events from the example. Do not reformat unrelated files or repositories.
+
 ## Named Snackbar Composable Instances
 
 In components and test setup, bind the existing snackbar composable's returned instance to a local before invoking its methods, even for a single call. Replace inline acquisition:

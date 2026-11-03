@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Makes Vue emitted-event maps multiline, including single-event declarations, with declaration spacing and consistent no-payload tuples that preserve project and payload contracts.
+
 ## [3.35.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1080) - 2026-11-03
 
 ### Changed
