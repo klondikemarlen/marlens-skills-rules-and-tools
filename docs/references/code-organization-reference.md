@@ -197,6 +197,26 @@ function snapshotTitle(snapshot: WorkflowSnapshot): WorkflowSnapshot["title"] {
 
 Keep genuine generic dictionaries generic and genuinely unknown external input unknown until the established validation boundary proves its shape. Do not assert an unvalidated payload as a model, ban necessary assertions, add a generic wrapper to avoid an indexing error, or turn this correction into an unrelated type rewrite.
 
+### Serialized Transport Type Names
+
+For a frontend type representing the same serialized transport payload as a backend serializer, inspect that serializer's exported type and actual fields first, then retain its type name in the frontend. Reuse a compatible shared transport declaration when available; otherwise define the corresponding frontend type in the resource API module or a cohesive nearby type file. Channel and UI consumers import that named contract rather than maintaining independently named local copies.
+
+For example, if the backend serializer already exports an `id`-only `WorkflowStepAsChannel` representation, its frontend counterpart in the existing workflow-steps API module keeps that name and shape:
+
+```typescript
+export type WorkflowStepAsChannel = {
+  id: number
+}
+```
+
+The channel consumer imports it from that owner:
+
+```typescript
+import type { WorkflowStepAsChannel } from "@/api/workflow-steps-api"
+```
+
+Use the project's actual serializer fields, supported paths, and type-sharing boundary; the minimal example does not prescribe a new payload or module. Do not force imports across incompatible frontend/backend builds, introduce a shared package solely for naming, or rename deliberately transformed projections and local view models as if they were the transport contract. Preserve serialization, validation, and behavior. Apply an accepted correction to affected transport declarations and consumers within the requested scope, not unrelated types.
+
 ## Simplification After Scope Changes
 
 When a feature is deferred or removed, remove its supporting abstractions if accepted work no longer needs them. Prefer restoring the original simple code shape over retaining a behavior-equivalent refactor solely from the deferred feature. Keep refactors required by accepted work and preserve unrelated changes.
