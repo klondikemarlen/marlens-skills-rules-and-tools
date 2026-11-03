@@ -172,6 +172,33 @@ These excerpts illustrate ownership, not a new universal prop or data-access API
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+## Controls in Existing Action Slots
+
+When an existing actions slot already hosts the controls, render them directly in that slot rather than extracting a component or adding a DOM wrapper solely to apply flex/gap spacing. Reuse the slot's supported layout contract or appropriate spacing on the controls themselves; a spacing-only shell is not a new component responsibility.
+
+For example, with existing action handlers and busy state, keep both controls in the card's actions slot:
+
+```vue
+<v-card>
+  <template #actions>
+    <v-btn
+      :disabled="isBusy"
+      @click="reviewStep"
+      >Review</v-btn
+    >
+    <v-btn
+      :disabled="isBusy"
+      @click="sendBackStep"
+      >Send Back</v-btn
+    >
+  </template>
+</v-card>
+```
+
+Preserve control order, handlers, loading/disabled states, and keyboard/accessibility behavior. Inspect the actual slot contract and verify the rendered spacing, alignment, and relevant responsive layouts; compilation alone does not prove layout, and a successful gap in one product does not prescribe a universal pixel value. Check equivalent occurrences within the affected authoring or review scope, not unrelated components.
+
+Retain wrappers that own evidenced semantics, accessibility, lifecycle, or interaction behavior. This preference removes a spacing-only boundary, not every wrapper or meaningful action component. Genuinely reusable components still follow [One Template Root and Existing Components](#one-template-root-and-existing-components); controls passed into an existing slot do not authorize converting them into fragment-root components.
+
 ## Related-Record Descriptions
 
 In ordinary user-facing descriptions, prefer a related record's readable name over its internal identifier. When a descriptive label is unavailable after the existing loading/error handling, use `Unknown` rather than stringifying the identifier. Preserve available labels and the existing data flow; intentional technical identifier displays remain valid. For example, with an existing description primitive's `label` and `value` props:
