@@ -516,6 +516,40 @@ Keep component-specific editing workflows—drafts, queued writes, reconciliatio
 
 Consumers use the composable's returned reactive record/collection refs as the model source. Do not copy them into a parallel record map and watch fetches to merge fields or revision counters. Keep genuine pending commands and failure feedback with the editor. If accepted edits must survive navigation, inspect editor lifetime and supported framework retention before adding parallel model ownership; preserve the accepted save/navigation guarantee. An explicitly contracted detached draft remains valid; neither `KeepAlive` nor a particular draft-storage design is mandatory.
 
+## Direct Prop Refs
+
+When exposing an unchanged prop as a ref, prefer `toRefs(props)` over a `computed` getter that only returns that prop. For existing component props:
+
+```typescript
+import { toRefs } from "vue"
+
+const { workflowStepId } = toRefs(props)
+```
+
+This replaces `computed(() => props.workflowStepId)` without capturing a one-time value: the ref continues to read current prop updates. Preserve prop types, defaults, optionality, and readonly ownership. Keep `computed` for actual derivation, such as combining parent and request loading flags; this preference does not ban computed values or objects containing refs.
+
+## Established Watcher Guards
+
+Before adding a watcher-control option to a composable, inspect the project's existing suppression convention. Where `useWorkflowStep` already supports a `skipWatchIf` predicate, reuse it rather than adding a parallel `watchId` switch. With existing `props`, the `toRefs` import, and that composable, ordinary automatic fetching retains its default:
+
+```typescript
+const { workflowStepId } = toRefs(props)
+const { workflowStep, isLoading, refresh } = useWorkflowStep(workflowStepId)
+```
+
+When the accepted caller already owns the refresh trigger, the alternative suppresses automatic watching through the established predicate:
+
+```typescript
+const { workflowStepId } = toRefs(props)
+const { workflowStep, isLoading, refresh } = useWorkflowStep(workflowStepId, {
+  skipWatchIf: () => true,
+})
+```
+
+Keep explicit `refresh()` available and invoke it from the caller's existing refresh trigger; suppression of automatic fetching must not silently disable manual refresh. Preserve ordinary immediate/ID-change fetching for default callers and the existing response to a reactive predicate becoming false. These are alternative caller examples, not declarations to combine or an instruction to suppress every watcher.
+
+Retain the composable's accepted cancellation, request-ownership, and loading-state contracts when the ID changes or clears, the guard suppresses watching, the scope disposes, or an obsolete request settles. An older request must not publish into a newer context or clear its loader; follow [Record-Scoped Async Ownership](#record-scoped-async-ownership). Do not introduce `skipWatchIf` in projects lacking it or redesign an adequate watcher API merely to match this example.
+
 ## Writable State and Reset Operations
 
 Follow the established reactive-state plus `...toRefs(state)` return pattern for ordinary writable composable state. Prefer caller-side `error.value = capturedError` over `readonly(error)` plus a trivial `setError` wrapper when no accepted invariant requires the action. Keep meaningful operations, including reset and actions that actually protect invariants; this is not a blanket removal of store actions or permission to rewrite unrelated composables.
