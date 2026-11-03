@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Places workflow-owned executables beside their owning GitHub Actions workflow while preserving program behavior and existing shared-tool ownership.
+
 ## [3.35.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1069) - 2026-11-03
 
 ### Changed
