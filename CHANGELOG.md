@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.35.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1060) - 2026-11-03
+
+### Changed
+
+- Aligns frontend transport type names and ownership with their backend serializer contracts while preserving build boundaries and distinct UI projections.
+
 ## [3.35.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1059) - 2026-11-03
 
 ### Fixed
