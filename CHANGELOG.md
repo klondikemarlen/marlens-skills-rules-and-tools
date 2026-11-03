@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.36.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1102) - 2026-11-03
+
+### Changed
+
+- Consolidates repeated hands-off planning, iteration, and handoff instructions into one procedure while retaining verification and delivery safeguards.
+
 ## [3.36.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1100) - 2026-11-03
 
 ### Changed
