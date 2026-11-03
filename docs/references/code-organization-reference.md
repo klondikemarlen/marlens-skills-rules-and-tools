@@ -796,6 +796,8 @@ When an owning layer has a family of custom error types, group its shared local 
 
 In a local catch, consume only positively recognized categories the operation actually handles, then rethrow everything else through existing framework propagation. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on handled and rethrown paths. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
 
+For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
+
 ## Text Validation Ownership
 
 In ORM-backed application code, keep ordinary trimming, blank-value handling, accepted character grammar, and canonical-name validation in the existing service/model validation layer; prefer model-level validators for persisted text invariants rather than reproducing that policy in elaborate SQL checks. Follow the accepted normalization-versus-rejection contract; do not invent a universal alphabet or silently normalize rejected input.
