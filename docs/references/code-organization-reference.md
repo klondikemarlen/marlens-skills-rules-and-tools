@@ -1115,6 +1115,19 @@ For multi-property query/options object arguments, put each property on its own 
 
 For explanatory comments, prefer JSDoc-style blocks that explain the mechanism and rationale, especially for non-obvious lifecycle state or invariants. State the actual captured boundary, when it is captured, what it gates, and why that gate or cache exists; describe lazy first-use behavior accurately rather than calling it startup. This does not require converting short inline comments or Arrange/Act/Assert markers.
 
+When explaining an execution boundary, name the ordering relation and affected unit explicitly so the explanation remains clear if the screen layout changes. Distinguish the destination group from subsequent groups, and state whole-group effects directly rather than leaving the reader to infer them from individual members or an unqualified "before" or "after."
+
+For example, when the accepted operation resets whole stages:
+
+```javascript
+/**
+ * Reset the entire destination stage and every subsequent stage in workflow
+ * execution order, preserving all other stages.
+ */
+```
+
+This example describes an existing operation, not rollback policy to adopt in another product. "Before" and "after" remain useful when their ordering relation is explicit; spatial language remains appropriate for actual UI placement. Match the explanation to the real operation without changing behavior merely to fit the wording.
+
 During edits and simplification, retain accurate comments that explain framework/library callback execution conditions, mechanisms, or rationale not obvious from nearby statements. Move them with the relevant handler when needed; remove or revise them when obsolete or misleading. Redundant comments may still be removed, and this does not require converting inline comments to JSDoc.
 
 For the boundaries around a standalone explanatory comment and its associated code, follow [Explanatory Comment Sections](../../rules/whitespace-matters.md#explanatory-comment-sections). Keep the comment attached to that code rather than isolating it from its first statement.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.36.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1087) - 2026-11-03
+
+### Changed
+
+- Clarifies execution-order explanations independently of screen layout, including explicit whole-group boundaries without prescribing application rollback behavior.
+
 ## [3.36.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1084) - 2026-11-03
 
 ### Changed
