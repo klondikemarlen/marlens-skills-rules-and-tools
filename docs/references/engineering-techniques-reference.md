@@ -44,6 +44,26 @@ Synchronize against an observable runtime condition, not a guessed delay. Keep b
 
 Use a unique marker per test so parallel execution cannot satisfy another test's barrier. The marker belongs in the observed request, query, job, or other runtime record—not only in test-process memory.
 
+## Background Job Diagnostics
+
+Reduce redundant event emission separately from diagnostic content. When reducing job-log noise, preserve useful existing serialized job arguments on retained completion events; a request to avoid duplicate messages does not by itself authorize removing that context or switching to failure-only logging. If a removed duplicate event carries unique useful context, retain that permitted context in the surviving event rather than losing it.
+
+For existing completion and failure callbacks whose `serializedArguments` already satisfy the project's disclosure policy, retain the completion call:
+
+```typescript
+logger.info("Job completed", { jobId, data: serializedArguments })
+```
+
+In the existing failure callback, consolidate duplicate failure reports into one event retaining the useful permitted context:
+
+```typescript
+logger.error("Job failed", { jobId, error, data: serializedArguments })
+```
+
+These are separate callback excerpts, not two events to emit for every outcome. Use the actual existing logger API, messages, fields, severity, and lifecycle points; preserve error identity/propagation and job behavior. Do not introduce new events or a logging framework for this preference.
+
+This is not permission to log every raw payload, credentials, tokens, personal data, or otherwise restricted content. Preserve existing sanitization, redaction, retention limits, and stronger security policies; serialized does not mean safe. Separately authorized payload changes remain valid. Preserve useful permitted diagnostics, not unsafe data merely because it was previously logged.
+
 ## Intermediary Responses to JSON Requests
 
 Classify responses at the HTTP transport boundary before consuming expected JSON, on both successful and rejected statuses. Inventory authenticated and public routes, startup, health/status, and release-note consumers; a `/api` prefix does not identify every JSON request. Preserve intentionally requested downloads and other non-JSON contracts.
