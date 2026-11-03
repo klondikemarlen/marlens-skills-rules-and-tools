@@ -12,6 +12,24 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 - Mines bounded task commit-history diffs during wrap-up and supports read-only history retrospectives through the existing session-insight-mining skill, preserving provenance before cleanup and checking lessons against the accepted result.
 
+## [3.34.29](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1057) - 2026-11-03
+
+### Changed
+
+- Makes snackbar composable instances explicit before method calls, including single-call test setup, without changing initialization timing or ownership.
+
+## [3.34.28](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1055) - 2026-11-03
+
+### Changed
+
+- Groups frontend dependency-store imports below composables across the requested review scope while keeping test subjects separate and preserving project overrides and initialization-sensitive order.
+
+## [3.34.27](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1054) - 2026-11-03
+
+### Changed
+
+- Names application-owned public store functions after their resources and returns reactive refs with bound actions for direct destructuring, preserving shared model ownership and edit/save lifecycles.
+
 ## [3.34.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1046) - 2026-11-02
 
 ### Fixed

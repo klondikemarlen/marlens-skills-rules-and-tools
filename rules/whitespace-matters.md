@@ -17,7 +17,9 @@ Follow [Guidance Precedence](../docs/references/guidance-precedence-reference.md
 
 ## Frontend Import Groups
 
-For new or intentionally corrected frontend application imports, prefer utilities before API clients, and API clients before composables. Keep each group contiguous with exactly one blank line between groups, within the existing broad standard-library, third-party, and project-local ordering. Follow documented project overrides and preserve imported bindings and initialization-sensitive order; this preference does not authorize unrelated import churn.
+For new or intentionally corrected frontend application imports, prefer utilities before API clients, API clients before composables, and composables before stores. Keep each group contiguous with exactly one blank line between groups, within the existing broad standard-library, third-party, and project-local ordering. Follow documented project overrides and preserve imported bindings and initialization-sensitive order; this preference does not authorize unrelated import churn.
+
+When this grouping correction is requested during review, inspect every PR-modified file containing store imports within the requested scope, not only the highlighted example. Keep a test's primary subject under test in its own final group, separate from dependency-store imports; follow [Project-Root Imports and Paths](../docs/references/code-organization-reference.md#project-root-imports-and-paths). Do not sweep unrelated files or change state libraries or dependencies.
 
 With these existing supported project-local imports:
 
@@ -27,6 +29,8 @@ import { formatDate } from "@/utils/format-date"
 import { api } from "@/api"
 
 import { useWorkflow } from "@/composables/use-workflow"
+
+import workflowStore from "@/stores/workflow-store"
 ```
 
 Use the project's actual supported paths and exports; the example does not require a new alias, module, or import dependency.
