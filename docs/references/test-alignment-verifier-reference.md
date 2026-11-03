@@ -48,6 +48,16 @@ expect({ status: response.status, body: response.body }).toEqual({
 
 A real returned object or array is a valid direct assertion target: `expect(result).toEqual({ id: 7, name: "Widget" })` and `expect(records).toEqual([{ id: 7 }])` compare actual contracts, not synthetic wrappers. An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
 
+When the full expected collection is known, compare the complete returned collection directly rather than wrapping its expected members in `expect.arrayContaining`. Adding `toHaveLength(...)` to the subset assertion is not the preferred replacement: express the complete-result contract in the collection expectation itself. Partial object matchers may still appear inside that complete expected array when incidental record fields are outside the contract:
+
+```typescript
+expect(hits).toEqual([expect.objectContaining({ id: 7 }), expect.objectContaining({ id: 9 })])
+```
+
+For an established `7`-then-`9` result order, this accepts additional fields on those two records but rejects an unexpected third element, a missing record, or a different member without a separate count assertion. Use the actual result path and supported project matchers. If order is not guaranteed, preserve the real unordered contract with a supported exact unordered collection matcher; do not add sorting solely to normalize assertions. See [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification).
+
+Reserve subset matching for a contract that genuinely permits additional elements. Unspecified ordering alone is not that permission. A reviewer should distinguish complete-result membership/cardinality from partial record-field matching, preserve legitimate subset contracts, and avoid exact matching of unrelated object fields.
+
 Keep native promise-error assertions such as `await expect(operation()).rejects.toThrow("Not authorized")` and web-first browser assertions such as `await expect(page.getByRole("alert")).toHaveText("Saved")`. This is not a mandate to replace every matcher with `toEqual`.
 
 Multiple direct assertions can jointly prove a coupled invariant, such as atomic rollback leaving both account balances unchanged. Do not split a coupled invariant into tests that lose its transition evidence, or combine it with unrelated outcomes.
