@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Makes repeated environment configuration easier to read through shared defaults and explicit reusable overrides while preserving runtime values, merge precedence, and state ownership.
+
 ## [3.35.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1062) - 2026-11-03
 
 ### Changed
