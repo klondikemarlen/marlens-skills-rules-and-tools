@@ -215,6 +215,41 @@ watch(
 
 The names and watcher are illustrative: use the page's actual route input, lifecycle trigger, and store API. `initialize` represents the existing operation that resets working state and loads the requested resource; do not add a new API solely to match this example. Children read the resulting store state, while the existing notification handler filters against the loaded resource identity and applies the established editing behavior.
 
+## Resource-Bound Component Selection
+
+For saved resource-bound components using the accepted store architecture, pass the resource identifier and let the child select its saved model and related collections through the existing reactive stores. This boundary applies even when the stores are global: do not make parents select and thread saved models or model arrays through props merely to supply resource-bound children. The child owns resource selection; the routed page still owns [current-resource initialization](#page-owned-current-resource-initialization).
+
+For example, a `WorkflowStepActCard` supplies `<WorkflowStepReadCard :workflow-step-id="workflowStep.id" />` instead of passing the saved step and assignee-model array. With existing saved-collection refs and their established stores, the read card selects what it needs:
+
+```vue
+<script setup lang="ts">
+import { computed } from "vue"
+
+import workflowStepPlayersStore from "@/stores/workflow-step-players-store"
+import workflowStepsStore from "@/stores/workflow-steps-store"
+
+const props = defineProps<{
+  workflowStepId: number
+}>()
+
+const { workflowSteps } = workflowStepsStore()
+const { workflowStepPlayers } = workflowStepPlayersStore()
+
+const workflowStep = computed(() =>
+  workflowSteps.value.find((step) => step.id === props.workflowStepId)
+)
+const selectedWorkflowStepPlayers = computed(() =>
+  workflowStepPlayers.value.filter((player) => player.workflowStepId === props.workflowStepId)
+)
+</script>
+```
+
+Use the project's actual identifier types, saved-store APIs, supported selection helpers, and authorized collection scope; the names and array selectors above are illustrative, not new stores or APIs to introduce. Keep selection reactive to identifier changes and replaced/updated store records and collections. Reuse the accepted store instance and model ownership rather than copying records into a parallel local collection. Preserve existing missing-resource, loading, error, authorization, and lifecycle handling.
+
+Internal selection does not authorize child initialization of the shared working tree, duplicate fetches or subscriptions, or another fetching/store framework. Keep page-entry resets and background-update behavior with their existing owners. This preference does not prohibit scalar/presentation props, neutral presentation components that receive already-resolved values, or intentionally owned local editor drafts; it concerns saved resource-bound components, not every component prop.
+
+During review, inspect equivalent resource-bound callers and children within the affected change, migrating the identifier interface and internal selection together. Do not rewrite unrelated components or change accepted edit/Cancel/save contracts merely to apply the boundary.
+
 ## Optional Live-Update Composition
 
 Compose optional live-update behavior between the routed page and the existing base component: the page renders the feature wrapper, and the wrapper renders the base component. Reserve the `Page` suffix for route-level components; feature components sit below pages rather than wrapping an existing page.

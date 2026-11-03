@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keeps saved resource-bound Vue components self-contained through identifier-based store selection while preserving page-owned initialization and legitimate presentation/editor props.
+
 ## [3.35.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1079) - 2026-11-03
 
 ### Added
