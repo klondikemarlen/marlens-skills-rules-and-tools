@@ -6,7 +6,11 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
-## [3.35.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1052) - 2026-11-02
+### Fixed
+
+- Records the commit-history mining release on its observed UTC merge date.
+
+## [3.35.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1052) - 2026-11-03
 
 ### Added
 
