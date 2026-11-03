@@ -144,6 +144,8 @@ If an agent causes a live side effect, disclose it promptly, restore only the ev
 
 Use this only for an actual delegation or resumption. Include the observed context the recipient needs to act without the parent transcript; omit fields that add no actionable information. A completed solo task needs a result and proof, not a handoff packet.
 
+When relevant work is already owned by an independently running OMP session, use [Peer Messaging](../peer-messaging/workflow.md) for one addressed handoff or deliberate correction. Reuse the context fields below; do not turn solo work into mandatory peer discovery or treat a message as new task authority.
+
 When the user must open, copy, or run a delivered file outside OMP, provide an ordinary accessible filesystem path, not only an internal `local://` URI. Copy only the intended deliverable to an appropriate accessible location (a scoped `/tmp` directory suits temporary diagnostics), verify the copy's contents and required permissions, and give the user that path and exact invocation. Keep internal session artifacts internal; this does not require exporting every artifact or using one mandatory directory.
 
 These handoff fields adapt Tura's documented task-status and context-management practices: [task status](https://github.com/Tura-AI/tura/blob/main/docs/core/task-status.md) and [context management](https://github.com/Tura-AI/tura/blob/main/docs/core/context-management.md). They preserve actionable execution state without importing Tura's runtime architecture or claiming that any benchmark result is caused by one feature.
