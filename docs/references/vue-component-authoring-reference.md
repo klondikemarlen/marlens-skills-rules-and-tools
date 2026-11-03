@@ -334,6 +334,12 @@ Before adding or polishing explanatory UI, identify the end-user task or decisio
 
 Write help in plain language using recognizable actions and outcomes, not unexplained implementation geometry. If the supported interaction is dragging a step outside its group, explain that action rather than saying "The left gutter ungroups a step in place." Verify the actual behavior and visible labels before choosing wording; this example does not prescribe a gesture or ordering policy.
 
+For editing choices, make the selected content/version and persistence effect clear before activation. Label the content choice or operation rather than relying on ambiguous storage terms. If a choice only updates a local draft, explain that near the controls and identify the actual Save action required to persist it; if it saves immediately, communicate that different effect accurately.
+
+For example, when both conflict choices only update the draft, use "Merge with mine" and "Use their version" with one shared explanation: "These choices only update your draft. Select Save to save your changes." Check the copy against the actual selected source, merge/replacement behavior, and persistence boundary; do not turn a wording correction into autosave or another behavior change.
+
+During authoring and review, verify that the user can distinguish the chosen content and draft-only versus persisted effects before acting. Reuse the project's actual labels and controls; the example is not mandatory wording across products. Ordinary self-explanatory controls do not need redundant explanatory text.
+
 Review nearby page-level help before adding another blurb. Consolidate overlapping explanations for the same reader need into one coherent guide using the existing informational component, preserving necessary assignment, saving, and other task instructions. Keep distinct contextual help separate when it serves different tasks; this is not a one-card quota.
 
 Place useful supplemental table explanations below the complete table, including pagination, following stronger project-local conventions. Match nearby pages' vertical gaps, edge alignment, and surrounding padding, not only their component choice. Warnings, required controls, and task-critical instructions may need a different position.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [3.36.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1084) - 2026-11-03
+
+### Changed
+
+- Makes editing choices explicit about selected content and draft-only versus persisted effects, while preserving actual Save behavior and avoiding redundant help.
+
 ## [3.36.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1083) - 2026-11-03
 
 ### Added
