@@ -17,12 +17,8 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
 - Prefer an established relevant suite when one exists. For a one-off tooling change without a relevant suite, use a focused disposable smoke check rather than creating a permanent bespoke runner or assertion API solely for that change; remove temporary scripts and recording fixtures afterward, and preserve reviewer-reproducible commands and truthful evidence. Keep permanent regression coverage when it fits established conventions, and intentionally establishing test infrastructure remains valid when it is accepted scope. Do not replace runnable behavioral proof with source-text assertions or inspection alone.
 - Choose focused checks or a relevant affordable full suite under [Full-Suite Cost](#full-suite-cost), without a routine approval prompt. Preserve independently documented test/release gates; an `npm test` script alone does not mandate a full-suite run. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when a required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
-- Explore before planning when scope is unclear, multi-file, or cross-subsystem.
-- For unclear or multi-file work, implement the first runnable prototype after one bounded plan and iterate from its evidence. Re-plan only when that evidence invalidates the requested outcome, scope boundary, chosen approach, or verification path.
+- Use [Process](#process) to choose the execution shape, establish proof, iterate, and transfer context only when needed.
 - For initial scope and follow-up priorities, use [Simple-First Delivery](#simple-first-delivery).
-- Skip separate framing, formal planning, and handoff artifacts for one-sentence small diffs that touch one obvious area; read the local context, patch, and verify.
-- Reuse outcome, constraints, and proof already recorded in the issue or plan. Create a context handoff only for actual delegation or resumption, not as a prerequisite for solo implementation.
-- Delegate only when independent substantial work or a concrete coverage need justifies the coordination cost. Do not require tester, reviewer, or competing-design agents merely because they are available.
 - Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
 - For design-heavy tasks, run `docs/workflows/outcome-first-planning-workflow.md` before implementation planning.
@@ -80,7 +76,7 @@ Focused diffs can make change amplification and recurring change clusters easier
    - when checking configuration prerequisites, use [Safe Configuration Diagnostics](#safe-configuration-diagnostics) rather than broad value dumps.
 4. Delegate only where it buys coverage:
    - keep work inline when a separate agent would only repeat context gathering or perform a small local edit;
-   - use independent substantial slices or a specific design, test, or review risk to justify delegation; agent availability alone is not a reason;
+   - use independent substantial slices or a specific design, test, or review risk to justify delegation; do not require tester, reviewer, or competing-design agents merely because they are available;
    - before transfer or resumption, provide the recipient's scope, ownership, relevant observed context, proof, remaining work, and next action;
    - preserve required self-review and repository review gates whether or not a separate reviewer is useful.
 5. Implement the first runnable prototype:
