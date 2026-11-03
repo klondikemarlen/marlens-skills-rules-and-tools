@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefers controls directly in existing action slots over spacing-only components or DOM wrappers, preserving meaningful boundaries, control behavior, and rendered-layout verification.
+
 ## [3.36.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1091) - 2026-11-03
 
 ### Changed
