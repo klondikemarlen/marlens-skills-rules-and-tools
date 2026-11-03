@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keeps homogeneous fixture generation local to each scenario, preserving awaited persistence, meaningful record differences, and independently specified expectations.
+
 ## [3.35.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1065) - 2026-11-03
 
 ### Changed

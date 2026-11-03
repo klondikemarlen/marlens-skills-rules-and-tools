@@ -442,6 +442,25 @@ Use a fresh fixture when a scenario needs a different starting state. A failing 
 
 Create persisted scenario records explicitly in each test's Arrange section, even when their attributes are identical across the suite; do not move that creation into shared `beforeEach` hooks. Preserve environment hooks such as fake-timer setup/teardown and reusable opt-in factory traits called from each scenario. Intentional duplication keeps the persisted starting state visible.
 
+For homogeneous repeated fixtures within one scenario, prefer a short local loop or collection iteration over individually numbered factory declarations and manually enumerated input IDs. Keep the count, associations, and varying attributes visible in Arrange. Reuse existing iteration utilities when appropriate, without adding a dependency or generic fixture builder. For example, replace 25 otherwise identical numbered creation calls with:
+
+```typescript
+const workflowPlayers = []
+
+for (let number = 1; number <= 25; number += 1) {
+  const workflowPlayer = await workflowPlayerFactory.create({
+    workflow,
+    title: String(number),
+  })
+
+  workflowPlayers.push(workflowPlayer)
+}
+
+const selectedWorkflowPlayerIds = workflowPlayers.map((workflowPlayer) => workflowPlayer.id)
+```
+
+Use the actual factory contract, title format, selected membership, and ordering; the example assumes all 25 created records are selected in creation order. Preserve awaited persistence and sequential creation when the scenario depends on them; do not substitute unawaited async `forEach` or introduce concurrency as a readability change. Generating fixture inputs or collecting IDs is not permission to derive expected business outcomes from production logic: keep those expectations independently specified. Preserve explicit records with meaningful authorization, deletion, ordering, or other scenario differences, and keep persisted generation out of shared hooks.
+
 Arrange data through the project's factories rather than unrelated production services. Service calls remain appropriate when that service is the subject under test or the scenario is a feature test. Reuse opt-in relationship traits for repeated setup; keep scenario-specific values, identities, deletion states, ordering, and explicit preloads visible and preserved. This does not prohibit mocked collaborators or introduce a new factory library.
 
 Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
