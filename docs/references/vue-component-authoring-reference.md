@@ -613,6 +613,34 @@ Prefer avoiding authored `!important` overrides that fight framework utilities o
 
 Preserve framework/theme values, appearance, interactions, accessibility state, and behavioral, drag, or test-selector hooks. The preference concerns presentation, not every class name. Apply it within the affected scope rather than renaming unrelated classes. The intent is easier Vuetify upgrades without adding another styling framework.
 
+### Caller-Owned Outer Layout
+
+Keep outer spacing and parent-layout placement on a reusable component's invocation at the caller, rather than embedding context-specific margins or placement classes in the child's root. The child still owns intrinsic appearance and internal content layout, including appropriate root classes. Preserve its supported class/attribute forwarding, semantic root, accessibility, and interactions; this is not a ban on root styling.
+
+For example, a reusable `WorkflowConcurrentEditAlert.vue` keeps its internal padding but does not embed `mt-7 mb-2`:
+
+```vue
+<template>
+  <v-alert
+    class="py-2"
+    type="warning"
+    >The workflow changed. Review the latest version before saving.</v-alert
+  >
+</template>
+```
+
+Each parent supplies spacing appropriate to its own title, neighboring fields, and layout. These are invocations in two different parent contexts, not sibling roots to add to the reusable child:
+
+```vue
+<WorkflowConcurrentEditAlert class="mt-2 mb-4" />
+```
+
+```vue
+<WorkflowConcurrentEditAlert class="mb-2" />
+```
+
+During authoring and review, inspect equivalent callers within the affected change and preserve each context's appropriate spacing. Check the actual rendered title-to-component gap, space before following fields, and relevant responsive layouts; compilation or class names alone do not prove the spacing is correct. Reuse the project's supported utilities and stronger layout conventions. The example classes are illustrative, not universal pixel requirements or permission to move intrinsic child styling, add dependencies, or sweep unrelated components.
+
 ## Loading and Disabled State
 
 Keep idle unavailability distinct from work in progress. For Vue/Vuetify button actions, use the supported disabled presentation when prerequisites such as a selection are missing, keeping the action labeled without a spinner. Reserve `:loading` for actual pending work rather than combining missing selection with busy state. Selecting an item enables an idle action; clearing it restores the idle unavailable state. Keep submission guards for both unavailable actions and duplicate requests: presentation is not protection against form submission, keyboard activation, or direct handler calls. Preserve genuine preparation/loading states and the component's supported contract; do not invent props or rewrite unrelated controls.
