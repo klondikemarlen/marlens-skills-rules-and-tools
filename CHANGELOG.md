@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.0.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1112) - 2026-11-04
+
 ### Changed
 
 - Makes browser handoffs easier to scan: leads with the person's action and next step, keeps the destination and safety note visible, and puts the full address and background context in an expandable section. Simplifies the demo copy and improves narrow-screen and keyboard presentation.
