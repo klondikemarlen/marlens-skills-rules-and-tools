@@ -10,7 +10,7 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ### Fixed
 
-- Keeps the user's goal and progress visible in browser handoffs, alongside the specific action, why it is needed, and what it enables. The safe demo and caller guidance briefly explain the affected product and meaningful changes, not just a name, version, or login. The context guidance is reusable for future native interfaces such as Ubuntu GNOME; browser navigation and native permission handling remain separate.
+- Makes browser handoffs a context bridge: leads with the project, requested work, meaningful changes, and why the person's help is needed. Keeps navigation details secondary and moves subsequent mechanics into expandable details. The safe demo uses this package's handoff improvements with hypothetical npm publication; the context guidance remains reusable for future native interfaces such as Ubuntu GNOME without conflating navigation with native permission.
 
 ## [4.0.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1112) - 2026-11-04
 
