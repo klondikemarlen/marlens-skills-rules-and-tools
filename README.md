@@ -28,6 +28,8 @@ This package does not install browser automation or project test dependencies. I
 
 For browser handoffs, [`authorization-preview`](docs/references/authorization-preview-reference.md) shows the agent's structured context before **Continue** opens the supplied HTTPS destination. It explains the redirect, not whether the destination is safe. Run `authorization-preview --demo` to try a sample with no credentials or external redirect.
 
+For explicitly requested administrator operations on GNOME, [`privilege-preview`](docs/references/privilege-preview-reference.md) shows the resource, work context, and exact command before system authentication. Run `privilege-preview --demo` to review it without authentication or execution. Existing sudo calls are not intercepted.
+
 For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install the focused standalone package as a project development dependency; do not install MSSRT for a matcher. See its [installation](https://github.com/klondikemarlen/expect-http-response#installation) and [TypeScript](https://github.com/klondikemarlen/expect-http-response#typescript) guidance.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.

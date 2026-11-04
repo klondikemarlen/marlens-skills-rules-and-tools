@@ -19,11 +19,11 @@ Do not invent task authorization, checks, failures, or a pending release to just
 
 ### Reusing the Approach on Other Surfaces
 
-The decision context is independent of npm, HTTPS, and the UI toolkit: goal, affected thing and meaningful change, progress, requested action, reason, and intended effect. Keep those concepts as plain data. A future Ubuntu GNOME dialog can present the same short recap before a native permission or confirmation step; it need not reproduce the browser layout or require a repository, package release, or login.
+The decision context is independent of npm, HTTPS, and the UI toolkit: goal, affected thing and meaningful change, progress, requested action, reason, and intended effect. Keep those concepts as plain data. A native dialog can present the same short recap before a permission or confirmation step; it need not reproduce the browser layout or require a repository, package release, or login.
 
-For example, a hypothetical desktop handoff could say: “Snapshot is the backup app you asked me to install. It will let you schedule copies of your files. The package is ready, but installation needs administrator permission. The system prompt will ask you to allow installation; this will not start a backup.” This illustrates the same context questions, not a shipped GNOME feature or verified installation.
+For example, a hypothetical installation handoff could say: “Snapshot is the backup app you asked me to install. It will let you schedule copies of your files. The package is ready, but installation needs administrator permission. The system prompt will ask you to allow installation; this will not start a backup.” This illustrates the context questions, not a verified installation.
 
-Share the explanation contract, not permission handling. `destinationUrl`, loopback serving, browser opening, and navigation-only Continue belong to this browser helper. A future native implementation must identify the actual application or system action, state exactly what confirmation permits, and enforce its own permission, cancellation, and completion boundaries. Do not invent an HTTPS destination for a native action or treat browser continuation as operating-system authorization. No native adapter or generalized permission framework is provided here.
+Share the explanation contract, not permission handling. `destinationUrl`, loopback serving, browser opening, and navigation-only Continue belong to this browser helper. The separate [Privilege Preview](privilege-preview-reference.md) identifies one explicit system command and enforces native confirmation, cancellation, and execution boundaries. Do not invent an HTTPS destination for a native action or treat browser continuation as operating-system authorization.
 
 ## Try the Demo
 
