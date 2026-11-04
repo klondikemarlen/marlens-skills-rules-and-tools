@@ -23,8 +23,9 @@ function createFakePi() {
         },
       },
     },
-    registerCommand() {
-      fail("the adapter must not register commands")
+    registeredCommands: new Map(),
+    registerCommand(name, command) {
+      this.registeredCommands.set(name, command)
     },
     registerTool(tool) {
       this.registeredTools.push(tool)
@@ -93,6 +94,19 @@ if (!uploaderTool) {
 const uploaderResult = await uploaderTool.execute()
 if (!uploaderResult.details.uploaderUrl.endsWith("/lib/github-pr-screenshot-upload.mjs")) {
   fail(`unexpected PR screenshot uploader URL: ${uploaderResult.details.uploaderUrl}`)
+}
+
+const previewCommand = pi.registeredCommands.get("privilege-preview")
+const demoExecutions = []
+pi.exec = async (...args) => {
+  demoExecutions.push(args)
+  throw new Error("Unsupported slash-command arguments must not launch a process")
+}
+for (const args of ["", "--demo", "demo --request request.json", "/usr/bin/id -u"]) {
+  await previewCommand.handler(args, { ui: { notify() {} } })
+}
+if (demoExecutions.length !== 0) {
+  fail("the privilege-preview slash command launched a process for unsupported arguments")
 }
 
 console.log("OMP plugin adapter contract checks passed")
