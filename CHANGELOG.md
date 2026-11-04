@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.0.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1115) - 2026-11-04
+
 ### Fixed
 
 - Keeps the user's goal and progress visible in browser handoffs, alongside the specific action, why it is needed, and what it enables. Updates the safe demo and caller guidance to explain the work behind sign-in rather than merely the mechanics.
