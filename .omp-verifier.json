@@ -4,6 +4,10 @@
       "javascript": {
         "tool": "eslint",
         "command": ["npm", "run", "lint"]
+      },
+      "python": {
+        "tool": "ruff",
+        "command": ["npm", "run", "lint:python"]
       }
     }
   }

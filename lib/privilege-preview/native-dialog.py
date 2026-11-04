@@ -26,15 +26,15 @@ def read_initial_message():
     line, remainder = bytes(pending).split(b"\n", 1)
     message = json.loads(line)
     if not isinstance(message, dict):
-        raise ValueError("Expected a request envelope")
+        raise TypeError("Expected a request envelope")
     if not isinstance(message.get("demo"), bool):
-        raise ValueError("Expected an explicit demo flag")
+        raise TypeError("Expected an explicit demo flag")
     expiry = message.get("expiresInSeconds")
     if type(expiry) is not int or not 30 <= expiry <= 900:
         raise ValueError("Expiry must be an integer from 30 to 900 seconds")
     request = message.get("request")
     if not isinstance(request, dict):
-        raise ValueError("Expected a validated request")
+        raise TypeError("Expected a validated request")
     return message, remainder
 
 
@@ -53,7 +53,7 @@ def main():
         if not Gtk.init_check():
             raise RuntimeError("A working graphical display is required")
         envelope, pending = read_initial_message()
-    except (ImportError, ValueError, RuntimeError, OSError) as error:
+    except (ImportError, TypeError, ValueError, RuntimeError, OSError) as error:
         print(f"privilege-preview: native dialog startup failed: {error}", file=sys.stderr)
         return 1
 
