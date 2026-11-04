@@ -6,16 +6,24 @@ Read the user's goal and progress first, then the requested action, why it is ne
 
 ## Writing Useful Task Context
 
-Connect the manual step to the work the user asked the agent to accomplish. Populate the existing fields with short, concrete facts:
+Before sending someone elsewhere, answer “Why am I about to be there?” without assuming they remember the conversation or recognize a project name. Briefly reconnect the step to work they understand: what the affected thing does, what is changing, and why their involvement is needed now. Use a short recap, not a technical inventory, and populate the existing fields:
 
-- `context.task`: the user-facing goal, such as publishing a named package version—not merely a ticket number or “sign in.”
-- `context.whatHappened`: relevant progress and current state, including what has not happened yet.
+- `context.task`: the user-facing goal, such as publishing a named product update—not merely a ticket number, unexplained version, or “sign in.”
+- `context.whatHappened`: briefly identify what the affected product or resource does, the meaningful changes or outcome involved, and relevant progress, including what has not happened yet. For a release, summarize the user-visible changes; do not paste a changelog.
 - `action`: the specific step needed from the person.
 - `reason`: why the task needs this step now, grounded in an observed blocker or a decision reserved for the person. “Sign in so the CLI can connect” describes a mechanism, not the reason the user's work needs it.
 - `target`: the actual affected package, artifact, document, account, or other resource.
 - `context.completionEffect`: what the agent can do after successful completion and any remaining boundary. Navigation, authentication, approval, and publication are separate events.
 
 Do not invent task authorization, checks, failures, or a pending release to justify a handoff. If the only purpose is an explicitly requested trial, say that; if the purpose is unknown, establish it before requesting sign-in. The helper can display context but cannot infer its truth or make a circular explanation useful.
+
+### Reusing the Approach on Other Surfaces
+
+The decision context is independent of npm, HTTPS, and the UI toolkit: goal, affected thing and meaningful change, progress, requested action, reason, and intended effect. Keep those concepts as plain data. A future Ubuntu GNOME dialog can present the same short recap before a native permission or confirmation step; it need not reproduce the browser layout or require a repository, package release, or login.
+
+For example, a hypothetical desktop handoff could say: “Snapshot is the backup app you asked me to install. It will let you schedule copies of your files. The package is ready, but installation needs administrator permission. The system prompt will ask you to allow installation; this will not start a backup.” This illustrates the same context questions, not a shipped GNOME feature or verified installation.
+
+Share the explanation contract, not permission handling. `destinationUrl`, loopback serving, browser opening, and navigation-only Continue belong to this browser helper. A future native implementation must identify the actual application or system action, state exactly what confirmation permits, and enforce its own permission, cancellation, and completion boundaries. Do not invent an HTTPS destination for a native action or treat browser continuation as operating-system authorization. No native adapter or generalized permission framework is provided here.
 
 ## Try the Demo
 
@@ -49,19 +57,16 @@ The request has exactly these top-level fields; unknown fields are rejected. Thi
 {
   "action": "Sign in to npm",
   "target": [
-    { "label": "Package", "value": "@example/package" },
-    { "label": "Version", "value": "1.2.3" },
-    { "label": "Registry", "value": "https://registry.npmjs.org/" },
-    { "label": "Dist-tag", "value": "latest" },
-    { "label": "Prepared artifact", "value": "example-package-1.2.3.tgz" }
+    { "label": "Package", "value": "@example/release-helper" },
+    { "label": "Version", "value": "2.4.0" }
   ],
-  "reason": "The registry rejected the CLI credentials, so I cannot publish the release you requested until you sign in.",
+  "reason": "npm hosts the package, but it rejected the saved sign-in. Please sign in so I can publish this reviewed update for your team.",
   "context": {
     "agent": "release agent",
-    "repository": "example/project",
-    "task": "Publish @example/package 1.2.3",
-    "whatHappened": "Release checks passed for example-package-1.2.3.tgz. Publishing has not started.",
-    "completionEffect": "npm will authenticate the CLI. After success, I can resume your requested publication of this version. Signing in does not itself publish it.",
+    "repository": "example/release-helper",
+    "task": "Publish the Release Helper update",
+    "whatHappened": "Release Helper prepares and publishes your team's packages. This update clarifies release summaries and fixes incorrect version warnings. Checks passed; nothing has been published.",
+    "completionEffect": "After npm confirms your account, I can publish this version. Signing in alone does not publish it.",
     "issueUrl": "https://github.com/example/project/issues/42",
     "pullRequestUrl": "https://github.com/example/project/pull/43"
   },
@@ -72,7 +77,7 @@ The request has exactly these top-level fields; unknown fields are rejected. Thi
 - `action`: required plain-language description, up to 200 characters. There is no fixed operation list or provider-specific behavior.
 - `target`: 1–20 ordered objects with exactly `label` (up to 100 characters) and `value` (up to 2,000 characters). Describe the actual document, account, artifact, or other target. Mark unknown material details explicitly, such as `Not supplied`; do not invent account identities, requested permissions, or artifact metadata.
 - `reason`: required causal explanation of why this manual step is needed for the requested task, up to 2,000 characters. State the actual blocker or decision; restating the action is not enough.
-- `context`: requires `agent` (500), `task` (1,000), `whatHappened` (2,000), and `completionEffect` (2,000 characters). `task` names the user's goal and becomes the page heading; `whatHappened` describes observed progress; `completionEffect` explains what this step enables next without claiming it has happened. These task fields remain visible before Continue. `repository` is optional (500 characters) for handoffs not associated with a repository. `issueUrl` and `pullRequestUrl` are optional absolute HTTPS links without embedded credentials, up to 2,000 characters. Provided context is shown as plain text or an explicitly clicked link.
+- `context`: requires `agent` (500), `task` (1,000), `whatHappened` (2,000), and `completionEffect` (2,000 characters). `task` names the user's goal and becomes the page heading; `whatHappened` briefly explains the affected thing, meaningful changes, and observed progress; `completionEffect` explains what this step enables next without claiming it has happened. These task fields remain visible before Continue. `repository` is optional (500 characters) for handoffs not associated with a repository. `issueUrl` and `pullRequestUrl` are optional absolute HTTPS links without embedded credentials, up to 2,000 characters. Provided context is shown as plain text or an explicitly clicked link.
 - `destinationUrl`: required exact absolute HTTPS URL, up to 8,192 characters, without credentials, whitespace, controls, or backslashes. Supply printable ASCII; non-ASCII path/query characters must already be percent-encoded. Any HTTPS host and valid port are accepted, including a host that resembles another provider. This is deliberately **not** a provider allowlist or trust decision. The preview displays the parsed origin separately from the exact supplied URL. Continue sends the original path, query, and fragment without rebuilding challenge parameters.
 
 All supplied text must be non-empty and cannot contain control characters other than tabs and line breaks. Each invocation validates and deep-freezes its own request in memory, binding the displayed context and destination to a fresh unpredictable capability. A changed request or replacement URL requires a new invocation and preview. The renderer uses the established `escape-html` library for HTML text and quoted attributes, not a custom encoder or rich-HTML sanitizer. URL validation is a separate boundary; escaping a URL does not make it trustworthy.
