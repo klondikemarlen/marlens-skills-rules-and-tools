@@ -26,7 +26,7 @@ Every reusable OMP rule in [`rules/`](rules/) loads by default through OMP plugi
 
 This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper, `bin/agent-rebase-edit.js`, and `bin/agent-worktree.js` remain available for project-local shims and scripted Git worktree setup.
 
-For authorized npm authentication or publication handoffs, [`npm-authorization-preview`](docs/references/npm-authorization-preview-reference.md) shows the agent's structured context in the normal browser before **Continue to npm** opens the supplied destination. Local continuation does not prove npm approval or publication.
+For browser handoffs, [`authorization-preview`](docs/references/authorization-preview-reference.md) shows the agent's structured context before **Continue** opens the supplied HTTPS destination. It explains the redirect, not whether the destination is safe. Run `authorization-preview --demo` to try a sample with no credentials or external redirect.
 
 For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install the focused standalone package as a project development dependency; do not install MSSRT for a matcher. See its [installation](https://github.com/klondikemarlen/expect-http-response#installation) and [TypeScript](https://github.com/klondikemarlen/expect-http-response#typescript) guidance.
 

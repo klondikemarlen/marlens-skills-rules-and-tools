@@ -6,6 +6,15 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Replaces `npm-authorization-preview` with `authorization-preview` and a provider-neutral request schema. The context page accepts credential-free HTTPS destinations, explains the handoff without certifying trust, and preserves explicit continuation and private, expiring sessions. This is a breaking command/schema cutover; see the [migration guide](docs/references/authorization-preview-reference.md#migrating-from-the-npm-specific-command).
+- Uses the established `escape-html` library instead of custom HTML escaping and clarifies context-appropriate security-library reuse in authoring guidance.
+
+### Added
+
+- Adds `authorization-preview --demo` to inspect a sample handoff without credentials, stdin, or an external redirect.
+
 ## [3.37.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1104) - 2026-11-03
 
 ### Added
