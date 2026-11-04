@@ -189,18 +189,23 @@ The [self-improvement workflow](docs/workflows/self-improvement-workflow.md) pri
 
 ## Repository Development Checks
 
-Use Node.js 22.13 or newer on the 22.x line, or Node.js 24+, with npm. Run these commands natively from this checkout:
+Use Node.js 22.13 or newer on the 22.x line, or Node.js 24+, with npm, and Python 3.10+ with `venv` support. Run these commands natively from this checkout:
 
 ```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-lint.txt
 npm ci
 npm run lint
+npm run lint:python
 npm test
 npm pack --dry-run --json
 ```
 
 `npm run lint` applies ESLint's recommended JavaScript and TypeScript rules to repository source, scripts, tests, the OMP adapter, and extensionless Node commands in `bin/`. It never fixes files and permits no warnings. TypeScript linting is syntax-based, not a substitute for typechecking; Ruby and Markdown are outside this lint command's scope. Browser-evaluated upload helpers permit their required `document` global, and intentional control-character sanitizers retain narrowly documented rule exceptions.
 
-The repository's [Verifier binding](.omp-verifier.json) explicitly selects `npm run lint` for `verifier:project-lint`; it is checkout-specific configuration, not an installed rule for consuming projects. The packaged `bin/dev` is a generic Docker Compose helper for downstream projects, not this repository's development/test wrapper. No Docker service or `dev.config.rb` is needed for these checks. CI runs the same lint command before the existing package checks.
+`npm run lint:python` checks the native dialog source in `lib/privilege-preview` with Ruff, pinned in `requirements-lint.txt`. The repository's `ruff.toml` explicitly selects core syntax/error checks (`E4`, `E7`, `E9`), Pyflakes (`F`), and type-check exception semantics (`TRY004`), without inheriting workstation rules. The command never fixes files; any finding fails the check. This is lint-only tooling: GTK/libadwaita remain system runtime prerequisites, and linting does not launch a window or request administrator access.
+
+The repository's [Verifier bindings](.omp-verifier.json) explicitly select the JavaScript/TypeScript and Python commands for `verifier:project-lint`; they are checkout-specific configuration, not installed rules for consuming projects. The packaged `bin/dev` is a generic Docker Compose helper for downstream projects, not this repository's development/test wrapper. No Docker service or `dev.config.rb` is needed for these checks. CI installs the pinned lint tooling and runs both commands before the existing package checks.
 
 ## Feature and Issue Workflow
 
