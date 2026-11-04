@@ -10,11 +10,23 @@ Run from a non-root Linux desktop session with Node.js supported by this package
 
 ## Try the Safe Demo
 
-```sh
-privilege-preview --demo
+Inside OMP, type:
+
+```text
+/privilege-preview demo
 ```
 
-**Try Continue** completes locally. No authentication or command execution occurs. Cancel, Escape, or the window close control dismisses it. Approval expires after five minutes by default; `--expires-in` accepts 30–900 seconds.
+Command and `demo` argument autocomplete are available. This slash command accepts only the demo; it cannot submit a privileged request or forward arbitrary CLI arguments. Restart OMP after installing an update to load the command.
+
+For the standard OMP plugin installation, an external terminal can run:
+
+```sh
+node "$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools/bin/privilege-preview" --demo
+```
+
+Use the package's actual installed directory if it differs. The adapter adds package commands to **OMP's process PATH**, not the parent terminal's PATH. A bare `privilege-preview --demo` works in OMP shell tools or when you have separately added the command to your shell.
+
+The demo illustrates a project blocked by missing Git; it does not inspect your machine or install anything. **Close Demo** completes locally. No authentication or command execution occurs. Cancel, Escape, or the window close control dismisses it. The preview expires after five minutes by default; the CLI's `--expires-in` accepts 30–900 seconds.
 
 ## Submit an Explicit Request
 
@@ -38,7 +50,7 @@ Supply one UTF-8 JSON object on stdin, then close stdin. Keep actual private tas
 }
 ```
 
-Save the request privately and invoke `privilege-preview < request.json`. The example's progress statement must match your actual checks; it does not itself authorize execution. Review the displayed context and exact operation before choosing Continue. Never send a password to this command or through chat.
+Save the request privately and invoke `privilege-preview < request.json` from an OMP shell tool, or use the explicit installed path shown above in an external terminal. The example's progress statement must match your actual checks; it does not itself authorize execution. Review the displayed context and exact operation before choosing Continue. Never send a password to this command or through chat.
 
 ### Request Contract
 
