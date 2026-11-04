@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.1.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1142) - 2026-11-04
+
 ### Fixed
 
 - Makes the native privilege demo available through `/privilege-preview demo` in OMP, with autocomplete and completion/error feedback, without requiring a terminal PATH change. Uses concrete example work instead of verification jargon, removes the redundant reason heading, and labels the demo's closing action **Close Demo**.
