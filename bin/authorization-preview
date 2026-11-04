@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import process from "node:process"
 
-import { runCli } from "../lib/npm-authorization-preview/run-cli.js"
+import { runCli } from "../lib/authorization-preview/run-cli.js"
 
 process.exitCode = await runCli(process.argv.slice(2))
