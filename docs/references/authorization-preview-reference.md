@@ -64,8 +64,8 @@ The request has exactly these top-level fields; unknown fields are rejected. Thi
     "task": "Release the clearer handoff previews",
     "whatHappened": "This update makes handoffs explain the work and changes involved, with guidance reusable for future GNOME prompts. The changes are prepared.",
     "completionEffect": "After sign-in and the remaining release checks, I could publish this version.",
-    "issueUrl": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1114",
-    "pullRequestUrl": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1115"
+    "issueUrl": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1120",
+    "pullRequestUrl": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1121"
   },
   "destinationUrl": "https://www.npmjs.com/login?next=/login/cli/example-challenge"
 }
