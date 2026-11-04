@@ -25,8 +25,18 @@ jobs:
           node-version: 22
       - name: Install package dependencies
         run: npm install
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python lint tooling
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -r requirements-lint.txt
       - name: Lint repository source
         run: npm run lint
+      - name: Lint native Python source
+        run: npm run lint:python
       - name: Run package checks
         run: npm test
       - name: Validate package contents
