@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Makes handoffs easier to recognize and scan: uses the resource name and version as the title, keeps meaningful changes and the reason for acting, and removes repeated identity, introductory copy, and ready-state notices. Exact addresses and supporting context remain available under Details.
+
 ## [4.0.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1115) - 2026-11-04
 
 ### Fixed

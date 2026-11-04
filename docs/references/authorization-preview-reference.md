@@ -2,17 +2,17 @@
 
 `authorization-preview` shows caller-supplied context in a temporary local browser page before an explicit continuation to an HTTPS destination. Use it for sign-in, approval, document review, or another browser handoff. It explains why the agent is redirecting the user; it does **not** certify the destination's identity, safety, permission scope, or suitability for credentials. Continuing only navigates, not authorizes or completes the described action.
 
-This is a context bridge, not a sign-in instruction page. Lead with the project and work recap: which project this is for, what is changing, and why that work needs the person's help. Keep this explanation visually primary, followed by Continue/Cancel; show the requested step and destination as compact secondary information. A supplied repository stays visible as a Project detail. **Full address and request details** holds the exact URL, what happens after the handoff, and supporting metadata; expanding it does not navigate or approve anything. The concise safety note remains visible beside the actions.
+This is a context bridge, not a sign-in instruction page. Use the affected resource's identity as the title, then explain what is changing and why that work needs the person's help. Keep the requested step and destination compact, with Continue/Cancel directly below. Additional targets and a supplied repository remain visible labeled details; the title is not repeated as a detail row. **Details** holds the exact URL, task, subsequent work, and supporting metadata. The standalone helper retains that context rather than assuming another OMP surface supplies it. Show a compact **Demo** indicator for a trial; reserve status text for pending or unavailable actions instead of repeating successful-state notices.
 
 ## Writing Useful Task Context
 
-Before sending someone elsewhere, answer “Why am I about to be there?” without assuming they remember the conversation or recognize a project name. Briefly reconnect the step to work they understand: what the affected thing does, what is changing, and why their involvement is needed now. Use a short recap, not a technical inventory, and populate the existing fields:
+Before sending someone elsewhere, answer “Why am I about to be there?” with a recognizable resource identity, meaningful changes, and the reason the person's involvement is needed now. Reconnect them to the current work without reintroducing a familiar product or repeating navigation mechanics. Use a short recap, not a technical inventory, and populate the existing fields:
 
 - `context.task`: the user-facing goal, such as publishing a named product update—not merely a ticket number, unexplained version, or “sign in.”
-- `context.whatHappened`: name the project, product, or affected resource in recognizable terms; briefly explain what it does, the meaningful changes or outcome involved, and relevant progress, including what has not happened yet. For a release, summarize the user-visible changes; do not paste a changelog.
+- `context.whatHappened`: briefly explain the meaningful changes or outcome involved and relevant progress, including what has not happened yet. Use the resource title as the identity anchor; add a product description only when the person needs it to understand this work. For a release, summarize the user-visible changes; do not paste a changelog.
 - `action`: the specific step needed from the person.
 - `reason`: why the task needs this step now, grounded in an actual prerequisite or a decision reserved for the person. Explain the outcome it enables, not routine sign-in mechanics or an expected authentication failure, unless that detail changes what the person needs to do. “Sign in so the CLI can connect” describes a mechanism, not the reason the user's work needs it.
-- `target`: the actual affected package, artifact, document, account, or other resource.
+- `target`: the actual affected package, artifact, document, account, or other resource. Put its recognizable identity first; that value is the title, not a repeated detail row.
 - `context.completionEffect`: what the agent can do after successful completion and any remaining boundary. Navigation, authentication, approval, and publication are separate events.
 
 Do not invent task authorization, checks, failures, or a pending release to justify a handoff. If the only purpose is an explicitly requested trial, say that; if the purpose is unknown, establish it before requesting sign-in. The helper can display context but cannot infer its truth or make a circular explanation useful.
@@ -31,7 +31,7 @@ Share the explanation contract, not permission handling. `destinationUrl`, loopb
 authorization-preview --demo
 ```
 
-The demo needs no JSON input, credentials, or real provider challenge. It uses this package's 4.0.2 handoff improvements as a concrete example, imagining publication to npm, and is visibly labeled **Demo only**. This repository actually releases through a GitHub merge; no npm login or publication is needed for this change. **Try Continue** completes locally with a `demo-completed` result and never returns an external redirect; Cancel and expiry retain their normal behavior. It ignores stdin rather than turning piped data into a live request. Run it again for another independent preview.
+The demo needs no JSON input, credentials, or real provider challenge. It uses this package's 4.0.3 handoff improvements as a concrete example, imagining publication to npm, and is visibly labeled **Demo**. This repository actually releases through a GitHub merge; no npm login or publication is needed for this change. **Try Continue** completes locally with a `demo-completed` result and never returns an external redirect; Cancel and expiry retain their normal behavior. It ignores stdin rather than turning piped data into a live request. Run it again for another independent preview.
 
 From a source checkout, use `node bin/authorization-preview --demo`. Add `--manual` to obtain the local URL without invoking the OS browser opener, or `--expires-in 120` to shorten its lifetime. Demo mode exercises the same renderer and local lifecycle as a real request, with only the sample input and final navigation replaced.
 
@@ -56,17 +56,14 @@ The request has exactly these top-level fields; unknown fields are rejected. Thi
 ```json
 {
   "action": "Sign in to npm",
-  "target": [
-    { "label": "Package", "value": "marlens-skills-rules-and-tools" },
-    { "label": "Version", "value": "4.0.2" }
-  ],
+  "target": [{ "label": "Package", "value": "marlens-skills-rules-and-tools · 4.0.3" }],
   "reason": "Sign in so I can publish this update for people installing the package from npm.",
   "context": {
     "agent": "Example release assistant",
     "repository": "klondikemarlen/marlens-skills-rules-and-tools",
     "task": "Release the clearer handoff previews",
-    "whatHappened": "Marlen's Skills, Rules, and Tools supplies the skills and workflows your coding agents use. This update makes handoffs explain the work and changes involved, with guidance reusable for future GNOME prompts. The changes are prepared.",
-    "completionEffect": "After sign-in and the remaining release checks, I could publish this version. Signing in alone does not publish anything.",
+    "whatHappened": "This update makes handoffs explain the work and changes involved, with guidance reusable for future GNOME prompts. The changes are prepared.",
+    "completionEffect": "After sign-in and the remaining release checks, I could publish this version.",
     "issueUrl": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1114",
     "pullRequestUrl": "https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1115"
   },
@@ -75,9 +72,9 @@ The request has exactly these top-level fields; unknown fields are rejected. Thi
 ```
 
 - `action`: required plain-language description, up to 200 characters. There is no fixed operation list or provider-specific behavior.
-- `target`: 1–20 ordered objects with exactly `label` (up to 100 characters) and `value` (up to 2,000 characters). Describe the actual document, account, artifact, or other target. Mark unknown material details explicitly, such as `Not supplied`; do not invent account identities, requested permissions, or artifact metadata.
+- `target`: 1–20 ordered objects with exactly `label` (up to 100 characters) and `value` (up to 2,000 characters). The first value becomes the page and browser-tab title; subsequent entries remain labeled details. Put the recognizable resource identity first, combining its name and version when those identify the subject together. Mark unknown material details explicitly, such as `Not supplied`; do not invent account identities, requested permissions, or artifact metadata.
 - `reason`: required causal explanation of why this manual step is needed for the requested task, up to 2,000 characters. State the actual prerequisite or decision and the outcome it enables; restating the action is not enough.
-- `context`: requires `agent` (500), `task` (1,000), `whatHappened` (2,000), and `completionEffect` (2,000 characters). `task` names the user's goal and becomes the page heading; `whatHappened` briefly identifies the project or affected thing, meaningful changes, and observed progress. The goal, recap, and reason remain visible before Continue; `completionEffect` explains the subsequent work and boundaries under **Full address and request details**, without claiming they have happened. `repository` is optional (500 characters) and, when supplied, appears as a visible Project detail. `issueUrl` and `pullRequestUrl` are optional absolute HTTPS links without embedded credentials, up to 2,000 characters. Provided context is shown as plain text or an explicitly clicked link.
+- `context`: requires `agent` (500), `task` (1,000), `whatHappened` (2,000), and `completionEffect` (2,000 characters). The target identity, change/progress recap, and reason remain visible before Continue. `task` names the user's goal; it appears with `completionEffect`, `agent`, and the exact address under **Details**, without claiming subsequent work has happened. `repository` is optional (500 characters) and, when supplied, appears as a visible Project detail. `issueUrl` and `pullRequestUrl` are optional absolute HTTPS links without embedded credentials, up to 2,000 characters. Provided context is shown as plain text or an explicitly clicked link.
 - `destinationUrl`: required exact absolute HTTPS URL, up to 8,192 characters, without credentials, whitespace, controls, or backslashes. Supply printable ASCII; non-ASCII path/query characters must already be percent-encoded. Any HTTPS host and valid port are accepted, including a host that resembles another provider. This is deliberately **not** a provider allowlist or trust decision. The preview displays the parsed origin separately from the exact supplied URL. Continue sends the original path, query, and fragment without rebuilding challenge parameters.
 
 All supplied text must be non-empty and cannot contain control characters other than tabs and line breaks. Each invocation validates and deep-freezes its own request in memory, binding the displayed context and destination to a fresh unpredictable capability. A changed request or replacement URL requires a new invocation and preview. The renderer uses the established `escape-html` library for HTML text and quoted attributes, not a custom encoder or rich-HTML sanitizer. URL validation is a separate boundary; escaping a URL does not make it trustworthy.
