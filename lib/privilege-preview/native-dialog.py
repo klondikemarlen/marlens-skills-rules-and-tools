@@ -194,7 +194,7 @@ def main():
                                      else "Administrator access requested", "dim-label"))
             content.append(self.text(targets[0]["value"], "title-1"))
             self.section(content, "What happened", context["whatHappened"])
-            self.section(content, "Why administrator access is needed", request["reason"])
+            content.append(self.text(request["reason"]))
             if context.get("repository"):
                 self.section(content, "Project", context["repository"])
             for target in targets[1:]:
@@ -210,6 +210,7 @@ def main():
             self.section(detail_content, "Intended effect", context["completionEffect"])
             self.section(detail_content, "Requested by", context["agent"])
             detail_content.append(self.text(
+                "Demo only: this command will not run." if self.demo else
                 "Runs as administrator (root), for this command only. "
                 "The command and arguments above are passed directly, not to a shell.",
                 "dim-label",
@@ -218,13 +219,13 @@ def main():
             content.append(details)
 
             self.status = self.text(
-                "This demo ends when you choose Try Continue. No password or command follows."
-                if self.demo else
+                "" if self.demo else
                 "Continue hands this exact command to the system for authentication. "
                 "This window does not collect passwords.",
                 "dim-label",
             )
-            content.append(self.status)
+            if not self.demo:
+                content.append(self.status)
             content.append(self.text(
                 f"This request expires after {envelope['expiresInSeconds']} seconds.",
                 "dim-label",
@@ -243,7 +244,7 @@ def main():
                 getattr(actions, "set_margin_" + side)(12)
             self.cancel_button = Gtk.Button(label="Cancel")
             self.cancel_button.connect("clicked", self.cancel)
-            self.continue_button = Gtk.Button(label="Try Continue" if self.demo else "Continue")
+            self.continue_button = Gtk.Button(label="Close Demo" if self.demo else "Continue")
             self.continue_button.add_css_class("suggested-action")
             self.continue_button.connect("clicked", self.approve)
             actions.append(self.cancel_button)

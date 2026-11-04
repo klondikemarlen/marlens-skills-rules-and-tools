@@ -19,6 +19,52 @@ export function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
     process.env.PATH = [process.env.PATH, packageBinPath].filter(Boolean).join(pathDelimiter)
   }
 
+  pi.registerCommand("privilege-preview", {
+    description: "Open the safe native GNOME privilege demo",
+    getArgumentCompletions(prefix) {
+      if (!"demo".startsWith(prefix)) return null
+
+      return [{ value: "demo", label: "demo", description: "No authentication or execution" }]
+    },
+    async handler(args, ctx) {
+      if (args.trim() !== "demo") {
+        ctx.ui.notify("Usage: /privilege-preview demo", "info")
+        return
+      }
+
+      if (process.platform !== "linux") {
+        ctx.ui.notify("Privilege preview requires a Linux desktop with GTK4/libadwaita.", "error")
+        return
+      }
+
+      ctx.ui.notify("Opening the safe GNOME demo. No authentication or execution.", "info")
+      try {
+        const { stdout, stderr, code } = await pi.exec(
+          "node",
+          [`${packageBinPath}/privilege-preview`, "--demo"],
+          { cwd: ctx.cwd }
+        )
+        if (code === 0) {
+          ctx.ui.notify("Privilege preview demo completed. Nothing was executed.", "info")
+        } else if (code === 3) {
+          ctx.ui.notify("Privilege preview demo cancelled.", "info")
+        } else if (code === 4) {
+          ctx.ui.notify("Privilege preview demo expired.", "info")
+        } else {
+          ctx.ui.notify(
+            `Privilege preview failed: ${stdout.trim() || stderr.trim() || `exit ${code}`}`,
+            "error"
+          )
+        }
+      } catch (error) {
+        ctx.ui.notify(
+          `Cannot open privilege preview: ${error instanceof Error ? error.message : String(error)}`,
+          "error"
+        )
+      }
+    },
+  })
+
   pi.registerTool({
     name: "github_markdown_image_upload_helper_path",
     label: "GitHub Markdown Image Upload Helper Path",
