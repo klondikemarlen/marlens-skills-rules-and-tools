@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.0.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1109) - 2026-11-04
+
 ### Changed
 
 - Replaces `npm-authorization-preview` with `authorization-preview` and a provider-neutral request schema. The context page accepts credential-free HTTPS destinations, explains the handoff without certifying trust, and preserves explicit continuation and private, expiring sessions. This is a breaking command/schema cutover; see the [migration guide](docs/references/authorization-preview-reference.md#migrating-from-the-npm-specific-command).
