@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.1.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1147) - 2026-11-04
+
 ### Fixed
 
 - Adds a reproducible Python lint gate for the native privilege dialog in local checks, CI, and Verifier. Invalid request types retain a clean, fail-closed startup error.
