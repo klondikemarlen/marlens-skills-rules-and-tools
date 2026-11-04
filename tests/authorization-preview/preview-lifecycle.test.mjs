@@ -2,17 +2,17 @@ import assert from "node:assert/strict"
 import { request as httpRequest } from "node:http"
 import test from "node:test"
 
-import { startPreviewServer } from "../../lib/npm-authorization-preview/start-preview-server.js"
+import { startPreviewServer } from "../../lib/authorization-preview/start-preview-server.js"
 
-const npmUrl = "https://www.npmjs.com/login?challenge=a%2Fb%2B%3D#private-step"
+const destinationUrl = "https://releases.example:8443/review?challenge=a%2Fb%2B%3D#private-step"
 
 function previewRequest() {
   return {
-    operation: "staged-publication-approval",
-    target: {
-      package: "@example/release-tool",
-      version: "2.4.0",
-    },
+    action: "Review a prepared release",
+    target: [
+      { label: "Package", value: "@example/release-tool" },
+      { label: "Version", value: "2.4.0" },
+    ],
     reason: "Approve the prepared publication after reviewing its context.",
     context: {
       agent: "release agent",
@@ -21,7 +21,7 @@ function previewRequest() {
       whatHappened: "The artifact was staged.",
       completionEffect: "npm will decide whether to publish it.",
     },
-    authorizationUrl: npmUrl,
+    destinationUrl,
   }
 }
 
@@ -78,8 +78,8 @@ test("when caller data changes after creation, continuation remains paired with 
   const request = previewRequest()
   const session = await startPreviewServer(request)
   t.after(() => session.close())
-  request.target.package = "@attacker/replacement"
-  request.authorizationUrl = "https://www.npmjs.com/replacement"
+  request.target[0].value = "@attacker/replacement"
+  request.destinationUrl = "https://other.example/replacement"
 
   // Act
   const html = await (await fetch(session.previewUrl)).text()
@@ -89,7 +89,7 @@ test("when caller data changes after creation, continuation remains paired with 
   assert.ok(html.includes("@example/release-tool"))
   assert.ok(!html.includes("@attacker/replacement"))
   assert.equal(continuation.status, 303)
-  assert.equal(continuation.headers.location, npmUrl)
+  assert.equal(continuation.headers.location, destinationUrl)
 })
 
 test("when an external origin submits Continue, it cannot consume the preview", async (t) => {
@@ -141,7 +141,7 @@ test("when a link requests Continue with GET, no provider redirect is returned",
   assert.equal(response.headers.get("location"), null)
 })
 
-test("when browser opening is still pending, Continue cannot navigate to npm", async (t) => {
+test("when browser opening is still pending, Continue cannot navigate to the destination", async (t) => {
   // Arrange
   const session = await startPreviewServer(previewRequest(), {
     ready: false,
@@ -157,7 +157,7 @@ test("when browser opening is still pending, Continue cannot navigate to npm", a
   assert.equal(premature.status, 425)
   assert.equal(premature.headers.location, undefined)
   assert.equal(continuation.status, 303)
-  assert.equal(continuation.headers.location, npmUrl)
+  assert.equal(continuation.headers.location, destinationUrl)
 })
 
 test("when the user cancels, the server closes without returning a provider destination", async (t) => {
@@ -192,7 +192,7 @@ test("when an unload beacon is delivered, the preview is cancelled without redir
   assert.deepEqual(await session.completion, { result: "cancelled" })
 })
 
-test("when a page-close beacon is missed, expiry releases the server without opening npm", async (t) => {
+test("when a page-close beacon is missed, expiry releases the server without opening the destination", async (t) => {
   // Arrange
   const session = await startPreviewServer(previewRequest(), {
     ttlMs: 20,
