@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.1.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1129) - 2026-11-04
+
+### Added
+
+- Adds `privilege-preview`: a native GNOME explanation of an explicitly requested administrator operation before system authentication. Shows the affected resource, work context, and exact command; cancellation before confirmation runs nothing, and a safe demo needs no authentication. Existing sudo calls remain unchanged.
+
 ## [4.0.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1121) - 2026-11-04
 
 ### Changed
