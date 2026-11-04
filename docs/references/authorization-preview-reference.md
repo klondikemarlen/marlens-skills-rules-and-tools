@@ -2,6 +2,8 @@
 
 `authorization-preview` shows caller-supplied context in a temporary local browser page before an explicit continuation to an HTTPS destination. Use it for sign-in, approval, document review, or another browser handoff. It explains why the agent is redirecting the user; it does **not** certify the destination's identity, safety, permission scope, or suitability for credentials. Continuing only navigates, not authorizes or completes the described action.
 
+Read the action, reason, target, next step, and website first. Use **Full address and request details** to inspect the exact URL and background context before continuing; expanding it does not navigate or approve anything. The concise safety note remains visible beside the actions. When preparing a request, use short, concrete language about the person's task rather than repeating explanations of how the helper works.
+
 ## Try the Demo
 
 ```sh
