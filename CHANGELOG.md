@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.3.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1154) - 2026-11-05
+
+### Added
+
+- Adds `github-reviewed-files` for read-only inspection or explicitly requested Viewed markers on exact reviewed PR paths. It verifies viewer, revision, complete pagination, and fresh readback; preserves unrelated markers; and reports partial failures and non-atomic head races without claiming review approval.
+
 ## [4.2.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1153) - 2026-11-05
 
 ### Changed

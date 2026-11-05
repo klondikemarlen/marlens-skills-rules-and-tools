@@ -136,6 +136,34 @@ State is viewer-specific: `VIEWED` means marked viewed, `UNVIEWED` means not mar
 
 The mutation has no expected-head input: pre-write and post-write queries detect observed head changes but cannot make this an atomic revision-pinned operation or guarantee future head stability. Report a mismatch separately and review the changed revision before another attempt. Do not infer approval, merge readiness, or authority to mark other paths. See the [GitHub GraphQL pull request reference](https://docs.github.com/en/graphql/reference/pulls) for these inputs, `PullRequest.files`, `PullRequestChangedFile.path`/`viewerViewedState`, and `FileViewedState`.
 
+### Opt-In Reviewed Files Helper
+
+`github-reviewed-files` consumes only the caller's explicit, reviewed and sufficiently verified exact paths; it does not conduct review or produce review/test PASS. It never infers a repository, PR, viewer, head, or file selection from the checkout. Authenticate with the existing `gh auth login` session or existing `GH_TOKEN`/`GITHUB_TOKEN`; there is no helper-specific token configuration.
+
+The installed command is on OMP's process PATH, not automatically the external terminal's PATH. In an external terminal with the standard OMP installation, replace `github-reviewed-files` below with `node "$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools/bin/github-reviewed-files"`; adjust the package location if different.
+
+```bash
+# Read-only default: resolves the viewer, target/head and all paginated PR files.
+github-reviewed-files --repo OWNER/REPOSITORY --pr NUMBER \
+  --viewer LOGIN --head FULL_40_CHARACTER_REVIEWED_OID \
+  --path 'src/reviewed-file.js' --path 'removed test.js'
+
+# Only after actual review/verification and explicit approval of these exact paths:
+github-reviewed-files --repo OWNER/REPOSITORY --pr NUMBER \
+  --viewer LOGIN --head FULL_40_CHARACTER_REVIEWED_OID \
+  --path 'src/reviewed-file.js' --path 'removed test.js' --mark-viewed
+```
+
+Repeat `--path` for every approved repository-relative path, quoting shell-sensitive names. Use `--path=--fixture.js` for a literal path beginning with `--`. Paths are literal and case-sensitive, including removed files; no local file existence is required. The helper does not expand globs, select all files, guess rename aliases, unmark files, approve reviews, or merge PRs. `--dry-run` is an explicit spelling of the default read-only mode and cannot be combined with `--mark-viewed`.
+
+Before any write, the helper validates the authenticated viewer, repository/PR identity, full reviewed OID, complete file counts/pagination, and every requested exact path. Missing/duplicate/ambiguous paths, incomplete or errored reads, unexpected identity, or unexpected head reject the whole preflight without mutation. Already-Viewed paths are preserved. Immediately before each necessary mutation it rereads the expected head and complete path set, then freshly rereads head and paths afterward. Only matching-head `VIEWED` confirms that file's marker. Unrelated paths are never mutated.
+
+The JSON result includes the resolved viewer, target, observed head, total file count, and each requested path's state and proposed action after successful preflight. Outcomes distinguish `wouldMark`, `alreadyViewed`, `newlyMarked`, `rejected`, `failed`, `unconfirmed`, `race`, and `notAttempted`. `mutationAttempted` and `mutationMayHaveSucceeded` disclose writes whose response or readback was lost. A lost mutation response may still be confirmed by fresh same-head `VIEWED`, with `mutationError` retained. A failed/incomplete readback, non-Viewed readback, or detected head race stops further writes; prior confirmed changes remain disclosed, with no implied rollback. An initial race rejects preflight; a later race is a per-file outcome. Retry only the same expressly approved paths and reviewed OID after resolving the reported problem; a changed revision requires renewed review.
+
+Each reported `state` is an observation, not a promise of current/future stability: `stateSource` identifies `preflight`, `preMutation`, or `readback`. A race or failed readback leaves the last available observation in place; consult the per-file outcome and mutation flags instead of treating that older state as confirmation.
+
+Exit `0` means complete dry-run inspection or confirmed selected markers, **not review/test PASS**. Exit `1` means authentication/API rejection or a partial, stopped, failed, raced, or unconfirmed operation. Invalid/missing/unknown arguments exit `2` with usage; `--help` alone exits `0` without authentication. Operational preflight/partial results are JSON on stdout; argument/authentication errors are on stderr. Mutation has no expected-head condition: these pre/post checks are not revision-atomic and cannot prevent an intervening head race or guarantee future stability. The helper never automatically unmarks after a race.
+
 ## Review Comment Thread Actions
 
 For this repository, use local script helpers before touching write-sensitive GitHub APIs:
