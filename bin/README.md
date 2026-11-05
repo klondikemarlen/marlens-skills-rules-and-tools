@@ -18,6 +18,7 @@ Read this file when a workflow refers to package-local command setup. It maps pu
 | `triage`                  | Capture read-only GitHub context, validate a structured assessment, and render an advisory preview. See the [contract and examples](../docs/references/ticket-triage-reference.md).                                                        | [`bin/triage`](./triage)                                   |
 | `authorization-preview`   | Explain a browser handoff before an explicit HTTPS redirect; `--demo` previews the experience without leaving the local page. See the [request and lifecycle contract](../docs/references/authorization-preview-reference.md).             | [`bin/authorization-preview`](./authorization-preview)     |
 | `privilege-preview`       | Explain one explicit administrator operation in a native GNOME window before system authentication. `--demo` never authenticates or executes. See the [request and execution contract](../docs/references/privilege-preview-reference.md). | [`bin/privilege-preview`](./privilege-preview)             |
+| `conventions-memory`      | Preview, export, or explicitly synchronize committed conventions into native Mnemopi memory. Requires Bun 1.4.4; see the [bootstrap contract](../docs/references/conventions-memory-reference.md).                                         | [`bin/conventions-memory`](./conventions-memory)           |
 
 `agent-rebase-edit` is the published rebase helper. `git-edit-commit` remains a compatible alias.
 

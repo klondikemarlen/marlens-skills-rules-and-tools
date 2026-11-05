@@ -30,6 +30,8 @@ For browser handoffs, [`authorization-preview`](docs/references/authorization-pr
 
 For explicitly requested administrator operations on GNOME, [`privilege-preview`](docs/references/privilege-preview-reference.md) shows the resource, work context, and exact command before system authentication. Type `/privilege-preview demo` inside OMP to review it without authentication or execution; see the reference for external-terminal usage. Existing sudo calls are not intercepted.
 
+For recoverable native recall, [`conventions-memory`](docs/references/conventions-memory-reference.md) imports committed Markdown from a clone into an explicitly selected Mnemopi database. Git remains authoritative; repeat imports refresh only owned records and retire removed sections. Preview first, apply explicitly, and use a fresh OMP session. The command never changes memory settings.
+
 For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install the focused standalone package as a project development dependency; do not install MSSRT for a matcher. See its [installation](https://github.com/klondikemarlen/expect-http-response#installation) and [TypeScript](https://github.com/klondikemarlen/expect-http-response#typescript) guidance.
 
 `dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
@@ -189,7 +191,7 @@ The [self-improvement workflow](docs/workflows/self-improvement-workflow.md) pri
 
 ## Repository Development Checks
 
-Use Node.js 22.13 or newer on the 22.x line, or Node.js 24+, with npm, and Python 3.10+ with `venv` support. Run these commands natively from this checkout:
+Use Node.js 22.13 or newer on the 22.x line, or Node.js 24+, with npm, Bun 1.4.4, and Python 3.10+ with `venv` support. Run these commands natively from this checkout:
 
 ```bash
 python3 -m venv .venv
@@ -198,6 +200,7 @@ npm ci
 npm run lint
 npm run lint:python
 npm test
+npm run test:memory
 npm pack --dry-run --json
 ```
 

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.2.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1151) - 2026-11-05
+
+### Added
+
+- Adds `conventions-memory` to rebuild native Mnemopi recall from Git-backed Markdown, with source/revision provenance, repeatable refresh, removed-section retirement, and preservation of unrelated memories.
+
 ## [4.1.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1147) - 2026-11-04
 
 ### Fixed
