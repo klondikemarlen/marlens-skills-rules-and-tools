@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.3.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1159) - 2026-11-05
+
 ### Changed
 
 - Gives unanswered Privilege Preview requests a 30-minute default approval window and lets agents choose 30 seconds through 24 hours with `--expires-in`. Expiry remains mandatory and does not limit a command after approval.
