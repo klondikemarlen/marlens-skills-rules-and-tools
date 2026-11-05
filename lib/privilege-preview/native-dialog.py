@@ -30,8 +30,8 @@ def read_initial_message():
     if not isinstance(message.get("demo"), bool):
         raise TypeError("Expected an explicit demo flag")
     expiry = message.get("expiresInSeconds")
-    if type(expiry) is not int or not 30 <= expiry <= 900:
-        raise ValueError("Expiry must be an integer from 30 to 900 seconds")
+    if type(expiry) is not int or not 30 <= expiry <= 86_400:
+        raise ValueError("Expiry must be an integer from 30 to 86400 seconds")
     request = message.get("request")
     if not isinstance(request, dict):
         raise TypeError("Expected a validated request")
