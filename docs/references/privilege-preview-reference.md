@@ -26,7 +26,19 @@ node "$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools/bin/privile
 
 Use the package's actual installed directory if it differs. The adapter adds package commands to **OMP's process PATH**, not the parent terminal's PATH. A bare `privilege-preview --demo` works in OMP shell tools or when you have separately added the command to your shell.
 
-The demo illustrates a project blocked by missing Git; it does not inspect your machine or install anything. **Close Demo** completes locally. No authentication or command execution occurs. Cancel, Escape, or the window close control dismisses it. The preview expires after five minutes by default; the CLI's `--expires-in` accepts 30–900 seconds.
+The demo illustrates a project blocked by missing Git; it does not inspect your machine or install anything. **Close Demo** completes locally. No authentication or command execution occurs. Cancel, Escape, or the window close control dismisses it.
+
+## Customize the Approval Timeout
+
+Unanswered previews expire after **30 minutes (1,800 seconds)** by default, including the OMP demo. Agents can choose an integer from **30 to 86,400 seconds (24 hours)** with the CLI's `--expires-in` option. Expiry cannot be disabled.
+
+For a two-hour approval window, run `privilege-preview --expires-in 7200 < request.json` from an OMP shell tool. To try the same duration without authentication or execution:
+
+```sh
+node "$HOME/.omp/plugins/node_modules/marlens-skills-rules-and-tools/bin/privilege-preview" --demo --expires-in 7200
+```
+
+The window displays the selected duration. This deadline covers waiting for approval, not authentication or command execution after approval. Choose a duration appropriate to the task, and give the calling shell tool enough time to wait; its own process timeout is independent. The OMP slash command remains demo-only and uses the default duration.
 
 ## Submit an Explicit Request
 
