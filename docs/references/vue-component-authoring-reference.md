@@ -30,6 +30,8 @@ import type { SelectionChange } from "@/components/ItemPicker.vue"
 
 Use the project's actual component path, resolver, and existing type shape. Verify the installed Vue type compilation and affected consumers; keep type-only imports type-only rather than exporting types from `script setup` or adding runtime imports. Apply an accepted move to affected in-scope exports and consumers together, removing a superseded type-only module when nothing else needs it. Retain independently owned domain/shared types and legitimate component-family support modules with their actual owners; do not relocate unrelated types or infer ownership solely from caller count.
 
+Check actual type consumers before introducing or retaining an exported props type. If only the component's own `defineProps` consumes it, prefer the multiline inline declaration below. Remove a separate normal script block only if that leaves it empty; retain legitimate public exports and independently shared domain types. Preserve prop names, types, nullability, optionality, defaults, and compiled runtime props when inlining.
+
 ## Multiline Prop Object Types
 
 Prefer multiline object types passed to `defineProps`, even for a single property. Put the opening brace, each property, and the closing brace on separate lines:
@@ -41,6 +43,21 @@ const props = defineProps<{
 ```
 
 Apply an accepted correction to equivalent declarations within the requested authoring or review scope, preserving prop names, types, optionality, defaults, and behavior. Formatter success does not establish this structural preference; inspect the declaration itself rather than treating a compact form accepted by a formatter as sufficient. Do not sweep unrelated files.
+
+Use [Diff-Friendly Configuration Layouts](code-organization-reference.md#diff-friendly-configuration-layouts) for extensible defaults as well as other configuration:
+
+```typescript
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean
+  }>(),
+  {
+    loading: false,
+  }
+)
+```
+
+Adding another default should add its own line without rewriting `loading` or the delimiters. This is distinct from prop-type, event-map, and class-object formatting; preserve project constraints.
 
 ## Multiline Emitted-Event Maps
 
@@ -260,7 +277,7 @@ During review, verify direct navigation and tab entry using only the existing ro
 
 ## Page-Owned Current-Resource Initialization
 
-When a store's accepted lifetime is one current resource, the routed page owns initialization: pass its ID or slug to the store's existing initialization operation, which resets the prior working state and loads that resource. Initialize again when the page is entered or its resource input changes, even when the same ID or slug is supplied; initialization is an explicit reset, not selection deduplication or ID/slug equivalence matching. Children consume the retained current-resource state rather than initializing it independently.
+When a store's accepted contract explicitly resets working state on page entry, the routed page owns initialization: pass its ID or slug to the store's existing initialization operation, which resets the prior working state and loads that resource. Initialize again when the page is entered or its resource input changes, even when the same ID or slug is supplied; initialization is an explicit reset, not selection deduplication or ID/slug equivalence matching. Under this reset-on-entry contract, children consume the retained current-resource state rather than initializing it independently. A single-current-resource lifetime alone does not imply this contract; the idempotent alternative below is also valid.
 
 Background notifications are a separate path. Before applying or refreshing a notification, compare its resource identity with the identity of the resource currently loaded; only a match may affect that resource. A matching notification follows the existing editing contract and is not by itself a page initialization or reset. Keep established request-ownership safeguards for stale asynchronous results. This single-current-resource guidance does not reset independent editor trees, prohibit caching under another accepted contract, or require a new cancellation API or state framework.
 
@@ -269,16 +286,32 @@ For example, with an existing page route input and store contract:
 ```ts
 watch(
   () => props.workflowSlug,
-  (workflowSlug) => workflowStore.initialize(workflowSlug),
+  (newWorkflowSlug) => workflowStore.initialize(newWorkflowSlug),
   { immediate: true }
 )
 ```
 
 The names and watcher are illustrative: use the page's actual route input, lifecycle trigger, and store API. `initialize` represents the existing operation that resets working state and loads the requested resource; do not add a new API solely to match this example. Children read the resulting store state, while the existing notification handler filters against the loaded resource identity and applies the established editing behavior.
 
+### Idempotent Shared Active Context
+
+When the accepted design is one shared active context, every consumer requests it through the same existing API, regardless of parent/child hierarchy. Requesting the active identity is a no-op: it preserves working state and does not repeat initialization, fetches, or subscriptions. Requesting a different identity switches shared state. Correct IDs remain the caller's responsibility; do not add parent-only initialization flags or per-caller matching projections solely to defend against incorrect IDs.
+
+For an existing collaborative resource API, these requests illustrate the contract:
+
+```typescript
+const collaborativeWorkflow = useCollaborativeWorkflow()
+
+await collaborativeWorkflow.requestContext(42) // Establish A.
+await collaborativeWorkflow.requestContext(42) // Another consumer: preserve A and edits.
+await collaborativeWorkflow.requestContext(73) // Switch to B.
+```
+
+Use the project's real API, not a new `requestContext` wrapper just for this example. Deduplication includes repeated requests while initialization is pending. Retain existing stale-result safeguards: a read for A settling after B is requested must not replace B's data, policy, errors, or loader. Review same-context requests, different-context switches, and out-of-order completion. This conditional contract does not globalize independent drafts, introduce a cache/framework, or remove explicit page-entry reset when that is the accepted model.
+
 ## Resource-Bound Component Selection
 
-For saved resource-bound components using the accepted store architecture, pass the resource identifier and let the child select its saved model and related collections through the existing reactive stores. This boundary applies even when the stores are global: do not make parents select and thread saved models or model arrays through props merely to supply resource-bound children. The child owns resource selection; the routed page still owns [current-resource initialization](#page-owned-current-resource-initialization).
+For saved resource-bound components using the accepted store architecture, pass the resource identifier and let the child select its saved model and related collections through the existing reactive stores. This boundary applies even when the stores are global: do not make parents select and thread saved models or model arrays through props merely to supply resource-bound children. The child owns resource selection. With reset-on-entry state, the routed page owns [initialization](#page-owned-current-resource-initialization); with an [idempotent shared active context](#idempotent-shared-active-context), every consumer uses the same context-request API.
 
 For example, a `WorkflowStepActCard` supplies `<WorkflowStepReadCard :workflow-step-id="workflowStep.id" />` instead of passing the saved step and assignee-model array. With existing saved-collection refs and their established stores, the read card selects what it needs:
 
@@ -307,7 +340,7 @@ const selectedWorkflowStepPlayers = computed(() =>
 
 Use the project's actual identifier types, saved-store APIs, supported selection helpers, and authorized collection scope; the names and array selectors above are illustrative, not new stores or APIs to introduce. Keep selection reactive to identifier changes and replaced/updated store records and collections. Reuse the accepted store instance and model ownership rather than copying records into a parallel local collection. Preserve existing missing-resource, loading, error, authorization, and lifecycle handling.
 
-Internal selection does not authorize child initialization of the shared working tree, duplicate fetches or subscriptions, or another fetching/store framework. Keep page-entry resets and background-update behavior with their existing owners. This preference does not prohibit scalar/presentation props, neutral presentation components that receive already-resolved values, or intentionally owned local editor drafts; it concerns saved resource-bound components, not every component prop.
+Internal selection does not by itself authorize duplicate fetches, subscriptions, or another fetching/store framework. Under reset-on-entry ownership, keep page-entry resets and background updates with their existing owners; under an idempotent active-context contract, children may request that context just like other consumers without resetting repeated same-context requests. This preference does not prohibit scalar/presentation props, neutral presentation components that receive already-resolved values, or intentionally owned local editor drafts; it concerns saved resource-bound components, not every component prop.
 
 During review, inspect equivalent resource-bound callers and children within the affected change, migrating the identifier interface and internal selection together. Do not rewrite unrelated components or change accepted edit/Cancel/save contracts merely to apply the boundary.
 
@@ -318,6 +351,8 @@ Compose optional live-update behavior between the routed page and the existing b
 Keep normal model-backed editors in their established component families. Reuse existing models, resource composables, and API clients rather than relocating or reimplementing them to introduce the capability. The wrapper owns live subscriptions and refresh coordination through the project's existing lifecycle mechanisms; the base component keeps its ordinary editing responsibilities and remains usable without live behavior.
 
 During authoring and review, ask whether introducing the capability unnecessarily moved existing base components or broadened the PR. Preserve existing route contracts, permissions, record/state ownership, and required descendant lifecycle behavior; changing composition is not permission to reset an active editor. This boundary does not mandate feature directories or wrappers for ordinary UI work, override stronger local ownership conventions, or collapse legitimate separate interaction capabilities.
+
+Name collaboration-specific composables for their multi-user live-editing purpose rather than only calling them current resources. For example, a live collaborative editor may use `useCollaborativeWorkflow`, while an independent draft or read-only screen keeps its established `useWorkflow` resource path even though both display workflows. Names are project-local examples, not required API spellings. Do not select collaboration solely because the model matches, ban ordinary current-resource state, require collaboration for normal editors, or prescribe OT/CRDT technology.
 
 ## State-Specific Content Owners
 
@@ -485,6 +520,30 @@ When a dialog already has a supported visibility model, do not add an outer `v-i
 
 If a URL reflects runtime-only recovery, make state ownership and synchronization direction explicit instead of maintaining competing URL/runtime truth through paired reconciliation watchers. Preserve actual route, navigation, and dismissal contracts; do not impose a universal URL mirror or hide a legitimate close policy.
 
+### URL-Owned Dialog Selection
+
+Where the URL already owns dialog selection and the project has a supported query-state pattern, use one query-backed ref rather than a local selected-ID ref plus custom query watchers/router writes. Declare it immediately below emitted events. For a project with `useRouteQuery` and its existing `integerTransformer`, an illustrative setup excerpt is:
+
+```typescript
+const emit = defineEmits<{
+  updated: []
+}>()
+
+const workflowStepId = useRouteQuery("showReAssign", null, {
+  transform: integerTransformer,
+})
+
+function open(workflowStepIdToOpen: number) {
+  workflowStepId.value = workflowStepIdToOpen
+}
+
+function close() {
+  workflowStepId.value = null
+}
+```
+
+Reuse the project's supported imports, converter signature, nullable type, and query removal behavior; this excerpt assumes its existing transformer accepts the nullable query contract, not a new helper or dependency. Presentation, validation, draft lifecycle, and meaningful lifecycle watchers remain separate. Review direct URL entry, changed selection, close/removal, preservation of unrelated query parameters, and accepted draft/Cancel behavior. Do not make every dialog URL-driven.
+
 ## Component-Tree State Sharing
 
 Choose the state owner, consumers, and lifetime from the actual component tree before selecting a sharing mechanism. Prefer `provide`/`inject` for simple shared values, such as a display-density setting. For shared object collections, such as an editable array of records, prefer an appropriate existing composable or store rather than making injection the default collection API.
@@ -543,6 +602,111 @@ Keep component-specific editing workflows—drafts, queued writes, reconciliatio
 
 Consumers use the composable's returned reactive record/collection refs as the model source. Do not copy them into a parallel record map and watch fetches to merge fields or revision counters. Keep genuine pending commands and failure feedback with the editor. If accepted edits must survive navigation, inspect editor lifetime and supported framework retention before adding parallel model ownership; preserve the accepted save/navigation guarantee. An explicitly contracted detached draft remains valid; neither `KeepAlive` nor a particular draft-storage design is mandatory.
 
+### Singular Invocation State and Shared Collections
+
+When `useWorkflowStep(workflowStepId)` has a component-scoped single-record contract, each invocation owns one selected step and its local lifecycle, not a hidden shared `steps: Record<number, StepState>` registry. Two independent callers retain isolated local state; changing one caller's selection or disposing it must not switch or tear down the other's lifecycle. Keep collection-wide saved records/subscriptions with their explicit collection owner and review selection changes and teardown against that contract.
+
+Singular naming alone is not a ban on shared resources: explicitly shared collections/caches and the accepted [single active context](#idempotent-shared-active-context) have different ownership. Do not infer universal discard-on-navigation behavior or require every singular resource to own an editing draft.
+
+### Loaded-Resource Projections
+
+Expose reusable reactive projections of loaded records as named computed helpers on the owning resource composable, following neighboring helper names and return sections. With existing saved player refs:
+
+```typescript
+// Inside useWorkflowStepPlayers:
+const asPlayerAttributes = computed(() =>
+  workflowStepPlayers.value.map(({ userId, role }) => ({ userId, role }))
+)
+
+return {
+  workflowStepPlayers,
+
+  // helpers
+  asPlayerAttributes,
+}
+```
+
+The component consumes `const { asPlayerAttributes } = useWorkflowStepPlayers(query)` rather than repeating a component-local `playerAttributesFromSavedPlayers` conversion; ref changes recompute the projection. The fields are illustrative, not creation-payload semantics. Keep component-specific editable drafts, unsaved-state transformations, and editing workflows with their actual owners; not every transformation belongs in data access.
+
+## Reactive Identifier Roles
+
+Give composable inputs plain domain names and computed unwrapped values a `normalized` prefix. Keep normalization reactive rather than capturing an input once:
+
+```typescript
+import { computed, toValue } from "vue"
+import type { MaybeRefOrGetter } from "vue"
+
+function useWorkflow(workflowId: MaybeRefOrGetter<number | null>) {
+  const normalizedWorkflowId = computed(() => toValue(workflowId))
+  return { normalizedWorkflowId }
+}
+```
+
+Normalization is not user selection; genuine selection projections retain meaningful selected-state names. In `watch` callbacks prefer `new<DomainName>` for newly observed values, including tuples, and accurate previous-value names:
+
+```typescript
+watch(
+  [normalizedWorkflowId, normalizedWorkflowStepId],
+  ([newWorkflowId, newWorkflowStepId], [previousWorkflowId, previousWorkflowStepId]) => {
+    handleSelectionChange(
+      newWorkflowId,
+      newWorkflowStepId,
+      previousWorkflowId,
+      previousWorkflowStepId
+    )
+  },
+  { flush: "post" }
+)
+```
+
+The watcher excerpt assumes existing sources and handler; preserve sources, logic, options, and the actual previous-value availability contract when applying a naming correction across analogous in-scope watchers.
+
+For an existing async operation's fixed captured identifier, use `static<DomainIdentifier>`:
+
+```typescript
+const staticCategoryId = unref(categoryId)
+if (staticCategoryId == null) return
+
+await categoriesApi.update(staticCategoryId, attributes)
+```
+
+This is an operation-start snapshot for narrowing, not a class static member or live input. Match the captured domain: `state.workflowId` becomes `staticWorkflowId`, not `staticWorkflowStepId`. Preserve the capture point, nil guard, and operation behavior; do not add unnecessary snapshots, replace live inputs, rename meaningful request objects, or introduce coordination mechanisms solely for naming.
+
+## Independent Resource Query Setup
+
+Give independent resources separate domain-named query definitions beside their composable calls, with one blank line between groups, even when query shapes currently match:
+
+```typescript
+const workflowStepsQueryOptions = computed(() => ({
+  where: { workflowId: normalizedWorkflowId.value },
+}))
+const { workflowSteps } = useWorkflowSteps(workflowStepsQueryOptions)
+
+const workflowStepPlayersQueryOptions = computed(() => ({
+  where: { workflowId: normalizedWorkflowId.value },
+}))
+const { workflowStepPlayers } = useWorkflowStepPlayers(workflowStepPlayersQueryOptions)
+```
+
+These excerpts assume the existing query contracts support the shown ID type; preserve actual values and reactivity. Do not deduplicate solely because shapes match, invent a state abstraction, or split intentionally shared configuration.
+
+Avoid `value ?? undefined` for reactive query identifiers. Pass the nullable ID directly when the existing query accepts it. If a present ID is required, guard missing selection before constructing the query and retain the existing request-skip mechanism:
+
+```typescript
+const workflowStepPlayersQueryOptions = computed(() => {
+  const workflowStepId = selectedWorkflowStepId.value
+  if (workflowStepId == null) return null
+
+  return { where: { workflowStepId } }
+})
+
+const { workflowStepPlayers } = useWorkflowStepPlayers(workflowStepPlayersQueryOptions, {
+  skipWatchIf: () => workflowStepPlayersQueryOptions.value === null,
+})
+```
+
+Here `null` must be the project's supported absent-query sentinel and the existing caller must skip the request; never turn missing selection into an unfiltered request. Use the actual project's sentinel and guard instead of adding another query abstraction. This is not a general ban on nullish coalescing or intentional boundary transformations.
+
 ## Direct Prop Refs
 
 When exposing an unchanged prop as a ref, prefer `toRefs(props)` over a `computed` getter that only returns that prop. For existing component props:
@@ -581,6 +745,28 @@ Retain the composable's accepted cancellation, request-ownership, and loading-st
 
 Follow the established reactive-state plus `...toRefs(state)` return pattern for ordinary writable composable state. Prefer caller-side `error.value = capturedError` over `readonly(error)` plus a trivial `setError` wrapper when no accepted invariant requires the action. Keep meaningful operations, including reset and actions that actually protect invariants; this is not a blanket removal of store actions or permission to rewrite unrelated composables.
 
+Internally, read and assign `state.workflow` or `state.isLoading` directly instead of destructuring `toRefs(state)` into internal aliases. Keep ref conversion at public return or genuine ref-consuming boundaries:
+
+```typescript
+const state = reactive<{
+  workflow: Workflow | null
+  isLoading: boolean
+}>({
+  workflow: null,
+  isLoading: false,
+})
+let savedWorkflow: Workflow | null = null
+
+function reset() {
+  state.workflow = savedWorkflow
+  state.isLoading = false
+}
+
+return { ...toRefs(state), reset }
+```
+
+The private saved value stays private and the public refs remain writable/reactive, not plain snapshots. Preserve actual reset/copy semantics. Inspect analogous in-scope composables when correcting this pattern. This does not ban `toRefs(props)`, consuming another composable's public refs, or refs required at real boundaries; do not expose private state just to spread it.
+
 When writable state fields need declared types, prefer a complete object type on `reactive<{ ... }>(...)` over assertions on individual initializers such as `items: [] as Item[]`. For example, with the existing `Item` type:
 
 ```typescript
@@ -612,8 +798,8 @@ return {
   items,
   loading,
 
-  fetchItems,
-  refresh,
+  fetch,
+  refresh: fetch,
 
   // helpers
   itemCount,
@@ -621,6 +807,24 @@ return {
 ```
 
 Keep the same property names, values, refs, and function identities. Preserve spreads, property precedence, getters, evaluation order, and any order-sensitive consumer behavior; do not mechanically reorder behavior-sensitive entries to obtain the layout. Keep declarations beside their dependencies and direct derived state. Do not add empty or unnecessary sections, move domain logic into a composable, or sweep unrelated modules.
+
+### Resource Read Implementation and Alias
+
+For application-owned resource-read composables, name the implementation `fetch`, call `fetch` internally, and return `refresh: fetch` as the same function, not another request path:
+
+```typescript
+async function fetch() {
+  // Existing ID guards, read, publication, and completion ownership stay here.
+  const { workflow, policy } = await workflowsApi.get(normalizedWorkflowId.value)
+  publishCurrentResult(workflow, policy)
+}
+
+watch(normalizedWorkflowId, fetch, existingWatchOptions)
+
+return { fetch, refresh: fetch }
+```
+
+This is a naming/alias excerpt using existing API, watcher, and ownership helpers, not a complete lifecycle implementation. Preserve existing read behavior, manual refresh, caching, and initialization semantics; the naming does not authorize lifecycle changes or renaming component methods/third-party APIs.
 
 ## Record-Scoped Async Ownership
 
@@ -631,6 +835,27 @@ When cancellation is needed for the requested interaction and the existing trans
 Canceling an obsolete read does not roll back a committed mutation. A save for A finishing while B is displayed must settle A's accepted operation without overwriting B's model or recovery state. If edits/failures/retry must survive navigation, give them explicit record-scoped ownership under the existing editor lifetime/draft contract rather than silently dropping them or creating a parallel canonical model.
 
 Verify controlled completion order: start A, select/query B, finish A last; deliver A's failure and `finally` while B is pending; finish save A after selecting B. Observe the displayed record, policy, loading/error state, and persisted outcome. Add failed-draft retry only when it is part of the accepted contract. A cited risk or a shared-guidance change is not proof of a reproduced or fixed downstream application defect.
+
+### Per-Record UI Pending Flags
+
+When IDs in a Set represent only row-pending booleans, prefer a descriptive ID-keyed boolean record and direct indexed UI reads instead of membership checks:
+
+```typescript
+const isReorderingByWorkflowStepId = reactive<Record<number, boolean>>({})
+
+async function reorder(sourceId: number, destinationId: number) {
+  isReorderingByWorkflowStepId[sourceId] = true
+  isReorderingByWorkflowStepId[destinationId] = true
+  try {
+    await reorderWorkflowSteps(sourceId, destinationId)
+  } finally {
+    delete isReorderingByWorkflowStepId[sourceId]
+    delete isReorderingByWorkflowStepId[destinationId]
+  }
+}
+```
+
+Bind the row's loader directly, for example `:loading="isReorderingByWorkflowStepId[workflowStep.id]"`; absent entries are not pending. Keep the existing operation ownership/concurrency contract and release both affected flags on success or failure. The example assumes the existing contract prevents overlapping owners for those rows; do not change that contract or introduce concurrency mechanisms solely for this representation. Sets remain appropriate for genuine collection membership and deduplication; no entries are required for every row.
 
 ## Utility-Style Scoped Presentation
 
@@ -661,6 +886,27 @@ const revertButtonClasses = computed(() => {
 Vue's [computed caching](https://vuejs.org/guide/essentials/computed.html#computed-caching-vs-methods) reuses the result while its reactive dependencies remain unchanged, so an unrelated component render can reuse the object instead of constructing the inline map again. Changes to the step order or active-group boundary still update the classes. This is cached derivation, not prevention of all component renders or evidence that a render loop was reproduced or fixed. Keep getters free of side effects.
 
 Static class strings, simple boolean conditions, and legitimate inline expressions remain available; do not turn every template expression into a computed value. The named map still composes individual utility classes at the existing control's direct binding, not a semantic styling wrapper. Preserve caller-owned outer spacing, control behavior, and stronger local conventions. Apply an accepted formatting or caching correction to equivalent bindings within the requested authoring/review scope, not unrelated templates or repositories.
+
+### Static Template Separators
+
+Prefer ordinary template text over a space-only interpolation when compiled rendering preserves the required separator.
+
+Before:
+
+```vue
+<strong>{{ row.label }}:</strong>
+{{ " " }}
+<span class="white-space-pre-wrap">{{ row.value }}</span>
+```
+
+After:
+
+```vue
+<strong>{{ row.label }}: </strong>
+<span class="white-space-pre-wrap">{{ row.value }}</span>
+```
+
+Check actual rendered separation and intentional multiline value formatting; source whitespace alone may be condensed or removed by compilation. Keep dynamic interpolations and intentional whitespace-sensitive rendering. Do not substitute layout margins for meaningful text whitespace or sweep unrelated templates.
 
 ### Caller-Owned Outer Layout
 

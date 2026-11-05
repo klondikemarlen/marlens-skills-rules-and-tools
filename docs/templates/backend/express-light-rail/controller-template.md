@@ -72,6 +72,32 @@ function currentUserIdFrom(res: Response) {
 }
 ```
 
+## Controller-Local Record Loading
+
+When the project's controller architecture uses named single-resource loaders, keep the awaited local binding and HTTP decisions in the public action. The following class-controller excerpt assumes the existing `Workflow`, access association, request, auth context, and policy APIs:
+
+```typescript
+async show() {
+  const workflow = await this.loadWorkflow()
+  if (workflow === null) {
+    return this.response.status(404).json({ message: "Workflow not found" })
+  }
+  if (!this.policy.canRead(workflow)) {
+    return this.response.status(403).json({ message: "Not authorized" })
+  }
+
+  return this.response.json({ workflow: serializeWorkflow(workflow) })
+}
+
+private async loadWorkflow(): Promise<Workflow | null> {
+  return Workflow.findByPk(this.request.params.workflowId, {
+    include: ["workflowAccessByUsers"],
+  })
+}
+```
+
+Use the existing loader's actual predicates and required preloads, not a broader query copied from this example. A functional handler may use the equivalent named local loader; do not introduce a class, service, repository layer, or base controller just for this shape. Verify missing/forbidden/success cases and association-dependent authorization; ordinary collection reads may remain controller-owned.
+
 ## Checklist
 
 - [ ] Handler reads auth context from the project-standard location.
