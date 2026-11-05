@@ -118,7 +118,7 @@ for (const argumentsList of [
   ["--demo", "--demo"],
   ["--expires-in"],
   ["--expires-in", "29"],
-  ["--expires-in", "901"],
+  ["--expires-in", "86401"],
   ["--expires-in", "NaN"],
 ]) {
   test(`when options are ${argumentsList.join(" ")}, the CLI rejects them before GUI startup`, () => {

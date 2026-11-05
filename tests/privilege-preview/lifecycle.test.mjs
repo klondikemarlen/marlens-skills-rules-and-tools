@@ -230,15 +230,51 @@ test("when pkexec cannot start, the final result reports failure without retry",
   assert.equal(boundary.calls.length, 2)
 })
 
-test("when the parent deadline expires, no executor launches", async (context) => {
+for (const { label, options, seconds } of [
+  { label: "30-second", options: { expiresInSeconds: 30 }, seconds: 30 },
+  { label: "default 30-minute", options: {}, seconds: 1_800 },
+  { label: "24-hour", options: { expiresInSeconds: 86_400 }, seconds: 86_400 },
+]) {
+  test(`when the ${label} approval deadline elapses, expiry occurs only at the deadline without execution`, async (context) => {
+    // Arrange
+    context.mock.timers.enable({ apis: ["setTimeout"] })
+    const boundary = harness(["ready"])
+    let result
+
+    // Act
+    const outcome = runPreview(request(), { ...boundary, ...options }).then((status) => {
+      result = status
+      return status
+    })
+    await new Promise((resolve) => queueMicrotask(resolve))
+    context.mock.timers.tick(seconds * 1_000 - 1)
+    await new Promise((resolve) => queueMicrotask(resolve))
+
+    // Assert
+    assert.equal(result, undefined)
+    context.mock.timers.tick(1)
+    assert.deepEqual(await outcome, { result: "expired" })
+    assert.equal(boundary.calls.length, 1)
+  })
+}
+
+test("when approval starts execution, the approval deadline does not expire the running command", async (context) => {
   // Arrange
   context.mock.timers.enable({ apis: ["setTimeout"] })
-  const boundary = harness(["ready"])
+  const boundary = harness(["ready", "approved"], { holdExecutor: true })
+  let result
+
   // Act
-  const outcome = runPreview(request(), { ...boundary, expiresInSeconds: 30 })
+  const outcome = runPreview(request(), { ...boundary, expiresInSeconds: 30 }).then((status) => {
+    result = status
+    return status
+  })
   await new Promise((resolve) => queueMicrotask(resolve))
-  context.mock.timers.tick(30_000)
+  context.mock.timers.tick(31_000)
+  await new Promise((resolve) => queueMicrotask(resolve))
+
   // Assert
-  assert.deepEqual(await outcome, { result: "expired" })
-  assert.equal(boundary.calls.length, 1)
+  assert.equal(result, undefined)
+  boundary.executor.emit("close", 0, null)
+  assert.deepEqual(await outcome, { result: "command-completed", exitCode: 0, signal: null })
 })
