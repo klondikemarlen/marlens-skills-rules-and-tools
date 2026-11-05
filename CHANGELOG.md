@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## 4.2.1 - 2026-11-05
+
+### Changed
+
+- Preserves Marlen's coding conventions in the shared guidance: conditional Vue resource lifetimes, explicit reactive identifier roles, writable composable state, resource-local query setup, readable layouts, controller-local loaders, and distinct local/remote failures.
+- Keeps feature proposals human-sized, authorized comments in the user's voice, delegation roles task-relative, and new authorization grants limited to the intended action. Lint corrections must address the underlying behavior rather than hide it from analysis.
+
 ## [4.2.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1151) - 2026-11-05
 
 ### Added
