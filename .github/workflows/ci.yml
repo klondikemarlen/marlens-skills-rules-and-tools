@@ -45,5 +45,7 @@ jobs:
         run: npm test
       - name: Verify native convention imports
         run: npm run test:memory
+      - name: Verify reviewed-file state boundaries
+        run: npm run test:reviewed-files
       - name: Validate package contents
         run: npm pack --dry-run --json
