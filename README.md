@@ -1,193 +1,140 @@
 # Marlen's Skills, Rules, and Tools
 
-**Official acronym:** MSSRT — pronounced “em-ess-ess-are-tee” (“EM-ess-ess-are-TEE”).
+Marlen's coding conventions, task workflows, and practical tools for AI-assisted development. The goal is code and communication that reflect how Marlen works, with the knowledge kept in Git so it can be reviewed, shared, and recovered on another machine.
 
-Reusable agent skills, rules, and tool helpers, plus thin OMP and Claude Code plugin adapters.
+Install the package for **OMP** or **Claude Code**, or use its Markdown guidance with another agent. MSSRT is pronounced “em-ess-ess-are-tee”.
 
-## Stability
+## Start Here
 
-The v1 contract defines this package's stable public surfaces: installable package metadata, skill entrypoints, reusable `docs/` workflows/templates/references, outcome-oriented `examples/`, `rules/`, packaged `bin/` helpers, the OMP command adapter, and Claude plugin manifests. Runtime behavior from optional companion plugins, downstream project configuration, browser automation, project test dependencies, and removed bundled learner behavior stays outside this package's v1 contract.
+- **Understand administrator requests before approving them:** [Privilege Preview](#privilege-preview) opens a native GNOME window explaining what needs access and why. Try the demo without authenticating or executing a command.
+- **Give an agent a clear outcome:** use [evolve, advance, improve, simplify, wrap-up, or triage](#four-verbs-to-remember) instead of rebuilding the same prompt every time.
+- **Find a practical helper:** [preview browser handoffs, recover conventions into native memory, or mark explicitly reviewed PR files](#useful-tools).
+- **Use the detailed guidance:** browse the [skill catalog](skills/), [documentation map](docs/index.md), or [before/after examples](examples/).
 
 ## OMP Plugin Install
-
-Recommended direct install:
 
 ```bash
 omp plugin install github:klondikemarlen/marlens-skills-rules-and-tools
 ```
 
-Use direct install instead of the marketplace flow when you want both the package skills and OMP adapter.
+Restart OMP after installation or an update so it loads the current commands, skills, and rules. This direct install includes the OMP adapter; it follows the repository's default branch. See the [install reference](docs/references/omp-plugin-install-reference.md) for artifact identity and cache troubleshooting.
 
-Routine OMP installs use the generic GitHub reference and follow the repository's default branch. An exact full-commit reference with `--force` is exceptional: use it only to reproduce an exact artifact or diagnose stale plugin-cache state. See [`docs/references/omp-plugin-install-reference.md`](docs/references/omp-plugin-install-reference.md).
+Skills are loaded when their task applies. Packaged rules are active by default; [customize them](#local-customization) for your projects. Browser automation, project test dependencies, and companion runtime plugins are not installed by this package.
 
-The installed [skill catalog](skills/) provides outcome-oriented and specialist task prompts. Invoke a skill when its task applies; skills and workflows do not attach to unrelated turns.
+## Privilege Preview
 
-Every reusable OMP rule in [`rules/`](rules/) loads by default through OMP plugin discovery. Project and user rules can override a package rule by reusing its name or extend it with a new name; see [local customization](#local-customization).
+When an agent needs administrator access for an explicitly authorized operation, **`privilege-preview` explains the request before system authentication**. Its native GNOME window shows the affected resource, what has happened, why access is needed, and the intended result. **Details** reveals the exact command, working directory, and requesting agent.
 
-This package does not install browser automation or project test dependencies. Its `dev` generic Docker Compose wrapper, `bin/agent-rebase-edit.js`, and `bin/agent-worktree.js` remain available for project-local shims and scripted Git worktree setup.
+After installing the OMP plugin, type this **inside OMP**:
 
-For browser handoffs, [`authorization-preview`](docs/references/authorization-preview-reference.md) shows the agent's structured context before **Continue** opens the supplied HTTPS destination. It explains the redirect, not whether the destination is safe. Run `authorization-preview --demo` to try a sample with no credentials or external redirect.
+```text
+/privilege-preview demo
+```
 
-For explicitly requested administrator operations on GNOME, [`privilege-preview`](docs/references/privilege-preview-reference.md) shows the resource, work context, and exact command before system authentication. Type `/privilege-preview demo` inside OMP to review it without authentication or execution; see the reference for external-terminal usage. Existing sudo calls are not intercepted.
+The demo shows an illustrative project blocked by missing Git. It does not inspect your machine, install Git, authenticate, or execute the displayed command. Choose **Close Demo** to finish, or **Cancel** to dismiss it. Command and `demo` argument autocomplete are available.
 
-For recoverable native recall, [`conventions-memory`](docs/references/conventions-memory-reference.md) imports committed Markdown from a clone into an explicitly selected Mnemopi database. Git remains authoritative; repeat imports refresh only owned records and retire removed sections. Preview first, apply explicitly, and use a fresh OMP session. The command never changes memory settings.
+For a real request, the caller supplies structured task context and an exact command through the CLI. **Continue** hands that command to system authorization through `pkexec`; the system polkit agent handles credentials. The OMP slash command is demo-only.
 
-For Jest or Vitest projects, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract with one `expect`. Install the focused standalone package as a project development dependency; do not install MSSRT for a matcher. See its [installation](https://github.com/klondikemarlen/expect-http-response#installation) and [TypeScript](https://github.com/klondikemarlen/expect-http-response#typescript) guidance.
+**Requirements:** a non-root Linux desktop session with Python/PyGObject, GTK 4, and libadwaita. Real requests additionally need compatible `pkexec` and a working polkit authentication agent. The package does not install these system dependencies. See the [complete prerequisites and usage](docs/references/privilege-preview-reference.md#prerequisites), including the external-terminal command.
 
-`dev` is a Ruby executable with no runtime gem dependencies. This repo pins maintainer tooling in `.tool-versions` and `Gemfile`; install Ruby 3.3.5 with asdf or any compatible Ruby before running the helper locally.
+This is an informed approval handoff, **not a sandbox**. It does not intercept existing `sudo` calls or make an arbitrary command safe. The caller still needs authorization for the task and must provide truthful context.
+
+[Usage, request format, and safety boundaries](docs/references/privilege-preview-reference.md) · [Implementation](lib/privilege-preview/)
 
 ## Four Verbs to Remember
 
-Name the outcome; the skill selects the existing workflows and owns verification and completion. These are skills, not new slash-command handlers. In OMP, type `/skill:` to find skill invocations; natural-language requests can name the skill too.
+For a complete improvement cycle, ask **“Use evolve on this repo”** or invoke `/skill:evolve` in OMP. It runs **advance → improve → simplify → wrap-up** once, with bounded triage when selecting ticket work. Each stage can conclude that no change is justified; this is not an automatic backlog drain.
 
-| Skill                                  | Example Request                             | Intended Outcome                                                                                                     |
-| -------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| [`advance`](skills/advance/SKILL.md)   | “Use advance to move this project forward.” | Select and deliver one valuable outcome from accepted direction, issues, plans, or blockers—not empty the backlog.   |
-| [`simplify`](skills/simplify/SKILL.md) | “Use simplify on the hardest-to-read code.” | Improve one evidenced readability hotspot while preserving behavior.                                                 |
-| [`improve`](skills/improve/SKILL.md)   | “Use improve to reassess this repo.”        | Reconcile useful knowledge and deliver one justified improvement, or explain an evidenced no-change finding.         |
-| [`wrap-up`](skills/wrap-up/SKILL.md)   | “Use wrap-up; then exit.”                   | Close delivery loops, safely clean owned resources, and route session insights. Exit only when explicitly requested. |
+For a narrower task:
 
-Readability is a [default engineering expectation](rules/human-readable-code.md), not another command to remember. The portable [`readable-code`](skills/readable-code/SKILL.md) modifier can emphasize it during an existing task without launching a refactoring campaign. These entrypoints preserve project-local guidance, repository authorization, and release gates; `wrap-up` alone does not authorize exit or filing issues in arbitrary repositories.
+| Skill                                  | Example Request                                     | Outcome                                                                  |
+| -------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------ |
+| [`advance`](skills/advance/SKILL.md)   | “Move this project forward.”                        | Deliver one valuable, bounded outcome.                                   |
+| [`improve`](skills/improve/SKILL.md)   | “Reassess this repo's guidance and implementation.” | Address one evidenced gap, or explain why no change is needed.           |
+| [`simplify`](skills/simplify/SKILL.md) | “Simplify the hardest-to-read code.”                | Reduce a real maintenance burden without changing behavior.              |
+| [`wrap-up`](skills/wrap-up/SKILL.md)   | “Finish this task and clean up.”                    | Close delivery and verification loops; remove owned temporary resources. |
 
-For the whole cycle, use [`evolve`](skills/evolve/SKILL.md): `/skill:evolve` runs **advance → improve → simplify → wrap-up** once, including bounded triage before selecting ticket work. No separate triage invocation is needed. It carries evidence forward, permits justified no-change stages, and completes each distinct outcome's delivery gates without combining unrelated work into a large PR. Say “Use evolve on this repo, then exit” only when you also want the session to end after successful completion; bare `evolve` keeps it open.
+Use [`triage`](skills/triage/SKILL.md) to assess tickets and apply supported evidence-backed updates without starting implementation. Add “assessment only” or “no writes” when you want a read-only assessment. Triage is not implementation approval.
 
-### Human and Agent Skill Discovery
+In OMP, type `/skill:` to browse the full catalog. Specialist entrypoints include [`feature`](skills/feature/SKILL.md), [`code-review`](skills/code-review/SKILL.md), [`testing-instructions`](skills/testing-instructions/SKILL.md), and [`jira-reporting`](skills/jira-reporting/SKILL.md). Agents can also discover the relevant skill from its task description.
 
-The everyday vocabulary is six entrypoints: **evolve**, **advance**, **improve**, **simplify**, **wrap-up**, and **triage**. Start with `evolve` for the whole cycle; use another entrypoint when you want only that outcome. This is a curated navigation guide, not a restriction on available skills.
+These workflows respect project-local instructions and the task's authorization. Neither `evolve` nor `wrap-up` exits OMP unless you explicitly ask for exit after completion.
 
-Agents still discover the specialist skills from their task descriptions and load the relevant procedure on demand. Humans can browse the [full skill catalog](skills/) or type a known `/skill:<name>`, such as `/skill:testing-instructions`, when they want a specialist directly. Both paths preserve project-local-first workflow selection.
+## Useful Tools
 
-OMP 18.13.1 does not document a per-skill menu-only visibility flag. Its `hide` / `disable-model-invocation` metadata removes the skill from the model's advertised list, while include/ignore filters remove skills from discovery; neither provides a smaller human menu while preserving agent discovery. Keep specialist skills enabled and advertised. The native `/skill:` autocomplete list remains the full discovered catalog; this package does not claim to filter it. Other hosts may differ, so verify a host's presentation and model-availability controls separately before adopting a visibility setting.
+| Need                                                  | Tool and Boundary                                                                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Understand a browser sign-in or authorization handoff | [`authorization-preview`](docs/references/authorization-preview-reference.md) explains the work before opening a supplied HTTPS destination. It does not certify that destination as safe.                                                                                                                                        |
+| Recover coding conventions on another machine         | [`conventions-memory`](docs/references/conventions-memory-reference.md) imports committed Markdown into an explicitly selected native Mnemopi database. Preview before applying; Git remains authoritative and memory settings are not changed. Requires Bun; retrieval does not guarantee better coding adherence.               |
+| Update personal PR review progress                    | [`github-reviewed-files`](docs/references/github-tooling-reference.md#opt-in-reviewed-files-helper) inspects exact paths by default and marks only explicitly approved, reviewed paths with `--mark-viewed`. It checks viewer/head identity and fresh readback; it does not review code or make GitHub mutations revision-atomic. |
+| Work with GitHub review comments                      | [`github-review-thread`](docs/references/github-tooling-reference.md#review-comment-thread-actions) supports reactions, replies, and thread resolution.                                                                                                                                                                           |
+| Prepare a ticket assessment                           | [`triage`](docs/references/ticket-triage-reference.md) captures read-only GitHub evidence and renders an agent-authored assessment. The CLI itself does not modify tickets.                                                                                                                                                       |
+| Set up worktrees or edit commit history               | [`agent-worktree` and `agent-rebase-edit`](bin/README.md) provide packaged Git helpers.                                                                                                                                                                                                                                           |
 
-## Evidence-Backed Ticket Triage
+Package commands are available on **OMP's process PATH**, not automatically in your external terminal. Each tool's reference documents its invocation and prerequisites. Browse the [complete command list](bin/README.md) for other helpers, including the Ruby `dev` wrapper for downstream Docker Compose projects.
 
-Use [`triage`](skills/triage/SKILL.md) for evidence-backed ticket assessment, bounded backlog ranking, and supported ticket updates without claiming ownership or beginning implementation. It separates work type, owner proposal, readiness, impact, relationships, and next action; classifications cite inspected evidence and retain uncertainty.
+For Jest or Vitest HTTP tests, the optional [HTTP response matcher](docs/references/http-response-matcher-reference.md) checks status and body as one response contract. Install [the standalone matcher](https://github.com/klondikemarlen/expect-http-response#installation) as a project development dependency; you do not need MSSRT just for that matcher.
 
-Say “triage these tickets” to apply supported evidence-backed updates, or “assessment only,” “dry run,” or “no writes” for read-only assessment. Narrower exclusions remain independent: “don't move board items” preserves board locations, including automation effects, while permitting other safe updates. See the workflow for supported operations; triage does not implicitly authorize assignment, closure, report rewrites, or implementation.
+## Default OMP Rules
 
-When acting for a maintainer, audit externally requested features until that maintainer explicitly approves the scope. Issue wording, readiness, Learner provenance, and automated labels are not authority. The [default approval rule](rules/maintainer-approved-feature-work.md) and [feature approval procedure](docs/workflows/feature-workflow.md#external-feature-approval) preserve directly authorized work without duplicate confirmation. New public tooling repository setup includes [approval-aware intake templates](docs/workflows/feature-workflow.md#public-tooling-repository-setup) by default; private/non-tooling projects and account-wide `.github` defaults are not implicitly included. These are agent guidance and setup procedures, not a deployed unattended executor.
+Every reusable rule under [`rules/`](rules/) is active by default after plugin discovery. These carry coding, review, and workflow preferences; specialist skills remain task-specific.
 
-Project-declared `periodic-review` reminders stay open across completed or no-change reviews. Triage distinguishes due review work from deferred reminders and separately scoped delivery tickets; it does not create a scheduler or close the recurring obligation. See [Periodic Reviews](docs/workflows/ticket-triage-workflow.md#periodic-reviews).
+### Local Customization
 
-The packaged `triage` CLI captures authenticated read-only GitHub snapshots, validates assessment structure and references, and renders a compact advisory preview. The current agent supplies the judgment using its existing model route; the helper does not call a model or create comments, labels, assignments, branches, or pull requests. For commands, data handling, and validation limits, read the [ticket-triage reference](docs/references/ticket-triage-reference.md).
+- Define a project or user rule with the **same name** to override a packaged rule.
+- Add a differently named rule under `.omp/rules/` or `~/.omp/agent/rules/` to extend the defaults.
+- Use OMP's `ttsr.disabledRules` setting to disable a rule deliberately.
+- Keep project-specific commands, domain language, UI labels, and stack conventions in the owning repository.
 
-Use [`github-bug-reporting`](skills/github-bug-reporting/SKILL.md) to investigate, draft, or file a GitHub bug with observed artifact/runtime versions, attributable reproduction evidence, and an existing-issue/fix check. It distinguishes old installs and retained process modules from current upstream behavior, preserves original failures separately from recovery, and requires applicable write authority. Filing does not start implementation.
+Project-local guidance wins over this package's fallback guidance. See [guidance precedence](docs/references/guidance-precedence-reference.md) for placement and override rules.
 
-## Release History
+## Default Verifications
 
-See [CHANGELOG.md](CHANGELOG.md) for the curated release history, newest versions first.
+MSSRT supplies checks and semantic review contracts; the optional [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) runtime discovers and runs them. Installing this package alone does not enable automatic advisor correction. See [Rules and Verifications](docs/references/rules-and-verifications-reference.md) for check scope and configuration, and [Quality Ownership](docs/references/quality-ownership-reference.md) for the policy/runtime boundary.
+
+After setting up Verifier, restart OMP and run `/advisor status`. A `verifier [no model]` result means the advisor cannot perform correction. A UI notification alone is not correction evidence. The [correction-coverage guide](docs/references/quality-ownership-reference.md#correction-coverage-and-verification-evidence) explains the required failure, remediation, and fresh-pass proof.
 
 ## Claude Code Plugin Install
-
-Install this repo as a Claude Code marketplace, then install the plugin from it:
 
 ```bash
 claude plugin marketplace add klondikemarlen/marlens-skills-rules-and-tools
 claude plugin install marlens-skills-rules-and-tools@marlens-skills-rules-and-tools
 ```
 
-For local development, load the checkout directly:
+Skills use the plugin namespace, for example `/marlens-skills-rules-and-tools:feature` or `/marlens-skills-rules-and-tools:code-review`. The Claude adapter loads the shared skill tree; OMP-specific slash commands are not Claude commands. For local development, use `claude --plugin-dir /path/to/marlens-skills-rules-and-tools`.
 
-```bash
-claude --plugin-dir /path/to/marlens-skills-rules-and-tools
-```
+## Manual Install
 
-Claude Code exposes this package's public skills under the plugin namespace, for example `/marlens-skills-rules-and-tools:learn`, `/marlens-skills-rules-and-tools:feature`, `/marlens-skills-rules-and-tools:commit`, and `/marlens-skills-rules-and-tools:code-review`.
-
-The Claude adapter is manifest-only: `.claude-plugin/plugin.json` lets Claude Code load the existing `skills/` tree, and `.claude-plugin/marketplace.json` lets users install the repo without copying workflow files.
+For agents without a plugin system, clone this repository and point the agent at [`AGENTS.md`](AGENTS.md). Copy or link applicable reusable files into the locations that agent reads, preserving existing local guidance. The [skills](skills/) select procedures under [docs/workflows](docs/workflows/); [rules](rules/) can be copied or linked into the agent's rules directory. Restart the agent after changing startup-loaded guidance.
 
 ## Companion Runtime Plugins
 
-This package is the default base layer for doctrine, rules, task skills, workflows, and the thin OMP adapter. Companion runtime plugins remain separate opt-ins with independent release cycles; install only the runtime capabilities your workflow needs.
+These are separate, optional installations with independent releases. Follow each project's setup guide; install only the capabilities you need.
 
-Use [Quality Ownership Across MSSRT, Verifier, and Learner](docs/references/quality-ownership-reference.md#correction-coverage-and-verification-evidence) to place policy, runtime, and learning changes and distinguish tracked rules, supplied contracts, and actual current evidence. See [Rules and Verifications](docs/references/rules-and-verifications-reference.md) for the package's check layers. Each companion's own docs remain authoritative for its implementation.
-
-| Plugin                                                                                 | Adds                                                                                                                                                                                                                                                                                                                                                                                                       | Install                                                                                                                                                                                                       | Skip when                                                                               |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier)                       | Declared-check discovery, changed-path selection, execution, suppression, structured evidence, and verifier-advisor correction.                                                                                                                                                                                                                                                                            | `omp plugin install github:klondikemarlen/omp-verifier`                                                                                                                                                       | You do not want automatic check execution or advisor correction.                        |
-| [`omp-soft-boundary-guard`](https://github.com/klondikemarlen/omp-soft-boundary-guard) | Requests one-shot approval for recognized external GitHub writes and warns for other recognized cross-boundary mutations. Unsupported or unresolved operations may pass through; this is not a sandbox.                                                                                                                                                                                                    | `omp plugin install github:klondikemarlen/omp-soft-boundary-guard`                                                                                                                                            | You do not need the companion's supported approval and boundary-warning behavior.       |
-| [`omp-send-context`](https://github.com/klondikemarlen/omp-send-context)               | Sends selected code from VS Code or Devin Desktop, or selected text and links from Firefox, into an OMP prompt for review. Choose a client through its [installation guide](https://github.com/klondikemarlen/omp-send-context#install); direct Firefox delivery also needs its native-messaging host.                                                                                                     | `omp plugin install github:klondikemarlen/omp-send-context`<br>VS Code: `code --install-extension klondikemarlen.omp-send-context`                                                                            | You do not need editor or browser context handoff into OMP.                             |
-| [`omp-instance-control`](https://github.com/klondikemarlen/omp-instance-control)       | Linux `ompi` wrapper for participating terminal discovery, addressed peer messaging, and settled restart/resume. Use [Peer Messaging](docs/workflows/peer-messaging-workflow.md) for scoped coordination and outgoing-interface checks; running peers need capable loaded adapters. The optional `/ompi` plugin adds peer controls to ordinary OMP, not self-restart participation for unwrapped sessions. | Follow the [native wrapper installation guide](https://github.com/klondikemarlen/omp-instance-control#installation). Optional peer controls: `omp plugin install github:klondikemarlen/omp-instance-control`. | You do not need managed terminal discovery, peer messaging, or restart/resume controls. |
-| [`omp-project-time`](https://github.com/klondikemarlen/omp-project-time)               | Records separate local human-active and agent-turn elapsed intervals. These are evidence, not billable totals or a cost meter.                                                                                                                                                                                                                                                                             | `omp plugin install github:klondikemarlen/omp-project-time`                                                                                                                                                   | You do not need local project-work interval evidence.                                   |
-| [`omp-worklog`](https://github.com/klondikemarlen/omp-worklog)                         | Prepares reviewed personal work-log drafts from Project Time evidence and files explicitly approved Harvest batches. Draft generation does not submit entries.                                                                                                                                                                                                                                             | `omp plugin install github:klondikemarlen/omp-worklog`<br>Follow its [CLI and Harvest setup](https://github.com/klondikemarlen/omp-worklog) for filing prerequisites.                                         | You do not need reviewed work-log drafts or external time-entry filing.                 |
-| [`omp-auto-retitle`](https://github.com/klondikemarlen/omp-auto-retitle)               | Automatic session title cleanup for long or multi-thread OMP work.                                                                                                                                                                                                                                                                                                                                         | `omp plugin install github:klondikemarlen/omp-auto-retitle`                                                                                                                                                   | You prefer manual session titles or your client already handles title hygiene.          |
-| [`omp-exit-command`](https://github.com/klondikemarlen/omp-exit-command)               | Exit ergonomics for ending OMP sessions intentionally.                                                                                                                                                                                                                                                                                                                                                     | `omp plugin install github:klondikemarlen/omp-exit-command`                                                                                                                                                   | Your current exit flow is already fast enough.                                          |
-| [`omp-learner`](https://github.com/klondikemarlen/omp-learner)                         | Classifies corrections and recurring workflow gaps, checks existing guidance, and routes reviewable proposals to their owner.                                                                                                                                                                                                                                                                              | `omp plugin install github:klondikemarlen/omp-learner`                                                                                                                                                        | You do not want opt-in learning proposals.                                              |
-
-The former [`omp-developer-cost-status`](https://github.com/klondikemarlen/omp-developer-cost-status) repository now resolves to Project Time. Worklog consumes Project Time's evidence for separately reviewed filing; these are complementary recording and review/filing boundaries, not competing cost meters. The historical name alone does not justify another repository merge.
-
-`omp-learner` is the standalone replacement for the removed bundled learner runtime. It classifies human corrections and recurring workflow gaps, checks existing coverage, and routes genuinely missing guidance or verification proposals to their evidenced owner; optional native `learn` memory is supplementary, not proof of globally active guidance. Its configurable shared knowledge-base destination defaults to this repository; use `/learner setup owner/repository` after installation and restart to select another shared destination. Project-only proposals route to the active repository. See [Learner's purpose and routing contract](https://github.com/klondikemarlen/omp-learner/blob/main/README.md#learning-classification-and-integration) for maintained behavior and setup.
-
-Ticket filing requires existing `gh` authentication, an accessible target with GitHub Issues enabled, and permission to create issues there. Learner-created issues are reviewable proposals, not instructions to apply. When asked to "implement new tickets", triage the full open `learner:` set with [`docs/workflows/learn-workflow.md#learner-issue-triage`](docs/workflows/learn-workflow.md#learner-issue-triage): implement reusable missing guidance; report duplicate/already-covered filings with citations; route project-specific work to its evidenced owner and report misrouting to Learner. Installing this package never enables learner filing by itself. Learner invokes native `learn` for eligible feedback, but OMP owns memory storage and managed skills; Learner does not implement proposals, open PRs, or release changes. Its [own knowledge base](https://github.com/klondikemarlen/omp-learner/blob/main/docs/README.md) owns the current signal and routing contracts.
-
-## Default OMP Rules
-
-After installing this package as an OMP plugin, every reusable rule under [`rules/`](rules/) is active by default. Restart OMP after installing or upgrading so it discovers the installed package capabilities.
-
-To customize the defaults:
-
-- Define a project or user rule with the same name to override the packaged rule at higher precedence.
-- Add a differently named rule under `.omp/rules/` or `~/.omp/agent/rules/` to extend the defaults.
-- Add a rule name to OMP's `ttsr.disabledRules` setting to disable it deliberately.
-
-For agents without OMP plugin support, follow the [manual install](#manual-install) path and copy or link the required rule files into that agent's rule directory.
-
-## Default Verifications
-
-When [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier) is installed, it discovers the checks and semantic contracts declared in [`package.json`](package.json). Automatic test alignment and default-function-export checks inspect matching changed paths; a manual export check without changed-path input inspects project TypeScript paths. Read [Rules and Verifications](docs/references/rules-and-verifications-reference.md) for check ownership and scope. To disable the export verification deliberately, add this project-root `.marlens-verifications.json` configuration:
-
-```json
-{
-  "defaultFunctionExports": false
-}
-```
-
-Repository hygiene runs through `check-commit-scope`: it checks the Git index for `.envrc.example` and staged changed source files. The `npm test` gate retains the full-repository source-size check for CI.
-
-Automatic correction also requires an enabled, model-resolved verifier advisor. After installing or upgrading [`omp-verifier`](https://github.com/klondikemarlen/omp-verifier), restart OMP and run `/advisor status`: `verifier [no model]` means checks cannot reach the agent correction flow. For an advisor-backed release, intentionally trigger one matching verification failure, observe a `verifier` blocker in the primary session, remediate it, and confirm the subsequent check passes. A UI notification alone is not correction evidence.
-
-Current OMP Verifier releases use declared triggers and explicit project requirements for automatic selection. Checks without either remain manual, and scoped suppression stays visible in verifier output. See [Quality Ownership](docs/references/quality-ownership-reference.md) for the policy/runtime handoff and proof limits.
-
-For local plugin development, link the package root so OMP uses the same plugin path:
-
-```bash
-omp plugin link /path/to/marlens-skills-rules-and-tools
-```
-
-After reinstalling the plugin or changing skill names, restart OMP before retesting `skill://...`; skill discovery can stay stale inside an already-running session.
+| Companion                                                                        | Use It For                                                                                                               |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| [Verifier](https://github.com/klondikemarlen/omp-verifier)                       | Running declared checks and delivering advisor correction.                                                               |
+| [Learner](https://github.com/klondikemarlen/omp-learner)                         | Turning corrections and workflow gaps into reviewable proposals. Proposals are not permission to implement.              |
+| [Soft Boundary Guard](https://github.com/klondikemarlen/omp-soft-boundary-guard) | Approval for recognized external GitHub writes and warnings for other supported boundary crossings. It is not a sandbox. |
+| [Send Context](https://github.com/klondikemarlen/omp-send-context)               | Sending selected editor or Firefox content into an OMP prompt.                                                           |
+| [Instance Control](https://github.com/klondikemarlen/omp-instance-control)       | Linux managed-terminal discovery, addressed peer messaging, and restart/resume.                                          |
+| [Project Time](https://github.com/klondikemarlen/omp-project-time)               | Recording local human-active and agent-turn intervals, not billable totals.                                              |
+| [Worklog](https://github.com/klondikemarlen/omp-worklog)                         | Preparing work-log drafts and filing explicitly approved Harvest batches.                                                |
+| [Auto Retitle](https://github.com/klondikemarlen/omp-auto-retitle)               | Cleaning up session titles automatically.                                                                                |
+| [Exit Command](https://github.com/klondikemarlen/omp-exit-command)               | Ending OMP sessions intentionally.                                                                                       |
 
 ## Task-Oriented Documentation Map
 
-Start with [`docs/index.md`](docs/index.md) for the detailed docs map. Common routes:
+The [full documentation map](docs/index.md) is the starting point for procedures, templates, and references. Common routes:
 
-| Task                                                                      | Start here                                                                                                                                                                                                      |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Implement a repo issue or feature request                                 | [`docs/workflows/feature-workflow.md`](docs/workflows/feature-workflow.md)                                                                                                                                      |
-| Open, update, or merge a pull request                                     | [`docs/workflows/pull-request-management-workflow.md`](docs/workflows/pull-request-management-workflow.md)                                                                                                      |
-| Resolve PR review comments                                                | [`docs/workflows/pull-request-comment-resolution-workflow.md`](docs/workflows/pull-request-comment-resolution-workflow.md)                                                                                      |
-| Commit scoped changes                                                     | [`COMMITTING.md`](COMMITTING.md) and [`docs/workflows/commit-workflow.md`](docs/workflows/commit-workflow.md)                                                                                                   |
-| Edit older commits safely                                                 | [`docs/workflows/git-rebase-workflow.md`](docs/workflows/git-rebase-workflow.md) and `git-edit-commit`                                                                                                          |
-| Add Express Light Rail backend code                                       | [`docs/workflows/express-light-rail-backend-workflow.md`](docs/workflows/express-light-rail-backend-workflow.md) and [`docs/templates/backend/express-light-rail/`](docs/templates/backend/express-light-rail/) |
-| Add full-stack admin CRUD scaffolding                                     | [`docs/workflows/full-stack-admin-crud-workflow.md`](docs/workflows/full-stack-admin-crud-workflow.md) and [`docs/templates/backend/express-sequelize-crud/`](docs/templates/backend/express-sequelize-crud/)   |
-| Add frontend or backend reusable scaffolding                              | [`docs/templates/`](docs/templates/)                                                                                                                                                                            |
-| Compare before/after guidance outcomes                                    | [`examples/`](examples/)                                                                                                                                                                                        |
-| Layer route-based UI flows                                                | [`docs/workflows/layered-page-orchestration-workflow.md`](docs/workflows/layered-page-orchestration-workflow.md)                                                                                                |
-| Upload PR screenshots                                                     | [`docs/workflows/upload-pr-screenshots-workflow.md`](docs/workflows/upload-pr-screenshots-workflow.md)                                                                                                          |
-| Decide where guidance belongs                                             | [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md)                                                                                                          |
-| Audit downstream agent guidance                                           | [`docs/references/downstream-agent-guidance-audit-reference.md`](docs/references/downstream-agent-guidance-audit-reference.md) and `agent-guidance-audit`                                                       |
-| Establish a project-local documentation knowledge base                    | [`docs/workflows/project-knowledge-base-workflow.md`](docs/workflows/project-knowledge-base-workflow.md)                                                                                                        |
-| Improve reusable guidance, prompt flow, or evidence-backed technical debt | [`docs/workflows/self-improvement-workflow.md`](docs/workflows/self-improvement-workflow.md)                                                                                                                    |
-| Mine session and commit-history lessons                                   | [`docs/workflows/session-insight-mining-workflow.md`](docs/workflows/session-insight-mining-workflow.md)                                                                                                        |
-| Draft or file Jira reports                                                | [`docs/workflows/jira-reporting-workflow.md`](docs/workflows/jira-reporting-workflow.md) and `jira-reporting`                                                                                                   |
-| Draft or file version-aware GitHub bugs                                   | [`docs/workflows/github-bug-reporting-workflow.md`](docs/workflows/github-bug-reporting-workflow.md) and `github-bug-reporting`                                                                                 |
-| Run one task with a temporarily enabled MCP server                        | [`docs/workflows/temporary-mcp-task-workflow.md`](docs/workflows/temporary-mcp-task-workflow.md)                                                                                                                |
-| Coordinate with an independently running OMP session                      | [`peer-messaging`](skills/peer-messaging/SKILL.md) and the [peer-messaging workflow](docs/workflows/peer-messaging-workflow.md)                                                                                 |
-
-## Task-Proportionate Execution
-
-The [hands-off workflow](docs/workflows/hands-off-agentic-coding-workflow.md) keeps small solo diffs on a read → patch → proof path. Non-trivial work uses one bounded plan and evidence-driven iteration, reusing the issue's outcome and constraints. Context handoffs are for actual delegation or resumption, not a mandatory artifact for every task.
-
-The [self-improvement workflow](docs/workflows/self-improvement-workflow.md) prioritizes demonstrated instruction conflicts and unnecessary ceremony before adding guidance. More capable models do not waive safety, review, QA, or release gates, and workflow changes are not measured speedups without comparative evidence.
+| Task                                 | Read                                                                                             |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| Deliver an issue or feature          | [Feature workflow](docs/workflows/feature-workflow.md)                                           |
+| Create or update a pull request      | [PR management](docs/workflows/pull-request-management-workflow.md)                              |
+| Resolve review feedback              | [Review-comment resolution](docs/workflows/pull-request-comment-resolution-workflow.md)          |
+| Commit changes or edit older commits | [Commit conventions](COMMITTING.md) and [rebase workflow](docs/workflows/git-rebase-workflow.md) |
+| Start from an established code shape | [Templates](docs/templates/) and [before/after examples](examples/)                              |
+| Maintain a project's own knowledge   | [Project knowledge base](docs/workflows/project-knowledge-base-workflow.md)                      |
 
 ## Repository Development Checks
 
@@ -201,29 +148,30 @@ npm run lint
 npm run lint:python
 npm test
 npm run test:memory
+npm run test:reviewed-files
 npm pack --dry-run --json
 ```
 
-`npm run lint` applies ESLint's recommended JavaScript and TypeScript rules to repository source, scripts, tests, the OMP adapter, and extensionless Node commands in `bin/`. It never fixes files and permits no warnings. TypeScript linting is syntax-based, not a substitute for typechecking; Ruby and Markdown are outside this lint command's scope. Browser-evaluated upload helpers permit their required `document` global, and intentional control-character sanitizers retain narrowly documented rule exceptions.
+JavaScript/TypeScript lint runs without fixes or warnings; TypeScript lint is not typechecking. Python lint uses the repository's pinned Ruff rules for the native dialog. GUI dependencies are separate system prerequisites; linting does not open a window or request administrator access.
 
-`npm run lint:python` checks the native dialog source in `lib/privilege-preview` with Ruff, pinned in `requirements-lint.txt`. The repository's `ruff.toml` explicitly selects core syntax/error checks (`E4`, `E7`, `E9`), Pyflakes (`F`), and type-check exception semantics (`TRY004`), without inheriting workstation rules. The command never fixes files; any finding fails the check. This is lint-only tooling: GTK/libadwaita remain system runtime prerequisites, and linting does not launch a window or request administrator access.
+The [Verifier bindings](.omp-verifier.json) are checkout-specific, not installed rules for consuming projects. The packaged `bin/dev` is a downstream Docker Compose helper, **not this repository's test wrapper**; these checks need no Docker service. CI runs both lint commands, the package checks, and the native-memory and reviewed-files suites.
 
-The repository's [Verifier bindings](.omp-verifier.json) explicitly select the JavaScript/TypeScript and Python commands for `verifier:project-lint`; they are checkout-specific configuration, not installed rules for consuming projects. The packaged `bin/dev` is a generic Docker Compose helper for downstream projects, not this repository's development/test wrapper. No Docker service or `dev.config.rb` is needed for these checks. CI installs the pinned lint tooling and runs both commands before the existing package checks.
+To develop the OMP plugin from this checkout, run `omp plugin link /path/to/marlens-skills-rules-and-tools`, then restart OMP after changes before testing installed behavior.
 
 ## Feature and Issue Workflow
 
-Preferred flow for repo issues and feature requests:
+Follow the [contribution policy](.github/CONTRIBUTING.md) and [feature workflow](docs/workflows/feature-workflow.md). Feature decisions belong to the maintainer; a submitted issue is not implementation approval.
 
-In this repo only, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing the scoped files for that workflow. Keep the broader global git safety block in place for other repositories.
+In this repo only, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing the scoped files for that workflow. Keep the broader global Git safety rules in place for other repositories.
 
-1. Create or identify the GitHub issue with the user story and acceptance criteria.
-2. Branch from current `main` using the issue number and concise, meaningful outcome slug before editing when possible; never use opaque abbreviations or a bare issue number. If the scoped work already exists locally, create the issue-named branch before committing.
-3. Make the smallest change that resolves the request, including any docs or thin skill aliases that must stay updated.
-4. Bump `package.json` for every change before opening the release PR, keeping the lockfile and Claude manifest version aligned. Curate the reader-visible outcome under `Unreleased` in [CHANGELOG.md](CHANGELOG.md), following the [release-notes workflow](docs/workflows/release-notes-workflow.md); do not add README version sections.
-5. Open an issue-linked draft PR as soon as the first coherent change can be pushed, using `docs/workflows/pull-request-management-workflow.md`. Continue implementation and update the same draft; do not wait for completed implementation, full review, QA, or screenshots. Report pending work and checks truthfully, and mark it ready only after verification. PR creation is part of the release workflow, but not the release itself.
-6. At final release preparation, move the pending changelog outcome into the selected version heading with a UTC date and real release/PR or immutable comparison link. Merge the PR to `main`; that merge is this package's release. Verify the recorded date against GitHub's observed `mergedAt` before reporting completion, correcting a date mismatch through the normal issue/PR release flow.
-7. Close the issue via the merged PR when the PR contains the fix. If the fix already landed directly on `main`, comment with the fixing commit and close the issue explicitly instead of creating a misleading closing PR.
-8. After merge, reinstall the local plugin from this repo, and tell the user to reload the plugin if their client supports it or restart OMP before retesting installed skills/rules.
+1. Create or identify an issue with the user story and acceptance criteria.
+2. Branch from current `main` using the issue number and a concise outcome slug before editing when possible; create the issue-named branch before committing existing scoped work.
+3. Make the smallest change that resolves the request, including affected docs and skill mirrors.
+4. Bump `package.json` for every change, keeping the lockfile and Claude manifest aligned. Curate the outcome under `Unreleased` in [CHANGELOG.md](CHANGELOG.md), following the [release-notes workflow](docs/workflows/release-notes-workflow.md).
+5. Open an issue-linked draft PR as soon as the first coherent change can be pushed. Continue implementation and QA in that draft; mark it ready only after verification.
+6. At release preparation, move the changelog outcome into the selected version heading with a UTC date and real PR/release or immutable comparison link. Merge to `main`: **that merge is this package's release**. Verify the date against GitHub's `mergedAt`; correct a mismatch through the normal issue/PR flow. Do not claim a separate npm or marketplace publish.
+7. Close the issue via the fixing PR. If a fix already landed directly on `main`, cite its commit and close the issue rather than creating a misleading closing PR.
+8. Reinstall from this repository after merge, verify the installed artifact, and reload the plugin if supported or restart OMP before retesting.
 
 ## Release Versioning
 
@@ -235,60 +183,10 @@ Use semantic versioning with cumulative release judgment:
 
 There is no numeric patch threshold. Promote to a minor release before a long run of compatible changes becomes misleading; use the size and public significance of the accumulated work rather than a mechanical counter. Do not rewrite historical versions.
 
-## Manual Install
+## Stability
 
-Use this path for agents without a plugin system.
+The package's public surfaces are its installable metadata, skill entrypoints, workflows/templates/references under `docs/`, examples, rules, packaged commands, and thin OMP/Claude adapters. Optional companion runtimes, downstream project configuration, browser automation, and project test dependencies are separate concerns with their own owners.
 
-Clone this repo anywhere, then link or copy the shared rules file into the locations your agents read:
+## Release History
 
-```bash
-REPO=/path/to/marlens-skills-rules-and-tools
-mkdir -p "$HOME/.omp/agent"
-ln -sf "$REPO/AGENTS.md" "$HOME/.omp/agent/AGENTS.md"
-ln -sf "$REPO/AGENTS.md" "$HOME/AGENTS.md"
-```
-
-If an agent cannot load plugins or skills, keep the checkout nearby and point it at `AGENTS.md`; the workflow source lives under `docs/`, and the public skill entrypoints live under `skills/`.
-
-Restart the agent after changing this file. Global instructions load at startup.
-
-For a non-plugin agent, copy or link the applicable reusable rules into its normal rules directory:
-
-```bash
-REPO=/path/to/marlens-skills-rules-and-tools
-mkdir -p "$HOME/.omp/agent/rules"
-for rule in "$REPO"/rules/*.md; do
-  [ "$(basename "$rule")" = README.md ] || ln -sf "$rule" "$HOME/.omp/agent/rules/"
-done
-```
-
-## Local Customization
-
-Treat this pack as the base layer: package rules are default suggestions, while project-local instructions and rules win. Use a local rule with the same name for a deliberate replacement, add a new local rule for project-only behavior, or use OMP's `ttsr.disabledRules` setting to disable one package rule. The detailed placement and precedence policy lives in [`docs/references/guidance-precedence-reference.md`](docs/references/guidance-precedence-reference.md).
-
-Keep project-specific commands, wrappers, test commands, Docker services, UI labels, domain language, and stack conventions in that repo.
-
-## Future Adapters
-
-OMP and Claude Code have thin plugin adapters today. Add future agent-specific adapters beside them, and have those adapters consume the root `AGENTS.md`, `docs/`, and `skills/` content instead of copying workflows.
-
-## Name
-
-Use `marlens-skills-rules-and-tools` as the package/plugin slug, GitHub repo name, and OMP marketplace name. Use "Marlen's Skills, Rules, and Tools" as the display name.
-
-## Files
-
-- `AGENTS.md` - global agent instructions loaded by OMP or manual symlink consumers
-- `AGENT_RULES.md` - agent-agnostic shared decision rules
-- `COMMITTING.md` - reusable commit-message guidance
-- `CHANGELOG.md` - curated, versioned release history and pending changes
-- `docs/` - authoritative generic workflow, template, reference, and plan discovery docs
-- `examples/` - compact before/after outcomes for packaged skills, rules, and tools
-- `skills/` - thin skill aliases that point at authoritative workflows under `docs/workflows/`
-- `rules/` - reusable OMP rule files that can be copied or linked into `~/.omp/agent/rules`
-- `lib/` - shared command implementations, including the Ruby `dev` wrapper and JavaScript helpers
-- `bin/agent-guidance-audit.js` - read-only downstream agent-guidance audit helper for stale package names, broken local links, and explicit mirror drift checks
-- `package.json` - OMP package manifest that loads the adapter and exposes sibling skills
-- `omp-plugin/` - OMP-specific runtime adapter; no shared workflow content lives here
-- `.omp-plugin/` - OMP marketplace catalog
-- `.claude-plugin/` - Claude Code plugin manifest and marketplace catalog
+See [CHANGELOG.md](CHANGELOG.md) for the curated release history, newest versions first.
