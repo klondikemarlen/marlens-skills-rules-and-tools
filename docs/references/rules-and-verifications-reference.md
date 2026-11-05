@@ -60,6 +60,16 @@ Fit checks: an unused binding under an enabled error rule must fail, then pass a
 
 MSSRT supplies this policy and requirement example; the consuming project owns its lint configuration and setup, and Verifier owns execution and result delivery. The requirement does not register a new `/verifier checks` manifest id, install tools, or provide a hard host-level completion veto. Direct lint execution without a working verifier is command evidence, not proof of native advisor delivery.
 
+### Semantic Lint Fixes
+
+A diagnostic is a reason to understand a contract, not proof of a runtime defect or a target to hide. Before accepting helper extraction or a syntactic rewrite as its fix, explain which underlying risk/invariant changes and verify that behavior separately from the fresh lint run. A meaningful helper remains valid when its boundary clarifies or enforces the contract; an accepted intentional policy change is also valid.
+
+For paused tasks, extracting a throwing cleanup block into `await resumeAndWaitForTasks()` inside `finally` may evade `no-unsafe-finally` analysis while still replacing an earlier failure. Reject that as a semantic fix when failure replacement is the warned-about risk. Make failure ownership explicit: resume/settle the required tasks, preserve the original failure and required background diagnostics through the established error/reporting boundary, then report according to the accepted contract. A refactor that actually prevents an unowned cleanup failure from masking the original is a fix; a renamed helper with unchanged behavior is not.
+
+Use controlled failures to observe normal completion, original-operation failure, cleanup/background failure, and both together: verify required cleanup completes and the required original/background diagnostics remain available. Do not assume a test framework lost a diagnostic without inspecting its output, mandate `AggregateError` for every cleanup path, or treat lint PASS as this proof. Preserve accepted reporting semantics and avoid unrelated changes.
+
+For intentional unbounded loops, follow the [readable loop preference](code-organization-reference.md#intentional-unbounded-loops): keep ordinary constant-condition diagnostics and document the breadth of any supported loop exemption rather than rewriting a clear loop solely to appease lint.
+
 ## Current Package Classification
 
 | Asset                                             | Layer                        | Why                                                                                                               |

@@ -17,7 +17,19 @@ Before sending someone elsewhere, answer “Why am I about to be there?” with 
 
 Do not invent task authorization, checks, failures, or a pending release to justify a handoff. If the only purpose is an explicitly requested trial, say that; if the purpose is unknown, establish it before requesting sign-in. The helper can display context but cannot infer its truth or make a circular explanation useful.
 
-### Reusing the Approach on Other Surfaces
+## Least Privilege and Continuing Authority
+
+Task permission to perform one operation is not permission to issue reusable account authority. Start with the minimum effective authority needed: anonymous/read-only inspection, resource-scoped access where supported, only required writes, and the shortest practical lifetime. Avoid private-data access, account-wide writes, desktop-wide sharing, administrative privilege, and persistent credentials unless the requested outcome requires them. Prefer action-specific provider website submissions or signed artifacts when they accomplish a bounded task without a reusable grant; do not acquire continuing access merely for automation convenience.
+
+Before opening a new consent prompt, inspect the effective provider/library authorization flow: requested arguments are not proof of the actual grant. Establish the target action, effective scope, lifetime, who can use the authority, credential storage, and authority remaining afterward. Explain these facts before approval; important unknowns must remain explicit, not be presented as narrow permissions. A named application or public-only reusable token is not action-scoped authorization. If the provider cannot limit the grant to the action, explain that limit and offer the narrower viable workflow. Obtain explicit acceptance before acquiring genuinely necessary broader or reusable authority as a separate decision.
+
+For Launchpad PPA setup, prefer the specific website submission where viable, with separately reviewed signing/upload, rather than replacing revoked tokens. A browser helper that discards `allow_access_levels` and forces desktop-wide integration fails the pre-prompt check even if the caller requested narrow access. Inspect the real helper/provider path before opening consent; if it grants every application continuing read-write authority, do not describe it as approval of one PPA action.
+
+Preserve deliberately authorized ongoing integrations and reuse of already approved access within scope; this is not another prompt for every routine tool call and does not change existing workflow write authority. Never reacquire revoked access without new explicit authorization. For this Launchpad incident the maintainer revoked existing application authorizations: continue through the website and separately reviewed signing/upload without silently substituting a new token.
+
+Review scenarios: read-only inspection must not request writes; a bounded submission must not silently acquire a reusable grant; a library widening requested scope must be caught before consent; accepted ongoing access may be reused without duplicate prompts; revoked access must not be reacquired from prior task approval. This is selection/handoff guidance, not an OAuth implementation, automatic revoker, credential migration, or new approval framework.
+
+## Reusing the Approach on Other Surfaces
 
 The decision context is independent of npm, HTTPS, and the UI toolkit: goal, affected thing and meaningful change, progress, requested action, reason, and intended effect. Keep those concepts as plain data. A native dialog can present the same short recap before a permission or confirmation step; it need not reproduce the browser layout or require a repository, package release, or login.
 

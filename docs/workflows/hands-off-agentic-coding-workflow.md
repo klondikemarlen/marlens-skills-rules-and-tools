@@ -23,6 +23,22 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
 - For design-heavy tasks, run `docs/workflows/outcome-first-planning-workflow.md` before implementation planning.
 
+## Relative Capability Roles
+
+Choose delegation by task requirements and observed results, using provider-neutral roles rather than permanent model-family ranks:
+
+- **Lightweight:** bounded mechanical changes or data collection with an explicit procedure and little ambiguity.
+- **General-purpose:** ordinary implementation with several interacting decisions and established patterns.
+- **High-capability:** ambiguous causes, difficult invariants, or independent design/review judgment where deeper capability is relevant.
+
+These are relative task-fit descriptions, not runtime aliases or an automatic router. Capability differs from thinking effort: raising reasoning effort on the current model can help a demanding task without selecting a different model, and a mechanical task does not become high-capability merely because it is large.
+
+Keep concrete selectors and provider permissions with their configuration owners. A replaceable mapping example is: “For this bounded task, configured selector A performed mechanical renames reliably, B handled ordinary feature integration, and C resolved an ambiguous lifecycle race.” Record actual selectors, date, and observed evidence when making such a local mapping; reclassifying/replacing A, B, or C does not change these delegation criteria. Do not assume a model family has a permanent rank.
+
+Honor explicit session choices and existing provider authorization. Capability fit never authorizes another provider, silently changes model assignments/routing/fallbacks, or overrides configured role ownership. Inspect the actual configured selectors when a task legitimately requires selection; this guidance creates no configuration changes.
+
+For new authorization grants or handoffs, apply [Least Privilege and Continuing Authority](../references/authorization-preview-reference.md#least-privilege-and-continuing-authority): inspect effective scope before consent, prefer bounded action-specific authority, and do not reacquire revoked access or silently expand task approval into reusable grants. Reuse already approved access within its accepted scope without routine duplicate prompts.
+
 ## Full-Suite Cost
 
 Use focused checks for changed behavior; run a relevant affordable full suite when useful or independently required, without a separate approval prompt. Base restrictions on known local-development cost, not repository ownership or the command name. Reuse documented or recently observed timings; do not add recurring cost audits or run a full suite merely to benchmark it. An `npm test` script alone does not create a mandatory full-suite gate.
@@ -77,6 +93,7 @@ Focused diffs can make change amplification and recurring change clusters easier
 4. Delegate only where it buys coverage:
    - keep work inline when a separate agent would only repeat context gathering or perform a small local edit;
    - use independent substantial slices or a specific design, test, or review risk to justify delegation; do not require tester, reviewer, or competing-design agents merely because they are available;
+   - use [Relative Capability Roles](#relative-capability-roles) for task fit without treating providers or concrete selectors as permanent capability tiers;
    - before transfer or resumption, provide the recipient's scope, ownership, relevant observed context, proof, remaining work, and next action;
    - preserve required self-review and repository review gates whether or not a separate reviewer is useful.
 5. Implement the first runnable prototype:

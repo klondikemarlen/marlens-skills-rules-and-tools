@@ -23,6 +23,40 @@ Use when filing or drafting Jira Bugs, features, or general reports from user re
 - Link related Jira issues with the relationship that matches the evidence: use a dependency only when one issue blocks or requires the other, otherwise keep the relationship independent.
 - Filing or drafting a report alone does not start implementation. When asked to work on a Jira ticket, apply [Ticket Lifecycle](feature-workflow.md#ticket-lifecycle) for assignment, active work, review, and post-merge transitions. Resolve the intended person's Jira account separately from GitHub and use currently allowed transition IDs; a board column is not necessarily one issue status.
 
+## Human-Sized Feature Descriptions
+
+An ordinary feature proposal is not an implementation specification. Keep a short problem, proposed change, a few essential acceptance criteria, and useful links within the project's required report shape. Remove repeated caveats, exhaustive field inventories, and speculative implementation plans while retaining agreed scope, material risks, necessary diagnostics, and explicitly requested detail. There is no rigid word limit.
+
+Before: “Add tag search with a tokenizer, indexing pipeline, API fields, UI events, rollout stages, several repeated no-migration caveats, and an exhaustive list of possible future syntax.”
+
+After, using the existing report headings:
+
+```markdown
+# Context
+
+Finding tagged workflows requires opening individual records.
+
+# User Report
+
+Tags should help people find workflows across the workflow list.
+
+# Proposed Solution
+
+Add workflow-wide tag search.
+
+Acceptance:
+
+- Search finds workflows by their tags across the workflow list.
+- Changed tags are searchable.
+- Existing tags are not migrated.
+```
+
+The example assumes that scope was agreed; do not invent it for another request. Link real supporting issues when useful instead of repeating their implementation detail.
+
+## Authorized Comment Voice
+
+For an authorized comment spoken on the user's behalf through their account, express views they actually supplied in first person or omit unnecessary attribution. Replace “Marlen considers richer tags useful” with “I think richer tags could be useful” only when the user expressed that view. Keep comments brief and natural; detailed scope belongs in the description. Distinguish this from a third-party report, where legitimate reporter attribution or a requested formal report remains appropriate. This governs wording after publication is authorized: it does not invent opinions, impersonate another account, or authorize posting.
+
 ## Process
 
 1. Read the project-local Jira workflow, comparable tickets, and target field requirements.

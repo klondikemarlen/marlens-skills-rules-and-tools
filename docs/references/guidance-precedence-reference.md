@@ -52,6 +52,10 @@ Choose public communication by the reader's need, not by the amount of work perf
 
 Write the smallest useful answer, result, risk, or next action with the supporting link or limitation it needs. Concision must not hide a blocker or remove explicitly requested detail. Keep historical evidence tied to its revision; a self-review or old PASS is not independent approval or proof of the current state.
 
+For tracker comments authorized on the user's behalf, use first person for views the user actually supplied, or omit unnecessary personal attribution; do not describe the account holder in the third person as though writing an outside report. “I think richer tags could be useful” can replace “Marlen considers richer tags useful” when that was their stated view. Keep legitimate attribution for other reporters and requested formal reports. Wording guidance does not authorize publication, invent opinions, or permit impersonating another account. See the [Jira reporting examples](../workflows/jira-reporting-workflow.md#authorized-comment-voice).
+
+For feature descriptions, apply the same reader-first standard to report depth: short problem, proposed change, essential acceptance criteria, and useful links rather than speculative implementation specifications. Preserve material risks, diagnostics, and requested detail; see [Human-Sized Feature Descriptions](../workflows/jira-reporting-workflow.md#human-sized-feature-descriptions).
+
 Downstream links supplied as examples of a shared instruction problem are read-only research inputs. Improve the shared owner when that is the requested outcome; a broad follow-up such as “do what you think is best” does not turn those examples into cleanup targets. Editing or deleting downstream history requires an explicit cleanup request and target scope.
 
 ### Standalone Reports

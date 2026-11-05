@@ -33,6 +33,8 @@ For a meaningful computed function result used in an object property or nested c
 
 Keep self-explanatory one-use option literals inline when the property already explains their meaning: use `{ arrayLimit: 1000, parameterLimit: 1500 }` rather than one-use `MAX_QUERY_ARRAY_LENGTH` and `MAX_QUERY_PARAMETER_COUNT` aliases. These values illustrate preserved inputs, not parser limits to adopt elsewhere. Retain named constants that express an additional domain rule or are genuinely shared, and retain meaningful computed intermediates; this is not a ban on constants or debugger-friendly locals.
 
+Keep simple single-field object type annotations and object arguments inline when they fit readably: `const response: { id: string } = await request()` and `logger.error(message, { error })`. Wrap a long surrounding request chain independently; the small shape need not expand with it. Retain multiline complex shapes, test expectations, and stronger project conventions.
+
 For straightforward persistence payloads made only from stable, already-available fields, prefer an explicit object literal at the creation call instead of staging a trivial `attributes` object and spreading it later. Keep the creation fields visible even when the same simple fields appear in current- and future-period calls. For example, replace this staging:
 
 ```typescript
@@ -72,6 +74,39 @@ During feature or PR work, incidental cleanup is eligible only in an existing fi
 When this scope correction is accepted, inspect the complete in-scope PR for equivalent incidental-only files, not just the selected review line. Preserve other owners' work and remove only the unrelated cleanup from the proposed change.
 
 A legitimately touched file is not permission to relocate its unchanged setup declarations or initialization calls. Preserve their established relative placement unless requested behavior, an actual dependency/initialization order, project tooling, or explicitly requested cleanup requires a move. For example, leave an unchanged `const snack = useSnack()` beside its original form setup rather than moving it solely because the file gains store logic. Necessary new declarations and justified ordering changes remain valid; preserve initialization effects and do not impose a universal declaration order. When this correction is accepted, inspect analogous incidental moves across the complete in-scope PR, preserving other owners' changes rather than restoring only the highlighted line or sweeping unrelated files.
+
+### Diff-Friendly Configuration Layouts
+
+For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. An addition should not rewrite an existing entry or its delimiters:
+
+```typescript
+const defaults = {
+  loading: false,
+}
+
+// Adding a setting changes only the new entry:
+const extendedDefaults = {
+  loading: false,
+  disabled: false,
+}
+```
+
+This applies beyond Vue defaults. Preserve multiline extensible layouts rather than compacting them solely because a formatter permits it, subject to project formatting constraints. Small self-contained types and call arguments may remain inline as above; this is not a mandate to expand every expression or sweep unrelated formatting.
+
+### Intentional Unbounded Loops
+
+Prefer `while (true)` over an empty `for (;;)` header when termination is intentionally inside the loop:
+
+```typescript
+while (true) {
+  const batch = await readNextBatch()
+  if (batch.length === 0) break
+
+  await processBatch(batch)
+}
+```
+
+Preserve the body, internal exits, and execution behavior; ordinary counted and conditional loops keep their meaningful conditions. If constant-condition lint rejects this form, inspect the installed rule's supported scoped loop option rather than obscuring the loop to pass. Keep constant-condition checks outside loops enabled. Disclose when an available option such as `checkLoops: false` exempts all constant loop conditions, not only literal `true`; do not disable the rule wholesale or require a dependency upgrade.
 
 ### Shared Environment Defaults
 
@@ -125,6 +160,16 @@ const { sourceIndex, destinationIndex, orderedWorkflowSteps } = locatePlacement(
 )
 const groupedSteps = groupSteps(sourceIndex, destinationIndex, orderedWorkflowSteps)
 ```
+
+The same principle applies to independently consumed fields of awaited API results in resource composables:
+
+```typescript
+const { childrenWithDiverseNeedsFundingRecord, policy } = await api.get(id)
+state.childrenWithDiverseNeedsFundingRecord = childrenWithDiverseNeedsFundingRecord
+state.policy = policy
+```
+
+Keep the domain record intact rather than flattening its fields. Preserve result names, policy updates, return values, and property-access behavior (including getters and conditional reads); destructuring is not an API response redesign or permission to evaluate previously unread properties.
 
 ### Grouped Model Hook Registration
 
@@ -361,6 +406,24 @@ For new or actively reviewed unreleased migrations, separate meaningfully distin
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
+
+For TypeScript migrations whose runner supports named module exports, prefer a type-only `Knex` import and named async entry-point declarations:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.createTable("categories", (table) => {
+    table.increments("id")
+  })
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTable("categories")
+}
+```
+
+The table is illustrative, not a schema change to adopt. When correcting declarations, preserve migration bodies, SQL, rollback, and runner loading; retain framework-required module conventions. Apply only while authoring or explicitly reviewing migrations, not as a historical sweep or a universal CommonJS ban.
 
 Use migration-specific checks/tests and dedicated fixtures as disposable implementation verification. After proving the checked migration's contract, retain focused commands and observed outcomes in the task's existing evidence, then remove check files and fixtures created solely for that migration before committing. Keep application-behavior tests, shared fixtures, and any required recovery/audit artifacts. This does not waive correctness, database-failure, rollback, or accepted-loss/recovery proof under [Best-Effort Backfills](#best-effort-backfills), authorize a historical test sweep, or make stale results valid after a change.
 
@@ -723,6 +786,10 @@ Reserve a meaningful role name such as `displayedWorkflowSteps` for a genuinely 
 
 Keep each query or composable result adjacent to its direct derived state. Put broader coordination state and action handlers after their inputs, and lower-priority shared helpers further down.
 
+For Vue inputs, normalized reactive values, watcher new values, and fixed operation snapshots, follow the distinct roles in [Reactive Identifier Roles](vue-component-authoring-reference.md#reactive-identifier-roles), not a blanket rename of `selected` or `requested` variables.
+
+Keep independent resource queries domain-named and grouped with their consuming composables, even when their current shapes match; see [Independent Resource Query Setup](vue-component-authoring-reference.md#independent-resource-query-setup). Intentional shared configuration remains shared.
+
 This is a review heuristic, not an alphabetical rule. Preserve an existing stronger project convention when one exists.
 
 For related visibility props, preserve the established show/hide polarity. Beside an existing `hideOrganization`, prefer `hideUsageCount` over mixing in `showUsageCount`. When renaming an in-scope prop, update every caller, invert defaults and predicates together, and verify identical visible behavior for both values and the omitted-prop case. Do not rename unrelated established APIs solely for this preference.
@@ -788,6 +855,10 @@ Protected work should expose its ownership through an intention-revealing `With.
 ## Error Ownership and Local Recovery
 
 API/HTTP transport classifies failures and throws typed errors; it must not import presentation state or open recovery UI. UI consumers or existing application/framework error boundaries own recovery presentation. When intermediate callers swallow a failure needed there, correct their propagation rather than introducing UI side effects in transport. Preserve ordinary local handling and cleanup without mandating a new global handler or layer.
+
+When a local persistence record and its corresponding remote object can be absent independently, distinguish them across error names, machine-readable codes, callers, messages, and recovery state using the application's vocabulary. For example, a missing local `SharePointFolder` record remains the local-record 404, while `RemoteSharePointFolderMissingError` carries `remote_share_point_folder_missing` for an existing record whose remote folder is gone. Only the latter enables `isRemoteSharePointFolderMissing` recovery. Both may legitimately use HTTP 404; a different status or global error hierarchy is not required.
+
+Verify both misses independently: a missing local record does not offer remote-folder recovery, a missing remote object does, and ordinary failures retain their existing handling. Do not add qualifiers where there is no competing resource identity.
 
 For routine lookup and resource-read failures, use the application's established snack/logging feedback path rather than retaining store error fields or inline error bindings solely to duplicate that feedback. Let failures reach the existing presentation owner; remove redundant state and bindings only when no accepted consumer needs them. Preserve loading cleanup, already-saved data, and unexpected-error propagation when removing such state. Keep persistent error state when the accepted workflow needs contextual retry, validation feedback, or synchronization status; this is not a ban on resource errors, recovery UI, or caching, and does not add a global handler or presentation path.
 
