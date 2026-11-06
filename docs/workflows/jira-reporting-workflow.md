@@ -19,6 +19,7 @@ Use when filing or drafting Jira Bugs, features, or general reports from user re
 - Use H2 `To Reproduce` and `Expected Behavior` under `Context` for Bugs when known and useful. State observed versus expected behavior without inventing a root cause.
 - Use H3 headings only for individual reports or numbered options beneath an H1 section.
 - Embed supplied screenshots when the target supports media embeds. Do not invent source links from email message IDs or opaque identifiers; link a real remote source only when one exists.
+- For support-derived reports, retain both original-thread traceability and appropriate reporting-user attribution under [Support-Report Provenance](#support-report-provenance).
 
 - Link related Jira issues with the relationship that matches the evidence: use a dependency only when one issue blocks or requires the other, otherwise keep the relationship independent.
 - Filing or drafting a report alone does not start implementation. When asked to work on a Jira ticket, apply [Ticket Lifecycle](feature-workflow.md#ticket-lifecycle) for assignment, active work, review, and post-merge transitions. Resolve the intended person's Jira account separately from GitHub and use currently allowed transition IDs; a board column is not necessarily one issue status.
@@ -56,6 +57,26 @@ The example assumes that scope was agreed; do not invent it for another request.
 ## Authorized Comment Voice
 
 For an authorized comment spoken on the user's behalf through their account, express views they actually supplied in first person or omit unnecessary attribution. Replace “Marlen considers richer tags useful” with “I think richer tags could be useful” only when the user expressed that view. Keep comments brief and natural; detailed scope belongs in the description. Distinguish this from a third-party report, where legitimate reporter attribution or a requested formal report remains appropriate. This governs wording after publication is authorized: it does not invent opinions, impersonate another account, or authorize posting.
+
+## Support-Report Provenance
+
+For a support-derived report, pair a verified link to the original support thread with the reporting user's verified reference when disclosure to the issue's audience is appropriate. Use comparable project tickets to choose the attribution format and placement, normally alongside the evidence in `User Report`. Attribute the person who reported the problem, not the agent or triager. Hiver is one possible source, not a required support system.
+
+Verify the original thread URL rather than constructing one from an opaque message ID. If the thread or identity cannot be verified, state that specific limitation instead of inventing a link or attribution; add the verified references when access and publication authorization permit. Respect support-system access and audience/privacy boundaries, including withholding inappropriate identity disclosure. Reports without a support-conversation origin need no fabricated thread reference.
+
+Fictional format example, assuming both references are verified and appropriate for the audience; use actual authorized sources, not these example URLs:
+
+```markdown
+Source: [Original support thread](https://support.example.test/threads/123)
+Reported by: [Customer 42](https://app.example.test/users/42)
+```
+
+When only an opaque email ID is available and the identity is unknown, report the evidence gap instead:
+
+```text
+Original support thread: not verified; only an email message ID is available.
+Reporting user: not verified from the available evidence.
+```
 
 ## Process
 
