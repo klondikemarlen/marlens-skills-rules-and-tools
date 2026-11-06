@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1176) - 2026-11-06
+
+### Changed
+
+- Keeps expected-error log filters scoped to their scenario and independent of incidental framework prefixes, while retaining distinctions between same-type failures and contractual message assertions.
+
 ## [4.4.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1175) - 2026-11-06
 
 ### Fixed
