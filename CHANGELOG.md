@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.3.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1167) - 2026-11-06
+
+### Changed
+
+- Explains evidence-driven implementation loops in the planning reference, separating delivery from demonstrated user improvement and preserving the research sources without adopting product-specific automation or attributing recursive modeling to an unverified implementation.
+
 ## [4.3.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1165) - 2026-11-06
 
 ### Changed
