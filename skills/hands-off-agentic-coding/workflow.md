@@ -62,6 +62,14 @@ Deliver the smallest complete change that provides the requested user value. App
 
 Ship small, coherent increments once their acceptance criteria and required checks pass. Prioritize follow-up from observed use, reported failures, and concrete risk instead of expanding scope before release; do not turn hypothetical improvements into automatic tickets or blockers. If an agreed requirement needs deferring, obtain explicit agreement rather than declaring unfinished work complete.
 
+### Requirements Alignment Checkpoint
+
+Run this checkpoint after the first runnable slice, when scope materially expands or a reviewer requests optional defenses, and before making the PR ready. Inspect the actual accumulated diff and observed behavior against the latest accepted user need, requirements, and non-goals—not just the original plan or passing checks. Identify both missing required behavior and agent-invented defensive requirements.
+
+Apply [Solve Real User Needs](../../rules/solve-real-user-needs.md) in order: worth solving now, belongs in this change, then smallest sufficient mechanism. Keep required behavior and justified in-scope work; defer worthwhile unrelated work and omit unjustified additions. Correct owned scope drift without reverting unrelated owners' changes. Do not shrink accepted scope, remove existing safeguards, or treat optional reviewer advice as a binding requirement.
+
+Reuse the issue, plan, or session evidence and labeled assumptions for material decisions; no new artifact, automatic backlog item, per-tool checklist, telemetry requirement, or numerical risk threshold is needed.
+
 ### Plan Reviewable PR Slices
 
 Before implementing broad work, consider several focused PRs rather than one large patch. In the existing bounded plan, name each useful slice's outcome, implementation boundary, verification, and dependencies. Prefer coherent, safely mergeable increments with their required callers and tests; make dependent slices' merge order explicit.

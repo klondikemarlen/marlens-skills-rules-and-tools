@@ -21,15 +21,21 @@ Do not use this workflow for an obvious local or mechanical change; read the loc
 
 For HTTP-response and recovery design, apply [Intermediary Responses to JSON Requests](../../docs/references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) when fit-checking failure outcomes, loaded-state preservation, uncertain writes, existing error boundaries, and optional-preview trust.
 
+## Choose Execution Mode by Pattern Fit
+
+Read local guidance, a comparable implementation, and the affected caller-to-result path. When existing concepts, ownership, lifecycle, and dependencies fit the accepted outcome, plan the contracts, placement, callers, and focused proof, then implement. When an invariant contradicts the requirement or an owner/boundary is genuinely uncertain, use minimal framing and short runnable modeling iterations. For mixed work, isolate exploration to the uncertain seam; do not redesign stable rails. Switch modes when evidence changes the assumed fit, not to defend a preferred plan. Both modes keep the same review, verification, and release gates.
+
 ## Process
 
 1. **Frame the outcome.** State the success condition, unacceptable outcome, and complexity ceiling before naming implementation files.
+   Before turning an imagined failure into a requirement, apply [Solve Real User Needs](../../rules/solve-real-user-needs.md): assess necessity under realistic use, project scale, quality expectations, likely harm, and maintenance cost before selecting a mechanism. Available evidence and labeled assumptions suffice; new telemetry and numerical thresholds are not prerequisites. Preserve explicit requirements, supported behavior, and concrete material security/data-integrity safeguards. Useful adjacent work need not belong in this PR.
 2. **Fit-check examples.** Record good, bad, and ambiguous examples with expected results; resolve counter-examples before choosing an interface.
 3. **Align with local patterns.** Read project guidance, setup/test/release docs, sibling workflows, skills, references, templates, rules, callers, and verifiers before adding assets.
    For material extensions, use [Pattern Fit and Non-Fit](../../docs/references/code-organization-reference.md#pattern-fit-and-non-fit) to name fitting responsibilities and the owner of non-fitting behavior in the existing plan; do not broaden a shared pattern for one outlier.
 4. **Map tools and rules.** Choose the smallest applicable existing skills, workflows, references, templates, or rules. Do not add runtime orchestration for a guidance problem.
 5. **Bound the interface.** Name public inputs, outputs, stop conditions, and rejected speculative flexibility. For broad work, bound the delivery sequence with [Plan Reviewable PR Slices](../hands-off-agentic-coding/workflow.md#plan-reviewable-pr-slices) before implementation, using the existing plan rather than a separate artifact.
-6. **Converge.** Stop when the success condition is covered by examples and a runnable verification gate exists with residual risk named. Ask only when an unresolved decision materially changes ownership, security, compatibility, or the public interface; otherwise run an experiment.
+6. **Converge through bounded modeling.** For material ambiguity in either execution mode, briefly explore plausible concepts, diagnostic hypotheses, or alternatives, including no change or an existing sufficient solution. Organize viable ideas into coherent responsibilities and relationships; prune against the accepted outcome and constraints. Refine only an uncertain subproblem, naming its parent requirement and the smallest evidence check or runnable experiment. Reassemble the pieces and check interactions, coherence, and coverage against the whole accepted need; locally sound parts are not sufficient.
+   Backtrack if evidence changes an assumption. Record only the hypothesis, relevant evidence or labeled assumption, and resulting decision in the existing plan or session; do not create a second ledger or require a hidden reasoning transcript. No fixed depth, branch count, exhaustive option tree, or mechanical-task brainstorm is required. Stop at a runnable next action with named residual risk: implement when examples and the whole-outcome check support a focused verification gate, or run the smallest experiment when uncertainty is empirical. Ask only when an unresolved decision materially changes ownership, security, compatibility, or the public interface and available context cannot resolve it.
 
 ### Interaction-Contract Activation
 
@@ -78,4 +84,5 @@ Residual risk: <named remaining risk or none>
 - Non-goals and the complexity ceiling are explicit.
 - The chosen interface is bounded and reuses existing assets.
 - The verification gate can fail on a plausible mistake.
+- For material ambiguity, alternatives were pruned against the accepted need, only uncertain seams were refined, and the reassembled outcome was checked for coherence and coverage.
 - Residual risk is named.

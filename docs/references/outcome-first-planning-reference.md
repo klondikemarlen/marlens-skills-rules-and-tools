@@ -21,6 +21,15 @@ Outcome-first planning is not permission to plan indefinitely. It is a short ali
 5. Keep the external interface simple and bounded; add flexibility only for a current requirement.
 6. Name the smallest runnable verification gate before implementation.
 7. Preserve unresolved uncertainty as residual risk instead of hiding it in vague language.
+8. Before inventing a requirement from a possible failure, apply [Solve Real User Needs](../../rules/solve-real-user-needs.md): judge whether prevention is necessary under realistic use, project scale, quality expectations, likely harm, and maintenance cost before choosing a mechanism. Available evidence and labeled assumptions suffice; this does not require telemetry or numerical risk thresholds. Preserve explicit requirements, supported behavior, and concrete material security/data-integrity safeguards.
+
+## Bounded Modeling Within the Plan
+
+For materially ambiguous diagnostic or design work, briefly explore plausible concepts, hypotheses, or alternatives—including no change or an existing sufficient solution. Organize the main ideas into coherent responsibilities and relationships, then prune against the accepted outcome and constraints. Refine only an uncertain subproblem, retaining its parent requirement and choosing the smallest evidence check or runnable experiment. If that subproblem exposes another consequential uncertainty, apply the same loop there rather than expanding every branch.
+
+Reassemble the result and sanity-check interactions, coherence, and coverage against the whole accepted need. A collection of locally sound choices can still miss the user outcome or include useful work that does not belong in this PR. Backtrack when evidence invalidates an assumption instead of defending the initial plan.
+
+This is a technique within plan-first and uncertain-seam execution, not a competing workflow. Keep decisions, supporting evidence or labeled assumptions, and residual risk in the existing plan or session. Do not require an exhaustive option tree, fixed depth or branch count, second ledger, hidden reasoning transcript, or brainstorming for mechanical changes. Stop at a runnable next action with named residual risk.
 
 ## Stop Conditions
 
@@ -29,7 +38,8 @@ Stop planning and implement when:
 - the success condition is observable;
 - representative good, bad, and ambiguous examples have expected outcomes;
 - the relevant project patterns and constraints are recorded;
-- the chosen interface is smaller or clearer than the alternatives; and
+- the chosen approach is sufficient and bounded, including retaining existing behavior when no change is needed;
+- the reassembled responsibilities and interactions coherently cover the whole accepted need without adding imagined requirements; and
 - a runnable verification gate exists with named residual risk.
 
 Stop planning and ask a focused question when a missing decision changes ownership, security, compatibility, or the public interface materially. Do not ask for information that repository files, issue history, or existing conventions can establish.
@@ -45,6 +55,13 @@ Stop planning and run an experiment when the remaining uncertainty is empirical,
 - **Interface hedging:** adding speculative options, aliases, or compatibility shims instead of choosing one clear contract.
 - **False convergence:** declaring a plan complete while residual risk or the verification gate is unnamed.
 - **Infinite alignment:** continuing to compare alternatives after one option satisfies the success condition and the remaining question belongs to implementation.
+- **Local-fit tunnel vision:** refining individual pieces without checking that their interactions still satisfy the whole accepted need.
+
+## Planning Strategy Is Not Token Generation
+
+The bounded modeling technique above is workflow advice, not a claim about model internals or provider quality. In the original [GLM paper (Du et al., 2022)](https://aclanthology.org/2022.acl-long.26/), §2.1.1 randomly orders missing spans but always generates tokens within each span left-to-right autoregressively; §2.3 also describes autoregressive text generation. Access to visible surrounding context is not bidirectional sentence construction. These claims concern that paper, not every modern model named GLM.
+
+Sequential GPT token generation does not imply an inability to plan: [OpenAI's reasoning guide](https://developers.openai.com/api/docs/guides/reasoning) explicitly describes internal reasoning before output, including considering alternatives. Neither source establishes that these workflow prompts reproduce a model's internal process.
 
 ## Sources
 

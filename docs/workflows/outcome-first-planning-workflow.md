@@ -52,6 +52,8 @@ Exploration is not permission for random patches, weakened accepted behavior, or
 
 Write the desired end state in user-visible terms. Name the unacceptable outcome and the complexity ceiling. Do not name implementation files yet.
 
+Before turning an imagined failure into a requirement, apply [Solve Real User Needs](../../rules/solve-real-user-needs.md): assess whether prevention is necessary under realistic use, project scale, quality expectations, likely harm, and maintenance cost before choosing a mechanism. Use available evidence and labeled assumptions; do not demand new telemetry or numerical thresholds. Preserve explicit requirements, supported behavior, and concrete material security/data-integrity safeguards. A useful improvement can still belong outside this PR.
+
 ### 2. Fit-Check Examples
 
 List representative good examples, bad examples, and one missing or ambiguous example. For each, state the expected result and the rule it exercises. Resolve counter-examples before committing to an interface; when evidence requires an experiment, use the exploratory mode above rather than speculating through a complete design.
@@ -116,12 +118,16 @@ For broad work, bound the delivery sequence with [Plan Reviewable PR Slices](han
 
 ### 6. Iterate Until Risk Converges
 
-Repeat the fit check and pattern alignment after each design change. Stop when either:
+For material ambiguity in either execution mode, use a bounded modeling loop within the existing plan or session:
 
-- the success condition is covered by examples and a runnable verification gate, and residual risk is named; or
-- the remaining uncertainty requires an implementation experiment rather than more planning.
+1. Briefly explore plausible terms, concepts, diagnostic hypotheses, or design alternatives; include no change or an existing sufficient solution.
+2. Organize the viable ideas into coherent responsibilities and relationships. Prune choices that do not serve the accepted outcome or violate its constraints.
+3. Refine only an uncertain subproblem: name its parent requirement and the smallest evidence check or runnable experiment that can resolve it. Repeat locally only while a consequential uncertainty remains.
+4. Reassemble the pieces and check their interactions, coherence, and coverage against the whole accepted need. Locally sound pieces are not enough if their combination misses the outcome or expands scope.
 
-Do not continue planning solely to remove all uncertainty.
+Backtrack when evidence changes an assumption rather than defending the first plan. Keep only the hypothesis, relevant evidence or labeled assumption, and resulting decision in the existing record—not a hidden reasoning transcript or second planning ledger. There is no required depth, branch count, exhaustive option tree, or brainstorming step for mechanical work.
+
+Stop at a runnable next action with named residual risk: implement when the examples and whole-outcome check support a focused verification gate; run the smallest experiment when the remaining uncertainty is empirical. Do not continue planning solely to remove all uncertainty.
 
 ## Output Contract
 
@@ -150,4 +156,5 @@ Residual risk: <named remaining risk or none>
 - Non-goals and complexity ceiling are explicit.
 - The chosen interface reuses existing assets where possible.
 - The verification gate can fail on a plausible design mistake.
+- For material ambiguity, alternatives were pruned against the accepted need, only uncertain seams were refined, and the reassembled outcome was checked for coherence and coverage.
 - Residual risk is named before implementation begins.
