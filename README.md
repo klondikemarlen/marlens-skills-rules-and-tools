@@ -56,6 +56,8 @@ For a narrower task:
 
 Use [`triage`](skills/triage/SKILL.md) to assess tickets and apply supported evidence-backed updates without starting implementation. Add “assessment only” or “no writes” when you want a read-only assessment. Triage is not implementation approval.
 
+Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights from a given OMP chat: `/skill:data-mine <session ID or path>`, or supply the transcript. Standalone mining is read-only unless you authorize follow-up actions. `wrap-up` uses the same workflow for the current session and completed task's commits.
+
 In OMP, type `/skill:` to browse the full catalog. Specialist entrypoints include [`feature`](skills/feature/SKILL.md), [`code-review`](skills/code-review/SKILL.md), [`testing-instructions`](skills/testing-instructions/SKILL.md), and [`jira-reporting`](skills/jira-reporting/SKILL.md). Agents can also discover the relevant skill from its task description.
 
 These workflows respect project-local instructions and the task's authorization. Neither `evolve` nor `wrap-up` exits OMP unless you explicitly ask for exit after completion.

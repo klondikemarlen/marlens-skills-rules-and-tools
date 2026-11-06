@@ -7,4 +7,4 @@ description: Close out a requested unit of work by establishing delivery status,
 
 Use the local `docs/workflows/wrap-up-workflow.md`, then `agents/workflows/wrap-up-workflow.md`; otherwise use the [packaged workflow](workflow.md).
 
-For reusable lessons, use `session-insight-mining`; for implementation delivery and release gates, use the existing `feature` workflow. A request to wrap up does not itself authorize exiting; an explicit wrap-up-and-exit request permits exit only after completion and the final response, through the supported runtime.
+For reusable lessons, use `data-mine`; for implementation delivery and release gates, use the existing `feature` workflow. A request to wrap up does not itself authorize exiting; an explicit wrap-up-and-exit request permits exit only after completion and the final response, through the supported runtime.

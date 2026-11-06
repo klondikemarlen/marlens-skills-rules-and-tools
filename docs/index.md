@@ -46,7 +46,7 @@ Top-level [`examples/`](../examples/) demonstrates the smallest observable diffe
 - Memorable outcome skills: [Advance](workflows/advance-workflow.md), [Simplify](workflows/simplify-workflow.md), [Improve](workflows/improve-workflow.md), and [Wrap-Up](workflows/wrap-up-workflow.md); see [invocation examples](../README.md#four-verbs-to-remember).
 - Shape a rough idea into a feature spec through guided conversation: [Shape](workflows/shape-workflow.md); use it before implementation planning when the desired behavior or scope is still unclear.
 - Readability during the current task: [Readable Code](workflows/readable-code-workflow.md) and the [Human Readability](references/code-organization-reference.md#human-readability) standard.
-- Session insight mining: [`workflows/session-insight-mining-workflow.md`](workflows/session-insight-mining-workflow.md)
+- Extract insights from a selected OMP chat or completed task: [Data Mine](../skills/data-mine/SKILL.md), backed by the [session insight mining workflow](workflows/session-insight-mining-workflow.md) also used by wrap-up.
 - Worktree creation: [`workflows/worktree-creation-workflow.md`](workflows/worktree-creation-workflow.md)
 - Project knowledge base: [`workflows/project-knowledge-base-workflow.md`](workflows/project-knowledge-base-workflow.md), [`references/project-knowledge-base-reference.md`](references/project-knowledge-base-reference.md), and [`templates/project-knowledge-base-template.md`](templates/project-knowledge-base-template.md)
 - Evidence-backed ticket and portfolio triage: [`workflows/ticket-triage-workflow.md`](workflows/ticket-triage-workflow.md) and the [read-only CLI contract](references/ticket-triage-reference.md).
