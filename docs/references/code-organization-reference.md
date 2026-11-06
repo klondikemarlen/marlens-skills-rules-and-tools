@@ -403,6 +403,10 @@ Keep each database migration self-contained. Do not import or invoke another mig
 
 For new or actively reviewed unreleased migrations, separate meaningfully distinct schema/table introduction, dependent SQL objects, independently owned data conversions, and obsolete-schema removal when they have distinct responsibility or rollback boundaries. Keep table-local constraints with their table and cohesive schema/backfill work together when they share one responsibility. Order forward dependencies and backfills before dependent conversion or removal, and undo them in reverse dependency order. Choose cohesive boundaries, not a universal file count or line threshold.
 
+When authoring or reviewing a new or unreleased data-conversion migration, name the operation and both source and destination storage representations, following [Function Action Names](#function-action-names). Prefer `migrate-diverse-needs-from-shared-lines-and-worksheet-json-to-categories-and-records.ts` over the source-only `migrate-diverse-needs-from-worksheet-json.ts` when those are the actual inputs and destination.
+
+Preserve the runner's required timestamp/sequence prefix, casing, separators, and extension. Do not rename already-recorded historical migrations solely for style. Creation-only and cleanup-only migrations need no invented destination, and directional naming does not require splitting a cohesive migration.
+
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
