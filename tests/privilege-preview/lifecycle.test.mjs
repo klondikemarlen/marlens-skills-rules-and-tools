@@ -174,6 +174,33 @@ test("when interrupted after execution starts, root cancellation is neither clai
   assert.deepEqual(boundary.executor.killedSignals, [])
 })
 
+test("when the approved preview closes, the caller still waits for the actual command result", async () => {
+  // Arrange
+  const boundary = harness(["ready", "approved"], { holdExecutor: true })
+  let result
+
+  // Act
+  const outcome = runPreview(request(), boundary).then((status) => {
+    result = status
+    return status
+  })
+  await new Promise((resolve) => queueMicrotask(resolve))
+  boundary.dialog.exitCode = 0
+  boundary.dialog.emit("close", 0, null)
+  await new Promise((resolve) => queueMicrotask(resolve))
+
+  // Assert
+  assert.equal(result, undefined)
+  assert.deepEqual(boundary.executor.killedSignals, [])
+  boundary.executor.emit("close", 126, null)
+  assert.deepEqual(await outcome, {
+    result: "authorization-or-command-failed",
+    exitCode: 126,
+    signal: null,
+  })
+  assert.equal(boundary.calls.length, 2)
+})
+
 test("when the dialog closes without a decision, execution fails closed", async () => {
   // Arrange
   const boundary = harness([])

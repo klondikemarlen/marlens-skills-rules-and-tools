@@ -114,21 +114,7 @@ def main():
             return GLib.SOURCE_REMOVE
 
         def approve(self, *_arguments):
-            if self.state != "waiting":
-                return
-            if self.demo:
-                self.finish("demo-completed")
-                return
-
-            self.state = "approved"
-            self.cancel_button.set_sensitive(False)
-            self.continue_button.set_sensitive(False)
-            self.header.set_show_end_title_buttons(False)
-            self.status.set_label(
-                "Waiting for system authentication and command completion. "
-                "Only the system authentication dialog can ask for your password."
-            )
-            self.emit("approved")
+            self.finish("demo-completed" if self.demo else "approved")
 
         def text(self, value, style=None):
             widget = Gtk.Label(label=value, xalign=0, wrap=True, selectable=True)
