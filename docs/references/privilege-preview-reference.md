@@ -2,7 +2,7 @@
 
 `privilege-preview` explains one privileged operation in a native GNOME window before handing its exact executable and arguments to `pkexec`. Use it explicitly when an authorized task needs administrator access and the person needs context to decide. It does not intercept existing sudo calls, change system policy, install a root daemon, or make an arbitrary command safe.
 
-The window leads with the affected resource, meaningful progress, and why administrator access is needed. **Details** exposes the exact command, working directory, user goal, intended effect, and requesting agent. **Continue** permits that command to proceed through system authorization; GNOME's polkit agent alone handles credentials. The explanation stays open while authentication and execution are pending. Existing polkit authorization may allow execution without a new password prompt.
+The window leads with the affected resource, meaningful progress, and why administrator access is needed. **Details** exposes the exact command, working directory, user goal, intended effect, and requesting agent. **Continue** immediately closes the explanation and permits that command to proceed through system authorization; GNOME's polkit agent alone handles credentials. The caller still waits for the actual authentication/command result. Existing polkit authorization may allow execution without a new password prompt.
 
 ## Prerequisites
 
@@ -87,7 +87,7 @@ One final JSON result is written to stdout. The command's stdout and stderr both
 | `interrupted`                     | Includes `executionMayContinue`; interruption before execution starts runs nothing.                                            | 130 or 143 |
 | `error`                           | Invalid request or unavailable native dialog; no execution starts.                                                             | 1 or 2     |
 
-Do not retry authentication automatically or fall back to an unexplained terminal prompt. Once execution starts, cancelling the unprivileged caller cannot guarantee that a root command stops or that its effects are undone. The UI disables cancellation after confirmation; an interrupted caller reports uncertainty rather than claiming rollback. Verify the requested effect separately: an exit status alone is not proof of a deployment, installation, or filesystem outcome.
+Do not retry authentication automatically or fall back to an unexplained terminal prompt. Once execution starts, cancelling the unprivileged caller cannot guarantee that a root command stops or that its effects are undone. The preview has already closed after confirmation; an interrupted caller reports uncertainty rather than claiming rollback. Verify the requested effect separately: an exit status alone is not proof of a deployment, installation, or filesystem outcome.
 
 ## Trust Boundary
 
