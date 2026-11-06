@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.3.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1165) - 2026-11-06
+
+### Changed
+
+- Assesses realistic user impact and accepted quality expectations before treating possible failures as mandatory requirements. Useful safeguards still need to belong in the current change; explicit contracts and material safety protections remain binding.
+- Checks requirements alignment inside evolve delivery before PR readiness, and refines ambiguous plans through bounded exploration, selective investigation, and whole-outcome coherence checks without adding ceremony to mechanical work.
+
 ## [4.3.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1159) - 2026-11-05
 
 ### Changed
