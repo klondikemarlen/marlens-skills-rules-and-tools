@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1180) - 2026-11-06
+
+### Changed
+
+- Assigns necessary mutation-response loading to the owning service's final return step instead of a redundant controller reload, preserving association graphs, transaction and visibility boundaries, ordinary controller reads, and query-free serializers.
+
 ## [4.4.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1179) - 2026-11-06
 
 ### Changed
