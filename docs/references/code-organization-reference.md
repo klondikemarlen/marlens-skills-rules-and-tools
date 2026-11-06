@@ -1138,6 +1138,12 @@ Treat required caller-loaded associations as developer preconditions: check them
 
 Preserve the caller's loaded association graph when returning an updated instance. Avoid an unnecessary reload followed by manually restoring one association. If reload is necessary, use the normal loading contract with the complete required include graph; restoring one parent association does not preserve nested or sibling preloads.
 
+The owning mutation service returns a record ready for the accepted serializer. When the response genuinely needs reloading, perform that loading as the service's final return step with the complete required association graph, preserving the established transaction/locking boundary, authorization, and soft-delete visibility. Extend an existing final reload rather than adding another response reload in the controller. If the result is already ready, return it without reloading; controllers serialize the returned result directly.
+
+For example, if `ApproveService` already ends with `return workflow.reload()` and its controller then calls `workflow.reload({ include: ["passengerNameRecordDocument"] })`, move that required include into the service's existing final reload and remove the controller reload. Merge it with all required nested and sibling preloads and existing options rather than replacing them with this one association. The example assumes that association is part of the accepted response; it does not add response fields or bypass visibility.
+
+This return contract applies to mutation services that already own the action. Ordinary controller-owned show and collection reads remain valid; serializers still do not query, and HTTP status handling stays in the controller.
+
 Prefer CRUD-style operation names for new or refactored services when they accurately describe the action; use `Update...Service` over `Set...Service` for changes to existing state. Do not force unrelated domain actions into misleading CRUD names. For search-index lifecycle services, explicitly include `Index` in the class and file name (for example, `UpdateIndexService` and `update-index-service.ts`), even when a containing directory already names the index. Do not apply index naming to unrelated document or workflow operations.
 
 For job/service operation vocabulary and the fan-out meaning of `Enqueue` names, apply [Function Action Names](#function-action-names). Naming does not change scheduling ownership or delivery semantics.
