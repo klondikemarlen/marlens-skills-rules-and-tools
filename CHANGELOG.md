@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1177) - 2026-11-06
+
+### Changed
+
+- Distinguishes standalone MCP access from native OMP discovery, authentication, and verified service operation, without expanding temporary-task configuration or permission scope.
+
 ## [4.4.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1176) - 2026-11-06
 
 ### Changed

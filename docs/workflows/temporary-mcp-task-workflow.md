@@ -12,10 +12,26 @@ Use when one offloaded OMP task needs one named MCP server that is disabled by d
 
 - Ask for explicit confirmation before passing `--confirm`; this helper mutates the selected OMP-native `mcp.json` for the child process lifetime.
 - First identify the server and its config source in interactive OMP with `/mcp list`. The helper accepts only the current working directory's `.omp/mcp.json` or the active profile's user `mcp.json`; arbitrary files are rejected because OMP would not discover them.
+- Before reporting a service connected, distinguish [Native Integration and Standalone Access](#native-integration-and-standalone-access); standalone success is not native discovery.
 - Run one task per invocation. The helper serializes its own calls per config file, snapshots the original bytes, enables only the selected server among definitions in that file, and restores the snapshot in an exit path.
 - The child prompt must describe the needed MCP action and the result to return. The helper instructs the child to use only the selected server.
 - Do not claim full isolation: definitions discovered from third-party or other project config files can still load, and an untrappable process kill requires the next helper invocation to recover the saved snapshot.
 - Do not use this to grant a broad or persistent server permission. For a persistent change, use OMP's `/mcp enable` or `/mcp disable` explicitly. For a true ephemeral allowlist, follow upstream #5589.
+
+## Native Integration and Standalone Access
+
+A successful standalone MCP request proves only that client's access; it does not register a server with OMP. For requested native OMP use, use the authorized OMP-native configuration and verify that the named server appears in `/mcp list` in the intended session/profile. Keep these evidence levels separate:
+
+| Evidence                                                   | What It Establishes                                           |
+| ---------------------------------------------------------- | ------------------------------------------------------------- |
+| A standalone client completes a request                    | Temporary standalone endpoint access, not native registration |
+| OMP lists the server but authorization is pending          | Native discovery, not authenticated or operational access     |
+| OMP reports authentication success                         | Authentication, not completion of the requested task          |
+| The native session completes the authorized service action | Operation through that native integration                     |
+
+Report the observed state and any remaining authentication or task-verification prerequisite. Do not call a listed but unauthenticated server connected and working. Do not infer native operation from a standalone result.
+
+An intentionally task-only standalone client remains valid: describe it as temporary standalone access, and do not silently add native registration, persistent configuration, permissions, or copied credentials. This helper only enables an already-defined native server temporarily; it does not create a missing definition. Persistent native integration requires authorization for that scope, while this workflow's confirmation and exact-restoration requirements remain unchanged.
 
 ## Process
 
