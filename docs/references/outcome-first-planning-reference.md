@@ -31,6 +31,24 @@ Reassemble the result and sanity-check interactions, coherence, and coverage aga
 
 This is a technique within plan-first and uncertain-seam execution, not a competing workflow. Keep decisions, supporting evidence or labeled assumptions, and residual risk in the existing plan or session. Do not require an exhaustive option tree, fixed depth or branch count, second ledger, hidden reasoning transcript, or brainstorming for mechanical changes. Stop at a runnable next action with named residual risk.
 
+## Evidence-Driven Implementation Loops
+
+A useful implementation loop connects the accepted user need, available context, a provisional explanation, a bounded change, and observed results. Feedback can revise the evidence, the problem framing, or the proposed solution—not merely trigger another code change. The recursive modeling technique above helps refine uncertain parts of this loop while retaining the whole outcome.
+
+- **Ground the problem:** use relevant code, user feedback, session observations, or existing measurements. Keep raw evidence distinct from an assumed diagnosis; treat generated insights as leads to verify, not automatic requirements.
+- **Model and test an explanation:** compare plausible causes and connect findings that may share a root cause. Use a focused experiment or prototype when it resolves consequential uncertainty; neither is mandatory for an already-understood change.
+- **Deliver the justified change:** apply the existing [requirements-alignment checkpoint](../workflows/hands-off-agentic-coding-workflow.md#requirements-alignment-checkpoint) and [feature delivery gates](../workflows/feature-workflow.md). A promising prototype or useful adjacent finding does not expand authorization or replace complete implementation.
+- **Evaluate the outcome:** distinguish proof that the change works and is available from evidence that it helped users. Where improvement requires observations over time, use an appropriate existing measure or qualitative feedback and a meaningful comparison; report insufficient or conflicting evidence as inconclusive, not success.
+- **Refine or stop:** revise only the assumption or part contradicted by evidence. Retain an adequate solution, omit unjustified work, or stop with named uncertainty. If later outcome review is needed, retain its question and agreed review trigger in the existing issue or plan rather than keeping implementation running indefinitely.
+
+These are conceptual connections, not another workflow or an instruction to install analytics, upload private context, create a metrics service, or automate repeated PRs. [Evolve](../workflows/evolve-workflow.md) still completes one bounded pass; later observations inform separately authorized work.
+
+### Research Basis and Limits
+
+The versioned external workflow and refinement sources below describe connected context, focused investigation, synthesis across findings, action, and returning to earlier framing when evidence changes. Their finding-verification guide explicitly treats generated findings as potentially stale leads requiring evidence. Those are the transferable observations—not the product's commands, integrations, autonomy levels, or numerical audit quotas.
+
+The recursive explore–organize–refine–reassemble technique is the maintainer's proposal, developed during that investigation; it is not a verified description of the external product's internal implementation. The distinction between delivery and user improvement is this project's synthesis. The inspected sources do not establish causal metric attribution or a fully autonomous product-improvement loop, and no such capability is claimed here.
+
 ## Stop Conditions
 
 Stop planning and implement when:
@@ -69,3 +87,4 @@ Sequential GPT token generation does not imply an inability to plan: [OpenAI's r
 - [Understanding by Design white paper](https://files.ascd.org/staticfiles/ascd/pdf/siteASCD/publications/UbD_WhitePaper0312.pdf) — desired results, evidence, and aligned activities.
 - [UIC backward design guide](https://teaching.uic.edu/cate-teaching-guides/syllabus-course-design/backward-design/) — backward design as an evidence-led planning sequence.
 - [Cucumber Example Mapping](https://cucumber.io/docs/bdd/example-mapping/) — stories, rules, examples, and questions for fit checks.
+- [Versioned product-loop workflow](https://unpkg.com/@google/stitch@0.12.1/skills/loop/stitch/references/workflow.md), [finding verification](https://unpkg.com/@google/stitch@0.12.1/skills/loop/stitch/references/prove-finding.md), and [refinement strategy](https://unpkg.com/@google/stitch@0.12.1/skills/loop/stitch/references/workflow/refine.md) from Google's published `@google/stitch` 0.12.1 package — research inputs for the general implementation-loop concepts above, not a dependency or an endorsement of its automation.
