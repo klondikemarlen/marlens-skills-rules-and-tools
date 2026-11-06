@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1174) - 2026-11-06
+
+### Fixed
+
+- Closes the GNOME privilege preview immediately after Continue instead of leaving greyed-out controls visible while authentication or execution is pending. Continue retains its enabled native styling; the caller still waits for the actual command result.
+
 ## [4.4.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1171) - 2026-11-06
 
 ### Changed
