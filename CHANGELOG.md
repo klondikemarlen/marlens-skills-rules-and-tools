@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1175) - 2026-11-06
+
+### Fixed
+
+- Makes verified disposable task cleanup the default at delivery and wrap-up, without a second disposal prompt for task-local data or equivalent rewritten topic refs. Ownership, delivery, unique-data, retention, and privilege safeguards remain in place.
+
 ## [4.4.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1174) - 2026-11-06
 
 ### Fixed
