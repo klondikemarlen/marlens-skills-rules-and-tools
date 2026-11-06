@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1171) - 2026-11-06
+
+### Changed
+
+- Restores direct OMP chat insight extraction as `data-mine`, replacing the `session-insight-mining` skill name. Select a session ID/path or supply a transcript; historical mining preserves evidence and remains read-only unless follow-up actions are authorized.
+- Keeps `wrap-up` on the same mining workflow for current-session lessons and bounded task commit history after delivery.
+
 ## [4.3.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1169) - 2026-11-06
 
 ### Fixed
