@@ -51,7 +51,7 @@ try {
     userDataDir: profileRoot,
     args: ["--no-remote"],
   })
-  const page = await browser.newPage()
+  const page = (await browser.pages())[0] ?? (await browser.newPage())
   await page.goto(qaUrl)
   await page.type(inputSelector, inputText)
   await page.click(submitSelector)
