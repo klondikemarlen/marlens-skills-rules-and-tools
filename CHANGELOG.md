@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.4.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1179) - 2026-11-06
+
+### Changed
+
+- Preserves verified original support-thread links and appropriate reporting-user attribution in support-derived Jira reports, distinguishing missing evidence from verified sources and respecting access and disclosure boundaries.
+
 ## [4.4.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1178) - 2026-11-06
 
 ### Changed
