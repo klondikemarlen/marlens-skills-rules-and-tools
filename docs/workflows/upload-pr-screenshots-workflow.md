@@ -36,6 +36,8 @@ When Firefox is selected under [Browser Opening Modes](browser-qa-workflow.md#br
 
 A Firefox launch or reaching GitHub's sign-in form proves only startup/control and the manual handoff, not authentication or publication. Report authentication, file transfer, saved-body verification, and rendered placement separately; do not call the route passed until each requested phase succeeds.
 
+Each newly launched owned Firefox session should use its initial page for the PR, creating a page only when the session exposes none. Apply this at initial startup, the visible login handoff, and headless continuation so a spare blank tab is not left beside the target. This is not permission to reuse or close tabs in a personal or otherwise unowned browser.
+
 Use a unique private profile directory outside the repository in a location the Firefox process can read; keep it separate from the screenshot run directory. Retain the owned process handle and profile path locally. Start headless and inspect sign-in state. When manual login/MFA is necessary, explain that a separate visible Firefox window is needed and obtain the user's agreement before launching it. If the user declines, closes the request, or an interactive handoff is unavailable, stop the affected authentication/upload phase without opening a window. Let the user switch windows manually; do not foreground or focus it automatically. After real login, close that owned browser and continue headlessly with the same disposable profile. Never automate credentials, bypass authentication protections, copy personal profiles/cookies, or terminate a personal browser. The isolated profile does not reduce the account's normal GitHub permissions; use an authorized dedicated account with only the repository access needed.
 
 The following bounded Node example assumes an already-installed `puppeteer` binding (or `puppeteer-core`; change the import below to match discovery), `firefoxExecutable`, an existing browser-visible `profileParent` outside the repository, `prUrl`, `uploadDirectory`, `screenshotDirectory`, and `uploaderUrl` (the installed `file:` URL returned by `github_pr_screenshot_upload_path`) are supplied from the current QA run:
@@ -95,7 +97,7 @@ try {
   }
 
   browser = await puppeteer.launch({ ...launchOptions, headless: true })
-  let page = await browser.newPage()
+  let page = (await browser.pages())[0] ?? (await browser.newPage())
   await page.goto(prUrl, { waitUntil: "domcontentloaded" })
 
   if (await page.$('a[href^="/login"]')) {
@@ -117,7 +119,7 @@ try {
 
       await closeOwnedBrowser()
       browser = await puppeteer.launch({ ...launchOptions, headless: false })
-      page = await browser.newPage()
+      page = (await browser.pages())[0] ?? (await browser.newPage())
       await page.goto(prUrl, { waitUntil: "domcontentloaded" })
       await terminal.question(
         "Switch to the owned Firefox window manually, complete GitHub login/MFA, then press Enter here: ",
@@ -132,7 +134,7 @@ try {
 
     await closeOwnedBrowser()
     browser = await puppeteer.launch({ ...launchOptions, headless: true })
-    page = await browser.newPage()
+    page = (await browser.pages())[0] ?? (await browser.newPage())
     await page.goto(prUrl, { waitUntil: "domcontentloaded" })
   }
 

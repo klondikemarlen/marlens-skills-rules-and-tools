@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.3.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1169) - 2026-11-06
+
+### Fixed
+
+- Reuses Firefox's initial tab for screenshot-upload startup, manual login, and headless continuation instead of opening a second tab beside a blank one. The matching Firefox control example follows the same behavior; existing profile isolation and login safeguards remain unchanged.
+
 ## [4.3.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1167) - 2026-11-06
 
 ### Changed
