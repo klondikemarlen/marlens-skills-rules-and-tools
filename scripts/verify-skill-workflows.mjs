@@ -342,7 +342,7 @@ for (const requiredText of [
 
 const titleCasingGuidance = [
   ["title casing reference", read("docs/references/title-casing-reference.md")],
-  ["packaged title casing fallback", read("skills/pull-request-management/title-casing.md")],
+  ["packaged title casing fallback", read("skills/pr/title-casing.md")],
 ]
 for (const [name, guidance] of titleCasingGuidance) {
   for (const requiredText of [
@@ -567,7 +567,7 @@ for (const [name, workflow, anchor] of [
   ],
   [
     "packaged pull request workflow",
-    read("skills/pull-request-management/workflow.md"),
+    read("skills/pr/workflow.md"),
     "github-asynchronous-merge-for-pr-stacks",
   ],
   [
@@ -577,7 +577,7 @@ for (const [name, workflow, anchor] of [
   ],
   [
     "packaged testing workflow",
-    read("skills/testing-instructions/workflow.md"),
+    read("skills/test-guide/workflow.md"),
     "real-async-runtime-barriers-in-integration-tests",
   ],
   [
@@ -918,13 +918,7 @@ if (process.env.EXPRESS_LIGHT_RAIL_PROJECT) {
     {
       name: "Express Light Rail packaged backend workflow",
       projectRoot: process.env.EXPRESS_LIGHT_RAIL_PROJECT,
-      skillName: "express-light-rail",
-      expectedKind: "fallback",
-    },
-    {
-      name: "Express Light Rail packaged Node compatibility workflow",
-      projectRoot: process.env.EXPRESS_LIGHT_RAIL_PROJECT,
-      skillName: "node-express-api",
+      skillName: "express-api",
       expectedKind: "fallback",
     }
   )

@@ -6,7 +6,7 @@ export function verifyRoutingProcedures({ read, fail }) {
       "authoritative layered-page workflow",
       read("docs/workflows/layered-page-orchestration-workflow.md"),
     ],
-    ["packaged layered-page workflow", read("skills/layered-page-orchestration/workflow.md")],
+    ["packaged layered-page workflow", read("skills/page-flow/workflow.md")],
   ]
   for (const [name, workflow] of layeredPageWorkflows) {
     requireEvery(

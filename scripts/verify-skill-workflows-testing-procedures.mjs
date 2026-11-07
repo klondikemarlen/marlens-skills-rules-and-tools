@@ -2,7 +2,7 @@ import { requireEvery } from "./verify-skill-workflows-assertions.mjs"
 
 export function verifyTestingProcedures({ read, fail }) {
   const testingInstructionsWorkflow = read("docs/workflows/testing-instructions-workflow.md")
-  const packagedTestingInstructionsWorkflow = read("skills/testing-instructions/workflow.md")
+  const packagedTestingInstructionsWorkflow = read("skills/test-guide/workflow.md")
   for (const [name, workflow] of [
     ["authoritative testing instructions workflow", testingInstructionsWorkflow],
     ["packaged testing instructions workflow", packagedTestingInstructionsWorkflow],

@@ -77,7 +77,7 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
       "authoritative hands-off workflow",
       read("docs/workflows/hands-off-agentic-coding-workflow.md"),
     ],
-    ["packaged hands-off workflow", read("skills/hands-off-agentic-coding/workflow.md")],
+    ["packaged hands-off workflow", read("skills/autopilot/workflow.md")],
   ]) {
     requireEvery(
       workflow,

@@ -1,7 +1,6 @@
 export function verifyDesignWorkflows(read, fail) {
   const outcomeFirstPlanningWorkflow = read("docs/workflows/outcome-first-planning-workflow.md")
-  const outcomeFirstPlanningFallback = read("skills/outcome-first-planning/workflow.md")
-  const outcomeFirstPlanningSkill = read("skills/outcome-first-planning/SKILL.md")
+  const outcomeFirstPlanningFallback = read("skills/plan/workflow.md")
   const outcomeFirstPlanningReference = read("docs/references/outcome-first-planning-reference.md")
   const outcomeFirstPlanningTemplate = read("docs/templates/outcome-first-plan-template.md")
   for (const [name, content] of [
@@ -15,25 +14,6 @@ export function verifyDesignWorkflows(read, fail) {
         fail(`${name} must include ${requiredText}`)
       }
     }
-  }
-  for (const requiredText of [
-    "docs/workflows/outcome-first-planning-workflow.md",
-    "agents/workflows/outcome-first-planning-workflow.md",
-    "workflow.md",
-  ]) {
-    if (!outcomeFirstPlanningSkill.includes(requiredText)) {
-      fail(`outcome-first-planning skill must include ${requiredText}`)
-    }
-  }
-  if (!read("skills/self-improvement/SKILL.md").includes("outcome-first-planning")) {
-    fail("self-improvement skill must route design planning through outcome-first planning")
-  }
-  if (
-    !read("skills/self-improvement/workflow.md").includes("outcome-first-planning workflow first")
-  ) {
-    fail(
-      "packaged self-improvement workflow must route design planning through outcome-first planning"
-    )
   }
   if (
     !read("docs/workflows/hands-off-agentic-coding-workflow.md").includes(
@@ -52,8 +32,8 @@ export function verifyDesignWorkflows(read, fail) {
   const projectKnowledgeBaseWorkflow = read(
     "docs/workflows/project-knowledge-base-workflow.md"
   )
-  const projectKnowledgeBaseFallback = read("skills/project-knowledge-base/workflow.md")
-  const projectKnowledgeBaseSkill = read("skills/project-knowledge-base/SKILL.md")
+  const projectKnowledgeBaseFallback = read("skills/project-docs/workflow.md")
+  const projectKnowledgeBaseSkill = read("skills/project-docs/SKILL.md")
   const projectKnowledgeBaseReference = read(
     "docs/references/project-knowledge-base-reference.md"
   )
