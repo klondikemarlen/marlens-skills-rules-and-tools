@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.6.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1184) - 2026-11-07
+
+### Added
+
+- Adds `ui-prototyping` for app-aligned wireframes and interactive design previews, with explicit product uncertainty, authorized saving, and reproducible browser handoff independent of application services.
+
 ## [4.5.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1183) - 2026-11-07
 
 ### Changed
