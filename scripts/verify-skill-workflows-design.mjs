@@ -9,7 +9,12 @@ export function verifyDesignWorkflows(read, fail) {
     ["outcome-first-planning reference", outcomeFirstPlanningReference],
     ["outcome-first plan template", outcomeFirstPlanningTemplate],
   ]) {
-    for (const requiredText of ["Success condition", "counter-example", "complexity", "residual risk"]) {
+    for (const requiredText of [
+      "Success condition",
+      "counter-example",
+      "complexity",
+      "residual risk",
+    ]) {
       if (!content.toLowerCase().includes(requiredText.toLowerCase())) {
         fail(`${name} must include ${requiredText}`)
       }
@@ -29,17 +34,11 @@ export function verifyDesignWorkflows(read, fail) {
     fail("template README must list outcome-first planning")
   }
 
-  const projectKnowledgeBaseWorkflow = read(
-    "docs/workflows/project-knowledge-base-workflow.md"
-  )
+  const projectKnowledgeBaseWorkflow = read("docs/workflows/project-knowledge-base-workflow.md")
   const projectKnowledgeBaseFallback = read("skills/project-docs/workflow.md")
   const projectKnowledgeBaseSkill = read("skills/project-docs/SKILL.md")
-  const projectKnowledgeBaseReference = read(
-    "docs/references/project-knowledge-base-reference.md"
-  )
-  const projectKnowledgeBaseTemplate = read(
-    "docs/templates/project-knowledge-base-template.md"
-  )
+  const projectKnowledgeBaseReference = read("docs/references/project-knowledge-base-reference.md")
+  const projectKnowledgeBaseTemplate = read("docs/templates/project-knowledge-base-template.md")
   for (const [name, workflow] of [
     ["authoritative project knowledge base workflow", projectKnowledgeBaseWorkflow],
     ["packaged project knowledge base workflow", projectKnowledgeBaseFallback],

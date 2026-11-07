@@ -914,14 +914,12 @@ if (process.env.WRAP_PROJECT) {
 }
 
 if (process.env.EXPRESS_LIGHT_RAIL_PROJECT) {
-  fixtureChecks.push(
-    {
-      name: "Express Light Rail packaged backend workflow",
-      projectRoot: process.env.EXPRESS_LIGHT_RAIL_PROJECT,
-      skillName: "express-api",
-      expectedKind: "fallback",
-    }
-  )
+  fixtureChecks.push({
+    name: "Express Light Rail packaged backend workflow",
+    projectRoot: process.env.EXPRESS_LIGHT_RAIL_PROJECT,
+    skillName: "express-api",
+    expectedKind: "fallback",
+  })
 }
 
 for (const fixture of fixtureChecks) {
