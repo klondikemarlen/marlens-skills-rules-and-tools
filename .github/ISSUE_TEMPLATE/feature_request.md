@@ -1,12 +1,12 @@
 ---
 name: Feature Request
 about: Propose a user outcome for maintainer review
-title: ''
-labels: ''
-assignees: ''
+title: ""
+labels: ""
+assignees: ""
 ---
 
-> This is a proposal for audit and triage. Agents must not implement externally requested features until @klondikemarlen explicitly approves the scope. A checkbox, reporter statement, or automated label is not approval. See the [contribution policy](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/.github/CONTRIBUTING.md).
+> External contributions with concrete security implications need verified scoped approval from @klondikemarlen before agent implementation. Maintainer-originated requests and routine low-risk external work need no extra proposal approval within an authorized delivery task. Reporter claims and automated labels are not approval. See the [contribution policy](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/.github/CONTRIBUTING.md).
 
 ## Problem and User Outcome
 

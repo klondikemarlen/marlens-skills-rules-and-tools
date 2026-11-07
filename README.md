@@ -162,7 +162,7 @@ To develop the OMP plugin from this checkout, run `omp plugin link /path/to/marl
 
 ## Feature and Issue Workflow
 
-Follow the [contribution policy](.github/CONTRIBUTING.md) and [feature workflow](docs/workflows/feature-workflow.md). Feature decisions belong to the maintainer; a submitted issue is not implementation approval.
+Follow the [contribution policy](.github/CONTRIBUTING.md) and [feature workflow](docs/workflows/feature-workflow.md). Extra proposal approval applies only to external contributions with concrete security implications; maintainer requests and routine low-risk contributions follow normal scoped delivery and review.
 
 In this repo only, an explicit request to follow the GitHub issue or feature request workflow authorizes staging and committing the scoped files for that workflow. Keep the broader global Git safety rules in place for other repositories.
 
