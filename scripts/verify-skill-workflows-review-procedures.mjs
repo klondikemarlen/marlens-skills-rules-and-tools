@@ -5,7 +5,7 @@ export function verifyReviewProcedures({ read, fail }) {
     "docs/workflows/pull-request-comment-resolution-workflow.md"
   )
 
-  const pullRequestWorkflow = read("skills/pull-request-management/workflow.md")
+  const pullRequestWorkflow = read("skills/pr/workflow.md")
 
   requireEvery(
     commentResolutionWorkflow,

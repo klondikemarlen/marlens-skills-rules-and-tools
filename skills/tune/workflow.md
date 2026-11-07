@@ -1,0 +1,60 @@
+# Self-Improvement Workflow
+
+Use when asked to improve an agent's reusable guidance, prompt flow, or evidence-backed technical debt. Do not use it for vague self-reflection, a one-off project defect, or an unverified preference.
+
+For design-planning requests, run the plan workflow first, then return here for evidence-backed guidance improvement.
+
+## Intent
+
+**WHY this workflow exists:** Reusable agent guidance improves only when a concrete signal is traced to its owner and verified. Reflection without evidence creates duplicate rules, speculative abstractions, and prompt bloat.
+
+**WHAT this workflow produces:** An evidence-backed finding, one owner and outcome per finding, and the smallest verified change or scoped proposal.
+
+**Decision Rules:**
+
+- Before routing a possible third-party defect, use [Upstream Issue Participation](../../docs/references/github-tooling-reference.md#upstream-issue-participation) to establish defect ownership separately from write authorization.
+- Start with the target's declared purpose, public surface, and local guidance. This package supplies reusable rules, workflows, templates, and thin adapters; it is not an orchestration runtime.
+- Project-local guidance wins. Keep project-specific practices in the target project; change shared guidance only for a cross-project, repeatable need.
+- Treat downstream examples and consumer output as evidence for improving shared guidance, not permission to clean up or mutate those repositories. Any downstream change requires an explicitly authorized target and scope.
+- Technical debt is actionable only when observed evidence shows a current correctness, maintainability, safety, discoverability, or verification risk. Do not refactor for style, imagined future flexibility, or generic cleanup.
+- When newer models motivate a pass, inspect demonstrated instruction conflicts, duplicate artifacts, and unnecessary handoffs before adding guidance. Simplify the existing owner rather than layering another checklist or always-on rule. Model capability alone is not evidence of a defect or a measured speedup.
+- Keep safety, repository boundaries, required review, behavioral verification, and release/install gates intact. Make ceremony proportional to the work; do not make correctness depend on a claimed model intelligence level.
+- Run the smallest existing read-only audit and behavior check relevant to the finding before proposing a change. For this package's own checkout, select the focused package-owned check or run `npm test` when broader coverage is appropriate; an affordable full suite needs no separate approval under [Full-Suite Cost](../autopilot/workflow.md#full-suite-cost). Use `node bin/agent-guidance-audit.js --strict <downstream-root>` only for the downstream repositories that tool audits.
+
+- Classify every finding once: **fix now**, **scoped feature or bug**, **verifier/runtime proposal**, **already covered**, or **no action**. Route runtime enforcement needs to `omp-verifier`; do not create runtime machinery here.
+- For prompt, command-injection, or agent-identity findings, use [`docs/templates/prompt-improvement-template.md`](../../docs/templates/prompt-improvement-template.md). A prompt change needs an observed trigger and an owner, not just a better-sounding instruction.
+- For guidance findings, compare representative consumer decisions before and after the change: a small solo task, non-trivial iteration, and actual transfer when relevant. Check that overhead is removed without losing ownership or proof; matching phrases alone does not prove compliance.
+
+- Treat domain discovery as a recurring phase, not a one-time planning step. Before each refactoring or organization proposal, revisit topology, cohesive concepts, change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling-domain conventions. Keep weak signals as hypotheses and record candidate evidence before choosing the smallest safe action.
+- Follow existing issue-filing authorization rules. Do not file an external issue without authorization for that target.
+
+- For an import-style finding, inspect the target's existing compiler, test-runner, bundler, and editor/language-server module-resolution configuration before proposing a project-root import. Apply [Project-Root Imports and Paths](../../docs/references/code-organization-reference.md#project-root-imports-and-paths), including configured-root sibling imports and the distinction from barrel re-exports. Record incompatible or inconsistent resolution as a blocker, and do not bulk-rewrite imports solely for style.
+
+## Process
+
+1. State the target purpose, the user-visible or maintainer-visible risk, the smallest proof, and explicit non-goals.
+2. Read the target's local guidance, workflow/skill architecture, and the affected public surface. Reuse existing audit, review, and learning paths before adding guidance.
+3. Run the narrowest relevant read-only audit or verification command. Record exact findings, including absent findings. For an import-style pass, also read the existing module-resolution configuration and scan the affected source tree without editing. Record whether deep cross-module relative imports exist, whether every supported resolver agrees on the configured root, and whether an existing local guidance or lint rule already preserves the chosen style.
+4. Revisit domain hypotheses before proposing refactoring or organization changes. Inspect folder/module topology, cohesive nouns and lifecycles, repeated file churn, growing conditional branches, context-heavy helpers, repeated boundary crossings, varying dispatch dimensions, owned invariants, dependency direction, and sibling conventions. Record each candidate's evidence, responsibilities, boundary, and smallest safe next action; churn alone never justifies a new abstraction or folder.
+5. For each finding, record evidence, durable impact, classification, owner, and next action. Use the prompt-improvement template when it concerns a prompt or adapter.
+6. Implement only **fix now** findings already authorized by the request. Keep changes in the existing placement: workflow for procedure, template for repeatable shape, reference for durable background, skill for a thin entrypoint.
+7. For a **scoped feature or bug**, draft or file an issue only when authorized. For a **verifier/runtime proposal**, name the specific missing enforcement rather than adding a local workaround.
+8. Verify the changed behavior with the predeclared narrow check. For package changes, update release metadata and follow the feature workflow.
+
+Stop when the scoped acceptance criteria are verified and findings are classified. Do not expand into unrelated housekeeping or reopen settled choices without new evidence.
+
+## Reporting
+
+Keep exact audit results, candidate evidence, classifications, owner, and next action in the session or existing designated record. Do not lose absent findings or material risks, but do not create a second ledger or make internal fields a mandatory public report. Apply [Workflow Outputs and Publication](../../docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication): evidence requirements are not mandatory public headings or permission to publish.
+
+For the user, report the relevant outcome, evidence, changes or link, and any blocker or residual risk. Include the purpose, findings, and verification details when they help the reader or are explicitly requested; do not duplicate an existing issue, PR, or CI record. If there is no useful reader-needed information beyond that record, do not add a separate public report. The following fields are a useful optional working outline, not a required response schema:
+
+```text
+Purpose: <target role and public boundary>
+Success condition: <observable invariant or risk removed>
+Evidence: <audit/check and exact result>
+Findings: <relevant evidence, classification, owner/action>
+Changes: <files changed, or none>
+Verification: PASS | FAIL | BLOCKED <command/scenario>
+Residual risk: <none or specific gap>
+```

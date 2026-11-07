@@ -184,7 +184,7 @@ Avoid: in-progress reasoning, implementation mechanics, and code symbols in pros
 
 ## Rewriting past commits
 
-Use the [`git-rebase` workflow](../../docs/workflows/git-rebase-workflow.md) for older-commit rewrites, commit rewording, amend stops, autosquash, and force-with-lease rules.
+Use the [`rebase` workflow](../../docs/workflows/git-rebase-workflow.md) for older-commit rewrites, commit rewording, amend stops, autosquash, and force-with-lease rules.
 
 For HEAD-only message changes:
 

@@ -9,7 +9,7 @@ const reference = read("../docs/references/code-organization-reference.md")
 const authoritativeReview = read("../docs/workflows/code-review-workflow.md")
 const packagedReview = read("../skills/code-review/workflow.md")
 const authoritativeSelfImprovement = read("../docs/workflows/self-improvement-workflow.md")
-const packagedSelfImprovement = read("../skills/self-improvement/workflow.md")
+const packagedSelfImprovement = read("../skills/tune/workflow.md")
 
 function domainGuidance(workflow) {
   return workflow

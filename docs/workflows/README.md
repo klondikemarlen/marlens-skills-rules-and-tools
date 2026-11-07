@@ -43,7 +43,6 @@ Examples:
 - `ui-prototyping-workflow.md`
 - `outcome-first-planning-workflow.md`
 - `project-knowledge-base-workflow.md`
-- `node-express-api-workflow.md`
 - `pull-request-management-workflow.md`
 - `testing-instructions-workflow.md`
 - `pull-request-comment-resolution-workflow.md`

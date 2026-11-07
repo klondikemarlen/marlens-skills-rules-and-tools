@@ -17,7 +17,7 @@ const createAccessibleWorkflow = async (user: User) =>
 
 The helper hides persistence and changes the factory lifecycle for one call site.
 
-## With `test-factory-traits-and-service-shape`
+## With `test-fixtures`
 
 ```ts
 await workflowFactory.accessibleBy(user).create()
@@ -39,4 +39,4 @@ The owning factory names and owns the opt-in relationship. Ordinary creation rem
 
 Run the project’s factory TypeScript check and the focused endpoint test that requires this relationship.
 
-Source: [`test-factory-traits-and-service-shape`](../skills/test-factory-traits-and-service-shape/SKILL.md).
+Source: [`test-fixtures`](../skills/test-fixtures/SKILL.md).

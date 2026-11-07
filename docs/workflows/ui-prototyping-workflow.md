@@ -11,9 +11,9 @@ Use for a UI wireframe or interactive design preview, not ordinary application i
 **Decision Rules:**
 
 - Preserve project-local guidance, the selected checkout, artifact location, and the user's save/publication boundaries. A prototype request does not authorize application changes, ticket transitions, a commit, publication, or merge.
-- Use [Shape](../../skills/shape/SKILL.md) for unclear product behavior and [Outcome-First Planning](../../skills/outcome-first-planning/SKILL.md) for a material design choice. Reuse established requirements; do not repeat their interviews or invent domain policy.
-- Use [Worktree Creation](../../skills/worktree-creation/SKILL.md) only for authorized checkout preparation. Its implementation-ticket lifecycle does not turn a design-only request into application delivery.
-- Use [Browser QA](../../skills/browser-qa/SKILL.md) for browser selection, control discovery, visual evidence, and owned-resource cleanup. Use [Project Knowledge Base](../../skills/project-knowledge-base/SKILL.md) for the saved artifact's existing documentation owner. Compose these procedures rather than recreating them.
+- Use [Shape](../../skills/shape/SKILL.md) for unclear product behavior and [Outcome-First Planning](../../skills/plan/SKILL.md) for a material design choice. Reuse established requirements; do not repeat their interviews or invent domain policy.
+- Use [Worktree Creation](../../skills/worktree/SKILL.md) only for authorized checkout preparation. Its implementation-ticket lifecycle does not turn a design-only request into application delivery.
+- Use [Browser QA](../../skills/browser-qa/SKILL.md) for browser selection, control discovery, visual evidence, and owned-resource cleanup. Use [Project Knowledge Base](../../skills/project-docs/SKILL.md) for the saved artifact's existing documentation owner. Compose these procedures rather than recreating them.
 - Prefer an inline SVG for a quick chat sketch; a browsable preview can be standalone HTML, native controls, small local JavaScript, and scoped CSS. Reuse installed tools and design conventions. Do not impose a framework, single-file format, or new browser/server runtime.
 
 ## Ground the Design

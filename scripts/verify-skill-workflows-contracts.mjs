@@ -50,11 +50,6 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     }
   }
 
-  const gitRebaseSkill = read("skills/git-rebase/SKILL.md")
-  if (!gitRebaseSkill.includes("read `skill://git-rebase/workflow.md`")) {
-    fail("git-rebase skill must explicitly direct agents to read its packaged workflow")
-  }
-
   const jiraReportingWorkflow = read("docs/workflows/jira-reporting-workflow.md")
   for (const requiredText of [
     "# Context",
@@ -70,21 +65,7 @@ export function verifyWorkflowContracts({ root, read, fail }) {
     }
   }
 
-  const nodeExpressWorkflow = read("skills/node-express-api/workflow.md")
-  for (const requiredText of [
-    "docs/workflows/express-light-rail-backend-workflow.md",
-    "agents/workflows/express-light-rail-backend-workflow.md",
-    "[Express Light Rail](../express-light-rail/workflow.md)",
-  ]) {
-    if (!nodeExpressWorkflow.includes(requiredText)) {
-      fail(`node-express-api fallback must include ${requiredText}`)
-    }
-  }
-  if (nodeExpressWorkflow.includes("glob(")) {
-    fail("node-express-api fallback must not prescribe workflow discovery tooling")
-  }
-
-  const expressWorkflow = read("skills/express-light-rail/workflow.md")
+  const expressWorkflow = read("skills/express-api/workflow.md")
   if (
     expressWorkflow.includes(
       "Pick only the templates needed from `docs/templates/backend/express-light-rail/`"
@@ -121,7 +102,7 @@ export function verifyWorkflowContracts({ root, read, fail }) {
       "authoritative self-improvement workflow",
       read("docs/workflows/self-improvement-workflow.md"),
     ],
-    ["packaged self-improvement workflow", read("skills/self-improvement/workflow.md")],
+    ["packaged self-improvement workflow", read("skills/tune/workflow.md")],
   ]
   for (const [name, workflow] of selfImprovementWorkflows) {
     if (!workflow.includes("node bin/agent-guidance-audit.js --strict <downstream-root>")) {

@@ -31,7 +31,7 @@ Use when the user explicitly asks to commit, amend, or commit a staged/relevant 
 7. If the user asked to commit a named/relevant set, stage only files that clearly belong to that requested change. Avoid `git add .`.
 8. Review enough staged diff and issue/PR context to name the problem, outcome, and why the change belongs in this commit.
 9. If the purpose or file ownership is unclear, ask instead of guessing.
-10. If the request includes amending older commits or reorganizing branch history, switch to the `git-rebase` workflow before committing.
+10. If the request includes amending older commits or reorganizing branch history, switch to the `rebase` workflow before committing.
 11. Commit with the repo's message style; add a short body when the subject alone cannot carry the relevant bug, feature, or product context.
 12. Verify the resulting message with `git log -1 --format=%B` before reporting it.
 

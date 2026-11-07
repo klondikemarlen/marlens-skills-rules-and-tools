@@ -6,6 +6,14 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.0.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1186) - 2026-11-07
+
+### Changed
+
+- **Breaking:** Shortens skill commands without retaining old aliases: `outcome-first-planning` → `plan`, `ui-prototyping` → `prototype`, `hands-off-agentic-coding` → `autopilot`, `pull-request-management` → `pr`, `github-pr-stack` → `pr-stack`, `github-bug-reporting` → `bug-report`, `jira-reporting` → `jira-report`, `git-rebase` → `rebase`, and `worktree-creation` → `worktree`.
+- Renames `peer-messaging` → `coordinate`, `project-knowledge-base` → `project-docs`, `domain-modeling` → `domain-map`, `self-improvement` → `tune`, `layered-page-orchestration` → `page-flow`, `temporary-mcp-task` → `mcp-task`, `test-factory-traits-and-service-shape` → `test-fixtures`, and `testing-instructions` → `test-guide`.
+- Consolidates `express-light-rail` and its `node-express-api` compatibility alias into `express-api`. Workflow behavior, authorization boundaries, descriptive workflow filenames, and executable helper names remain unchanged; active skill references use the new commands.
+
 ## [4.6.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1184) - 2026-11-07
 
 ### Added
