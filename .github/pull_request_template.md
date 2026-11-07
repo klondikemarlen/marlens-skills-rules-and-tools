@@ -8,7 +8,7 @@
 
 ## Maintainer Approval
 
-<!-- For an externally requested feature, link the explicit scope approval authored by @klondikemarlen, or identify the direct maintainer instruction authorizing this work. If absent, state 'Not approved; review only'. A self-checked box, issue classification, or bot-applied label is not authorization. See https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/.github/CONTRIBUTING.md. -->
+<!-- Extra approval applies only to external contributions with concrete security implications. If applicable, name the concern and link verified scoped approval from @klondikemarlen; without it, state 'Awaiting security-scope approval; review only'. Otherwise state why the gate is not applicable (maintainer-originated or no concrete security implications). A reporter claim or bot label is not approval. See https://github.com/klondikemarlen/marlens-skills-rules-and-tools/blob/main/.github/CONTRIBUTING.md. -->
 
 ## Implementation
 
@@ -18,4 +18,4 @@
 
 <!-- Give reproducible checks and observed results. Name unrun checks or blockers honestly. Follow the repository's documented development/test wrapper and release gates. -->
 
-1. 
+1.

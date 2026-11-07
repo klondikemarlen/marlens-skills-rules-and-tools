@@ -56,10 +56,12 @@ Do not treat a failed or unavailable memory operation as successful persistence.
 
 Use this path for GitHub issues titled or labeled as `learner:` proposals in this shared package, including requests like "implement new tickets" when the open tickets are learner-generated proposals.
 
+Check the proposal's actual origin and potential security impact under [External Contribution Approval](../../docs/workflows/feature-workflow.md#external-contribution-approval). A Learner ticket preserving the maintainer's own requested correction does not need repeat acceptance; routine low-risk external proposals need no extra approval either. An independently generated security-sensitive proposal still requires scoped maintainer approval. A bot label or the automation credential's account alone proves neither origin nor approval; cited source evidence matters.
+
 1. For requests like "implement new tickets", list currently open `learner:` issues in this shared package and handle the full set before reporting done.
 2. Read each issue body and cited evidence before deciding; do not infer scope from the title alone.
 3. Classify each proposal:
-   - **Shared and missing:** implement the smallest reusable workflow, reference, rule, or template change that fits this package.
+   - **Shared and missing:** within an authorized delivery/evolve scope, implement the smallest reusable change. Seek proposal approval only when the external security-sensitive gate applies and approval is missing.
    - **Shared but already covered:** file or update the OMP Learner bug for duplicate/spam behavior, then close the shared issue with both existing-guidance citations and the learner bug link; do not add duplicate wording.
    - **Project-specific, learner-local, or over-generalized:** do not implement it here. If the owning repository is evidenced, create or update the proposal there; always file or update an OMP Learner bug with the misrouting evidence; then close the shared issue with both links. If ownership is not evidenced, report only the learner bug instead of guessing a destination.
    - **Unclear evidence:** file or update an OMP Learner bug for insufficient source evidence, then close the shared issue with the bug link instead of broadening the guidance.

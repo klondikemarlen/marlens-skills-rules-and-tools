@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Use for evidence-backed ticket assessment, bounded backlog ranking, recurring periodic reviews, and supported triage updates; explicit assessment-only or dry-run requests remain read-only.
+description: Use for evidence-backed ticket assessment, backlog ranking, periodic reviews, and supported updates; distinguish external blockers, security-sensitive external approval gates, and product decisions. Explicit assessment-only or dry-run requests remain read-only.
 ---
 
 # Triage

@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [4.5.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1183) - 2026-11-07
+
+### Changed
+
+- Makes triage and evolve explain genuine approval decisions and retain approve/reject/defer outcomes, while reserving external-blocker reporting for dependencies outside the maintainer's control.
+- Limits extra proposal approval to external contributions with concrete security implications. Maintainer requests and routine low-risk contributions need no repeat acceptance; product decisions, current task limits, and security-verification gates remain distinct.
+
 ## [4.4.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1180) - 2026-11-06
 
 ### Changed
