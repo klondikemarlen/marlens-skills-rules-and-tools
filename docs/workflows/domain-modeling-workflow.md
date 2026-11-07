@@ -12,7 +12,7 @@ Use when a feature, bug fix, or refactor needs clearer domain concepts, invarian
 
 - Start from the user-visible action, outcome, or invariant. Do not start from a preferred class, folder, or framework pattern.
 - Read project-local guidance and existing sibling conventions before naming a domain boundary.
-- Reuse [`code-organization-reference.md`](../references/code-organization-reference.md) for vocabulary and pattern-fit criteria, and use the outcome-first-planning workflow when the design has unresolved tradeoffs.
+- Reuse [`code-organization-reference.md`](../references/code-organization-reference.md) for vocabulary and pattern-fit criteria, and use the plan workflow when the design has unresolved tradeoffs.
 - Before materially extending an existing pattern, use [Pattern Fit and Non-Fit](../references/code-organization-reference.md#pattern-fit-and-non-fit) to identify what fits, what does not, and the actual owner of the remainder.
 - Select [Execution Mode by Pattern Fit](outcome-first-planning-workflow.md#choose-execution-mode-by-pattern-fit): known-fit requirements need precise implementation planning, not domain rediscovery; model-breaking or uncertain requirements need bounded runnable experiments before committing to a new model. Keep stable and exploratory portions separate.
 - Treat repeated nouns, churn, conditionals, or boundary crossings as hypotheses to investigate, not proof that a new module or abstraction is needed.

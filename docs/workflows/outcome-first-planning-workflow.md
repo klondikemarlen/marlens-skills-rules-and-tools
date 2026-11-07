@@ -146,7 +146,7 @@ Residual risk: <named remaining risk or none>
 
 - Reference: [`../references/outcome-first-planning-reference.md`](../references/outcome-first-planning-reference.md)
 - Template: [`../templates/outcome-first-plan-template.md`](../templates/outcome-first-plan-template.md)
-- Skill: [`../../skills/outcome-first-planning/SKILL.md`](../../skills/outcome-first-planning/SKILL.md)
+- Skill: [`../../skills/plan/SKILL.md`](../../skills/plan/SKILL.md)
 
 ## Verification Checklist
 

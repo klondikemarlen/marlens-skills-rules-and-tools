@@ -10,7 +10,7 @@ A preview compares against the rejected newest design, scatters related states o
 
 ## With the Workflow
 
-[UI Prototyping](../skills/ui-prototyping/SKILL.md) grounds the comparison in the intended application, distinguishes proposed behavior from confirmed requirements, and keeps saved artifacts recoverable without implying implementation or publication authority.
+[UI Prototyping](../skills/prototype/SKILL.md) grounds the comparison in the intended application, distinguishes proposed behavior from confirmed requirements, and keeps saved artifacts recoverable without implying implementation or publication authority.
 
 | Request and Evidence                                                                                                             | Expected Outcome                                                                                                                                           |
 | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
