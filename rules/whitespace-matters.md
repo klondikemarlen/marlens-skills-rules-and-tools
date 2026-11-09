@@ -15,6 +15,14 @@ Before presenting a changed file as ready:
 
 Follow [Guidance Precedence](../docs/references/guidance-precedence-reference.md#precedence): project-local guidance overrides these shared defaults; explicit user direction may override them within its authorized scope.
 
+## Final Newlines
+
+Changed non-empty text files must end with a newline, including YAML, JSON, and other configuration files. Preserve their existing LF or CRLF convention; do not reformat unrelated content or convert line endings. Empty files need no terminator. Respect documented project-specific format requirements through explicit, reasoned exceptions.
+
+Neither formatter availability nor a successful `git diff --check` proves this invariant. Use the non-mutating [`marlens-rules:final-newlines` verification](../docs/references/rules-and-verifications-reference.md#final-newline-verification); unreadable required input is not a pass.
+
+For a verbatim snapshot, distinguish repository normalization from live-state parity. If appending a newline only in Git would introduce bootstrap drift, report the conflict and have the owning workflow deliberately reconcile both sides within its authorization. Do not silently overwrite live configuration, weaken the check, or claim unchanged parity.
+
 ## Frontend Import Groups
 
 For new or intentionally corrected frontend application imports, prefer utilities before API clients, API clients before composables, and composables before stores. Keep each group contiguous with exactly one blank line between groups, within the existing broad standard-library, third-party, and project-local ordering. Follow documented project overrides and preserve imported bindings and initialization-sensitive order; this preference does not authorize unrelated import churn.

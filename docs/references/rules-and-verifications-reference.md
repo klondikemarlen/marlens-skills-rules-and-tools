@@ -74,7 +74,7 @@ For intentional unbounded loops, follow the [readable loop preference](code-orga
 
 | Asset                                             | Layer                        | Why                                                                                                               |
 | ------------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `whitespace-matters`                              | Rule                         | Formatting and sibling grouping require project-local tools and structure judgment.                               |
+| `whitespace-matters` and `final-newlines`         | Both                         | Formatting needs project context; a final newline has a deterministic byte-level check.                           |
 | `project-linting`                                 | Rule and project requirement | Readiness requires applicable lint evidence; the existing Verifier executes each project's explicit lint command. |
 | `solve-real-user-needs`                           | Rule                         | User value needs request/product context; use contextual review, not keyword or edge-case counts.                 |
 | `no-envrc-example-commits` and `no-envrc-example` | Both                         | The rule prevents staging; the verifier backstops tracked repository state.                                       |
@@ -100,6 +100,33 @@ For `default-function-exports`, inspect all tracked TypeScript modules by defaul
   "defaultFunctionExports": false
 }
 ```
+
+## Final-Newline Verification
+
+`marlens-rules:final-newlines` checks Git-tracked and nonignored untracked files, including dotfiles and configuration files. Automatic runs select `OMP_VERIFIER_CHANGED_PATHS`; manual runs inspect the whole scope. Changing `.marlens-verifications.json` rechecks the whole scope so removing an exception cannot leave an unchecked violation.
+
+Changed paths and exclusions must use canonical repository-relative paths, such as `nested/settings.yaml`, without a leading `./` or repeated separators. Noncanonical input is `BLOCKED` rather than silently selecting no files.
+
+The check reads bytes without rewriting files. Non-empty UTF-8 text without NUL bytes and BOM-marked UTF-16 text must end with LF (including CRLF). Empty files, binary data (NUL-containing or non-UTF-8 bytes without a UTF-16 BOM), deleted files, and symbolic links are excluded. It does not validate other encodings. An unreadable selected file, incomplete UTF-16 code unit, repository escape, or invalid scope/configuration is `BLOCKED`, not `PASS`. A missing terminator is `FAIL` with relative paths and remediation, never file contents.
+
+For a documented format that forbids a final newline, add an exact repository-relative path and explanation to the existing `.marlens-verifications.json`:
+
+```json
+{
+  "finalNewlines": {
+    "exclusions": [
+      {
+        "path": "fixtures/exact-wire-payload.txt",
+        "reason": "The protocol fixture requires exact bytes without a terminator."
+      }
+    ]
+  }
+}
+```
+
+Exclusions are reported with their reasons; they are not permission to suppress an ordinary formatting defect. Append only the missing terminator using the file's established convention. For verbatim snapshots, follow [Final Newlines](../../rules/whitespace-matters.md#final-newlines): repository normalization must not silently change live configuration or misrepresent bootstrap parity.
+
+Run `omp-verifier verify marlens-rules:final-newlines` through the installed Verifier, or invoke the supplied script with Node from the target Git project. This package supplies the rule/check; Verifier owns automatic selection and advisor delivery. A check result does not itself establish a hard merge or completion veto.
 
 ## Library Index Verification
 
