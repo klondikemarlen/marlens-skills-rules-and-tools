@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.1.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1195) - 2026-11-09
+
+### Fixed
+
+- Clarifies type-safe constructor-tuple inference and reuse of supported collection entrypoints in existing serializer families, preserving target-specific async, empty-array, context, and error contracts without per-record argument-tail slicing.
+
 ## [5.1.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1193) - 2026-11-09
 
 ### Fixed

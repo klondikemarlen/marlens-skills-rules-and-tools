@@ -4,6 +4,8 @@ Use for explicit API response shape. For operation-specific placement and naming
 
 For projects using `IndexSerializer` and `ShowSerializer`, select by endpoint action under [Serializer Selection by Action](../../../references/express-light-rail-backend-concepts-reference.md#serializer-selection-by-action). Keep the simple function template below when that is the project's existing convention.
 
+Only when the project already uses a class-based family, follow [Existing Class-Based Serializer Dispatch](../../../references/express-light-rail-backend-concepts-reference.md#existing-class-based-serializer-dispatch) for inherited instance serialization, supported collection calls, and typed constructor arguments. Do not replace this function template merely to adopt that pattern.
+
 ## Template
 
 ```ts
