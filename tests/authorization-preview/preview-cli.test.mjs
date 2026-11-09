@@ -16,7 +16,6 @@ function loginRequest() {
       agent: "release agent",
       repository: "example/release-tool",
       task: "release issue #42",
-      whatHappened: "Local release checks passed; publication has not started.",
       completionEffect: "npm can authenticate the maintainer; publication remains separate.",
     },
     destinationUrl: "https://accounts.example/login?challenge=a%2Fb%2B%3D#step",
@@ -26,7 +25,7 @@ function loginRequest() {
 test("when required context is absent, the CLI rejects it before creating a browser handoff", () => {
   // Arrange
   const request = loginRequest()
-  delete request.context.whatHappened
+  delete request.context.task
 
   // Act
   const result = spawnSync(process.execPath, [executable, "--manual"], {
@@ -38,7 +37,7 @@ test("when required context is absent, the CLI rejects it before creating a brow
   // Assert
   assert.equal(result.status, 1)
   assert.equal(result.stdout, "")
-  assert.match(result.stderr, /context\.whatHappened/)
+  assert.match(result.stderr, /context\.task/)
 })
 
 test("when the destination is not unambiguous credential-free HTTPS, the CLI rejects it without opening a server", () => {
