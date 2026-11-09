@@ -1,15 +1,36 @@
 # Native Convention Memory
 
-`conventions-memory` rebuilds Marlen's conventions in OMP's native Mnemopi memory from a Git clone. Git-backed Markdown remains the authored, reviewable, recoverable source; the memory database is a derived copy, not the only backup. Push accepted source changes to the remote before relying on another machine to recover them.
+Use `/mssrt memory sync on` to make the installed conventions available through OMP's native memory and keep them current after package updates. No repository clone, database path, shell command, or manual refresh is needed for the normal path. Git-backed Markdown remains the authored, reviewable, recoverable source; imported memory is a derived copy, not the only backup.
+
+## Enable in OMP
+
+```text
+/mssrt memory sync on
+```
+
+Approve the in-OMP explanation once. The command imports immediately and remembers the opt-in. If needed, the explanation names two global changes: select native Mnemopi and use shared recall with project-local conversational retention (`per-project-tagged`). It preserves existing memories, normal recall/retention preferences, embeddings, model/provider routes, and credentials.
+
+After installing a newer MSSRT version, start a new OMP process. Enabled sync refreshes automatically at session start. Repeated starts or `on` calls reconcile the destination without rewriting unchanged records; missing or stale records are repaired even if a previous successful result exists. A running process does not pretend to have loaded upgraded code: it asks for a restart if installed files changed underneath it.
+
+```text
+/mssrt memory sync status
+/mssrt memory sync off
+```
+
+`status` separates opt-in state, loaded source, last successful synchronization, last failure, and live recall readiness. A completed import is not proof that recall is ready. If recall is not ready, restart OMP and use `/memory diagnose` if the problem persists. `off` stops automatic MSSRT refresh; it does not delete imported or conversational memories, disable native recall, or undo settings.
+
+The command respects configured shared bank/database destinations. It does not bypass project, environment, overlay, or runtime overrides, edit linked managed configuration, or silently enable an explicitly disabled auto-recall preference. A conflict names the owning setting and required correction. Cancel leaves activation unchanged. Failed imports retain the previous successful result and report the prerequisite; correct it and retry `on`.
+
+Synchronization uses the native transaction and cross-process locks. Concurrent sessions sharing a profile serialize opt-in and completion state; profiles pointing at the same physical database serialize their imports. Only importer-owned records are updated or retired. No scheduler, daemon, model call, embedding service, or automatic dependency installation is involved.
 
 ## Prerequisites and Boundaries
 
-- Bun 1.4.4 or newer and Git. The importer pins `@oh-my-pi/pi-mnemopi` 18.16.0; the native OMP integration is verified against OMP 18.16.0. Other database/runtime versions require separate compatibility verification before writing.
-- An installed MSSRT package and a clone of this repository. Source reads come exclusively from the clone's committed `HEAD`, never unstaged or staged edits.
-- An explicitly selected absolute database path. The importer does not discover or change active OMP settings. Stop sessions using the destination and preserve a native export or stopped-database backup before updating an existing bank.
-- No model, embedding service, Elasticsearch instance, or original machine's memory database is required. Import uses Mnemopi's native export/import API and a transaction, not custom SQL writes. Initial retrieval is lexical; improved coding adherence is an outcome to measure, not a promise of importing.
+- The native command is verified on OMP 18.18.5 and uses the installed package, not a clone's working changes. Restart OMP after installing MSSRT to load its command.
+- The importer pins `@oh-my-pi/pi-mnemopi` 18.16.0. Database compatibility was exercised with OMP 18.18.5; other runtime/database versions require compatibility verification before writes.
+- The advanced `conventions-memory` CLI requires Bun 1.4.4 or newer, Git, a repository clone, and an explicitly selected absolute database path. It reads committed `HEAD`, never staged or unstaged edits, and does not change OMP settings. Stop sessions using that destination and preserve a native export or stopped-database backup before manual updates.
+- Import uses Mnemopi's native export/import API and a transaction, not custom SQL writes. Initial retrieval is lexical; improved coding adherence is an outcome to measure, not a promise of importing.
 
-## Bootstrap from a Clone
+## Advanced: Bootstrap From a Clone
 
 Inside OMP shell tools, installed package commands are available on the process PATH. In an external terminal, use the installed entrypoint explicitly (adjust the package location if different):
 
@@ -29,7 +50,7 @@ conventions-memory export --source /absolute/path/to/marlens-skills-rules-and-to
 
 Treat exported conventions according to the source repository's visibility. Do not publish an export of a mixed personal-memory database as a convention artifact.
 
-## Select the OMP Recall Bank
+## Advanced: Select a Recall Bank Manually
 
 For a disposable proof or a new installation, create an OMP configuration overlay pointing to the imported database:
 
@@ -52,13 +73,15 @@ Records have global visibility **within the explicitly selected database**. OMP'
 
 ## Source Identity and Refresh
 
-The importer selects committed root agent/commit guidance plus Markdown under `rules/`, `examples/`, and `docs/references/`, `docs/workflows/`, and `docs/templates/`. Packaged skill workflow mirrors, changelog/release history, and unrelated repository files are excluded. YAML frontmatter is metadata, not convention prose. Markdown headings split sections; fenced-code headings remain code.
+Both paths select root agent/commit guidance plus Markdown under `rules/`, `examples/`, and `docs/references/`, `docs/workflows/`, and `docs/templates/`. Packaged skill workflow mirrors, changelog/release history, and unrelated files are excluded. YAML frontmatter is metadata, not convention prose. Markdown headings split sections; fenced-code headings remain code.
 
-Each record contains its source path, original line, heading ancestry, committed revision, and immutable GitHub source link. Its stable identity combines the importer namespace, path, heading ancestry, and repeated-heading occurrence. Moving or renaming a section retires the old identity and creates a new one. Reordering same-named headings can change which occurrence owns an identity; the final active text still follows the committed source.
+Each record contains its source path, original line, and heading ancestry. The OMP command identifies the installed package version and a deterministic content digest; it does not invent a Git revision or immutable GitHub link for installed files. The CLI captures the clone's committed revision and immutable GitHub source link. Installed records use an epoch timestamp because installed files carry no trustworthy authored date; the actual sync time is recorded separately in command status.
 
-Re-run `sync --apply` after committing an accepted change. The same revision produces no duplicate records. Changed sections replace importer-owned records; absent sections receive a native invalidation timestamp and stop appearing in recall. Reintroduced sections become active again. A revision change refreshes provenance even for text that stayed the same. Imported rows are durable, not expiring scratch memory.
+Stable record identity combines the importer namespace, path, heading ancestry, and repeated-heading occurrence, so the two paths can refresh the same owned records. Moving or renaming a section retires the old identity and creates a new one. Reordering same-named headings can change which occurrence owns an identity; the final active text still follows the selected source.
 
-Only records carrying this importer's source, session, and metadata ownership markers are refreshed or retired. A desired ID owned by another source, or already present in episodic memory, aborts the transaction rather than overwriting it. Unrelated memories remain unchanged. Manually editing an imported record is temporary: the next sync restores Git's version. Put durable convention corrections in the source instead.
+The OMP command refreshes enabled sync at the next session start after an installed update. The advanced CLI requires another `sync --apply` after committing an accepted change. Neither path creates duplicate records for unchanged source. Changed sections replace importer-owned records; absent sections receive a native invalidation timestamp and stop appearing in recall. Reintroduced sections become active again. A revision change refreshes provenance even for text that stayed the same. Imported rows are durable, not expiring scratch memory.
+
+Only records carrying this importer's source, session, and metadata ownership markers are refreshed or retired. A desired ID owned by another source, or already present in episodic memory, aborts the transaction rather than overwriting it. Unrelated memories remain unchanged. Manually editing an imported record is temporary: the next sync restores the selected source. Put durable convention corrections in Git and release them instead.
 
 ## Evaluate Retrieval and Adherence
 
