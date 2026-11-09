@@ -2,6 +2,8 @@
 
 Use for explicit API response shape. For operation-specific placement and naming, follow [Primary Operations and Local Implementation](../../../references/code-organization-reference.md#primary-operations-and-local-implementation); retain explicit fields and existing type/barrel conventions.
 
+For projects using `IndexSerializer` and `ShowSerializer`, select by endpoint action under [Serializer Selection by Action](../../../references/express-light-rail-backend-concepts-reference.md#serializer-selection-by-action). Keep the simple function template below when that is the project's existing convention.
+
 ## Template
 
 ```ts
