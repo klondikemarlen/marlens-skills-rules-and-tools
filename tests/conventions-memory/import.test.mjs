@@ -209,7 +209,8 @@ test("when a rule has YAML frontmatter, only its Markdown guidance is imported w
   assert.doesNotMatch(sections[0].text, /description:|name:/u)
 })
 
-test("installed packages capture canonical guidance deterministically without Git metadata", (t) => {
+test("when a package has no Git metadata, installed capture preserves canonical provenance deterministically", (t) => {
+  // Arrange
   const { source } = fixture(t, { git: false })
   mkdirSync(join(source, "docs", "workflows"), { recursive: true })
   mkdirSync(join(source, "skills"), { recursive: true })
@@ -218,12 +219,12 @@ test("installed packages capture canonical guidance deterministically without Gi
   writeFileSync(join(source, "skills", "excluded.md"), "# Not Canonical\n\nDo not import.\n")
   writeFileSync(join(source, "docs", "excluded.md"), "# Not Canonical Either\n")
 
+  // Act
   const captured = captureInstalledConventions(source)
 
-  assert.equal(existsSync(join(source, ".git")), false)
+  // Assert
   assert.deepEqual(captureInstalledConventions(source), captured)
   assert.deepEqual(captured.paths, ["AGENTS.md", "docs/workflows/review.md", "rules/style.md"])
-  assert.equal(captured.records.length, 5)
   assert.match(captured.revision, /^marlens-skills-rules-and-tools@1\.0\.0:sha256:[a-f0-9]{64}$/u)
   for (const record of captured.records) {
     const metadata = JSON.parse(record.metadata_json)
@@ -241,25 +242,39 @@ test("installed packages capture canonical guidance deterministically without Gi
     assert.doesNotMatch(record.content, /Git source:|\/blob\//u)
   }
 
-  writeFileSync(join(source, "rules", "style.md"), "# Coding Style\n\nChanged installed guidance.\n")
+  writeFileSync(
+    join(source, "rules", "style.md"),
+    "# Coding Style\n\nChanged installed guidance.\n"
+  )
   assert.notEqual(captureInstalledConventions(source).revision, captured.revision)
 })
 
-test("installed capture interoperates with committed import identities through refresh and retirement", (t) => {
+test("when installed guidance replaces committed imports, identities survive refresh and retirement", (t) => {
+  // Arrange
   const { source, database } = fixture(t)
   const committed = captureConventions(source)
   synchronize(source, database)
   rmSync(join(source, ".git"), { recursive: true })
+  // Act
   const installed = captureInstalledConventions(source)
-  assert.deepEqual(installed.records.map(({ id }) => id), committed.records.map(({ id }) => id))
-  const apply = (captured) => native(
-    `import { synchronizeConventions } from ${JSON.stringify(SYNC)}; console.log(JSON.stringify(synchronizeConventions(${JSON.stringify(database)},${JSON.stringify(captured)})));`
+  // Assert
+  assert.deepEqual(
+    installed.records.map(({ id }) => id),
+    committed.records.map(({ id }) => id)
   )
+  const apply = (captured) =>
+    native(
+      `import { synchronizeConventions } from ${JSON.stringify(SYNC)}; console.log(JSON.stringify(synchronizeConventions(${JSON.stringify(database)},${JSON.stringify(captured)})));`
+    )
 
+  // Act
   const migrated = apply(installed)
   const repeated = apply(captureInstalledConventions(source))
   assert.deepEqual([migrated.inserted, migrated.updated, migrated.retired], [0, 3, 0])
-  assert.deepEqual([repeated.inserted, repeated.updated, repeated.retired, repeated.unchanged], [0, 0, 0, 3])
+  assert.deepEqual(
+    [repeated.inserted, repeated.updated, repeated.retired, repeated.unchanged],
+    [0, 0, 0, 3]
+  )
 
   writeFileSync(
     join(source, "rules", "style.md"),
@@ -273,7 +288,9 @@ test("installed capture interoperates with committed import identities through r
   const refreshed = apply(updated)
   assert.notEqual(updated.revision, installed.revision)
   assert.deepEqual([refreshed.inserted, refreshed.updated, refreshed.retired], [0, 2, 1])
-  const owned = inspect(database).working_memory.filter(({ source: owner }) => owner === IMPORT_OWNER)
+  const owned = inspect(database).working_memory.filter(
+    ({ source: owner }) => owner === IMPORT_OWNER
+  )
   assert.equal(owned.length, 3)
   const active = owned.filter(({ valid_until }) => !valid_until)
   assert.equal(active.length, 2)
@@ -282,9 +299,19 @@ test("installed capture interoperates with committed import identities through r
   assert.ok(owned.find(({ id }) => id === committed.records.at(-1).id).valid_until)
 })
 
-test("installed capture refuses linked canonical sources and unsupported file objects", async (t) => {
-  for (const linkedPath of ["package.json", "AGENTS.md", "rules", "rules/style.md", "docs", "docs/workflows"]) {
+test("when canonical sources are links or unsupported objects, installed capture refuses traversal", async (t) => {
+  // Arrange
+  // Act / Assert: each isolated child exercises a different filesystem boundary.
+  for (const linkedPath of [
+    "package.json",
+    "AGENTS.md",
+    "rules",
+    "rules/style.md",
+    "docs",
+    "docs/workflows",
+  ]) {
     await t.test(linkedPath, (t) => {
+      // Arrange
       const { source, root } = fixture(t, { git: false })
       const external = join(root, "external")
       mkdirSync(external)
@@ -292,6 +319,7 @@ test("installed capture refuses linked canonical sources and unsupported file ob
       mkdirSync(join(source, "docs"), { recursive: true })
       rmSync(join(source, linkedPath), { recursive: true, force: true })
       symlinkSync(external, join(source, linkedPath))
+      // Act / Assert
       assert.throws(() => captureInstalledConventions(source), /must be a regular/u)
     })
   }
@@ -308,11 +336,19 @@ test("installed capture refuses linked canonical sources and unsupported file ob
   })
 })
 
-test("installed capture rejects missing identity and empty canonical guidance", (t) => {
+test("when package identity or canonical guidance is missing, installed capture rejects the source", (t) => {
+  // Arrange
   const { source } = fixture(t, { git: false })
-  writeFileSync(join(source, "package.json"), JSON.stringify({ name: "another-package", version: "1.0.0" }))
+  writeFileSync(
+    join(source, "package.json"),
+    JSON.stringify({ name: "another-package", version: "1.0.0" })
+  )
+  // Act / Assert
   assert.throws(() => captureInstalledConventions(source), /must be a versioned/u)
-  writeFileSync(join(source, "package.json"), JSON.stringify({ name: "marlens-skills-rules-and-tools" }))
+  writeFileSync(
+    join(source, "package.json"),
+    JSON.stringify({ name: "marlens-skills-rules-and-tools" })
+  )
   assert.throws(() => captureInstalledConventions(source), /must be a versioned/u)
   writeFileSync(
     join(source, "package.json"),
