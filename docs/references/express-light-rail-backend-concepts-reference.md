@@ -22,6 +22,23 @@ Controllers should not own business rules. Services should not own HTTP status c
 
 Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
 
+## Serializer Selection by Action
+
+In backend rails that already distinguish `IndexSerializer` and `ShowSerializer`, reserve `IndexSerializer` for index endpoints. Use `ShowSerializer` for ordinary single-resource show, create, and update responses. Select by the endpoint's contract, not by whether a serializer happens to accept one record or whether the two representations currently expose identical fields. Keep those contracts distinct so detail responses can evolve without coupling them to collection projection.
+
+For example, in an existing controller whose update service returns the authorized, response-ready record:
+
+```typescript
+const updatedProject = await UpdateService.perform(project, permittedAttributes)
+const serializedProject = ShowSerializer.perform(updatedProject)
+
+return response.status(200).json({ project: serializedProject })
+```
+
+Use the project's real imports, service signature, status, response envelope, and sync/async serializer convention. The selection is `ShowSerializer`, not `IndexSerializer` borrowed for a single record. Ordinary show actions likewise serialize their authorized loaded record with `ShowSerializer`; create actions retain their established status and envelope.
+
+Preserve explicit operation-specific representations such as a clone response and all accepted response fields, policy visibility, and preload requirements. Do not rename unrelated function-based serializers, introduce classes, broaden payloads, or migrate an application merely to adopt this guidance.
+
 ## Detail Responses and Association Visibility
 
 Keep an established show/detail loader for a selected record. If its consumer needs an additional association or field, extend the owning response-loading contract and show serializer, then carry the typed result through the existing frontend detail composable. For example, keep `useWorkflowTemplate(workflowTemplateId)` and add the permitted category reference to the show response instead of replacing it with `useWorkflowTemplates({ where: { id: workflowTemplateId }, perPage: 1 })` solely to obtain category data. Reuse existing serializers and loading conventions; serializers still do not query. Genuine collection search, filtering, and pickers remain collection operations.
