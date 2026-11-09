@@ -66,8 +66,7 @@ class IndexSerializer extends BaseSerializer<ProjectRecord, ProjectJson> {
   }
 
   perform() {
-    const name =
-      this.labelCase === "upper" ? this.record.name.toUpperCase() : this.record.name
+    const name = this.labelCase === "upper" ? this.record.name.toUpperCase() : this.record.name
 
     return { id: this.record.id, name: `${this.context.prefix}${name}` }
   }
