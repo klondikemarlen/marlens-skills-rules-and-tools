@@ -34,6 +34,8 @@ Create only sections with a current consumer. Do not scaffold empty directories.
 
 Use the project naming convention. Stable slugs work well for durable knowledge. A project may retain dated notes or plans where time is part of the record; do not make them compete with a durable knowledge document.
 
+Completion ends an implementation plan's execution role, not the useful knowledge it contains. Use [Plan Retirement](../plans/README.md#plan-retirement) to transfer that knowledge to its existing owners and remove an exhausted plan without erasing intentionally valuable history.
+
 ## Authority Boundaries
 
 - Domain and product documentation own intended meaning, terminology, and product decisions.

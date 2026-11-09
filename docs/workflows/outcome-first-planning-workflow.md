@@ -129,6 +129,10 @@ Backtrack when evidence changes an assumption rather than defending the first pl
 
 Stop at a runnable next action with named residual risk: implement when the examples and whole-outcome check support a focused verification gate; run the smallest experiment when the remaining uncertainty is empirical. Do not continue planning solely to remove all uncertainty.
 
+## Plan Lifetime
+
+Give a saved implementation plan an execution lifetime, not permanent ownership of domain or architecture knowledge. At completion of its owning PR or execution scope, apply [Plan Retirement](../plans/README.md#plan-retirement); preserve active multi-phase plans and intentionally valuable historical records.
+
 ## Output Contract
 
 ```text

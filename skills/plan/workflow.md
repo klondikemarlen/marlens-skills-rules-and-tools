@@ -63,6 +63,10 @@ For example, a sortable list that supports mouse and touch can pass native mouse
 
 Keep this conditional on the changed lifecycle and affected supported inputs. Do not require an exhaustive device matrix, a new interaction framework, or unrelated keyboard/accessibility scope expansion.
 
+## Plan Lifetime
+
+Give a saved implementation plan an execution lifetime, not permanent ownership of domain or architecture knowledge. At completion of its owning PR or execution scope, apply [Plan Retirement](../../docs/plans/README.md#plan-retirement); preserve active multi-phase plans and intentionally valuable historical records.
+
 ## Output Contract
 
 ```text

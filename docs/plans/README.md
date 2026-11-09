@@ -164,6 +164,17 @@ When resuming a plan after code has changed, rewrite the execution plan around t
 8. Ask for missing requirements early instead of faking product clarity.
 9. If a plan file is untracked, treat it as planning context unless the user asks to version it.
 
+## Plan Retirement
+
+When the owning PR or execution scope is complete, reconcile the plan against delivered work before treating it as disposable. A merged slice does not complete an active multi-phase plan. Preserve active plans, explicit retention requirements, and intentionally valuable historical records; where a dated record remains useful, keep its historical status clear and point current readers to the authoritative knowledge.
+
+1. Identify still-useful domain rules, architecture contracts, decisions, and reproducible QA knowledge. Follow [Knowledge Capture](../references/project-knowledge-base-reference.md#knowledge-capture): update each existing knowledge owner rather than creating a second source of truth or copying the plan wholesale. Check claims against the accepted contract and current evidence; do not promote abandoned proposals or unverified QA into established facts.
+2. Keep PR-specific execution, review, and delivery evidence in the owning PR or issue. Preserve required provenance before removing its only record; do not turn transient checklists into permanent knowledge documents.
+3. Repair indexes, links, and other references so readers reach the preserved knowledge or relevant task record directly. Verify those destinations and the transferred contracts before removing the obsolete path.
+4. Remove the exhausted implementation plan within the authorized repository/task scope. Do not merely rewrite it as a permanent reference under a plan filename. If ownership, completeness, or retention is uncertain, retain it and resolve that specific question; do not delete unrelated plans or infer permission from this general procedure.
+
+See [Completed-Plan Closeout](../../examples/outcome-skills.md#completed-plan-closeout) for contrasting lifecycle decisions.
+
 ## File Naming
 
 Use a descriptive title that starts with the plan type when useful:
