@@ -1,4 +1,5 @@
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent"
+import { registerMemorySync } from "./memory-sync.ts"
 declare const process: {
   env: { PATH?: string }
   platform: string
@@ -18,6 +19,8 @@ export function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
   if (!process.env.PATH?.split(pathDelimiter).includes(packageBinPath)) {
     process.env.PATH = [process.env.PATH, packageBinPath].filter(Boolean).join(pathDelimiter)
   }
+
+  registerMemorySync(pi)
 
   pi.registerCommand("privilege-preview", {
     description: "Open the safe native GNOME privilege demo",

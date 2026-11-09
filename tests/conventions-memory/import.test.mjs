@@ -1,12 +1,13 @@
 import assert from "node:assert/strict"
 import { execFileSync, spawnSync } from "node:child_process"
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, existsSync } from "node:fs"
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, existsSync, symlinkSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
 import {
   captureConventions,
+  captureInstalledConventions,
   markdownSections,
   IMPORT_OWNER,
 } from "../../lib/conventions-memory/source.js"
@@ -15,7 +16,7 @@ const CLI = fileURLToPath(new URL("../../bin/conventions-memory", import.meta.ur
 const SYNC = new URL("../../lib/conventions-memory/sync.js", import.meta.url).href
 const ROOT = fileURLToPath(new URL("../../", import.meta.url))
 
-function fixture(t) {
+function fixture(t, { git = true } = {}) {
   const root = mkdtempSync(join(tmpdir(), "conventions-memory-test-"))
   t.after(() => rmSync(root, { recursive: true, force: true }))
   const source = join(root, "source")
@@ -28,8 +29,10 @@ function fixture(t) {
     join(source, "rules", "style.md"),
     "# Coding Style\n\n## Snapshots\n\nName captured category identifiers staticCategoryId.\n\n## Retired Rule\n\nUse obsoleteConventionForTesting.\n"
   )
-  execFileSync("git", ["init", "--quiet", source])
-  commit(source)
+  if (git) {
+    execFileSync("git", ["init", "--quiet", source])
+    commit(source)
+  }
   return { source, database: join(root, "memory.db"), root }
 }
 
@@ -204,4 +207,117 @@ test("when a rule has YAML frontmatter, only its Markdown guidance is imported w
   )
   assert.match(sections[0].text, /Use descriptive names/u)
   assert.doesNotMatch(sections[0].text, /description:|name:/u)
+})
+
+test("installed packages capture canonical guidance deterministically without Git metadata", (t) => {
+  const { source } = fixture(t, { git: false })
+  mkdirSync(join(source, "docs", "workflows"), { recursive: true })
+  mkdirSync(join(source, "skills"), { recursive: true })
+  writeFileSync(join(source, "AGENTS.md"), "# Agent Guidance\n\nFollow authored conventions.\n")
+  writeFileSync(join(source, "docs", "workflows", "review.md"), "# Review\n\nReview the result.\n")
+  writeFileSync(join(source, "skills", "excluded.md"), "# Not Canonical\n\nDo not import.\n")
+  writeFileSync(join(source, "docs", "excluded.md"), "# Not Canonical Either\n")
+
+  const captured = captureInstalledConventions(source)
+
+  assert.equal(existsSync(join(source, ".git")), false)
+  assert.deepEqual(captureInstalledConventions(source), captured)
+  assert.deepEqual(captured.paths, ["AGENTS.md", "docs/workflows/review.md", "rules/style.md"])
+  assert.equal(captured.records.length, 5)
+  assert.match(captured.revision, /^marlens-skills-rules-and-tools@1\.0\.0:sha256:[a-f0-9]{64}$/u)
+  for (const record of captured.records) {
+    const metadata = JSON.parse(record.metadata_json)
+    assert.equal(record.source, IMPORT_OWNER)
+    assert.equal(record.session_id, IMPORT_OWNER)
+    assert.equal(metadata.owner, IMPORT_OWNER)
+    assert.equal(metadata.version, captured.version)
+    assert.equal(metadata.revision, captured.revision)
+    assert.equal(metadata.sourceKind, "installed-package")
+    assert.ok(captured.paths.includes(metadata.path))
+    assert.match(metadata.digest, /^[a-f0-9]{64}$/u)
+    assert.ok(captured.revision.endsWith(metadata.contentDigest))
+    assert.equal(metadata.sourceUrl, undefined)
+    assert.match(record.content, /Installed package: marlens-skills-rules-and-tools@1\.0\.0/u)
+    assert.doesNotMatch(record.content, /Git source:|\/blob\//u)
+  }
+
+  writeFileSync(join(source, "rules", "style.md"), "# Coding Style\n\nChanged installed guidance.\n")
+  assert.notEqual(captureInstalledConventions(source).revision, captured.revision)
+})
+
+test("installed capture interoperates with committed import identities through refresh and retirement", (t) => {
+  const { source, database } = fixture(t)
+  const committed = captureConventions(source)
+  synchronize(source, database)
+  rmSync(join(source, ".git"), { recursive: true })
+  const installed = captureInstalledConventions(source)
+  assert.deepEqual(installed.records.map(({ id }) => id), committed.records.map(({ id }) => id))
+  const apply = (captured) => native(
+    `import { synchronizeConventions } from ${JSON.stringify(SYNC)}; console.log(JSON.stringify(synchronizeConventions(${JSON.stringify(database)},${JSON.stringify(captured)})));`
+  )
+
+  const migrated = apply(installed)
+  const repeated = apply(captureInstalledConventions(source))
+  assert.deepEqual([migrated.inserted, migrated.updated, migrated.retired], [0, 3, 0])
+  assert.deepEqual([repeated.inserted, repeated.updated, repeated.retired, repeated.unchanged], [0, 0, 0, 3])
+
+  writeFileSync(
+    join(source, "rules", "style.md"),
+    "# Coding Style\n\n## Snapshots\n\nUse the newly installed convention.\n"
+  )
+  writeFileSync(
+    join(source, "package.json"),
+    JSON.stringify({ name: "marlens-skills-rules-and-tools", version: "1.1.0" })
+  )
+  const updated = captureInstalledConventions(source)
+  const refreshed = apply(updated)
+  assert.notEqual(updated.revision, installed.revision)
+  assert.deepEqual([refreshed.inserted, refreshed.updated, refreshed.retired], [0, 2, 1])
+  const owned = inspect(database).working_memory.filter(({ source: owner }) => owner === IMPORT_OWNER)
+  assert.equal(owned.length, 3)
+  const active = owned.filter(({ valid_until }) => !valid_until)
+  assert.equal(active.length, 2)
+  assert.ok(active.some(({ content }) => content.includes("newly installed convention")))
+  assert.ok(active.every(({ metadata_json }) => JSON.parse(metadata_json).version === "1.1.0"))
+  assert.ok(owned.find(({ id }) => id === committed.records.at(-1).id).valid_until)
+})
+
+test("installed capture refuses linked canonical sources and unsupported file objects", async (t) => {
+  for (const linkedPath of ["package.json", "AGENTS.md", "rules", "rules/style.md", "docs", "docs/workflows"]) {
+    await t.test(linkedPath, (t) => {
+      const { source, root } = fixture(t, { git: false })
+      const external = join(root, "external")
+      mkdirSync(external)
+      writeFileSync(join(external, "guidance.md"), "# External\n\nDo not traverse.\n")
+      mkdirSync(join(source, "docs"), { recursive: true })
+      rmSync(join(source, linkedPath), { recursive: true, force: true })
+      symlinkSync(external, join(source, linkedPath))
+      assert.throws(() => captureInstalledConventions(source), /must be a regular/u)
+    })
+  }
+  await t.test("root package link", (t) => {
+    const { source, root } = fixture(t, { git: false })
+    const linked = join(root, "linked-package")
+    symlinkSync(source, linked)
+    assert.throws(() => captureInstalledConventions(linked), /must be a regular directory/u)
+  })
+  await t.test("root document directory", (t) => {
+    const { source } = fixture(t, { git: false })
+    mkdirSync(join(source, "AGENTS.md"))
+    assert.throws(() => captureInstalledConventions(source), /must be a regular file/u)
+  })
+})
+
+test("installed capture rejects missing identity and empty canonical guidance", (t) => {
+  const { source } = fixture(t, { git: false })
+  writeFileSync(join(source, "package.json"), JSON.stringify({ name: "another-package", version: "1.0.0" }))
+  assert.throws(() => captureInstalledConventions(source), /must be a versioned/u)
+  writeFileSync(join(source, "package.json"), JSON.stringify({ name: "marlens-skills-rules-and-tools" }))
+  assert.throws(() => captureInstalledConventions(source), /must be a versioned/u)
+  writeFileSync(
+    join(source, "package.json"),
+    JSON.stringify({ name: "marlens-skills-rules-and-tools", version: "1.0.0" })
+  )
+  rmSync(join(source, "rules"), { recursive: true })
+  assert.throws(() => captureInstalledConventions(source), /contains no convention sections/u)
 })
