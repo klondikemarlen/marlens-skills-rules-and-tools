@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.1.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1193) - 2026-11-09
+
+### Fixed
+
+- Retires exhausted implementation plans after preserving useful knowledge and task evidence and repairing references; planning and closeout retain active plans, valuable history, and explicit retention requirements.
+
 ## [5.1.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1191) - 2026-11-09
 
 ### Fixed
