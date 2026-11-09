@@ -105,6 +105,8 @@ For `default-function-exports`, inspect all tracked TypeScript modules by defaul
 
 `marlens-rules:final-newlines` checks Git-tracked and nonignored untracked files, including dotfiles and configuration files. Automatic runs select `OMP_VERIFIER_CHANGED_PATHS`; manual runs inspect the whole scope. Changing `.marlens-verifications.json` rechecks the whole scope so removing an exception cannot leave an unchecked violation.
 
+Changed paths and exclusions must use canonical repository-relative paths, such as `nested/settings.yaml`, without a leading `./` or repeated separators. Noncanonical input is `BLOCKED` rather than silently selecting no files.
+
 The check reads bytes without rewriting files. Non-empty UTF-8 text without NUL bytes and BOM-marked UTF-16 text must end with LF (including CRLF). Empty files, binary data (NUL-containing or non-UTF-8 bytes without a UTF-16 BOM), deleted files, and symbolic links are excluded. It does not validate other encodings. An unreadable selected file, incomplete UTF-16 code unit, repository escape, or invalid scope/configuration is `BLOCKED`, not `PASS`. A missing terminator is `FAIL` with relative paths and remediation, never file contents.
 
 For a documented format that forbids a final newline, add an exact repository-relative path and explanation to the existing `.marlens-verifications.json`:

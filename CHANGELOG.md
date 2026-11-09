@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.1.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1187) - 2026-11-09
+
 ### Added
 
 - Requires final newlines in changed non-empty text files and supplies `marlens-rules:final-newlines` through OMP Verifier, preserving line endings, explicit format exceptions, and verbatim-snapshot ownership boundaries.
