@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Keeps browser authorization handoffs observable through human-length waits, with supervised process recovery and fresh provider challenges instead of replaying failed links. Local preview continuation remains separate from provider success.
+
 ## [5.3.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1212) - 2026-11-09
 
 ### Fixed

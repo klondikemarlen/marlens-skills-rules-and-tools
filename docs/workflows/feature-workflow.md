@@ -86,6 +86,8 @@ Keep sign-in separate from publication approval. Follow the existing manual-auth
 
 Use [Authorization Preview](../references/authorization-preview-reference.md) when handing an authorized npm sign-in, publication, or staged-publication decision to the user. Supply truthful structured context and the exact current npm-issued URL as `destinationUrl`; keep the private request and challenge out of public records. The generic helper opens only its explanation first, and **Continue** merely navigates to that URL; it neither restricts destinations to npm nor certifies their safety. Cancel, expiry, or an unavailable preview must not fall back to the opaque prompt. It does not acquire a fresh challenge or authorize repeating one the user reported as opaque.
 
+Follow [Supervising Human-Length Handoffs](../references/authorization-preview-reference.md#supervising-human-length-handoffs) so the preview and npm process remain observable throughout the person's interaction. Recover interrupted tracking before retrying; when an npm challenge has failed or expired, an authorized retry needs a fresh npm-issued URL and a new preview, not a replay of the old challenge. Keep preview continuation, npm completion, and remote artifact verification as separate evidence.
+
 ## Dockerized Worktree Cleanup
 
 Use this procedure only when an agent-owned Dockerized worktree must be removed.

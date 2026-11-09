@@ -71,6 +71,20 @@ Real mode reads one JSON object from stdin, with a 64 KiB input limit. It writes
 
 For a user-facing Firefox handoff, do not assume the system opener selects Firefox. Use `--manual`, read the private `preview-ready` URL, and open that loopback preview through ordinary Firefox without a profile override, following [Browser Opening Modes](../workflows/browser-qa-workflow.md#browser-opening-modes). Keep the helper running until the user acts or it expires; a failed Firefox launch must end that invocation without opening the destination. Do not change OS associations or automate the personal profile.
 
+### Supervising Human-Length Handoffs
+
+Run the provider command and preview as separately supervised processes whose output and exit status remain observable while the person acts. Do not keep their only handles in an Eval cell that waits synchronously for human input: a cell deadline can destroy the caller's handles without stopping its children. Losing tracking proves neither that the preview stopped nor that the provider failed.
+
+1. Start the authorized provider command under the available process supervisor and capture its exact current challenge privately. Keep the provider's process identity separate from the preview's.
+2. Start `authorization-preview --manual --expires-in 900` as a uniquely named supervised process, send one complete JSON request on stdin, and close stdin. In OMP, use a named Bash service with a `preview-ready` log readiness condition, not an Eval-owned child. Its supervisor must allow the full interaction lifetime; a short readiness deadline only bounds startup. The 900-second local lifetime does not extend the provider challenge.
+3. Observe `preview-ready`, then open only its private loopback URL with the normal desktop opener or the explicitly selected browser path above. Retain the supervisor identifier for completion and cleanup, not the capability URL in durable records. If opening fails, stop only this preview invocation; never open the destination directly as a fallback.
+4. Let the supervisor deliver completion without holding an Eval cell across the interaction. Inspect the final JSON result and exit status. Cancellation, expiry, and loss of tracking are not consent to start another challenge.
+5. Check the original provider command independently. `continued` with `providerCompletion: "unverified"` proves only local navigation; publication still requires the native command result and remote artifact evidence.
+
+If tracking is interrupted, recover the exact owned process and its available output through the supervisor before starting anything else. An alive preview is not proof that the provider challenge remains usable. If completion cannot be recovered, report it as unknown and stop only identified task-owned processes before a replacement; do not kill browsers or processes by name.
+
+After a provider challenge has expired or failed, do not replay its URL or extend the local timer to revive it. Within the task's existing retry authority and opaque-prompt safeguards, obtain a fresh challenge from a new provider attempt, then create a fresh request and preview. Preserve the old failure separately from the replacement result. A provider error such as npm's completion-endpoint `E404` does not, by itself, establish that the local preview caused it.
+
 ## Request Schema
 
 The request has exactly these top-level fields; unknown fields are rejected. This example uses the same package and changes as the demo, with hypothetical npm publication and a placeholder challenge. It is not a real login request or evidence that publication is needed. For real handoffs, supply current task facts and the exact current provider-issued URL.
