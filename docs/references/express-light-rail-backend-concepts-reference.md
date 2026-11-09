@@ -39,6 +39,62 @@ Use the project's real imports, service signature, status, response envelope, an
 
 Preserve explicit operation-specific representations such as a clone response and all accepted response fields, policy visibility, and preload requirements. Do not rename unrelated function-based serializers, introduce classes, broaden payloads, or migrate an application merely to adopt this guidance.
 
+## Existing Class-Based Serializer Dispatch
+
+When the project already has a serializer base with a supported collection entrypoint, pass the collection directly to that entrypoint rather than repeating equivalent single-record mapping at each caller. For an index endpoint, prefer `IndexSerializer.perform(records)` to `records.map((record) => IndexSerializer.perform(record))`, forwarding any required context through the supported arguments. Keep [Serializer Selection by Action](#serializer-selection-by-action): accepting an array does not make a show representation the index contract. In an existing class-based family, implement its instance `perform()` contract and inherit dispatch instead of bypassing it with a bespoke static-only method.
+
+Inspect the actual base and callers before replacing a map. Preserve fields, order, required context, preload errors, and the project's sync/async and empty-array behavior. Mapping that filters, transforms, or performs other work beyond equivalent serializer dispatch remains legitimate. A base that aggregates promises is not equivalent to a caller that intentionally returns an array of promises. This guidance does not introduce a base class, migrate function serializers, or authorize a dispatcher rewrite solely to simplify a caller.
+
+### Typed Constructor Inference
+
+For work on an existing dispatcher, infer the record, constructor-tail tuple (`Args extends unknown[]`), and result from the constructor and instance `perform()` contract. Its structural shape is `new (record: Record, ...args: Args) => { perform(): Result }`. Prefer direct inference to `any`-based tail extraction or nested `InstanceType`/`ReturnType` machinery when the target compiler and representative subclasses prove equivalent inference. Keep separate single-record and array overloads. Accept the record or collection separately from `...args`, then forward that same tuple to each constructor; do not call `args.slice(1)` inside every map iteration.
+
+The maintained [Express Light Rail implementation at `90832d2`](https://github.com/klondikemarlen/express-light-rail/blob/90832d2dc836f0b73c9d222b3460268798a9c92c/src/base-serializer/base-serializer.ts) owns the executable base. This example uses that existing contract and the project's own `BaseSerializer` import, not another base implementation:
+
+```typescript
+type ProjectRecord = { id: number; name: string }
+type SerializerContext = { prefix: string }
+type ProjectJson = { id: number; name: string }
+
+class IndexSerializer extends BaseSerializer<ProjectRecord, ProjectJson> {
+  constructor(
+    record: ProjectRecord,
+    private readonly context: SerializerContext,
+    private readonly labelCase: "original" | "upper" = "original"
+  ) {
+    super(record)
+  }
+
+  perform() {
+    const name =
+      this.labelCase === "upper" ? this.record.name.toUpperCase() : this.record.name
+
+    return { id: this.record.id, name: `${this.context.prefix}${name}` }
+  }
+}
+
+const project = { id: 1, name: "Library" }
+const records = [project]
+const context = { prefix: "Public: " }
+
+const single = IndexSerializer.perform(project, context)
+const collection = IndexSerializer.perform(records, context, "upper")
+```
+
+The calls infer `ProjectJson` and `ProjectJson[]` respectively, while preserving the required `SerializerContext` and optional `"original" | "upper"` argument. No call-site type arguments, assertions, or blanket lint suppression are needed. These are illustrative fields and context, not changes to an application's payload or naming convention.
+
+### Contract Checks
+
+Before adopting a dispatcher change or replacing caller-side mapping, check the actual compiler and representative consuming subclasses:
+
+- Compile valid single/array calls with required and optional context. Require missing/wrong required context, wrong records, and wrong optional arguments to fail. Assert exact output types rather than accepting assignment to a widened type. Include actual overloads or generic subclasses when used; this example does not establish universal inference for them.
+- Exercise both single and collection dispatch, context identity/forwarding, order and fields, omitted/provided optional arguments, and required-preload failures. Check synchronous exceptions and asynchronous rejection propagation, including the caller's existing error boundary.
+- Establish exact sync/async output types and runtime behavior separately. The linked Express Light Rail source returns `Result[]`, including an array of promises when `Result` is a promise; it returns `[]` synchronously for empty input. Do not silently add `Promise.all`.
+- Compare the consuming implementation's own empty-array and aggregation rules. The [Travel Authorization #446 proposal revision at `f0f1ca9`](https://github.com/icefoganalytics/travel-authorization/blob/f0f1ca97b4c488f7e78c57650258af53a5e54969/api/src/serializers/base-serializer.ts), originally cited as a draft proposal, aggregates nonempty async arrays but returns empty arrays synchronously. It is not merged/released precedent or a universal policy; preserve the target contract.
+- When comparing argument forwarding, count the relevant argument-tail slice calls under the same input. Removing those calls establishes only that allocation-path difference, not zero allocations, a timing result, or a measured speedup.
+
+These are focused adoption checks, not a new runtime helper or automatic migration policy. Source links establish inspectable implementations, not installed-artifact proof.
+
 ## Detail Responses and Association Visibility
 
 Keep an established show/detail loader for a selected record. If its consumer needs an additional association or field, extend the owning response-loading contract and show serializer, then carry the typed result through the existing frontend detail composable. For example, keep `useWorkflowTemplate(workflowTemplateId)` and add the permitted category reference to the show response instead of replacing it with `useWorkflowTemplates({ where: { id: workflowTemplateId }, perPage: 1 })` solely to obtain category data. Reuse existing serializers and loading conventions; serializers still do not query. Genuine collection search, filtering, and pickers remain collection operations.
