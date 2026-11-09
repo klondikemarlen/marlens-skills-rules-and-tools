@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.1.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1200) - 2026-11-09
+
+### Fixed
+
+- Clarifies controller authoring with explicit resource names, matching service imports, contract-compatible query predicates, and loaded-parent handoffs that preserve nested-record visibility and authorization.
+
 ## [5.1.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1195) - 2026-11-09
 
 ### Fixed

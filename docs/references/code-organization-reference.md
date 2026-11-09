@@ -708,6 +708,8 @@ Prefer the configured project-root convention for ordinary internal imports, inc
 
 Prefer existing named domain bundles and namespace-qualified member access for production dependencies across domain boundaries. For service collaborators, apply the same preference within a domain using the deepest existing supported named bundle instead of implementation leaves. For example, an external caller can use `import { Search } from "@/services"` and `Search.Workflows.WorkflowSearchIndex` when that is the existing public bundle shape. This names the owning domain at the use site; it is not a request for a new namespace alias or a broader barrel.
 
+A controller importing its own resource's services uses direct named imports from the deepest supported matching resource entry point: `import { CreateService, UpdateService } from "@/services/travel-desk-invoices"` in the matching invoice controller, rather than the root `TravelDeskInvoices` namespace. The controller already identifies that resource; other-domain collaborators and service-to-service imports retain the namespace preference above. Use existing supported exports, not new barrels or private implementation paths.
+
 Keep the complete ownership path from the chosen named bundle at call sites rather than shortening it with an alias or an implementation-level namespace-star import. For application-domain bundles, reserve `import * as ...` for assembling exports in existing bundle index files, such as `index.ts`, not service implementation imports. Preserve third-party API export shapes and stronger project-local conventions.
 
 When an existing owning namespace already supplies the domain name, prefer concise public type aliases at its barrel: `WorkflowStepPlayers.CreationAttributes` rather than `WorkflowStepPlayers.WorkflowStepPlayerCreationAttributes`. The implementation may retain its descriptive type name when that remains useful independently:
@@ -815,6 +817,8 @@ In Sequelize models, omit an argument-free `@Table` when existing registration a
 Name functions, including event/error callbacks, for the concrete operation, effect, or result they perform rather than their caller or triggering event. Prefer `openVerificationDialog` over a vague `handleChallenge` when opening the dialog is the operation. Preserve established framework-required names and keep renames scoped to affected functions and callers; do not rename unrelated code.
 
 Prefer operation-specific verbs over generic `get...` for project-owned helpers: `readResponseHeader` for reading a header and `extractCurrentGapRectangle` for extracting or deriving a rectangle from supplied state. Keep the extracted result descriptive. Preserve ordinary accessors, third-party APIs, framework names, and stronger local precedent; do not mechanically rename unrelated methods.
+
+For resource-specific helpers and local bindings, name the actual domain resource rather than its position relative to the caller. Prefer `buildTravelDeskTravelRequestPolicy` and `travelDeskTravelRequestPolicy` over `buildParentPolicy` and `parentPolicy`: the name should remain accurate if the code moves outside its current nesting. Keep genuinely generic relationship operations and framework-required names; this does not require domain prefixes on every short-lived local or unrelated renaming.
 
 Match a module's primary named/default export to its filename under the project's casing convention, such as `apiResponseErrorPlugin` in `api-response-error-plugin.ts`. Choose the clearer export or file rename within scope, then align exports, callers, mirrored tests, and test descriptions without changing behavior. Secondary exports and framework-required entrypoints retain their own contracts.
 
@@ -1367,6 +1371,8 @@ function registerScheduledWork() {
 Use the project's existing registration APIs; this example does not require another scheduler wrapper or change the lifetime or behavior of any registered work.
 
 Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
+
+For controller query-value guards, prefer the established named Lodash type predicate when Lodash is already available and its accepted values match the input contract; for example, `isString(recordLocator)` before passing the narrowed value to a service without coercion. Inspect sibling guards and predicate semantics first: Lodash `isString` accepts boxed strings as well as primitives, unlike `typeof value === "string"`. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
 
