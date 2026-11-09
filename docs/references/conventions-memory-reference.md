@@ -10,7 +10,7 @@ Use `/mssrt memory sync on` to make the installed conventions available through 
 
 Approve the in-OMP explanation once. The command imports immediately and remembers the opt-in. If needed, the explanation names two global changes: select native Mnemopi and use shared recall with project-local conversational retention (`per-project-tagged`). It preserves existing memories, normal recall/retention preferences, embeddings, model/provider routes, and credentials.
 
-After installing a newer MSSRT version, start a new OMP process. Enabled sync refreshes automatically at session start. Repeated starts or `on` calls skip an already-completed source and target. A running process does not pretend to have loaded upgraded code: it asks for a restart if installed files changed underneath it.
+After installing a newer MSSRT version, start a new OMP process. Enabled sync refreshes automatically at session start. Repeated starts or `on` calls reconcile the destination without rewriting unchanged records; missing or stale records are repaired even if a previous successful result exists. A running process does not pretend to have loaded upgraded code: it asks for a restart if installed files changed underneath it.
 
 ```text
 /mssrt memory sync status

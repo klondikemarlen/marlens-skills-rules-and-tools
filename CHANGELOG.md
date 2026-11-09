@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.3.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1206) - 2026-11-09
+
 ### Added
 
 - Adds `/mssrt memory sync on|status|off` for immediate installed-guidance import, persistent opt-in, and automatic refresh after package upgrades. Shared convention recall preserves project-local conversations, existing memories, and unrelated settings.
