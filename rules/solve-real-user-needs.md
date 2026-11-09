@@ -5,6 +5,12 @@ description: "Prioritize evidenced user problems and useful outcomes over specul
 
 Solve real user needs with the smallest complete requested feature set, not the most technically capable implementation. Use the request, existing product context, usage, or reported failures to identify the useful outcome. Do not invent demand or require new user research for an already-clear request.
 
+Developers and package consumers are end users too. Identify the actual human consumer, discoverable native entrypoint, and normal journey through first successful use, routine reuse/update, status, and recovery. Reuse already-clear requirements rather than making the person repeat them. Backend/API success alone does not prove consumer activation or maintenance; missing routine controls are a product gap, not something solved by a longer runbook.
+
+Where safe, the product should derive and manage its own paths, prerequisites, state, and refresh lifecycle instead of asking people to remember implementation details or orchestrate routine steps. Prefer coherent native controls, sensible defaults, clear status/errors, and optional help for advanced details. An already-simple CLI may be the right interface; do not require a GUI, slash command, or arbitrary click/command-count quota. Keep lower-level procedures available for advanced use and diagnostics.
+
+Consequential choices, explicit consent, authorization, data ownership, and unavailable information remain human responsibilities. Do not bypass authentication or privilege boundaries, hide destructive effects, suppress failures, or enable unrelated automation for simplicity. Validate the accepted consumer journey on the installed/released surface where applicable, including ongoing maintenance and meaningful recovery, not just the underlying mechanism.
+
 Treat additional error handling, retries, cancellation APIs, concurrency/scalability machinery, and extensibility as features, not automatic improvements. Distinguish an accepted requirement from an agent-invented defense: an explicit request, supported behavior, binding contract, demonstrated workflow/failure, or concrete material security/data-integrity risk can establish a need; a merely possible failure, hypothetical future user, or existing caller alone does not.
 
 Before choosing a mechanism, decide in order:
