@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.3.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1212) - 2026-11-09
+
 ### Fixed
 
 - Keeps authorization handoffs focused on the user's outcome and next action, with optional extra context instead of mandatory progress or disclaimer paragraphs. Meaningful permission decisions remain explicit.
