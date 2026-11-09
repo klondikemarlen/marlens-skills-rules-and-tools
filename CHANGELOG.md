@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.1.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1191) - 2026-11-09
+
 ### Fixed
 
 - Clarifies index/show serializer ownership by endpoint action in backend authoring, review, and template guidance, preserving operation-specific responses and existing fields.
