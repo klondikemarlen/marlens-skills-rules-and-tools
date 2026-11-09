@@ -54,6 +54,8 @@ Write the desired end state in user-visible terms. Name the unacceptable outcome
 
 Before turning an imagined failure into a requirement, apply [Solve Real User Needs](../../rules/solve-real-user-needs.md): assess whether prevention is necessary under realistic use, project scale, quality expectations, likely harm, and maintenance cost before choosing a mechanism. Use available evidence and labeled assumptions; do not demand new telemetry or numerical thresholds. Preserve explicit requirements, supported behavior, and concrete material security/data-integrity safeguards. A useful improvement can still belong outside this PR.
 
+Apply that rule to the actual consumer's first-use and ongoing journey: name the native entrypoint, what the product can safely manage, and which consequential choices or prerequisites remain human-owned. Reuse known requirements; resolve only material unknowns. Fit-check activation, reuse/update, status, and recovery alongside backend behavior, including an already-sufficient CLI and unavoidable authorization where relevant; do not create a separate questionnaire.
+
 ### 2. Fit-Check Examples
 
 List representative good examples, bad examples, and one missing or ambiguous example. For each, state the expected result and the rule it exercises. Resolve counter-examples before committing to an interface; when evidence requires an experiment, use the exploratory mode above rather than speculating through a complete design.
