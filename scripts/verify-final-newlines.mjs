@@ -99,7 +99,16 @@ try {
   symlinkSync(outsideDirectory, path.join(projectDirectory, "nested"))
   assert.equal(check("nested/file").status, "BLOCKED")
 
-  for (const invalidInput of ["null", "{}", '["../outside"]', "[42]", "not-json"]) {
+  for (const invalidInput of [
+    "null",
+    "{}",
+    '["../outside"]',
+    '["./settings.yaml"]',
+    '["nested//file"]',
+    '["./.marlens-verifications.json"]',
+    "[42]",
+    "not-json",
+  ]) {
     assert.equal(
       runVerification(projectDirectory, { OMP_VERIFIER_CHANGED_PATHS: invalidInput }).status,
       "BLOCKED"

@@ -24,6 +24,8 @@ function validateRelativePath(relativePath) {
     relativePath.length === 0 ||
     relativePath.includes("\0") ||
     path.isAbsolute(relativePath) ||
+    relativePath === "." ||
+    relativePath !== path.normalize(relativePath) ||
     relativePath.split(/[\\/]/u).some((segment) => segment === ".." || segment === ".git")
   ) {
     throw new Error("Expected repository-relative file paths without traversal or Git metadata.")
