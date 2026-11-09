@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.2.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1203) - 2026-11-09
+
 ### Changed
 
 - Treats developer and package-consumer activation, routine use, and maintenance as feature-delivery requirements, with discoverable controls and installed-journey proof that preserve consent and data ownership.
