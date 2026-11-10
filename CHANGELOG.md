@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keeps PR comments written in the maintainer's voice focused on the concern and useful direction, without losing concrete behavioral explanations or prescribing unrequested implementation details.
+
 ## [5.3.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1213) - 2026-11-09
 
 ### Fixed
