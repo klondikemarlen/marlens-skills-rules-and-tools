@@ -344,6 +344,44 @@ Keep both reused SQL builders in their own descriptive files and import each whe
 
 An implementation helper owned by an already-existing service is a different boundary: keep it private in that service under [Service Orchestration Readability](code-organization-reference.md#service-orchestration-readability). A genuinely independent function or definition retains its own owner even with one caller; do not use caller count alone to choose between these homes or reorganize unrelated code.
 
+### Service Runtime Exports
+
+A service implementation module exposes the service, not independently callable runtime helpers or error classes alongside it. Keep implementation-only helpers private. Put shared domain behavior on its appropriate model, or in a dedicated owning module when it needs a public entrypoint; put shared errors with the project's existing error owner. Update all affected imports without compatibility re-exports from the service.
+
+For example, `synchronize-bookings-service.ts` can keep its orchestration helper `normalizeBookings` private. If normalization is instead shared booking behavior, callers import it from the booking model or its dedicated normalization module, not from the synchronization service. Likewise, consumers import `BookingConflictError` from its owning error module rather than reaching through that service.
+
+This runtime boundary does not prohibit a service's cohesive input/result types, change companion public-type or barrel conventions, or require extracting private helpers merely to give them a file.
+
+### Integration Model Contracts
+
+Keep external-system data contracts with the owning integration's models, following established sibling integration layout. This includes normalized nested records and saved snapshots that still describe that integration's data. Application persistence models and serializers import those contracts rather than declaring duplicates. Application-owned records and genuinely transformed response/view types retain their own owners; using external data does not make every consumer type an integration model.
+
+Prefer a descriptively named file for each independently named integration model contract. Aggregate snapshot models import their constituent contracts rather than collecting all declarations under the snapshot's filename. Keep supporting raw shapes with their owning model when that matches local conventions; this is not one file per type declaration.
+
+For example, an established integration-model layout could contain:
+
+```text
+integrations/reservations/models/
+  booking.ts
+  guest.ts
+  booking-snapshot.ts
+models/
+  reservation.ts
+```
+
+The integration's `booking-snapshot.ts` imports `Booking` and `Guest` from their model files. The application's persistence model imports the integration-owned snapshot:
+
+```typescript
+import type { BookingSnapshot } from "@/integrations/reservations/models/booking-snapshot"
+
+export type ReservationAttributes = {
+  id: number
+  bookingSnapshot: BookingSnapshot
+}
+```
+
+Use the project's supported aliases, ORM declaration shape, and barrel conventions; this example does not prescribe a new integration layer. Migrate affected declarations and consumers together, preserving contract names, fields, optionality, validation, and runtime behavior. Remove obsolete duplicate declarations and compatibility re-exports rather than leaving two owners.
+
 ### Workflow-Owned Executables
 
 For an extracted executable owned by one GitHub Actions workflow, prefer `.github/workflows/<workflow-name>/` beside that workflow's YAML. For example, a `test` workflow's disk-reclamation program belongs at `.github/workflows/test/reclaim-runner-disk.sh`, with an explicit descriptive invocation:

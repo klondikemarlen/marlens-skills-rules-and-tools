@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Clarifies integration-model ownership and distinct model files, and keeps service implementation runtime exports limited to the service across authoring and review guidance.
+
 ## [5.3.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1227) - 2026-11-10
 
 ### Fixed

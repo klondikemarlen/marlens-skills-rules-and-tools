@@ -18,6 +18,8 @@ Skip rails that the target project does not use. Centralized templates are start
 
 Controllers should not own business rules. Services should not own HTTP status codes. Serializers should not query the database. Policies should not mutate data.
 
+Apply [Service Runtime Exports](code-organization-reference.md#service-runtime-exports) and [Integration Model Contracts](code-organization-reference.md#integration-model-contracts) when authoring these rails: expose the service rather than unrelated runtime exports, and import external-system contracts from their integration-model owners.
+
 ## Safety Defaults
 
 Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
