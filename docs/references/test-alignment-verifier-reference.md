@@ -8,8 +8,9 @@ Every changed test file must meet these rules without a README directive:
 
 - `test-name-when` — `when [condition], [behavior]` test names.
 - `arrange-act-assert` — ordered `Arrange`, `Act`, and `Assert` comments; `Arrange` followed by `Act / Assert`, `Act & Assert`, or `Act and Assert` is also accepted when invoking the subject is itself the assertion, as in native promise-error or matcher tests. Preserve the existing supported spelling rather than restyling comments. Do not invent aliases or no-op steps solely to separate those phases.
+- `one-direct-expect` — exactly one direct `expect(...)` call in every non-controller test, without local opt-in. Zero and multiple calls fail. Controller tests retain the exception described below; tests using native `node:assert` remain in their existing assertion framework.
 
-Failure evidence identifies the changed test, violated rule, and `shared baseline` as its source. Assertion count is not a shared quality gate.
+Failure evidence identifies the changed test, violated rule, and `shared baseline` as its source. The count rule is a structural requirement, not proof of assertion quality.
 
 Test callback boundaries are parsed as JavaScript or TypeScript using the packaged TypeScript dependency. Both `test(name, callback)` and Node's `test(name, options, callback)` preserve synchronous or async callback phases, including tests with `skip` options. Callback-plus-timeout forms retain their second-argument callback. Regex literals do not hide phase comments or shift reported source locations; each invocation reads the current file before checking its phases.
 
@@ -18,24 +19,24 @@ Test callback boundaries are parsed as JavaScript or TypeScript using the packag
 Put supported directives in the nearest `README.md` or `README.mdx` at or above the test file:
 
 ```md
-<!-- marlens-test-alignment: one-direct-expect -->
 <!-- marlens-test-alignment: no-mock-calls -->
 <!-- marlens-test-alignment: describe-file-class-method -->
 ```
 
-- `one-direct-expect` — at most one direct `expect(...)` call per test, only when explicitly selected locally. This measures a local syntax convention, not test quality; a test without assertions does not violate this narrow rule.
 - `no-mock-calls` — no bundled `.mock.calls` assertions.
 - `describe-file-class-method` — three nested `describe` scopes for file, class, and method.
 
-The naming and Arrange/Act/Assert baseline directives remain accepted in README files, but cannot disable or replace the shared baseline. The assertion-count rule recognizes `it` and `test` callbacks, including `.each`, `.only`, `.skip`, `.concurrent`, and `.fails` variants.
+The naming, Arrange/Act/Assert, and `one-direct-expect` directives remain accepted in README files, but cannot disable or replace the shared baseline. The assertion-count rule recognizes `it` and `test` callbacks, including `.each`, `.only`, `.skip`, `.concurrent`, and `.fails` variants. Asymmetric matcher factories such as `expect.objectContaining(...)` are not additional direct `expect(...)` calls. Preserve the native `node:assert`, `assert`, or `assert/strict` framework rather than migrating those tests to Jest or Vitest for this rule: a test containing native assertions and no direct `expect` is exempt from the expect count, but other native tests in the file do not exempt an expect-based or assertion-free callback.
 
 ## Assertion Quality Requires Review
 
-The authoring default is one `expect` for one observable contract, not a numeric quality quota. An HTTP response's status and body together describe one result. Prefer a native or meaningful matcher such as [`toHaveHttpResponse`](http-response-matcher-reference.md), which checks both without building a synthetic wrapper object. Keep independent persistence effects or other independently meaningful outcomes separate.
+The shared default is **exactly one `expect` per non-controller test**, proving one observable contract. It is not merely an at-most-one rule or a local opt-in. Independent persistence effects, saves, and other independently meaningful outcomes belong in separate focused tests. Do not hide assertions in Arrange, Act, hooks, or helpers, bundle `.mock.calls`, weaken expected payloads, or fabricate summary objects to meet the count.
 
-Where no suitable HTTP matcher is available, status and body may use two direct assertions in one focused test when together they prove the response contract. Do not add an inline `allow-multiple-expects` directive or rationale comment to justify the coupled assertions. Do not replace it with equivalent rationale prose, a broader suppression, a synthetic assertion bundle, or weaker assertions. Keep independent persistence effects or other independently meaningful outcomes separate.
+Controller tests are the exception: direct meaningful status and body assertions may remain together to prove the response contract. Prefer a native or meaningful matcher such as [`toHaveHttpResponse`](http-response-matcher-reference.md) when it naturally expresses that contract, but do not force its adoption or replace clear direct controller assertions with a synthetic wrapper. The exception does not justify bundling independent persistence effects.
 
-If a repository explicitly selects `one-direct-expect`, its syntax gate conflicts with this response-contract guidance for a status/body pair that needs two assertions. Report that policy/check mismatch and preserve truthful status; do not silently waive the gate or reshape the test to hide it. Controller tests have no blanket exemption.
+Controller classification uses an explicit path convention: a `controller/` or `controllers/` directory segment (case-insensitive), or a filename ending `.controller.test.<extension>`, `.controller.spec.<extension>`, `-controller.test.<extension>`, `-controller.spec.<extension>`, `_controller.test.<extension>`, `_controller.spec.<extension>`, `Controller.test.<extension>`, or `Controller.spec.<extension>` with the PascalCase `Controller` suffix. Extensions are the check's supported JavaScript/TypeScript extensions. HTTP usage or a variable named `response` does not classify a test as a controller.
+
+An inline `allow-multiple-expects` directive is not a supported bypass. Do not add equivalent rationale prose or broaden a suppression to evade this policy. Preserve supported, explicitly scoped legacy suppressions and report any genuine conflicting project-local standard truthfully.
 
 **Avoid synthetic bundles:**
 
@@ -60,7 +61,60 @@ Reserve subset matching for a contract that genuinely permits additional element
 
 Keep native promise-error assertions such as `await expect(operation()).rejects.toThrow("Not authorized")` and web-first browser assertions such as `await expect(page.getByRole("alert")).toHaveText("Saved")`. This is not a mandate to replace every matcher with `toEqual`.
 
-Multiple direct assertions can jointly prove a coupled invariant, such as atomic rollback leaving both account balances unchanged. Do not split a coupled invariant into tests that lose its transition evidence, or combine it with unrelated outcomes.
+Preserve transition, race, and rollback setup and scenario identities when reorganizing tests. A coupled invariant is not a general multi-expect exception for non-controller tests. Keep the complete causal sequence in each focused scenario that needs it; assert a real returned or persisted object/collection when it naturally represents the invariant, or use separate tests for distinct observations. Never discard an intervening failure, stale completion, or rollback operation merely to reach one expectation.
+
+### Independent Saves With Concrete Payloads
+
+Before: two independently meaningful saves share one test, and wildcard payloads do not prove either request:
+
+```ts
+test("when the worksheet is edited twice, saves both edits", async () => {
+  // Arrange
+  const patchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
+  const page = await mountWorksheetPage()
+
+  // Act
+  await page.save({ hours: 4 })
+  await page.save({ hours: 6 })
+
+  // Assert
+  expect(patchSpy).toHaveBeenCalledTimes(2)
+  expect(patchSpy).toHaveBeenNthCalledWith(1, 7, expect.anything())
+  expect(patchSpy).toHaveBeenNthCalledWith(2, 7, expect.anything())
+})
+```
+
+After: each save has its own API-spy expectation with the concrete request contract. The second test retains the earlier save because it establishes the transition being exercised:
+
+```ts
+test("when worksheet hours are first edited, saves the first edit", async () => {
+  // Arrange
+  const patchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
+  const page = await mountWorksheetPage()
+
+  // Act
+  await page.save({ hours: 4 })
+
+  // Assert
+  expect(patchSpy).toHaveBeenCalledExactlyOnceWith(7, { hours: 4 })
+})
+
+test("when saved worksheet hours are edited again, saves the new edit", async () => {
+  // Arrange
+  const patchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
+  const page = await mountWorksheetPage()
+  await page.save({ hours: 4 })
+  patchSpy.mockClear()
+
+  // Act
+  await page.save({ hours: 6 })
+
+  // Assert
+  expect(patchSpy).toHaveBeenCalledExactlyOnceWith(7, { hours: 6 })
+})
+```
+
+Use the actual API signature, full relevant payload, and supported runner-native matcher; the example uses Vitest's exact-once matcher. Spy cleanup follows the project's existing isolation setup. Do not replace the concrete payload with `expect.anything()`, a projected call array, or a helper that performs assertions. A scenario-specific earlier operation may establish a transition in Arrange; an assertion may not.
 
 The structural verifier cannot determine semantic focus or whether an object is a real result. Its `PASS` means the configured syntax rules passed, not that assertions are useful. `marlens-rules:test-assertion-focus` is a separate declared agentic review of the same changed-test paths against this guidance and applicable ordinary-language local standards; it uses the existing OMP Verifier consumer and semantic contract, not a syntax-only semantic gate.
 
@@ -68,9 +122,9 @@ For placement of persistence-observation queries beside Assert expectations, fol
 
 ## Semantic Assertion-Focus Check
 
-`marlens-rules:test-assertion-focus` reviews the complete changed test files against this shared assertion-quality guidance and applicable ordinary-language local test standards. Its automatic path triggers match `test-alignment`, but the checks answer different questions: test-alignment evaluates deterministic naming, phase, and explicitly opted-in structural rules; assertion-focus uses Verifier's existing agentic review to assess observable contracts, independent outcomes, and applicable local policy.
+`marlens-rules:test-assertion-focus` reviews the complete changed test files against this shared assertion-quality guidance and applicable ordinary-language local test standards. Its automatic path triggers match `test-alignment`, but the checks answer different questions: test-alignment evaluates deterministic naming, phase, shared exactly-one-expect, and explicit local structural additions; assertion-focus assesses whether assertions prove the intended contract without evasion or lost scenario coverage.
 
-The review must cite the changed test and any governing local guidance. A local standard that explicitly requires one meaningful final assertion is honored; where no local policy sets a count, multiple assertions are judged by what they prove rather than their number. Native promise-error and web-first assertions, direct real-result assertions, and genuinely coupled invariants remain valid when permitted by local policy. Do not hide outcomes in setup, Act, helpers, or synthetic bundles to satisfy a count. Recommend direct natural contracts and separate tests only for independent outcomes. When the changed scope, applicable required guidance, or subject/helper context needed to judge a finding is unavailable, report `BLOCKED` with the missing evidence rather than guessing. Unnecessary caller or sibling context is not a prerequisite.
+The review must cite the changed test and any governing local guidance. Enforce the shared exactly-one rule for non-controller tests and preserve the explicit controller exception; do not invent a general coupled-invariant exemption. Preserve native promise-error and web-first matchers, real-result object/array comparisons, and native `node:assert` tests. Inspect needed invoked helpers and relevant scenario context for hidden assertions, weakened payloads, bundled calls, and lost transition/race/rollback evidence. A structural `PASS` does not establish semantic quality. When the changed scope, applicable required guidance, or subject/helper context needed to judge a finding is unavailable, report `BLOCKED` with the missing evidence rather than guessing. Unnecessary caller or sibling context is not a prerequisite.
 
 Invoke the check through the supported OMP Verifier interface, for example `/verifier verify marlens-rules:test-assertion-focus`; the installed Verifier's existing semantic review flow captures scope and required context. This declaration adds no executable, natural-language parser, directive, dependency, or advisor. See [Agentic Semantic Verification](rules-and-verifications-reference.md#agentic-semantic-verification) for the shared contract ownership and protocol boundary.
 

@@ -2,9 +2,9 @@
 
 ## Choose a Meaningful Assertion Unit
 
-Prefer one `expect` for one observable contract. For an HTTP response, status and body are one result: the response is correct only when both match. Prefer a native matcher or an existing domain matcher when it already expresses that contract. Do not create a wrapper solely to reduce the number of assertions, and do not combine independent effects such as a response plus a database write into one assertion.
+The shared default is exactly one `expect` per non-controller test. For an HTTP response, status and body are one result: the response is correct only when both match. Prefer a native matcher or an existing domain matcher when it already expresses that contract. Do not create a wrapper solely to reduce assertion count or combine independent effects such as a response plus a database write.
 
-If a suitable response matcher is unavailable and adding one is not appropriate, keep the narrow fallback explicit:
+Controller tests retain the exception for meaningful direct status/body assertions. Use the explicit controller path/filename convention in [Assertion Quality Requires Review](test-alignment-verifier-reference.md#assertion-quality-requires-review); HTTP usage alone is not a controller classification. Where no suitable matcher is available, controller tests may keep:
 
 ```js
 expect(response.status).toBe(201)
