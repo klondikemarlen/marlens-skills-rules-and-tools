@@ -348,7 +348,7 @@ An implementation helper owned by an already-existing service is a different bou
 
 A service implementation module exposes the service, not independently callable runtime helpers or error classes alongside it. Keep implementation-only helpers private. Put shared domain behavior on its appropriate model, or in a dedicated owning module when it needs a public entrypoint; put shared errors with the project's existing error owner. Update all affected imports without compatibility re-exports from the service.
 
-For example, `synchronize-bookings-service.ts` can keep its orchestration helper `normalizeBookings` private. If normalization is instead shared booking behavior, callers import it from the booking model or its dedicated normalization module, not from the synchronization service. Likewise, consumers import `BookingConflictError` from its owning error module rather than reaching through that service.
+For example, `synchronize-bookings-service.ts` can keep its orchestration helper `normalizeBookings` private while retaining supported named and default exports of the same `SynchronizeBookingsService`. If normalization is instead shared booking behavior, callers import it from the booking model or its dedicated normalization module, not from the synchronization service. Likewise, consumers import `BookingConflictError` from its owning error module rather than reaching through that service.
 
 This runtime boundary does not prohibit a service's cohesive input/result types, change companion public-type or barrel conventions, or require extracting private helpers merely to give them a file.
 
