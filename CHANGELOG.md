@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.4.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1233) - 2026-11-10
+
+### Changed
+
+- Requires exactly one direct `expect` in non-controller tests by default, preserving native assertion frameworks and the controller exception. Structural verification rejects zero or multiple expectations; authoring and semantic review preserve concrete payloads and transition coverage without hidden assertions.
+
 ## [5.3.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1231) - 2026-11-10
 
 ### Changed
