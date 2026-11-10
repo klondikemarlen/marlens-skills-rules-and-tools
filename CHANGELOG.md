@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Guides model collection reads toward supported APIs instead of thin custom finders, and large synchronizations toward bounded source traversal while preserving query semantics and identifying remaining result-memory growth.
+
 ## [5.4.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1233) - 2026-11-10
 
 ### Changed

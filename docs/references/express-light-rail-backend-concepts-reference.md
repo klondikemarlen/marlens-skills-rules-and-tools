@@ -24,6 +24,65 @@ Apply [Service Runtime Exports](code-organization-reference.md#service-runtime-e
 
 Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
 
+## Model Collection Queries
+
+Use the model's supported collection APIs at the owning operation, such as `findAll` for a genuinely bounded read or the project's `findEach` for incremental processing. Do not add a custom model finder solely to package ordinary filters, includes, and ordering behind another public name. Preserve meaningful model validation, domain behavior, supported ORM scopes, and demonstrated specialized query contracts; this is not a ban on model methods.
+
+For example, replace a thin `SourceEvent.findAllByRecordLocator(recordLocator)` call with the standard query below, moving its complete options into the existing caller. This illustrative Sequelize model already has the named associations and a unique `sourceIdentifier`; use the target's actual types, registered associations, predicates, and ordering:
+
+```typescript
+const sourceQuery: FindOptions<Attributes<SourceEvent>> = {
+  where: { recordLocator },
+  include: [
+    {
+      association: "passengers",
+      separate: true,
+      order: [
+        ["lastNameElement", "ASC"],
+        ["passengerElement", "ASC"],
+      ],
+    },
+    {
+      association: "airReservationSegments",
+      separate: true,
+      order: [["airSegmentNumber", "ASC"]],
+    },
+    { association: "serviceFeeTransaction" },
+  ],
+  order: [
+    ["databaseTimestamp", "ASC"],
+    ["sourceIdentifier", "ASC"],
+  ],
+}
+
+const sourceEvents = await SourceEvent.findAll(sourceQuery)
+```
+
+Retain policy scoping, association visibility, separate loading, child ordering, projection, pagination, transaction options, and error behavior when removing the wrapper. Update every affected caller and remove the obsolete method rather than keeping a forwarding alias. Moving the query does not authorize changing its population or order. Keep the query in a service when that service owns synchronization or other meaningful orchestration.
+
+### Bounded Synchronization Reads
+
+A familiar collection API alone does not make a large synchronization safe. For potentially large source populations, use supported batched iteration and serialize/process records incrementally rather than loading all models and then building another full transformed collection. Keep genuinely bounded reads simple; this does not require pagination of every endpoint or impose a universal batch size.
+
+Inspect the installed batching implementation and types before choosing its call shape. `findEach` may be project-defined rather than a stock ORM method. Verify options, callback versus async-iterator behavior, awaiting, traversal order, and failure propagation; do not invent a new model base or assume that a method name guarantees bounded reads.
+
+For a project whose existing `findEach(options, processRecord)` loads bounded batches and awaits each callback sequentially, replace the preceding `findAll` call and whole-collection serialization with this loop. Reuse the complete `sourceQuery` above, and keep the existing transaction, single-record serializer, upsert operation, and response collection:
+
+```typescript
+await SourceEvent.findEach(sourceQuery, async (sourceEvent) => {
+  const attributes = SourceEventSerializer.perform(sourceEvent)
+  const localEvent = await upsertEvent(attributes, transaction)
+
+  synchronizedEvents.push(localEvent)
+})
+```
+
+This bounds source-batch loading and avoids a second full source-serialization array; it does **not** make total operation memory constant. The returned `synchronizedEvents` collection still grows with the result count, and association fan-out or a large individual record can make a batch large. Identify these remaining accumulations separately. Changing the response to streaming, summaries, or pagination requires its own accepted contract change.
+
+Preserve deterministic traversal, including a unique tie-breaker where needed, without discarding an established primary sort. Check the batching implementation's offset/keyset and concurrent-mutation behavior against the operation's consistency requirements: deterministic order alone is not snapshot consistency. Retain existing filtering, preloads, transaction boundaries, rollback, cancellation, and failure ownership. A local transaction does not automatically provide a snapshot of an external source. Do not translate callback/domain failures into source-query failures merely because both escape the iteration call.
+
+For a focused consuming-project check, use a supported small batch size with three matching source events ordered `201`, `202`, `203`, so processing crosses `[201, 202]` and `[203]`. Observe all three in order with their required associations, including multiple children without cross-product duplication, and exclude another locator's event. Verify empty input performs no work. Exercise a processing failure in the second batch and confirm the existing transaction/error contract rather than partial success or swallowed errors. This checks traversal and processing behavior, not measured peak memory; use the actual installed API and production dialect before claiming compatibility.
+
 ## Serializer Selection by Action
 
 In backend rails that already distinguish `IndexSerializer` and `ShowSerializer`, reserve `IndexSerializer` for index endpoints. Use `ShowSerializer` for ordinary single-resource show, create, and update responses. Select by the endpoint's contract, not by whether a serializer happens to accept one record or whether the two representations currently expose identical fields. Keep those contracts distinct so detail responses can evolve without coupling them to collection projection.
