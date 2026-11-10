@@ -42,6 +42,7 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - Apply [Solve Real User Needs](../../rules/solve-real-user-needs.md) to delivery proof: exercise the actual consumer's discovery, first successful use, routine reuse/update, status, and recovery on the installed/released surface where applicable. Distinguish backend success from activation and maintenance evidence; a longer manual recipe does not close a missing product control. Keep legitimate authentication/privilege steps explicit and record unexercised boundaries honestly.
 - For an artifact whose automatic behavior depends on an OMP advisor, release QA MUST start a fresh OMP process, confirm `/advisor status` shows the named advisor with a resolved model rather than `[no model]`, then trigger one matching failure and observe a standard advisor `blocker` in the primary session before remediation produces `PASS`. A UI notification alone is not correction evidence; unavailable advisor runtime is `BLOCKED`.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
+- When assessing V1 readiness, use [Practical Release Readiness](#practical-release-readiness) to distinguish ordinary-use reliability and value from passing delivery gates.
 
 ## External Contribution Approval
 
@@ -66,6 +67,21 @@ When a maintainer asks to create a public tooling repository, include approval-a
 4. Verify the committed default-branch files, links, maintainer identity, and approval-aware consumer decisions. Distinguish these checks from unperformed GitHub UI or unattended-runner enforcement checks.
 
 Do not create account-wide `.github` defaults without separate explicit scope: GitHub inheritance also reaches eligible private and non-tooling repositories. This setup default provisions repository files; it is not a background reconciler for repositories created outside the authorized setup workflow.
+
+## Practical Release Readiness
+
+V1 means the product is useful in normal development without constant debugging or fixing and adds real workflow value for its intended users. Assess the ordinary consumer journey under [Solve Real User Needs](../../rules/solve-real-user-needs.md), using observed use and reported experience rather than feature count or architectural ambition.
+
+Keep delivery evidence and practical readiness separate. Green tests, successful release, and verified installation establish only the boundaries they exercise; they do not by themselves prove everyday reliability or value. State what normal-use behavior and benefit the evidence supports, any recurring intervention, and what remains unknown. If ordinary-use evidence is missing, name that uncertainty instead of inferring readiness from a green release.
+
+Assess known bugs by how they disrupt ordinary use: their impact on the intended workflow, consequences, and recovery burden. Prioritize defects that repeatedly interrupt useful work or require debugging and fixing to continue. A zero-bug backlog, more architecture, or elimination of every nondisruptive limitation is not the V1 threshold; preserve binding correctness and safety requirements.
+
+For example:
+
+- A release passes its tests and installs successfully, but routine use repeatedly requires manual state repair or debugging before work can continue. Practical readiness is not established despite the green delivery evidence.
+- A tool reliably helps users complete everyday development work, while a documented limitation affects an optional, uncommon workflow without disrupting ordinary use or violating required contracts. It can meet the V1 threshold despite that known limitation.
+
+This assessment does not replace or weaken project-specific review, test, release, installation, or versioning contracts. Do not impose a fixed observation period, defect quota, or telemetry requirement. A practical-readiness conclusion does not automatically select or bump a version; follow the project's versioning policy separately.
 
 ## Release Artifact Identity
 
