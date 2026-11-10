@@ -760,6 +760,18 @@ const { workflowStepId } = toRefs(props)
 
 This replaces `computed(() => props.workflowStepId)` without capturing a one-time value: the ref continues to read current prop updates. Preserve prop types, defaults, optionality, and readonly ownership. Keep `computed` for actual derivation, such as combining parent and request loading flags; this preference does not ban computed values or objects containing refs.
 
+For parsing or another transformation, read `props.<name>` directly inside the computed getter instead of creating an intermediate prop ref solely for that derivation. With an existing string `travelAuthorizationId` prop and an established `parseInt` conversion:
+
+```typescript
+import { computed } from "vue"
+
+const travelAuthorizationId = computed(() => parseInt(props.travelAuthorizationId))
+```
+
+The getter tracks prop updates, so a change from `"5"` to `"9"` updates the derived value from `5` to `9`; do not move the prop read or conversion outside the getter into a one-time snapshot. Keep the accepted conversion function, radix, invalid-input behavior, and prop contract unchanged rather than introducing a new parser or fallback during this cleanup.
+
+During authoring and review, distinguish derivation-only refs from refs with independent consumers. Remove the intermediate binding and an unused `toRefs` import only when no other use remains. Preserve `toRefs(props)` for unchanged reactive inputs, such as a composable accepting the original string ref, and retain refs needed by other consumers. This is a scoped removal of redundant indirection, not a ban on combining legitimate refs and derived values in one component.
+
 ## Established Watcher Guards
 
 Before adding a watcher-control option to a composable, inspect the project's existing suppression convention. Where `useWorkflowStep` already supports a `skipWatchIf` predicate, reuse it rather than adding a parallel `watchId` switch. With existing `props`, the `toRefs` import, and that composable, ordinary automatic fetching retains its default:
