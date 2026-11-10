@@ -468,14 +468,19 @@ try {
   const defaultPolicy = runVerification(exemptionProject, {
     MARLENS_TEST_ALIGNMENT_BASE: "main",
   })
-  assert.equal(defaultPolicy.status, "PASS")
+  assert.equal(defaultPolicy.status, "FAIL")
+  assert.match(
+    defaultPolicy.evidence,
+    /contains 2 direct `expect\(\.\.\.\)` calls; expected exactly 1/u
+  )
+  assert.match(defaultPolicy.evidence, /source shared baseline:1/u)
 
   write(exemptionProject, "tests/README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
   const localPolicy = runVerification(exemptionProject, {
     MARLENS_TEST_ALIGNMENT_BASE: "main",
   })
   assert.equal(localPolicy.status, "FAIL")
-  assert.match(localPolicy.evidence, /source tests\/README\.md:1/)
+  assert.match(localPolicy.evidence, /source shared baseline:1/u)
 
   write(
     exemptionProject,
@@ -488,7 +493,7 @@ try {
   const exempt = runVerification(exemptionProject, {
     MARLENS_TEST_ALIGNMENT_BASE: "main",
   })
-  assert.equal(exempt.status, "PASS")
+  assert.equal(exempt.status, "FAIL")
 
   write(
     exemptionProject,
@@ -502,6 +507,153 @@ try {
     runVerification(exemptionProject, { MARLENS_TEST_ALIGNMENT_BASE: "main" }).status,
     "FAIL"
   )
+
+  // Assertions are parsed as calls, not counted in source strings or matcher factories.
+  const assertionCases = [
+    ["no assertion", "const result = 1;", "FAIL", 0],
+    [
+      "only factories and counters",
+      "expect.any(Number); expect.anything(); expect.objectContaining({ id: 7 }); expect.assertions(1); expect.hasAssertions();",
+      "FAIL",
+      0,
+    ],
+    [
+      "one assertion with factories",
+      "expect(result).toEqual(expect.objectContaining({ id: expect.any(Number), value: expect.anything() }));",
+      "PASS",
+    ],
+    [
+      "strings comments and regex",
+      String.raw`const text = "expect(result)"; const pattern = /expect\(result\)/; /* expect(other) */ expect(result).toBe(1);`,
+      "PASS",
+    ],
+    ["template expression", "const text = `value: ${expect(result).toBe(1)}`;", "PASS"],
+    ["two assertions", "expect(result).toBe(1); expect(result).toBeDefined();", "FAIL", 2],
+    ["native import without assertions", "const value = result;", "FAIL", 0],
+    ["native assertions", "assert.equal(result, 1); assert.ok(result);", "PASS"],
+    [
+      "mixed native and multiple expectations",
+      "assert.ok(result); expect(result).toBe(1); expect(result).toBeDefined();",
+      "FAIL",
+      2,
+    ],
+  ]
+  for (const [scenario, assertions, expectedStatus, expectedCount] of assertionCases) {
+    write(
+      exemptionProject,
+      "tests/count.test.ts",
+      `import assert from "node:assert/strict";
+test("when ${scenario}, checks the result", () => {
+  // Arrange
+  const input = 1;
+  // Act
+  const result = input;
+  // Assert
+  ${assertions}
+});
+`
+    )
+    const checked = runVerification(exemptionProject, {
+      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/count.test.ts"]),
+    })
+    assert.equal(checked.status, expectedStatus, `${scenario}: ${checked.evidence}`)
+    if (expectedCount !== undefined) {
+      assert.ok(checked.evidence.includes(`contains ${expectedCount} direct \`expect(...)\` calls`))
+    }
+  }
+
+  // Independent saves remain separate scenarios with API spies and concrete payloads.
+  write(
+    exemptionProject,
+    "tests/saves.test.ts",
+    `test("when the first worksheet is saved, sends its payload", async () => {
+  // Arrange
+  const patch = vi.spyOn(api, "patch").mockResolvedValue({ id: 7, hours: 4 });
+  const worksheet = createWorksheet({ id: 7, hours: 4 });
+  // Act
+  await worksheet.save();
+  // Assert
+  expect(patch).toHaveBeenCalledExactlyOnceWith("/worksheets/7", { hours: 4 });
+});
+test("when a saved worksheet changes, sends the second payload", async () => {
+  // Arrange
+  const patch = vi.spyOn(api, "patch").mockResolvedValue({ id: 7, hours: 4 });
+  const worksheet = createWorksheet({ id: 7, hours: 4 });
+  await worksheet.save();
+  patch.mockClear();
+  worksheet.hours = 8;
+  // Act
+  await worksheet.save();
+  // Assert
+  expect(patch).toHaveBeenCalledExactlyOnceWith("/worksheets/7", { hours: 8 });
+});
+`
+  )
+  const focusedSaves = runVerification(exemptionProject, {
+    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/saves.test.ts"]),
+  })
+  assert.equal(focusedSaves.status, "PASS", focusedSaves.evidence)
+
+  for (const [testPath, expectedStatus] of [
+    ["tests/controllers/widgets.test.ts", "PASS"],
+    ["tests/controller/widgets.test.ts", "PASS"],
+    ["tests/widgets.controller.test.ts", "PASS"],
+    ["tests/widgets-controller.spec.ts", "PASS"],
+    ["tests/widgets_controller.test.ts", "PASS"],
+    ["tests/WidgetsController.test.ts", "PASS"],
+    ["tests/controller-client/widgets.test.ts", "FAIL"],
+    ["tests/controller.test.ts", "FAIL"],
+    ["tests/http-response.test.ts", "FAIL"],
+    ["tests/services/widgets.test.ts", "FAIL"],
+  ]) {
+    write(
+      exemptionProject,
+      testPath,
+      `test("when a widget is requested, returns its status and body", async () => {
+  // Arrange
+  const widget = await createWidget({ id: 7 });
+  // Act
+  const response = await request(app).get("/widgets/7");
+  // Assert
+  expect(response.status).toBe(200);
+  expect(response.body).toEqual({ id: widget.id });
+});
+`
+    )
+    const controllerScope = runVerification(exemptionProject, {
+      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify([testPath]),
+    })
+    assert.equal(controllerScope.status, expectedStatus, `${testPath}: ${controllerScope.evidence}`)
+  }
+
+  for (const nativeImport of [
+    'import * as nativeAssert from "node:assert";',
+    'const nativeAssert = require("node:assert/strict");',
+    'import { equal as nativeEqual } from "node:assert/strict";',
+    'const { equal: nativeEqual } = require("node:assert");',
+  ]) {
+    const nativeCalls = nativeImport.includes("nativeEqual")
+      ? "nativeEqual(result, 1); nativeEqual(typeof result, 'number');"
+      : "nativeAssert.equal(result, 1); nativeAssert.ok(result);"
+    write(
+      exemptionProject,
+      "tests/native.test.ts",
+      `${nativeImport}
+test("when native assertions are used, retains the framework", () => {
+  // Arrange
+  const input = 1;
+  // Act
+  const result = input;
+  // Assert
+  ${nativeCalls}
+});
+`
+    )
+    const nativeResult = runVerification(exemptionProject, {
+      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/native.test.ts"]),
+    })
+    assert.equal(nativeResult.status, "PASS", nativeResult.evidence)
+  }
 
   write(
     suppressionProject,
@@ -639,7 +791,6 @@ expect(response).toHaveHttpResponse(200, { id: 7 });
 
   // Assert
   assert.equal(compliantRegex.status, "PASS", compliantRegex.evidence)
-  assert.equal(compliantRegex.evidence, "Inspected tests/csv.test.ts (2 rules).")
 
   // Arrange: rewrite that same file with a missing phase and a shifted declaration.
   write(

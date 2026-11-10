@@ -17,10 +17,10 @@ const DIRECTIVES = {
     remediation: "Add ordered Arrange, Act, and Assert comments to the test.",
   },
   "one-direct-expect": {
-    summary: "Tests contain at most one direct `expect(...)` call.",
+    summary: "Non-controller expect-based tests contain exactly one direct `expect(...)` call.",
     check: checkExpectationCount,
     remediation:
-      "Split independent outcomes into separate tests; document a local exemption only for a coupled invariant.",
+      "Use exactly one direct expect per non-controller test; split independent outcomes without hiding or weakening assertions.",
   },
   "no-mock-calls": {
     summary: "Tests do not assert against bundled `.mock.calls` objects.",
@@ -34,7 +34,7 @@ const DIRECTIVES = {
   },
 }
 
-const BASELINE_DIRECTIVES = ["test-name-when", "arrange-act-assert"]
+const BASELINE_DIRECTIVES = ["test-name-when", "arrange-act-assert", "one-direct-expect"]
 const CHECK_ID = "marlens-rules:test-alignment"
 const SUPPRESSION_FILE = ".marlens-verifications.json"
 
@@ -96,6 +96,16 @@ function isTestPath(filePath) {
   return (
     /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)/u.test(normalized) ||
     /\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(normalized)
+  )
+}
+
+function isControllerTestPath(testPath) {
+  const normalized = testPath.replaceAll("\\", "/")
+  const filename = path.posix.basename(normalized)
+
+  return (
+    /(?:^|\/)controllers?\//iu.test(normalized) ||
+    /(?:[._-]controller|Controller)\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(filename)
   )
 }
 
@@ -282,9 +292,80 @@ function isTestCallee(expression) {
   return ts.isIdentifier(expression) && ["it", "test"].includes(expression.text)
 }
 
+function nativeAssertionBindings(sourceFile) {
+  const bindings = new Set()
+  const nativeModules = new Set(["node:assert", "node:assert/strict", "assert", "assert/strict"])
+
+  for (const statement of sourceFile.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      nativeModules.has(statement.moduleSpecifier.text)
+    ) {
+      const clause = statement.importClause
+      if (clause?.name) bindings.add(clause.name.text)
+      const namedBindings = clause?.namedBindings
+      if (namedBindings && ts.isNamespaceImport(namedBindings)) {
+        bindings.add(namedBindings.name.text)
+      } else if (namedBindings && ts.isNamedImports(namedBindings)) {
+        for (const element of namedBindings.elements) bindings.add(element.name.text)
+      }
+    }
+
+    if (!ts.isVariableStatement(statement)) continue
+    for (const declaration of statement.declarationList.declarations) {
+      const initializer = declaration.initializer
+      if (
+        !initializer ||
+        !ts.isCallExpression(initializer) ||
+        !ts.isIdentifier(initializer.expression) ||
+        initializer.expression.text !== "require" ||
+        !initializer.arguments[0] ||
+        !ts.isStringLiteral(initializer.arguments[0]) ||
+        !nativeModules.has(initializer.arguments[0].text)
+      ) {
+        continue
+      }
+
+      if (ts.isIdentifier(declaration.name)) {
+        bindings.add(declaration.name.text)
+      } else if (ts.isObjectBindingPattern(declaration.name)) {
+        for (const element of declaration.name.elements) {
+          if (ts.isIdentifier(element.name)) bindings.add(element.name.text)
+        }
+      }
+    }
+  }
+
+  return bindings
+}
+
+function assertionCounts(callback, nativeBindings) {
+  let expectations = 0
+  let nativeAssertions = 0
+
+  function visit(node) {
+    if (ts.isCallExpression(node)) {
+      const callee = node.expression
+      if (ts.isIdentifier(callee) && callee.text === "expect") expectations += 1
+
+      let root = callee
+      while (ts.isPropertyAccessExpression(root) || ts.isElementAccessExpression(root)) {
+        root = root.expression
+      }
+      if (ts.isIdentifier(root) && nativeBindings.has(root.text)) nativeAssertions += 1
+    }
+    ts.forEachChild(node, visit)
+  }
+
+  if (callback) visit(callback)
+  return { expectations, nativeAssertions }
+}
+
 function testBlocks(source, testPath) {
   const blocks = []
   const sourceFile = ts.createSourceFile(testPath, source, ts.ScriptTarget.Latest)
+  const nativeBindings = nativeAssertionBindings(sourceFile)
 
   function visit(node) {
     if (ts.isCallExpression(node) && isTestCallee(node.expression)) {
@@ -304,12 +385,15 @@ function testBlocks(source, testPath) {
             ? source.slice(callback.body.getStart(sourceFile) + 1, callback.body.end - 1)
             : ""
 
+        const counts = assertionCounts(callback, nativeBindings)
         blocks.push({
           name: title.text,
           line,
           code: lineAt(source, line),
           body,
           offset,
+          expectations: counts.expectations,
+          nativeAssertions: counts.nativeAssertions,
         })
       }
     }
@@ -340,79 +424,16 @@ function checkArrangeActAssert(block) {
     : "does not contain ordered Arrange, Act, and Assert comments"
 }
 
-function directExpectationCount(source) {
-  let count = 0
-  let quote = null
-  let escaped = false
-  let lineComment = false
-  let blockComment = false
+// Native node:assert tests keep their framework; a native import alone cannot
+// exempt an empty or expect-based test from the shared expectation count.
 
-  for (let index = 0; index < source.length; index += 1) {
-    const character = source[index]
-    const next = source[index + 1]
+function checkExpectationCount(block, source, testPath) {
+  if (isControllerTestPath(testPath)) return null
+  if (block.expectations === 0 && block.nativeAssertions > 0) return null
 
-    if (lineComment) {
-      if (character === "\n") lineComment = false
-      continue
-    }
-
-    if (blockComment) {
-      if (character === "*" && next === "/") {
-        blockComment = false
-        index += 1
-      }
-      continue
-    }
-
-    if (quote) {
-      if (escaped) {
-        escaped = false
-      } else if (character === "\\") {
-        escaped = true
-      } else if (character === quote) {
-        quote = null
-      }
-      continue
-    }
-
-    if (character === "/" && next === "/") {
-      lineComment = true
-      index += 1
-      continue
-    }
-
-    if (character === "/" && next === "*") {
-      blockComment = true
-      index += 1
-      continue
-    }
-
-    if (character === "'" || character === '"' || character === "`") {
-      quote = character
-      continue
-    }
-
-    if (!source.startsWith("expect", index)) continue
-
-    const before = source[index - 1] ?? ""
-    const after = source[index + 6] ?? ""
-    if (/[\w$]/u.test(before) || /[\w$]/u.test(after)) continue
-
-    let openingParenthesis = index + 6
-    while (/\s/u.test(source[openingParenthesis])) openingParenthesis += 1
-    if (source[openingParenthesis] === "(") count += 1
-  }
-
-  return count
-}
-
-function checkExpectationCount(block) {
-  const count = directExpectationCount(block.body)
-  const exemption = /^\s*\/\/\s*marlens-test-alignment:\s*allow-multiple-expects\s+--\s+\S/mu
-
-  return count <= 1 || exemption.test(block.body)
+  return block.expectations === 1
     ? null
-    : `test ${JSON.stringify(block.name)} contains ${count} direct \`expect(...)\` calls`
+    : `test ${JSON.stringify(block.name)} contains ${block.expectations} direct \`expect(...)\` calls; expected exactly 1`
 }
 
 function checkMockCalls(block) {
@@ -521,7 +542,7 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
 
     for (const block of blocks) {
       for (const [directive, ruleSource] of guidance) {
-        const reason = DIRECTIVES[directive].check(block, source)
+        const reason = DIRECTIVES[directive].check(block, source, testPath)
         if (!reason) continue
 
         violations.push({
