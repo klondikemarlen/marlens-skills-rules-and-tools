@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.3.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1217) - 2026-11-10
+
+### Changed
+
+- Uses template-first Vue component examples and authoring guidance, preserving script behavior and stronger project-local conventions.
+- Prefers established newer table components when compatible with required filters, refresh behavior, and role-specific contracts, without mandating server pagination.
+
 ## [5.3.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1216) - 2026-11-10
 
 ### Changed
