@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.3.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1227) - 2026-11-10
+
+### Fixed
+
+- Keeps code-organization assessment scope separate from the selected improvement: reviews complete in-scope modules and export boundaries before choosing a fix, and preserves remaining findings and coverage limits across improve, tune, and simplify workflows.
+
 ## [5.3.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1223) - 2026-11-10
 
 ### Changed

@@ -1,6 +1,6 @@
 # Code Review Workflow
 
-Use when reviewing a branch, pull request, or local diff.
+Use when reviewing a branch, pull request, local diff, or an explicitly requested organization or standards assessment.
 
 ## Intent
 
@@ -75,6 +75,19 @@ Use when reviewing a branch, pull request, or local diff.
 - Before proposing a reorganization, run the domain-discovery checkpoint in [`docs/references/code-organization-reference.md`](../references/code-organization-reference.md): inspect topology, cohesive concepts, repeated change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling conventions. Treat churn, growing branches, context-heavy helpers, and repeated boundary crossings as evidence to investigate—not proof of a new abstraction—and record each candidate's evidence, responsibilities, boundary, and smallest safe next action.
 - Flag private helpers that read instance fields when a caller can pass those values explicitly. Do not force parameters when the helper is inherently bound to object state. For service classes, apply the conventions linked above: constructor-backed action inputs stay in `perform`, developer preload guards precede side effects, and returned instances preserve caller preload graphs.
 
+## Organization Assessment Scope
+
+Use this procedure when the request explicitly includes assessing code organization or compliance with project standards, including during improvement or simplification. The **assessment boundary** is the area the user asked to evaluate; the **delivery scope** is the bounded change selected afterward. Do not silently reduce the former to the latter, or turn an ordinary small task or diff review into a repository-wide audit.
+
+1. Name the requested area and its relevant modules, public entrypoints, local rules, and exclusions. Resolve its boundaries from the request and project evidence; identify genuinely unresolved scope rather than implying whole-project coverage.
+2. Read the complete in-scope implementation modules, their public-export paths, and the related type owners and callers needed to understand ownership. Apply this workflow's existing criteria and the [Implementation File Boundaries](../references/code-organization-reference.md#implementation-file-boundaries) and domain-discovery guidance. Trace responsibilities, state and side effects, initialization ownership, and dependency direction; check local import/export conventions as well as runtime behavior. Passing tests or formatting does not establish this structural coverage.
+3. Before selecting a change, record each material finding with its location, governing rule, concrete ownership or maintenance risk, and disposition: selected for delivery, deferred with a reason, already covered, or unresolved pending named evidence. Keep hypotheses distinct from supported findings. Name unassessed files or boundaries and missing evidence; they are not clean results. Use the existing review/session record, not another inventory or automatic issue-filing campaign.
+4. Select the smallest coherent delivery under the calling workflow. Preserve public contracts, precise types, supported imports, shared initialization, and behavior. At closeout, distinguish corrected findings, remaining findings and their next action, and unassessed scope. A successful bounded fix is not a clean assessment of the remaining area.
+
+For example, a factory facade that also implements context lifecycle, association handling, and attribute construction needs an ownership review of those responsibilities and any shared adapter state. If the package barrel obtains unrelated errors, constants, and types through that facade, assess that export coupling too. Moving adapter recognition policy alone does not dispose of either concern; record any deliberate deferral and preserve supported root imports when proposing a split.
+
+Conversely, parsing, validation, and formatting functions that serve one cohesive value contract may remain together. Several functions or classes, file length, and a generic SOLID label are not sufficient reasons to split a module; show the actual ownership or change-boundary problem.
+
 ## Documentation Purpose and Placement
 
 For changed documentation, read the applicable ordinary-language project rules and identify the intended reader question, purpose, placement, and existing authoritative owner. Apply [Selecting Documentation Content](project-knowledge-base-workflow.md#selecting-documentation-content); assess the passage's content, not just its pathname.
@@ -108,8 +121,8 @@ Inspect the resulting DOM at the affected boundary for leaked component elements
 ## Process
 
 1. Read the request, issue, PR body, or plan.
-2. Inspect the changed files and identify whether the change is backend, frontend, migration, test-only, documentation-only, or cross-cutting.
-3. Read project-local rules and setup docs that govern the changed area.
+2. Inspect the in-scope files: the changed files for a diff review, or the declared area under [Organization Assessment Scope](#organization-assessment-scope). Identify whether the work is backend, frontend, migration, test-only, documentation-only, or cross-cutting.
+3. Read project-local rules and setup docs that govern the assessed area.
    For documentation changes, perform [Documentation Purpose and Placement](#documentation-purpose-and-placement) before reporting review completion.
 4. Check behavior and contracts: API shapes, serializers, policy/access rules, migrations, persistence, and UI route flows when relevant. Apply [Invariant-Preserving Mutations](../references/code-organization-reference.md#invariant-preserving-mutations): ordinary operations preserve their invariant and unrelated valid state rather than invoking general repair; retain explicitly required repair/migration work.
    For live resource-update channels, apply [Resource-Change Notifications](../references/code-organization-reference.md#resource-change-notifications): retain authorized delivery and sufficient decision metadata, keep full representations on the authorized read path, and compare notifications with observed saved state before refreshing.
