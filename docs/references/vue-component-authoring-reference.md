@@ -283,6 +283,26 @@ For example, an existing `/workflows/:workflowSlug` route supplies `workflowSlug
 
 During review, verify direct navigation and tab entry using only the existing route inputs. Reuse [Layered Page Orchestration](../workflows/layered-page-orchestration-workflow.md) for page-owned loading, errors, invalid/missing resources, and direct-entry guards; do not render a child requiring an ID before its current record is available. Preserve authorization and existing request/lifecycle ownership. Intentional route-contract changes and established ID-based routes remain valid when accepted; this preference applies to extending a feature without such a change.
 
+## Missing Component Identifiers
+
+Choose missing-ID behavior from the child's actual contract, not from a type mismatch at the caller. When the child requires a present identifier, guard its rendering with the project's existing nil/presence predicate and pass the original narrowed value. For example, replace this caller-side coercion:
+
+```vue
+<LocationReadCard :location-id="selectedLocationId ?? undefined" />
+```
+
+with an availability guard when `LocationReadCard` requires an ID:
+
+```vue
+<LocationReadCard v-if="!isNil(selectedLocationId)" :location-id="selectedLocationId" />
+```
+
+Here `isNil` represents the project's existing predicate for `null` and `undefined`; reuse its supported narrowing behavior rather than adding a dependency, casting the prop, or using a truthiness check that rejects valid identifiers such as `0`.
+
+If absence is a legitimate child state, pass the original value directly and make its accepted missing values and behavior explicit in the child's prop and implementation contracts. For example, a selector may render with no location selected while skipping ID-dependent requests. Allowing `undefined` in a prop type alone does not establish that behavior; preserve existing loading, empty, error, and request-skip handling.
+
+During review, inspect the affected parent and child together: required-ID children render only with an available ID, while absence-aware children handle missing and present IDs deliberately. Apply the correction to equivalent in-scope callers without rewriting unrelated components. This is not a general ban on nullish coalescing or intentional API-boundary normalization; reactive query identifiers retain their [existing guidance](#independent-resource-query-setup).
+
 ## Page-Owned Current-Resource Initialization
 
 When a store's accepted contract explicitly resets working state on page entry, the routed page owns initialization: pass its ID or slug to the store's existing initialization operation, which resets the prior working state and loads that resource. Initialize again when the page is entered or its resource input changes, even when the same ID or slug is supplied; initialization is an explicit reset, not selection deduplication or ID/slug equivalence matching. Under this reset-on-entry contract, children consume the retained current-resource state rather than initializing it independently. A single-current-resource lifetime alone does not imply this contract; the idempotent alternative below is also valid.

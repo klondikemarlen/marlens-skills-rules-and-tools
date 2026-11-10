@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Handles missing component identifiers through explicit render guards or supported child states, rather than caller-side coercion merely to satisfy prop types.
+
 ## [5.3.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1219) - 2026-11-10
 
 ### Fixed
