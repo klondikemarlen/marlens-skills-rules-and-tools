@@ -4,6 +4,12 @@ Use for Vue authoring and review. Project-local conventions and supported compon
 
 For coupled interaction corrections, fit-check the whole contract before the next gesture patch using [Interaction-Contract Activation](../workflows/outcome-first-planning-workflow.md#interaction-contract-activation) in the outcome-first planning workflow. Preserve adjacent accepted behavior; component structure and presentation guidance do not define which operations are allowed.
 
+## Single-File Component Block Order
+
+When creating or materially rewriting an in-scope Vue single-file component, order its top-level blocks as `<template>`, then `<script>` blocks (including normal scripts and `<script setup>`), then `<style>` blocks. Omit absent blocks rather than adding empty sections. A stronger project-local convention takes precedence.
+
+Inspect the existing layout before editing. Move whole blocks without changing script semantics, imports, behavior, or the supported relationship between multiple script blocks. Preserve expanded multiline formatting inside the blocks, including object literals, route targets, and params; a block move is not a formatting sweep. During authoring and review, check every created or materially rewritten component in scope for this order. Script-only and template-only excerpts remain valid; full-component examples below use template-first order.
+
 ## Component-Owned Public Types
 
 When a small public prop or emitted-event type belongs to a component's own contract, prefer exporting it from a normal `<script lang="ts">` block alongside `<script setup lang="ts">`, rather than extracting a standalone file solely to expose that type. For example, an `ItemPicker.vue` event-typing excerpt:
@@ -143,6 +149,8 @@ For example, both branches preserve the slot and gap while only one applies stat
 Switching `v-if` branches can unmount and remount slot descendants. Preserve required descendant state and lifecycle behavior; a stable root with conditional attributes/classes may be more appropriate when separate branch roots are unnecessary. Inspect the actual wrapper/accessibility contract rather than assuming the structures are behaviorally equivalent. Reuse the project's existing utilities and scoped-style conventions; the example's classes are illustrative.
 
 Before writing custom informational UI, inspect shared components and nearby usage. Reuse the stock component when it serves the need; keep specific component names project-local.
+
+When authoring or rewriting a table, inspect the application's existing table components, including server data tables, and nearby newer usage before retaining or recreating a client-side table. Prefer the application's established newer table pattern when it supports the affected table's contract. For example, an existing server data table may be the appropriate replacement when it preserves the table's filters, refresh behavior, and role-specific visibility and actions. Keep a different implementation when the newer pattern conflicts with those requirements; recency alone does not establish compatibility. This is a component-reuse preference, not a universal server-pagination requirement or authorization to migrate unrelated tables, change backend APIs, or add dependencies.
 
 Prefer component names in `<Model|Parent><Type><TopLevelComponent>` order: model or owning parent first, variant or purpose next when needed, and the actual semantic root element/component type last. A `div` root uses `Div`, a `v-card` root uses `Card`, and a `v-row` root uses `Row`: rename `WorkflowStepRowDiv` to `WorkflowStepRow` when its root is `v-row`. An ordinary workflow-steps edit card follows `WorkflowStepsEditCard`, not a verb-first name. Inspect nearby app conventions for other root types rather than inventing a universal suffix mapping; preserve route-level naming contracts and stronger project-local conventions.
 
@@ -461,6 +469,14 @@ When a reusable numeric input accepts values for a nullable numeric model, norma
 Reuse a suitable supported input first; add a small wrapper only when needed. For an input contract that accepts valid numeric text, the conversion can remain visible:
 
 ```vue
+<template>
+  <input
+    type="number"
+    :value="props.modelValue ?? ''"
+    @input="updateValue"
+  />
+</template>
+
 <script setup lang="ts">
 const props = defineProps<{
   modelValue: number | null
@@ -475,14 +491,6 @@ function updateValue(event: Event) {
   emit("update:modelValue", input.value === "" ? null : Number(input.value))
 }
 </script>
-
-<template>
-  <input
-    type="number"
-    :value="props.modelValue ?? ''"
-    @input="updateValue"
-  />
-</template>
 ```
 
 The conversion is representation handling, not business validation. Keep accepted-value rules, authorization, and persisted constraints with their existing owners. Define the component's accepted input contract rather than prescribing malformed or intermediate input behavior; preserve precision, and retain financial decimal-string representations. During authoring and review, check that clearing emits `null`, accepted numeric values remain numbers, and zero remains `0`. Remove duplicated empty-string-to-null repair only from affected downstream save or model-access paths once the input owns that conversion; do not broaden the cleanup.
@@ -494,6 +502,13 @@ Prefer a readonly `computed` → `:model-value` → named `@update:model-value` 
 For an already-available record whose established edit contract permits this field assignment:
 
 ```vue
+<template>
+  <v-select
+    :model-value="selectedTagIds"
+    @update:model-value="updateSelectedTagIds"
+  />
+</template>
+
 <script setup lang="ts">
 const selectedTagIds = computed(() => record.value.tagIds)
 
@@ -501,13 +516,6 @@ function updateSelectedTagIds(tagIds: string[]) {
   record.value.tagIds = tagIds
 }
 </script>
-
-<template>
-  <v-select
-    :model-value="selectedTagIds"
-    @update:model-value="updateSelectedTagIds"
-  />
-</template>
 ```
 
 The example shows binding and ownership only; reuse the project's actual record availability, types, and write/save operation rather than copying an assignment into an incompatible contract.
@@ -577,12 +585,6 @@ Expose a straightforward editable resource model so ordinary fields retain direc
 For example, when the existing store exposes the editable workflow:
 
 ```vue
-<script setup lang="ts">
-import workflowStore from "@/stores/workflow-store"
-
-const { workflow } = workflowStore()
-</script>
-
 <template>
   <v-text-field
     v-if="workflow"
@@ -590,6 +592,12 @@ const { workflow } = workflowStore()
     label="Title"
   />
 </template>
+
+<script setup lang="ts">
+import workflowStore from "@/stores/workflow-store"
+
+const { workflow } = workflowStore()
+</script>
 ```
 
 Use the project's actual resource availability, store API, and form controls. Simpler bindings must preserve Cancel isolation, unsaved local edits during remote refresh, and the accepted lifetime and completion behavior of in-flight saves, including navigation. Keep one canonical model owner; do not introduce a separately reconciled model copy or discard pending work merely to simplify the interface. An accepted local editable view or snapshot needs explicit ownership, not a prescribed watcher, proxy, or draft/reconciliation algorithm.
@@ -943,6 +951,17 @@ Keep idle unavailability distinct from work in progress. For Vue/Vuetify button 
 This example accepts the existing download operation as a prop. Reuse the project's established error boundary; the `finally` restores pending state on success or failure.
 
 ```vue
+<template>
+  <form @submit.prevent="downloadSelected">
+    <v-btn
+      type="submit"
+      :loading="pending"
+      :disabled="pending || selectedIds.length === 0"
+      >Download</v-btn
+    >
+  </form>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue"
 
@@ -966,17 +985,6 @@ async function downloadSelected() {
   }
 }
 </script>
-
-<template>
-  <form @submit.prevent="downloadSelected">
-    <v-btn
-      type="submit"
-      :loading="pending"
-      :disabled="pending || selectedIds.length === 0"
-      >Download</v-btn
-    >
-  </form>
-</template>
 ```
 
 ## Workflow-Entry Gating on Known Prerequisites
@@ -986,12 +994,6 @@ When a creation or navigation action opens a workflow that cannot succeed withou
 Evaluate the actual prerequisite, not an incidental selection or filtered search result. A New action that requires a parent record exists only when that record exists, independently of the current list filter or selection state:
 
 ```vue
-<script setup lang="ts">
-const props = defineProps<{
-  fundingPeriodExists: boolean
-}>()
-</script>
-
 <template>
   <v-btn
     v-if="props.fundingPeriodExists"
@@ -999,6 +1001,12 @@ const props = defineProps<{
     >New</v-btn
   >
 </template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  fundingPeriodExists: boolean
+}>()
+</script>
 ```
 
 Preserve required backend validation and legitimate direct-entry safety; UI gating is not authorization, and an empty state remains appropriate for optional or user-created data. During review, check both the unavailable and available prerequisite states without conflating entry gating with backend validation.
