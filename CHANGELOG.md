@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.3.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1219) - 2026-11-10
+
+### Fixed
+
+- Restores supervised authorization handoffs, practical v1 readiness, and focused maintainer-voice comments in packaged workflow fallbacks used by projects without local workflows.
+
 ## [5.3.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1217) - 2026-11-10
 
 ### Changed

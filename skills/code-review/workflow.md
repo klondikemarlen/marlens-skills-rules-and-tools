@@ -121,6 +121,15 @@ Inspect the resulting DOM at the affected boundary for leaked component elements
 9. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem. Apply [Default-Safe Lifecycle APIs](../../docs/references/code-organization-reference.md#default-safe-lifecycle-apis) when ordinary safety is opt-in or implementation bookkeeping leaks into a framework-like caller interface.
 10. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
+## Comments in the Maintainer's Voice
+
+For human-facing PR comments written in the maintainer's voice, state the concern and a concise direction. Retain concrete behavioral risks and why they matter; cut unsolicited helper signatures, parameter lists, guard clauses, intermediate variable names, and step-by-step implementation designs. Keep that detailed analysis in the existing review evidence unless the maintainer asks to include it.
+
+- **Readability:** “Could we extract this into a function? The conversion logic makes the submit handler difficult to follow.” Suggest the useful boundary without designing the function's internals.
+- **Correctness:** “Falling back to the browser's timezone could save the wrong cutoff for someone in another timezone. An invalid conversion could also reach the save request. Could we keep the configured timezone and reject invalid values before saving?” Preserve the risk explanation rather than reducing the comment to “fix the timezone.”
+
+These examples illustrate comment scope, not findings to paste without evidence. This preference does not limit technical investigation, full review reports, or explicitly requested implementation suggestions.
+
 ## Optional Selected-File PR Review and Viewed State
 
 Use this mode when the request names a pull request and one or more repository-relative changed paths. Confirm the GitHub API identity is the intended account. Reuse the review process above, inspecting enough PR/base, relevant source, caller/test, and project-local context for each selected file; record the exact reviewed `headRefOid` and focused verification.

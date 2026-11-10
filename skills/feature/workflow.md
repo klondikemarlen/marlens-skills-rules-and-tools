@@ -42,6 +42,21 @@ Use for user-facing feature work that should move through an issue, branch, pull
 - For an artifact whose automatic behavior depends on an OMP advisor, release QA MUST start a fresh OMP process, confirm `/advisor status` shows the named advisor with a resolved model rather than `[no model]`, then trigger one matching failure and observe a standard advisor `blocker` in the primary session before remediation produces `PASS`. A UI notification alone is not correction evidence; unavailable advisor runtime is `BLOCKED`.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 
+## Practical Release Readiness
+
+V1 means the product is useful in normal development without constant debugging or fixing and adds real workflow value for its intended users. Assess the ordinary consumer journey under [Solve Real User Needs](../../rules/solve-real-user-needs.md), using observed use and reported experience rather than feature count or architectural ambition.
+
+Keep delivery evidence and practical readiness separate. Green tests, successful release, and verified installation establish only the boundaries they exercise; they do not by themselves prove everyday reliability or value. State what normal-use behavior and benefit the evidence supports, any recurring intervention, and what remains unknown. If ordinary-use evidence is missing, name that uncertainty instead of inferring readiness from a green release.
+
+Assess known bugs by how they disrupt ordinary use: their impact on the intended workflow, consequences, and recovery burden. Prioritize defects that repeatedly interrupt useful work or require debugging and fixing to continue. A zero-bug backlog, more architecture, or elimination of every nondisruptive limitation is not the V1 threshold; preserve binding correctness and safety requirements.
+
+For example:
+
+- A release passes its tests and installs successfully, but routine use repeatedly requires manual state repair or debugging before work can continue. Practical readiness is not established despite the green delivery evidence.
+- A tool reliably helps users complete everyday development work, while a documented limitation affects an optional, uncommon workflow without disrupting ordinary use or violating required contracts. It can meet the V1 threshold despite that known limitation.
+
+This assessment does not replace or weaken project-specific review, test, release, installation, or versioning contracts. Do not impose a fixed observation period, defect quota, or telemetry requirement. A practical-readiness conclusion does not automatically select or bump a version; follow the project's versioning policy separately.
+
 ## Release Artifact Identity
 
 Start release QA from the intended merged/release commit and its exact publishing run, using project-native provenance. When merge itself is the release and no publishing job exists, record that documented boundary rather than inventing a run.
@@ -60,6 +75,8 @@ For an authorized npm release, an authentication failure may require a fresh [`n
 Keep sign-in separate from publication approval. Follow the existing manual-authentication and opaque-prompt safeguards; do not automatically retrigger a prompt the user reported as opaque. Complete required authentication through npm's native local/browser flow, never by requesting credentials or one-time codes in chat or public records. A successful login does not prove publication: verify the native publish result and the remote artifact independently under [Release Artifact Identity](#release-artifact-identity), and report any remaining prerequisite truthfully.
 
 Use [Authorization Preview](../../docs/references/authorization-preview-reference.md) when handing an authorized npm sign-in, publication, or staged-publication decision to the user. Supply truthful structured context and the exact current npm-issued URL as `destinationUrl`; keep the private request and challenge out of public records. The generic helper opens only its explanation first, and **Continue** merely navigates to that URL; it neither restricts destinations to npm nor certifies their safety. Cancel, expiry, or an unavailable preview must not fall back to the opaque prompt. It does not acquire a fresh challenge or authorize repeating one the user reported as opaque.
+
+Follow [Supervising Human-Length Handoffs](../../docs/references/authorization-preview-reference.md#supervising-human-length-handoffs) so the preview and npm process remain observable throughout the person's interaction. Recover interrupted tracking before retrying; when an npm challenge has failed or expired, an authorized retry needs a fresh npm-issued URL and a new preview, not a replay of the old challenge. Keep preview continuation, npm completion, and remote artifact verification as separate evidence.
 
 ## Dockerized Worktree Cleanup
 
