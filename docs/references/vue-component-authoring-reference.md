@@ -48,6 +48,19 @@ const props = defineProps<{
 }>()
 ```
 
+Group required props before optional props, retaining relative order within each group where possible. For a mixed declaration:
+
+```typescript
+const props = defineProps<{
+  administrationCostCategoryId: string
+  requestorDisplayName: string
+  isDisabled?: boolean
+  loading?: boolean
+}>()
+```
+
+Keep required nullable members in the required group; a value type containing `undefined` does not by itself make a named member optional. Preserve the contract and defaults rather than changing optionality to satisfy ordering. The same required-first preference applies to comparable named input declarations under [Human Readability](code-organization-reference.md#human-readability), not to reordering positional APIs or runtime evaluation.
+
 Apply an accepted correction to equivalent declarations within the requested authoring or review scope, preserving prop names, types, optionality, defaults, and behavior. Formatter success does not establish this structural preference; inspect the declaration itself rather than treating a compact form accepted by a formatter as sufficient. Do not sweep unrelated files.
 
 Use [Diff-Friendly Configuration Layouts](code-organization-reference.md#diff-friendly-configuration-layouts) for extensible defaults as well as other configuration:

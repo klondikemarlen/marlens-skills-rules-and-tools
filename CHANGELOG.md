@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Lists required props and named inputs before optional ones in authoring and review guidance, preserving declaration contracts and runtime behavior.
+
 ## [5.3.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1230) - 2026-11-10
 
 ### Changed
