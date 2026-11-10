@@ -35,6 +35,8 @@ Keep self-explanatory one-use option literals inline when the property already e
 
 Keep simple single-field object type annotations and object arguments inline when they fit readably: `const response: { id: string } = await request()` and `logger.error(message, { error })`. Wrap a long surrounding request chain independently; the small shape need not expand with it. Retain multiline complex shapes, test expectations, and stronger project conventions.
 
+In named input declarations, group required members before optional members, preserving their relative order within each group where possible. This is declaration organization: preserve names, types, nullability, optionality, defaults, positional APIs, evaluation order, and runtime behavior. Do not reorder value expressions or sweep unrelated files. For Vue prop examples, see [Multiline Prop Object Types](vue-component-authoring-reference.md#multiline-prop-object-types).
+
 For straightforward persistence payloads made only from stable, already-available fields, prefer an explicit object literal at the creation call instead of staging a trivial `attributes` object and spreading it later. Keep the creation fields visible even when the same simple fields appear in current- and future-period calls. For example, replace this staging:
 
 ```typescript
