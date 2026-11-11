@@ -24,6 +24,33 @@ Apply [Service Runtime Exports](code-organization-reference.md#service-runtime-e
 
 Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
 
+## Sequelize: Explicit Find, Update, or Create
+
+For Sequelize persistence, prefer finding a record by its actual identity, updating the found instance, or creating when absent instead of `Model.upsert` and its returned tuple. Keep this decision in the existing owning operation. Preserve the complete identity predicate, authorized attributes, transaction, validation/hooks, returned-record contract, and failure propagation. This is a Sequelize-specific preference, not a prohibition on SQL conflict handling or other ORMs.
+
+For example, inside an existing persistence step whose `LocalEvent` is identified uniquely by `sourceIdentifier`, with already prepared `attributes` and the operation's existing `transaction`:
+
+```typescript
+const existingEvent = await LocalEvent.findOne({
+  where: { sourceIdentifier: attributes.sourceIdentifier },
+  transaction,
+})
+
+let localEvent: LocalEvent
+
+if (existingEvent) {
+  localEvent = await existingEvent.update(attributes, { transaction })
+} else {
+  localEvent = await LocalEvent.create(attributes, { transaction })
+}
+```
+
+Return or consume `localEvent` through the operation's existing response contract, not an invented `[record, created]` tuple. Use the actual identity, including tenant/source scope or composite keys when required; do not substitute the example's single field. Inspect the installed Sequelize version and production dialect for validation, hook, generated-field, and returned-instance behavior before changing an existing persistence path.
+
+A transaction alone does not make the find/create sequence race-free. Preserve the accepted uniqueness constraints and concurrent-writer/conflict behavior; determine the operation's consistency requirements before choosing any locking, retries, or conflict recovery. Do not silently add those mechanisms or promise atomic conflict handling from this example.
+
+Verify both paths in the consuming project: an existing identity updates the same record without a duplicate, an absent identity creates the expected record, and the returned instance has the required persisted fields. Exercise a persistence failure and verify propagation and the existing rollback contract, including earlier writes in a multi-record synchronization. Preserve unrelated records and check concurrent writers when the operation requires that guarantee.
+
 ## Model Collection Queries
 
 Use the model's supported collection APIs at the owning operation, such as `findAll` for a genuinely bounded read or the project's `findEach` for incremental processing. Do not add a custom model finder solely to package ordinary filters, includes, and ordering behind another public name. Preserve meaningful model validation, domain behavior, supported ORM scopes, and demonstrated specialized query contracts; this is not a ban on model methods.
@@ -66,12 +93,12 @@ A familiar collection API alone does not make a large synchronization safe. For 
 
 Inspect the installed batching implementation and types before choosing its call shape. `findEach` may be project-defined rather than a stock ORM method. Verify options, callback versus async-iterator behavior, awaiting, traversal order, and failure propagation; do not invent a new model base or assume that a method name guarantees bounded reads.
 
-For a project whose existing `findEach(options, processRecord)` loads bounded batches and awaits each callback sequentially, replace the preceding `findAll` call and whole-collection serialization with this loop. Reuse the complete `sourceQuery` above, and keep the existing transaction, single-record serializer, upsert operation, and response collection:
+For a project whose existing `findEach(options, processRecord)` loads bounded batches and awaits each callback sequentially, replace the preceding `findAll` call and whole-collection serialization with this loop. Reuse the complete `sourceQuery` above, and keep the existing transaction, single-record serializer, persistence operation, and response collection. Here `persistEvent` names the operation's existing persistence step; for Sequelize, use [Explicit Find, Update, or Create](#sequelize-explicit-find-update-or-create) within that owner rather than `Model.upsert`. The example does not require another helper or service:
 
 ```typescript
 await SourceEvent.findEach(sourceQuery, async (sourceEvent) => {
   const attributes = SourceEventSerializer.perform(sourceEvent)
-  const localEvent = await upsertEvent(attributes, transaction)
+  const localEvent = await persistEvent(attributes, transaction)
 
   synchronizedEvents.push(localEvent)
 })
