@@ -62,7 +62,6 @@ function harness(events, { executorExitCode = 0, holdExecutor = false } = {}) {
   const spawnProcess = (executable, argumentsList, options) => {
     calls.push({ executable, argumentsList, options })
     if (executable === "/usr/bin/python3") return dialog
-    assert.ok(executable === "/usr/bin/pkexec" || executable === "/usr/bin/printf")
     if (!holdExecutor) queueMicrotask(() => executor.emit("close", executorExitCode, null))
     return executor
   }

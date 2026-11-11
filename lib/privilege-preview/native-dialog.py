@@ -166,7 +166,7 @@ def main():
                     ),
                 },
                 "current-user": {
-                    "header": "User credential authorization requested",
+                    "header": "Operation preview",
                     "details": (
                         "Runs directly as the current user, without administrator elevation. "
                     ),
