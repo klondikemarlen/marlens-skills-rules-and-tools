@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Assigns required integration connection-configuration validation to the client boundary, removing redundant service guards while preserving operation-specific validation and runtime failure handling.
+
 ## [5.4.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1239) - 2026-11-10
 
 ### Changed
