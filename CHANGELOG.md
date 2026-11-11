@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.4.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1239) - 2026-11-10
+
+### Changed
+
+- Derives transformed Vue props directly inside computed getters without intermediate derivation-only refs, preserving reactive updates, conversion semantics, and refs with independent consumers.
+
 ## [5.4.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1237) - 2026-11-10
 
 ### Changed
