@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefers explicit find/update-or-create for Sequelize persistence and removes ambiguous upsert wording from bounded-sync guidance, preserving identity, transaction, returned-record, and failure contracts.
+
 ## [5.4.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1243) - 2026-11-11
 
 ### Changed
