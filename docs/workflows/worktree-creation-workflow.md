@@ -13,6 +13,34 @@ For new repository implementation work, default to an appropriate separate Git w
 
 Before creating or resuming an implementation worktree for a ticket, apply [Ticket Source Selection](feature-workflow.md#ticket-source-selection) and [Ticket Lifecycle](feature-workflow.md#ticket-lifecycle): verify the authoritative ticket, assign the intended person, and move it into the project's active-work state. Preserve its exact key in the project-approved branch format; never infer a Jira key from a GitHub issue number. A worktree or draft-PR request is a work-start event, not just Git setup. Read-only inspection does not claim the ticket.
 
+## Continue an Existing Pull Request
+
+Before implementation on an existing PR, resolve its live head repository, branch, and commit through the tracker. Match that repository to a verified Git remote; do not assume the base repository's `origin` owns a fork's head. A fork does not expand repository-write authority.
+
+1. Inspect `git worktree list`, local branches, upstreams, and working changes. Reuse the registered worktree checking out the actual PR head branch. Do not create a parallel `review/...` branch unless the user explicitly requests one; matching ancestry alone does not satisfy branch identity.
+2. If no worktree checks out that branch, reuse the existing local branch in a new project-convention worktree. If the local branch is absent, create it from the fetched PR head branch with that head remote as its upstream—not from the default branch or current `HEAD`. Preserve unrelated worktrees and prepare the selected checkout's environment normally.
+3. Before edits and again before committing or pushing, verify the selected local branch, upstream repository/branch, and that the freshly resolved PR head commit is an ancestor of local `HEAD`. Refresh the remote head before pushing. A mismatch, divergence, or conflicting local work needs reconciliation; do not reset, overwrite, rename, or rewrite existing work to make the checks pass. Keep any push explicitly targeted to the verified PR head remote and branch.
+
+For example, after verifying that the PR's head is `issue/243-correct-pagination` in the repository served by `origin`, and that neither that local branch nor the selected worktree path exists:
+
+```bash
+head_remote=origin
+head_branch=issue/243-correct-pagination
+worktree_path=../project-worktrees/issue-243-correct-pagination
+git fetch "$head_remote" &&
+git worktree add --track -b "$head_branch" "$worktree_path" "$head_remote/$head_branch"
+```
+
+If the local branch already exists but is not checked out, use `git worktree add "$worktree_path" "$head_branch"` instead; inspect its commits and upstream rather than replacing it. In the selected checkout, compare these results to the live PR identity:
+
+```bash
+git branch --show-current
+git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'
+git merge-base --is-ancestor "$pr_head_sha" HEAD
+```
+
+Set `pr_head_sha` from the freshly resolved PR head, not an assumed local ref. The ancestry command must exit successfully; print and compare the branch/upstream as well. Existing local commits may remain when they continue the PR head and belong to the requested work. Read-only review does not require a branch change. Before fixup mutations, also follow the PR workflow's draft-state gate.
+
 ## Goal
 
 Create a ticket worktree without guessing its layout or forgetting the repository's local environment setup.

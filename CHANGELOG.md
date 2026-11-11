@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Continues existing pull requests on their actual head branch and upstream, preserving PR commits and reusing registered worktrees instead of inventing parallel review branches.
+
 ## [5.4.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1247) - 2026-11-11
 
 ### Changed
