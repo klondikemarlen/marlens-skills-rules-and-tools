@@ -29,6 +29,33 @@ function request() {
   }
 }
 
+for (const execution of [undefined, "administrator", "current-user"]) {
+  test(`when execution is ${execution ?? "omitted"}, validation freezes its normalized mode`, () => {
+    // Arrange
+    const original = request()
+    if (execution !== undefined) original.execution = execution
+    // Act
+    const normalized = validateRequest(original)
+    original.execution = execution === "current-user" ? "administrator" : "current-user"
+    // Assert
+    assert.equal(normalized.execution, execution ?? "administrator")
+    assert.equal(Object.isFrozen(normalized), true)
+    assert.throws(() => {
+      normalized.execution = "changed"
+    }, TypeError)
+  })
+}
+
+test("when a current-user request supplies environment overrides, validation rejects them", () => {
+  // Arrange
+  const original = { ...request(), execution: "current-user" }
+  // Act / Assert
+  assert.throws(() => validateRequest({ ...original, env: { HOME: "/tmp" } }))
+  assert.throws(() =>
+    validateRequest({ ...original, command: { ...original.command, env: { GNUPGHOME: "/tmp" } } })
+  )
+})
+
 const invalidMutations = [
   (value) => {
     value.extra = true

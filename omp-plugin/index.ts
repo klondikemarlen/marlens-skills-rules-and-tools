@@ -23,7 +23,7 @@ export function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
   registerMemorySync(pi)
 
   pi.registerCommand("privilege-preview", {
-    description: "Open the safe native GNOME privilege demo",
+    description: "Open the safe native GNOME operation-preview demo",
     getArgumentCompletions(prefix) {
       if (!"demo".startsWith(prefix)) return null
 

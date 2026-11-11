@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.5.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1251) - 2026-11-11
+
+### Added
+
+- Native operation previews can run any caller-selected command as the current user without administrator elevation. GPG signing and application/key unlocks are examples, not restrictions. Execution identity and one-preview-per-credential-step guidance distinguish these from the preserved administrator path.
+
 ## [5.4.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1250) - 2026-11-11
 
 ### Added

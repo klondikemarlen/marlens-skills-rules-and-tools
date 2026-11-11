@@ -62,21 +62,22 @@ function harness(events, { executorExitCode = 0, holdExecutor = false } = {}) {
   const spawnProcess = (executable, argumentsList, options) => {
     calls.push({ executable, argumentsList, options })
     if (executable === "/usr/bin/python3") return dialog
-    assert.equal(executable, "/usr/bin/pkexec")
     if (!holdExecutor) queueMicrotask(() => executor.emit("close", executorExitCode, null))
     return executor
   }
   return { calls, dialog, executor, inputLines, spawnProcess }
 }
 
-for (const result of ["cancelled", "expired"]) {
-  test(`when the dialog returns ${result}, no executor launches`, async () => {
-    // Arrange
-    const boundary = harness(["ready", result])
-    // Act / Assert
-    assert.deepEqual(await runPreview(request(), boundary), { result })
-    assert.equal(boundary.calls.length, 1)
-  })
+for (const execution of ["administrator", "current-user"]) {
+  for (const result of ["cancelled", "expired"]) {
+    test(`when the ${execution} dialog returns ${result}, no executor launches`, async () => {
+      // Arrange
+      const boundary = harness(["ready", result])
+      // Act / Assert
+      assert.deepEqual(await runPreview({ ...request(), execution }, boundary), { result })
+      assert.equal(boundary.calls.length, 1)
+    })
+  }
 }
 
 test("when approved repeatedly, the exact frozen argv executes only once without a shell", async () => {
@@ -86,10 +87,12 @@ test("when approved repeatedly, the exact frozen argv executes only once without
   // Act
   const outcome = runPreview(original, boundary)
   original.command.arguments[0] = "changed after handoff"
+  original.execution = "current-user"
   // Assert
   assert.deepEqual(await outcome, { result: "command-completed", exitCode: 0, signal: null })
   assert.equal(boundary.calls.length, 2)
   const invocation = boundary.calls[1]
+  assert.equal(invocation.executable, "/usr/bin/pkexec")
   assert.deepEqual(invocation.argumentsList, [
     "--disable-internal-agent",
     "--keep-cwd",
@@ -105,28 +108,64 @@ test("when approved repeatedly, the exact frozen argv executes only once without
   assert.equal(invocation.options.stdio[0], "ignore")
   assert.deepEqual(invocation.options.env, { PATH: "/usr/bin:/bin", LANG: "C.UTF-8" })
   assert.equal(boundary.inputLines[0].request.command.arguments[0], "%s")
+  assert.equal(boundary.inputLines[0].request.execution, "administrator")
   assert.equal(boundary.inputLines.at(-1).result, "command-completed")
 })
 
-test("when pkexec exits nonzero, the result preserves ambiguous authorization-or-command failure", async () => {
+test("when current-user approval arrives, the frozen command runs directly with the invoking environment", async () => {
   // Arrange
-  const boundary = harness(["ready", "approved"], { executorExitCode: 126 })
-  // Act / Assert
-  assert.deepEqual(await runPreview(request(), boundary), {
-    result: "authorization-or-command-failed",
-    exitCode: 126,
-    signal: null,
+  const commandOutput = new PassThrough()
+  const boundary = harness(["ready", "approved", "approved"])
+  const original = { ...request(), execution: "current-user" }
+  const expectedCommand = structuredClone(original.command)
+  // Act
+  const outcome = runPreview(original, { ...boundary, commandOutput })
+  original.execution = "administrator"
+  original.command.executable = "/usr/bin/false"
+  original.command.arguments[0] = "changed after handoff"
+  original.command.cwd = "/tmp"
+  // Assert
+  assert.deepEqual(await outcome, { result: "command-completed", exitCode: 0, signal: null })
+  assert.equal(boundary.calls.length, 2)
+  assert.deepEqual(boundary.calls[1], {
+    executable: expectedCommand.executable,
+    argumentsList: expectedCommand.arguments,
+    options: {
+      cwd: expectedCommand.cwd,
+      stdio: ["ignore", commandOutput, commandOutput],
+      shell: false,
+    },
   })
+  // Omitting env/uid/gid preserves Node spawn's invoking-user environment and identity.
+  assert.equal(Object.hasOwn(boundary.calls[1].options, "env"), false)
+  assert.equal(boundary.inputLines[0].request.execution, "current-user")
+  assert.deepEqual(boundary.inputLines[0].request.command, expectedCommand)
+  assert.equal(boundary.inputLines.at(-1).result, "command-completed")
 })
 
-for (const events of [["approved"], ["ready", "unknown"], ["ready", "demo-completed"]]) {
-  test(`when the dialog sends ${events.join(" then ")}, the invalid transition fails closed`, async () => {
+for (const execution of ["administrator", "current-user"]) {
+  test(`when the ${execution} command exits nonzero, the existing failure result is preserved`, async () => {
     // Arrange
-    const boundary = harness(events)
+    const boundary = harness(["ready", "approved"], { executorExitCode: 126 })
     // Act / Assert
-    assert.equal((await runPreview(request(), boundary)).result, "error")
-    assert.equal(boundary.calls.length, 1)
+    assert.deepEqual(await runPreview({ ...request(), execution }, boundary), {
+      result: "authorization-or-command-failed",
+      exitCode: 126,
+      signal: null,
+    })
   })
+}
+
+for (const execution of ["administrator", "current-user"]) {
+  for (const events of [["approved"], ["ready", "unknown"], ["ready", "demo-completed"]]) {
+    test(`when the ${execution} dialog sends ${events.join(" then ")}, the invalid transition fails closed`, async () => {
+      // Arrange
+      const boundary = harness(events)
+      // Act / Assert
+      assert.equal((await runPreview({ ...request(), execution }, boundary)).result, "error")
+      assert.equal(boundary.calls.length, 1)
+    })
+  }
 }
 
 test("when demo completes, no executor launches", async () => {
@@ -160,7 +199,7 @@ test("when interrupted before approval, the UI closes without launching an execu
   assert.equal(boundary.dialog.stdin.writableEnded, true)
 })
 
-test("when interrupted after execution starts, root cancellation is neither claimed nor attempted", async () => {
+test("when interrupted after execution starts, command cancellation is neither claimed nor attempted", async () => {
   // Arrange
   const boundary = harness(["ready", "approved"], { holdExecutor: true })
   const controller = new AbortController()
@@ -213,18 +252,20 @@ test("when the dialog closes without a decision, execution fails closed", async 
   assert.equal(boundary.calls.length, 1)
 })
 
-test("when dialog output is oversized or malformed, execution fails closed", async () => {
-  for (const output of ["not JSON\n", "x".repeat(4_097)]) {
-    // Arrange
-    const boundary = harness([])
-    // Act
-    const outcome = runPreview(request(), boundary)
-    boundary.dialog.stdout.write(output)
-    // Assert
-    assert.equal((await outcome).result, "error")
-    assert.equal(boundary.calls.length, 1)
-  }
-})
+for (const execution of ["administrator", "current-user"]) {
+  test(`when ${execution} dialog output is oversized or malformed, execution fails closed`, async () => {
+    for (const output of ["not JSON\n", "x".repeat(4_097)]) {
+      // Arrange
+      const boundary = harness([])
+      // Act
+      const outcome = runPreview({ ...request(), execution }, boundary)
+      boundary.dialog.stdout.write(output)
+      // Assert
+      assert.equal((await outcome).result, "error")
+      assert.equal(boundary.calls.length, 1)
+    }
+  })
+}
 
 test("when the request is invalid, no subprocess starts", () => {
   // Arrange
@@ -234,31 +275,50 @@ test("when the request is invalid, no subprocess starts", () => {
   assert.equal(boundary.calls.length, 0)
 })
 
-test("when Python cannot start, execution fails closed", async () => {
-  // Arrange
-  const boundary = harness([])
-  // Act
-  const outcome = runPreview(request(), boundary)
-  boundary.dialog.emit("error", new Error("ENOENT"))
-  // Assert
-  assert.equal((await outcome).result, "error")
-  assert.equal(boundary.calls.length, 1)
-})
+for (const execution of [null, undefined, "", "root", "CURRENT-USER", 0, false, [], {}]) {
+  test(`when execution is ${JSON.stringify(execution)}, validation rejects before any subprocess starts`, () => {
+    // Arrange
+    const boundary = harness(["ready", "approved"])
+    // Act / Assert
+    assert.throws(() => runPreview({ ...request(), execution }, boundary), /execution/u)
+    assert.equal(boundary.calls.length, 0)
+  })
+}
 
-test("when pkexec cannot start, the final result reports failure without retry", async () => {
-  // Arrange
-  const boundary = harness(["ready", "approved"], { holdExecutor: true })
-  // Act
-  const outcome = runPreview(request(), boundary)
-  await new Promise((resolve) => queueMicrotask(resolve))
-  boundary.executor.emit("error", new Error("ENOENT"))
-  // Assert
-  assert.equal((await outcome).result, "authorization-or-command-failed")
-  assert.equal(boundary.calls.length, 2)
-})
+for (const execution of ["administrator", "current-user"]) {
+  test(`when Python cannot start for ${execution}, execution fails closed`, async () => {
+    // Arrange
+    const boundary = harness([])
+    // Act
+    const outcome = runPreview({ ...request(), execution }, boundary)
+    boundary.dialog.emit("error", new Error("ENOENT"))
+    // Assert
+    assert.equal((await outcome).result, "error")
+    assert.equal(boundary.calls.length, 1)
+  })
+}
 
-for (const { label, options, seconds } of [
-  { label: "30-second", options: { expiresInSeconds: 30 }, seconds: 30 },
+for (const execution of ["administrator", "current-user"]) {
+  test(`when the ${execution} executor cannot start, the final result reports failure without retry`, async () => {
+    // Arrange
+    const boundary = harness(["ready", "approved"], { holdExecutor: true })
+    // Act
+    const outcome = runPreview({ ...request(), execution }, boundary)
+    await new Promise((resolve) => queueMicrotask(resolve))
+    boundary.executor.emit("error", new Error("ENOENT"))
+    // Assert
+    assert.equal((await outcome).result, "authorization-or-command-failed")
+    assert.equal(boundary.calls.length, 2)
+  })
+}
+
+for (const { label, options, seconds, execution = "administrator" } of [
+  {
+    label: "current-user 30-second",
+    options: { expiresInSeconds: 30 },
+    seconds: 30,
+    execution: "current-user",
+  },
   { label: "default 30-minute", options: {}, seconds: 1_800 },
   { label: "24-hour", options: { expiresInSeconds: 86_400 }, seconds: 86_400 },
 ]) {
@@ -269,10 +329,12 @@ for (const { label, options, seconds } of [
     let result
 
     // Act
-    const outcome = runPreview(request(), { ...boundary, ...options }).then((status) => {
-      result = status
-      return status
-    })
+    const outcome = runPreview({ ...request(), execution }, { ...boundary, ...options }).then(
+      (status) => {
+        result = status
+        return status
+      }
+    )
     await new Promise((resolve) => queueMicrotask(resolve))
     context.mock.timers.tick(seconds * 1_000 - 1)
     await new Promise((resolve) => queueMicrotask(resolve))
