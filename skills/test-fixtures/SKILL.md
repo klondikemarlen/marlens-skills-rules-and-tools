@@ -1,6 +1,6 @@
 ---
 name: test-fixtures
-description: Use when TypeScript tests need reusable persisted relationship setup or repeated non-persisted API entity fixtures, including frontend component tests.
+description: Use when TypeScript tests need reusable persisted relationships, API entity fixtures, or composable HTTP response mocks, including frontend component tests.
 ---
 
 # Test Fixtures
@@ -8,6 +8,8 @@ description: Use when TypeScript tests need reusable persisted relationship setu
 Use the local `docs/workflows/test-factory-traits-and-service-shape-workflow.md`, then `agents/workflows/test-factory-traits-and-service-shape-workflow.md`; otherwise use the [packaged workflow](workflow.md).
 
 Use the project’s existing factory API. When multiple tests need persisted related records, add an opt-in named builder trait to the owning factory. Keep ordinary factory creation unchanged. See [Fishery reusable builders/traits](https://github.com/thoughtbot/fishery#adding-reusable-builders-traits-to-factories).
+
+For repeated HTTP response setup, reuse project-native route mocking or small composable support. Keep scenario payloads local; see [Composable HTTP GET Routes](../../examples/factory-traits-and-service-shape.md#composable-http-get-routes) for single-route and map forms, lifecycle, and failure semantics.
 
 ## Without This Guidance
 
