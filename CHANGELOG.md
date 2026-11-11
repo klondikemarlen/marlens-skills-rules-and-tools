@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Composable HTTP route-mocking guidance with equivalent single-route and map payload callbacks, preserved shared mocks, explicit lifecycle and failure contracts, and researched native-library alternatives.
+
 ## [5.4.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1248) - 2026-11-11
 
 ### Fixed
