@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-"""Render one validated privilege request; authentication belongs to polkit."""
+"""Render one validated authorization request; credentials stay in native UI."""
 
 import json
 import os
+import pwd
 import shlex
 import sys
 
@@ -154,6 +155,33 @@ def main():
             context = request["context"]
             command = request["command"]
             targets = request["target"]
+            execution = request["execution"]
+            execution_copy = {
+                "administrator": {
+                    "header": "Administrator access requested",
+                    "details": "Runs as administrator (root), for this command only. ",
+                    "continue": (
+                        "Continue hands this exact command to polkit for administrator "
+                        "authentication. This window does not collect passwords."
+                    ),
+                },
+                "current-user": {
+                    "header": "User credential authorization requested",
+                    "details": (
+                        "Runs directly as the current user, without administrator elevation. "
+                    ),
+                    "continue": (
+                        "Continue runs this exact command directly as your user. "
+                        "Any credential request uses the application's normal native UI. "
+                        "This window does not collect passwords."
+                    ),
+                },
+            }[execution]
+            execution_identity = "Administrator (root, UID 0)"
+            if execution == "current-user":
+                account = pwd.getpwuid(os.geteuid())
+                execution_identity = f"Current user: {account.pw_name} (UID {account.pw_uid})"
+
             self.window = Adw.ApplicationWindow(
                 application=application,
                 title=targets[0]["value"],
@@ -177,7 +205,7 @@ def main():
                 getattr(content, "set_margin_" + side)(24)
 
             content.append(self.text("Demo · No authentication or execution" if self.demo
-                                     else "Administrator access requested", "dim-label"))
+                                     else execution_copy["header"], "dim-label"))
             content.append(self.text(targets[0]["value"], "title-1"))
             self.section(content, "What happened", context["whatHappened"])
             content.append(self.text(request["reason"]))
@@ -185,6 +213,9 @@ def main():
                 self.section(content, "Project", context["repository"])
             for target in targets[1:]:
                 self.section(content, target["label"], target["value"])
+            self.section(content, "Execution identity",
+                         f"Demo only; would use {execution_identity}" if self.demo
+                         else execution_identity)
 
             details = Gtk.Expander(label="Details")
             detail_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -197,8 +228,8 @@ def main():
             self.section(detail_content, "Requested by", context["agent"])
             detail_content.append(self.text(
                 "Demo only: this command will not run." if self.demo else
-                "Runs as administrator (root), for this command only. "
-                "The command and arguments above are passed directly, not to a shell.",
+                execution_copy["details"]
+                + "The command and arguments above are passed directly, not to a shell.",
                 "dim-label",
             ))
             details.set_child(detail_content)
@@ -206,8 +237,7 @@ def main():
 
             self.status = self.text(
                 "" if self.demo else
-                "Continue hands this exact command to the system for authentication. "
-                "This window does not collect passwords.",
+                execution_copy["continue"],
                 "dim-label",
             )
             if not self.demo:
