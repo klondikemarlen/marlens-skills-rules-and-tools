@@ -6,7 +6,7 @@ Install the package for **OMP** or **Claude Code**, or use its Markdown guidance
 
 ## Start Here
 
-- **Understand credential requests before approving them:** [Privilege Preview](#privilege-preview) opens a native GNOME window explaining what needs access and why, without assuming every request needs root. Try the demo without authenticating or executing a command.
+- **Understand an operation before it starts:** [Privilege Preview](#privilege-preview) opens a native GNOME window explaining what will happen and why before running the selected command. Try the demo without authenticating or executing a command.
 - **Give an agent a clear outcome:** use [evolve, advance, improve, simplify, wrap-up, or triage](#four-verbs-to-remember) instead of rebuilding the same prompt every time.
 - **Find a practical helper:** [preview browser handoffs, recover conventions into native memory, or mark explicitly reviewed PR files](#useful-tools).
 - **Use the detailed guidance:** browse the [skill catalog](skills/), [documentation map](docs/index.md), or [before/after examples](examples/).
@@ -23,7 +23,7 @@ Skills are loaded when their task applies. Packaged rules are active by default;
 
 ## Privilege Preview
 
-For an explicitly authorized native operation, **`privilege-preview` explains the credential request before authentication**—whether it needs administrator access, a GPG key unlock, or another application's credentials. Its GNOME window shows the affected resource, what has happened, why access is needed, and the execution identity. **Details** reveals the exact command, working directory, intended effect, and requesting agent.
+For an explicitly authorized operation, **`privilege-preview` explains what is about to happen before running any caller-selected command**. Use it when the next action or window would otherwise be confusing; GPG signing and administrator checks are examples, not restrictions. The GNOME window shows the affected resource, what has happened, why the operation is needed, and the execution identity. **Details** reveals the exact command, working directory, intended effect, and requesting agent. The command need not request credentials or open another window.
 
 After installing the OMP plugin, type this **inside OMP**:
 
@@ -35,7 +35,7 @@ The demo shows an illustrative project blocked by missing Git. It does not inspe
 
 For a real request, the caller supplies structured task context, an exact command, and its execution mode through the CLI. **Continue** runs `"current-user"` commands directly without elevation, or uses `pkexec` for `"administrator"` commands (the existing default). Credentials remain in the application's native UI or the system polkit agent, never in the preview. The OMP slash command is demo-only.
 
-**Requirements:** a non-root Linux desktop session with Python/PyGObject, GTK 4, and libadwaita. Administrator execution additionally needs compatible `pkexec` and a working polkit agent; current-user execution uses the selected application's native credential UI. The package does not install these system dependencies. See the [complete prerequisites and usage](docs/references/privilege-preview-reference.md#prerequisites), including the external-terminal command.
+**Requirements:** a non-root Linux desktop session with Python/PyGObject, GTK 4, and libadwaita. Administrator execution additionally needs compatible `pkexec` and a working polkit agent; current-user execution needs the selected command and any UI it normally uses. The package does not install these system dependencies. See the [complete prerequisites and usage](docs/references/privilege-preview-reference.md#prerequisites), including the external-terminal command.
 
 This is an informed approval handoff, **not a sandbox or popup interceptor**. Callers explicitly identify each credential step; separate administrator authorization and application/key unlocks need separate truthful previews. The caller still needs authorization for the task and must provide accurate context.
 

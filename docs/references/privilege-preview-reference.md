@@ -1,17 +1,17 @@
 # Privilege Preview Reference
 
-`privilege-preview` explains one explicitly identified native credential/privilege step in a GNOME window before the operation can request authorization. It is not specific to `sudo`: administrator authorization and ordinary-user application/key unlocks are different execution paths. Use it only for an already-authorized task. It does not intercept arbitrary popups, collect passwords, change system policy, or install a root daemon.
+`privilege-preview` explains what is about to happen in a GNOME window before running any caller-selected command. Use it when an upcoming action or window would otherwise be confusing. GPG signing, administrator checks, and application/key unlocks are examples, not an allowlist: a command need not request credentials or open another window. Select ordinary-user or administrator execution separately from the explanation. Use it only for an already-authorized task. It does not intercept arbitrary popups, collect passwords, change system policy, or install a root daemon.
 
-The window leads with the affected resource, meaningful progress, why access is needed, and the execution identity. **Details** exposes the exact command, working directory, user goal, intended effect, and requesting agent. **Continue** immediately closes the explanation and permits only that command to proceed. Credentials stay in the existing OS/application UI; the caller still waits for the actual command result.
+The window leads with the affected resource, meaningful progress, why the operation is needed, and the execution identity. **Details** exposes the exact command, working directory, user goal, intended effect, and requesting agent. **Continue** immediately closes the explanation and permits only that command to proceed. Any credentials stay in the existing OS/application UI; the caller still waits for the actual command result.
 
-| Execution | Operation After Continue | Credential UI |
-| --- | --- | --- |
-| `administrator` (existing default) | Pass the exact command to `pkexec` as root. | The system's polkit agent, when policy requires authentication. |
-| `current-user` | Run the exact command directly as the invoking user, without `sudo` or `pkexec`. | The application's normal native credential UI, when needed; for example, GPG pinentry. |
+| Execution                          | Operation After Continue                                                         | Credential UI                                                                          |
+| ---------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `administrator` (existing default) | Pass the exact command to `pkexec` as root.                                      | The system's polkit agent, when policy requires authentication.                        |
+| `current-user`                     | Run the exact command directly as the invoking user, without `sudo` or `pkexec`. | The application's normal native credential UI, when needed; for example, GPG pinentry. |
 
 ## Prerequisites
 
-Run from a non-root Linux desktop session with Node.js supported by this package and `/usr/bin/python3` with PyGObject, GTK 4 and libadwaita supporting `Adw.ToolbarView`. Administrator execution additionally requires `/usr/bin/pkexec` supporting `--keep-cwd` and `--disable-internal-agent`, plus a working system polkit authentication agent. Current-user execution instead requires the selected application and its normal native credential UI, such as GPG with graphical pinentry. Missing preview prerequisites fail without execution; the helper never retries with a terminal password fallback. The package does not install system libraries or alter authentication policy.
+Run from a non-root Linux desktop session with Node.js supported by this package and `/usr/bin/python3` with PyGObject, GTK 4 and libadwaita supporting `Adw.ToolbarView`. Administrator execution additionally requires `/usr/bin/pkexec` supporting `--keep-cwd` and `--disable-internal-agent`, plus a working system polkit authentication agent. Current-user execution needs the selected command and any UI it normally uses; graphical GPG pinentry is one example, not a requirement for other commands. Missing preview prerequisites fail without execution; the helper never retries with a terminal password fallback. The package does not install system libraries or alter authentication policy.
 
 ## Try the Safe Demo
 
@@ -93,9 +93,11 @@ For source signing, identify the actual prepared package/version, signing key fi
   "command": {
     "executable": "/usr/bin/gpg",
     "arguments": [
-      "--local-user", "SIGNING_KEY_FINGERPRINT",
+      "--local-user",
+      "SIGNING_KEY_FINGERPRINT",
       "--detach-sign",
-      "--output", "/absolute/path/example-package_1.2.3.tar.xz.sig",
+      "--output",
+      "/absolute/path/example-package_1.2.3.tar.xz.sig",
       "/absolute/path/example-package_1.2.3.tar.xz"
     ],
     "cwd": "/absolute/path"
@@ -117,7 +119,7 @@ This is explicit composition, not universal interception of arbitrary child prom
 
 - `execution`: `"administrator"` or `"current-user"`. Omission retains administrator execution for existing requests. Set it explicitly for new requests; invalid supplied values are rejected. This selects execution identity, not which credential a child process may request.
 - `target`: 1–20 ordered `{label, value}` objects. The first value is the resource title; additional entries remain visible. Labels allow up to 100 characters and values up to 2,000.
-- `reason`: a causal explanation of why this authorized task needs the identified administrator or application/key access now, up to 2,000 characters. Follow [Writing Useful Task Context](authorization-preview-reference.md#writing-useful-task-context); do not invent a prior failure or pending operation.
+- `reason`: a causal explanation of why this authorized task needs the selected operation now, up to 2,000 characters. Explain access or credentials when relevant, but neither is required. Follow [Writing Useful Task Context](authorization-preview-reference.md#writing-useful-task-context); do not invent a prior failure or pending operation.
 - `context`: required `agent` (500 characters), `task` (1,000), `whatHappened` (2,000), and `completionEffect` (2,000); optional `repository` (2,000) identifies the project.
 - `command`: absolute `executable`, explicit `arguments` array of at most 256 strings, and an absolute existing directory as `cwd`. Paths allow up to 4,096 characters; each argument up to 8,192. Empty arguments are preserved. Arguments are not a shell command string: expansion, substitution, and pipelines do not occur unless the explicitly selected executable itself interprets them.
 
