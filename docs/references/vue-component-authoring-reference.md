@@ -10,6 +10,30 @@ When creating or materially rewriting an in-scope Vue single-file component, ord
 
 Inspect the existing layout before editing. Move whole blocks without changing script semantics, imports, behavior, or the supported relationship between multiple script blocks. Preserve expanded multiline formatting inside the blocks, including object literals, route targets, and params; a block move is not a formatting sweep. During authoring and review, check every created or materially rewritten component in scope for this order. Script-only and template-only excerpts remain valid; full-component examples below use template-first order.
 
+## Setup Priority and Breadcrumbs
+
+Extend [Dependency-Local Ordering](code-organization-reference.md#state-names-and-dependency-local-ordering) by keeping domain state and workflow actions prominent, with cosmetic-only setup state lower in the script when dependencies permit. Responsive display state such as `const { smAndDown } = useDisplay()` belongs below workflow logic if it only controls presentation; responsive state used by domain initialization must remain before that consumer.
+
+For in-scope pages that already set breadcrumbs, place breadcrumb setup as the final setup statement, after page declarations and lifecycle registration. For example, this script excerpt retains the page's existing resource, save action, mount refresh, responsive state, and breadcrumb call:
+
+```vue
+<script setup lang="ts">
+const { workflow, save, refresh } = useWorkflow(workflowId)
+
+async function saveWorkflow() {
+  await save()
+}
+
+onMounted(refresh)
+
+const { smAndDown } = useDisplay()
+
+useBreadcrumbs("ELCC Home", [])
+</script>
+```
+
+The composables and bindings illustrate existing page contracts, not APIs to introduce. Preserve breadcrumb values, reactive behavior, initialization dependencies, and composable lifecycle requirements; do not move calls past a required setup phase or top-level suspension. When a page also needs `defineExpose`, put it after its exposed definitions and before final breadcrumb setup, subject to its [exposure lifecycle](#form-owned-submission-and-public-component-apis). Without breadcrumbs, the existing `defineExpose`-last preference remains. During authoring and review, distinguish cosmetic state from domain dependencies before reordering; apply only within the requested edit scope.
+
 ## Component-Owned Public Types
 
 When a small public prop or emitted-event type belongs to a component's own contract, prefer exporting it from a normal `<script lang="ts">` block alongside `<script setup lang="ts">`, rather than extracting a standalone file solely to expose that type. For example, an `ItemPicker.vue` event-typing excerpt:
@@ -540,6 +564,35 @@ The conditional slot leaves the table's normal successful-empty presentation unc
 
 For components without an appropriate supported slot, retain a dedicated error `v-if` branch with normal content in `v-else`. Preserve recovery actions and required descendant state/lifecycle when changing mounted branches. This is not a mandate to use Vuetify, a requirement for local error flags on every lookup, or permission to replace established shared request-error feedback; retain [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery).
 
+### Record-Availability Branches
+
+For a record-bound form, guard record-dependent rendering with the project's supported nil predicate, not a request-loading flag. Loading describes pending work, not whether the editor has a usable record. Use one missing-record branch followed by available-record permission branches without repeating record truthiness:
+
+```vue
+<template>
+  <section>
+    <template v-if="isNil(category)">
+      <CategoryLoadError
+        v-if="isErrored"
+        @retry="reloadCategory"
+      />
+      <CategoryLoading v-else-if="isLoading" />
+      <CategoryNotFound v-else />
+    </template>
+    <CategoryEditForm
+      v-else-if="policy?.update"
+      :category="category"
+    />
+    <CategoryReadCard
+      v-else
+      :category="category"
+    />
+  </section>
+</template>
+```
+
+Use existing components, request/recovery bindings, and the actual record policy; the read-only branch illustrates an accepted record-specific permission alternative, not a new access-denial requirement. Here `isNil` checks `null` and `undefined` and must retain the project's supported template type narrowing; pass the original narrowed record without casts or changing its model/source nil types. A nil record alone does not justify an indefinite skeleton: retain distinct pending, failed/retry, and settled-absent states. If a refresh keeps an available record, preserve its existing pending/error feedback and stale-data policy rather than dropping that feedback because the example's missing branch is bypassed. During review, check missing and available records separately from loading, including failure/recovery and permitted/restricted record actions. Access presentation still follows the [existing owning boundary](#permission-restricted-navigation-and-access-presentation).
+
 ## Task-Focused Help and Supplemental Table Information
 
 Before adding or polishing explanatory UI, identify the end-user task or decision it supports. Keep QA-only ranking mechanics, count explanations, and verification notes in testing instructions or reviewer evidence, not the product. When feedback questions a panel's value or existence, reconsider removing it before improving its layout. Preserve administrative counts and help that serve an evidenced user need.
@@ -833,7 +886,7 @@ async function submit() {
 
 Use the project's supported imports, ref inference, validation result, save/error handling, and completion payload. Preserve existing action-slot placement, authorization, Cancel isolation, pending-update policy, and save lifetime; the parent may navigate on successful completion, not on an attempted or failed save. This example assumes saving resolves only after persistence succeeds and rejects on failure. It does not replace a deliberately different submission contract.
 
-Decide whether a public API is needed separately from its placement. Preserve legitimate component APIs, such as an input's imperative focus operation. Place a necessary `defineExpose` last in `<script setup>`, after the definitions it exposes. For an existing native input with `ref="input"`:
+Decide whether a public API is needed separately from its placement. Preserve legitimate component APIs, such as an input's imperative focus operation. Place a necessary `defineExpose` last in `<script setup>`, after the definitions it exposes, except that existing page [breadcrumb setup](#setup-priority-and-breadcrumbs) follows it when dependencies and lifecycle permit. For an existing native input with `ref="input"`:
 
 ```vue
 <script setup lang="ts">
@@ -918,6 +971,52 @@ await categoriesApi.update(staticCategoryId, attributes)
 ```
 
 This is an operation-start snapshot for narrowing, not a class static member or live input. Match the captured domain: `state.workflowId` becomes `staticWorkflowId`, not `staticWorkflowStepId`. Preserve the capture point, nil guard, and operation behavior; do not add unnecessary snapshots, replace live inputs, rename meaningful request objects, or introduce coordination mechanisms solely for naming.
+
+### Watcher-Local Hydration
+
+Prefer an inline callback for hydration owned only by that watcher, using its observed `new<DomainName>` value rather than rereading the outer ref. Keep meaningful shared or independently owned operations named, as in the selection-handler example above.
+
+For example, replace a watcher-local function that rereads the resource:
+
+```typescript
+function populateScheduleFromRentalCar() {
+  if (isNil(travelDeskRentalCar.value)) return
+
+  schedule.startDate = travelDeskRentalCar.value.startDate
+  schedule.endDate = travelDeskRentalCar.value.endDate
+}
+
+watch(
+  [
+    travelDeskRentalCar,
+    () => travelDeskRentalCar.value?.startDate,
+    () => travelDeskRentalCar.value?.endDate,
+  ],
+  populateScheduleFromRentalCar,
+  { immediate: true }
+)
+```
+
+With hydration beside the same explicit saved-field sources:
+
+```typescript
+watch(
+  [
+    travelDeskRentalCar,
+    () => travelDeskRentalCar.value?.startDate,
+    () => travelDeskRentalCar.value?.endDate,
+  ],
+  ([newTravelDeskRentalCar]) => {
+    if (isNil(newTravelDeskRentalCar)) return
+
+    schedule.startDate = newTravelDeskRentalCar.startDate
+    schedule.endDate = newTravelDeskRentalCar.endDate
+  },
+  { immediate: true }
+)
+```
+
+These illustrative existing date fields hydrate immediately when a record is present, on record replacement, and on saved-date changes, but not on unrelated in-place edits. Preserve the actual source/model nil types, supported nil narrowing, absent-record behavior, field conversions, initialization, and watch options. In this example the nil guard retains the existing no-hydration behavior; a workflow that clears on absence must keep that behavior instead. The source list is the trigger contract: callback placement is not permission to add universal `deep: true`, drop accepted field sources, or broaden hydration so unrelated edits overwrite a local schedule. Review initial loading, relevant field changes, replacement, and unrelated edits against that contract.
 
 ## Independent Resource Query Setup
 
@@ -1261,3 +1360,25 @@ const props = defineProps<{
 ```
 
 Preserve required backend validation and legitimate direct-entry safety; UI gating is not authorization, and an empty state remains appropriate for optional or user-created data. During review, check both the unavailable and available prerequisite states without conflating entry gating with backend validation.
+
+### Permission-Restricted Navigation and Access Presentation
+
+Hide permission-restricted links from users without the required permission, using the existing permission owner. Keep three responsibilities distinct: navigation visibility avoids unavailable entry points; the accepted parent, route, or administration boundary owns access presentation and direct-entry handling; server authorization enforces access regardless of the UI. An admin-only navigation menu is not evidence that direct URL entry is protected.
+
+For example, an existing navigation owner can gate its administration link:
+
+```vue
+<v-list-item
+  v-if="canAdministerCategories"
+  :to="{ name: 'category-admin' }"
+  title="Categories"
+/>
+```
+
+When the accepted administration boundary already handles restricted access, its authorized child renders the existing editor directly:
+
+```vue
+<CategoryEditForm :category="category" />
+```
+
+Do not add another editor-level “Editing Not Allowed” panel solely to repeat that boundary's decision. Verify the actual boundary before removing a duplicate; retain necessary direct-entry protection, genuine record-specific checks and their accepted presentation, and server-side authorization. Keep [record availability](#record-availability-branches) separate from access ownership. During review, check permitted and restricted navigation, direct URL entry, and record-specific permissions; hidden links alone never prove authorization.
