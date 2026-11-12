@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.8.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1274) - 2026-11-12
+
 ### Changed
 
 - Prepare compatible reusable preview data in the primary development database before copying it into an isolated feature worktree. Keep feature-only migrations at the destination and preserve existing data through the project's safe export/import procedure.
