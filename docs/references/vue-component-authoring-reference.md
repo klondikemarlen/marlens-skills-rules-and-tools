@@ -210,6 +210,28 @@ These excerpts illustrate ownership, not a new universal prop or data-access API
 
 When one field's value updates another field within a particular form or card, keep that dependency in a watcher owned by that form or card. Keep a shared picker focused on selection rather than adding form-specific behavior or events to it. Follow local reactive patterns; do not rewrite unrelated shared components.
 
+### Test-Support Components Are Not Fixture Data
+
+A Vue wrapper that renders UI or observes a model binding is an executable test-support component, not fixture data. Keep it in the test tree's established common component location, with a component name rather than a misleading `Fixture` suffix. For example, where the project already uses `web/tests/components/common`, prefer `common/CurrencyInputModel.vue` over `fixtures/CurrencyInputModelFixture.vue`:
+
+```vue
+<template>
+  <div>
+    <CurrencyInput v-model="amount" />
+    <output data-testid="amount">{{ amount }}</output>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue"
+import CurrencyInput from "@/components/CurrencyInput.vue"
+
+const amount = ref<number | null>(null)
+</script>
+```
+
+The wrapper lets a test observe the parent model after interaction with the real input. Adapt imports and the model type to the actual input contract. When realigning an existing helper, move/rename it and update its imports and test consumers together; do not promote test-only rendering into production components. Follow the project's existing ownership and directory conventions rather than mandating this example's path. Actual fixture data remains valid, inline test wrappers need not be extracted, and unrelated support files need not move.
+
 ## Controls in Existing Action Slots
 
 When an existing actions slot already hosts the controls, render them directly in that slot rather than extracting a component or adding a DOM wrapper solely to apply flex/gap spacing. Reuse the slot's supported layout contract or appropriate spacing on the controls themselves; a spacing-only shell is not a new component responsibility.
@@ -236,6 +258,71 @@ For example, with existing action handlers and busy state, keep both controls in
 Preserve control order, handlers, loading/disabled states, and keyboard/accessibility behavior. Inspect the actual slot contract and verify the rendered spacing, alignment, and relevant responsive layouts; compilation alone does not prove layout, and a successful gap in one product does not prescribe a universal pixel value. Check equivalent occurrences within the affected authoring or review scope, not unrelated components.
 
 Retain wrappers that own evidenced semantics, accessibility, lifecycle, or interaction behavior. This preference removes a spacing-only boundary, not every wrapper or meaningful action component. Genuinely reusable components still follow [One Template Root and Existing Components](#one-template-root-and-existing-components); controls passed into an existing slot do not authorize converting them into fragment-root components.
+
+## Vuetify Form Grid Layout
+
+In Vuetify forms, place fields inside `v-row` and `v-col`, including full-width and read-only fields, rather than leaving some fields directly in the form card while their neighbors use the grid. Preserve meaningful field groups and existing responsive widths; this is not one row per field.
+
+For example, inside an existing form card's content, keep a full-width read-only field and the responsive age group in the grid:
+
+```vue
+<v-row>
+  <v-col cols="12">
+    <v-text-field
+      v-model="category.name"
+      :rules="nameRules"
+      label="Category name"
+    />
+  </v-col>
+  <v-col cols="12">
+    <v-text-field
+      :model-value="fundingPeriodName"
+      label="Funding period"
+      readonly
+      append-inner-icon="mdi-lock"
+    />
+  </v-col>
+  <v-col cols="12" md="6">
+    <v-number-input
+      v-model="category.minimumAge"
+      label="Minimum age"
+    />
+  </v-col>
+  <v-col cols="12" md="6">
+    <v-number-input
+      v-model="category.maximumAge"
+      label="Maximum age"
+    />
+  </v-col>
+</v-row>
+```
+
+Use the installed project's supported inputs and breakpoints; the example does not introduce an input dependency. During scoped authoring and review, preserve field bindings, validation, grouping, and the existing form-card action slots. Do not move actions into the grid or rewrite unrelated forms, and do not add Vuetify to projects using another layout system.
+
+## Readable Locked Value Fields
+
+When users still need to read a value that cannot currently be edited, prefer a readable read-only control with a lock icon over disabled low-contrast styling. Preserve the existing condition that permits editing: when it becomes true, remove the lock and restore the supported editing interactions.
+
+For an existing schedule field using Vuetify's native-input-backed text field:
+
+```vue
+<v-row>
+  <v-col cols="12">
+    <v-text-field
+      v-model="rentalCar.pickupAt"
+      type="datetime-local"
+      label="Pickup date and time"
+      :readonly="!canEditSchedule"
+      :clearable="canEditSchedule"
+      :append-inner-icon="canEditSchedule ? undefined : 'mdi-lock'"
+    />
+  </v-col>
+</v-row>
+```
+
+Here `readonly` reaches the [native input](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/readonly); it prevents user changes through typing and the native date/time picker, while disabling clear affordances when locked. Keep the existing local-date/time value format and application validation; native read-only inputs do not participate in browser constraint validation, so preserve required domain/backend checks. This is not a timezone conversion. Use the project's configured icon set, and preserve any explanation of why the field is locked.
+
+Inspect the installed component contract before applying this to a custom picker: its `readonly` may protect only the text input, not its menu, picker selection, or clear action. Use its supported read-only/picker controls to block every user edit path, including an already-open picker when the condition changes; preserve any existing guarded update handler. Verify locked typing, opening/selection/clearing, readable contrast, and the transition back to editing. Do not replace disabled controls indiscriminately: unavailable action buttons should remain disabled, as described in [Loading and Disabled State](#loading-and-disabled-state).
 
 ## Related-Record Descriptions
 
@@ -412,24 +499,43 @@ Each card owns its state's instructions and controls without an `isDraft` mode p
 
 ## Failed Loads and Empty Data
 
-When a component owns a load-error state, render it in a dedicated `v-if` branch using the application's existing standard error presentation, with normal content in `v-else`. Do not disguise failure as a successful empty collection through bindings such as `:items="isErrored ? [] : records"`; the normal controls should not remain rendered as though loading succeeded.
+When a table owns a load-error state, prefer its supported error/empty-data slot for standard error presentation and Retry rather than replacing the entire table. Keep failure explicitly distinguishable from a successful empty result, and prevent stale successful rows from appearing as current results. Inspect the installed table contract: an empty-data slot may run only when there are no displayed items and loading has finished.
 
-For example, with existing error and record bindings in a Vuetify component:
+For example, with existing record, error, loading, and retry bindings, Vuetify's `no-data` slot can own the error branch:
 
 ```vue
 <template>
-  <v-empty-state
-    v-if="isErrored"
-    title="Unable to load records"
-  />
   <v-data-table
-    v-else
-    :items="records"
-  />
+    :items="tableRecords"
+    :loading="isLoading"
+  >
+    <template v-if="isErrored" #no-data>
+      <v-empty-state title="Unable to load records">
+        <template #actions>
+          <v-btn
+            :loading="isLoading"
+            @click="reloadRecords"
+          >
+            Retry
+          </v-btn>
+        </template>
+      </v-empty-state>
+    </template>
+  </v-data-table>
 </template>
+
+<script setup lang="ts">
+const tableRecords = computed(() => {
+  if (isErrored.value) return []
+
+  return records.value
+})
+</script>
 ```
 
-A successful empty result still reaches the normal data component and its accepted empty state. Reuse supported stock components and preserve existing recovery actions and required descendant state/lifecycle when changing mounted branches. This is not a ban on scalar ternaries, a requirement for local error flags on every lookup, or permission to replace established shared request-error feedback; retain [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery).
+The conditional slot leaves the table's normal successful-empty presentation unchanged. The explicit error branch makes the empty displayed collection an error presentation, not a claim that loading succeeded; do not reduce this to an empty-items binding without error feedback and recovery. Reuse the application's actual standard error UI, imports, data owner, and retry operation. The load owner must publish failure and end loading so the slot is reachable, and clear the error on a successful retry, including a successful empty response. Preserve existing pending/retry guards and stale-request ownership. Keep totals, selection, and row-dependent actions consistent with unavailable current results, especially for server tables; hiding rows alone must not leave stale records actionable.
+
+For components without an appropriate supported slot, retain a dedicated error `v-if` branch with normal content in `v-else`. Preserve recovery actions and required descendant state/lifecycle when changing mounted branches. This is not a mandate to use Vuetify, a requirement for local error flags on every lookup, or permission to replace established shared request-error feedback; retain [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery).
 
 ## Task-Focused Help and Supplemental Table Information
 
@@ -552,6 +658,31 @@ function updateSelectedTagIds(tagIds: string[]) {
 ```
 
 The example shows binding and ownership only; reuse the project's actual record availability, types, and write/save operation rather than copying an assignment into an incompatible contract.
+
+For a directly editable field that also triggers update effects, prefer `:model-value` and one named `@update:model-value` handler instead of combining `v-model` with an additional update listener. Assignment and dependent effects belong in that handler in their intended order; a readonly computed wrapper is not needed for a direct field.
+
+For example, replace `v-model="rentalCar.matchFlightTimes"` plus `@update:model-value="requestFlightScheduleMatch"` with:
+
+```vue
+<template>
+  <v-switch
+    :model-value="rentalCar.matchFlightTimes"
+    :disabled="!canUpdateFlightMatching || isMatchingFlightTimes"
+    @update:model-value="updateMatchFlightTimes"
+  />
+</template>
+
+<script setup lang="ts">
+function updateMatchFlightTimes(matchFlightTimes: boolean | null) {
+  if (!canUpdateFlightMatching.value || isMatchingFlightTimes.value) return
+
+  rentalCar.value.matchFlightTimes = matchFlightTimes === true
+  requestFlightScheduleMatch()
+}
+</script>
+```
+
+This excerpt assumes an available record with a boolean field and a Vuetify switch that can emit `null`; use the actual control's payload and the existing domain operation. The matching operation reads the newly assigned flag and preserves its existing on/off behavior, availability guards, and pending-update policy; do not drop accepted queued/latest-update behavior in favor of the example's reject-while-pending guard. Avoid a second implicit assignment or duplicate matching listener. Ordinary `v-model` without an extra update listener remains appropriate, as do legitimate form-owned dependent-field watchers. Apply this correction only to affected bindings, not unrelated forms.
 
 ## State-Driven Dialogs and Recovery
 
