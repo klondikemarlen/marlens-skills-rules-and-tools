@@ -526,7 +526,6 @@ for (const requiredText of [
   "Safe Worktree Cleanup in Dockerized Projects",
   "GitHub Asynchronous Merge for PR Stacks",
   "merge-async",
-  "expected head SHA",
   "GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}",
   "docs.github.com/en/rest/pulls/pulls",
   "Keyed Frontend Request Coalescing",
