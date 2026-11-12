@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.7.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1270) - 2026-11-12
+
 ### Changed
 
 - Consolidate reusable memory lessons into their existing shared standards: independently evolving create/edit workflows, explicit type and policy contracts, meaningful test scenarios, end-to-end cancellation, and recipient-usable handoffs. Project tracker choices and domain facts remain project-owned.
