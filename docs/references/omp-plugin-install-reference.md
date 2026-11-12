@@ -36,6 +36,28 @@ Wrap the actual context supplied to each callback rather than retaining another 
 
 If native QA launches disposable GUI processes, isolate their display as well as HOME/config/runtime state, using an already-supported headless display such as Xvfb where available. Retain process/window ownership; do not repeat failed starts on the operator's desktop. Discover required session-bus/runtime dependencies rather than assuming an empty replacement runtime directory works. Missing isolation blocks that GUI probe; it does not authorize another runtime installation or interference with ordinary desktop services. Claim restore and cleanup only from observed outcomes.
 
+## Applying Installed Updates to the Current Session
+
+After an authorized local plugin update that needs a new process, prefer arranging a graceful restart of the current eligible managed session over handing the user a generic “restart OMP” step. Finish delivery, fresh-process QA, and required final review first; honor an explicit instruction not to restart. Publication upstream alone is not a reason to restart a local session.
+
+Use the installed [Instance Control interface](https://github.com/klondikemarlen/omp-instance-control#usage). Discover the invoking instance and verify its launcher/session identity and profile/config-root scope against live registration; a matching working directory alone is insufficient. A control-instance ID identifies one running launch, not the persisted conversation, and changes on replacement.
+
+For a shell tool targeting its own verified instance, request acknowledgement without waiting:
+
+```bash
+ompi control restart CURRENT_INSTANCE_ID --no-wait
+```
+
+Replace the placeholder with the verified control-instance ID. In managed OMP, bare `/ompi restart` selects the invoking instance. Do not use `ompi restart <session-id>` or wait inside the selected session's tool call for its own replacement: that wait can prevent settlement. Preserve the existing model, provider, credentials, and launch scope.
+
+An accepted request means pending restart. Report “Restart requested; this session will resume with the installed update,” not “restarted.” OMP and Instance Control own active/queued-work settlement, transcript persistence, graceful shutdown, and reopening the same conversation. Never replay queued prompts or inject a continuation command.
+
+The replacement waits for input; restart does not automatically start another model turn or run a suggested command such as `/retitle analytics`. Completion evidence is the controller's live replacement confirmation, correlated by operation and previous instance through `lastRestart`, not disappearance of the old PID. An authorized external observer can verify that state; the exiting agent must not promise a later spoken confirmation. Installed version, restart completion, and proof of loaded plugin behavior remain separate claims.
+
+For an unwrapped, ephemeral, unavailable, ambiguous, or unsupported instance, explain the missing prerequisite and give the supported manual fallback. A plain OMP session with the controller installed may use `/ompi take-over` through its explicit manual handoff; do not perform takeover implicitly. Never kill processes, inject terminal input, or select a different session to simulate restart.
+
+Restart-all remains an unresolved policy choice, not a default. Do not request it merely because a plugin was published or installed. Any broader restart needs explicit scope authorization covering affected sessions and profile boundaries, active/queued work, partial failures, and the user's ability to decline; unrelated sessions stay untouched.
+
 ## Documentation Rules
 
 - Keep project-specific repository names, versions, and reinstall commands in the project README or release workflow.

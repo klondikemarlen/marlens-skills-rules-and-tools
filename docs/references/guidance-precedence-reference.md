@@ -58,6 +58,12 @@ For feature descriptions, apply the same reader-first standard to report depth: 
 
 Downstream links supplied as examples of a shared instruction problem are read-only research inputs. Improve the shared owner when that is the requested outcome; a broad follow-up such as “do what you think is best” does not turn those examples into cleanup targets. Editing or deleting downstream history requires an explicit cleanup request and target scope.
 
+### Human-Facing Command Reports
+
+Apply reader-first information selection to product command output as well as agent messages and tracker documents. Lead with the useful result in plain language; avoid repeating equivalent total, daily, and per-model metric blocks or showing irrelevant diagnostic counters. Retain meaningful unknowns, actionable warnings, required safety information, and explicitly requested detail. Keep stored telemetry intact and point to an existing detail surface when useful; do not invent another reporting mode just to shorten the default output.
+
+For example, instead of repeating token categories, coverage fractions, latency, and zero-warning counters in three analytics blocks, summarize: “12 requests across 3 sessions. Typical response time: 4 seconds. Cost unavailable for 2 requests; the reported total is incomplete.” Link the existing detailed records if available. Choose comparisons only when they answer the user's question; this is not a fixed line limit or permission to hide missing data.
+
 ### Actionable Operational Handoffs
 
 Describe the receiving role's actions in its target environment, using artifacts it already has or explicit steps to obtain or generate them. Do not assume developer-local files or prior setup exist for the recipient. Keep necessary filenames, prerequisites, and supplied-file instructions; omit unrelated developer actions.
