@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keep form validation and saving with the form, and distinguish necessary public component APIs from raw form exposure. Place `defineExpose` after its definitions without crossing Vue's setup suspension boundary.
+
 ## [5.8.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1275) - 2026-11-12
 
 ### Changed

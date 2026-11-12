@@ -777,6 +777,78 @@ Keep component-specific editing workflows—drafts, queued writes, reconciliatio
 
 Consumers use the composable's returned reactive record/collection refs as the model source. Do not copy them into a parallel record map and watch fetches to merge fields or revision counters. Keep genuine pending commands and failure feedback with the editor. If accepted edits must survive navigation, inspect editor lifetime and supported framework retention before adding parallel model ownership; preserve the accepted save/navigation guarantee. An explicitly contracted detached draft remains valid; neither `KeepAlive` nor a particular draft-storage design is mandatory.
 
+### Form-Owned Submission and Public Component APIs
+
+Keep validation, saving state, persistence, and save feedback inside the owning form. Do not expose its raw form ref merely so a parent can validate and save it. Keep page loading, permission gating, and navigation with the parent, and communicate successful completion through the established event or component contract. Reuse the existing model and persistence owner; internal submission does not require another draft, store, or API layer.
+
+For an existing workflow form with `workflow`, `titleRules`, `saveWorkflow`, and `reportSaveError` bindings, the form can own submission and emit its existing `saved` event:
+
+```vue
+<template>
+  <v-form
+    ref="form"
+    @submit.prevent="submit"
+  >
+    <v-row>
+      <v-col cols="12">
+        <v-text-field
+          v-model="workflow.title"
+          :rules="titleRules"
+          label="Title"
+        />
+      </v-col>
+    </v-row>
+    <v-btn
+      type="submit"
+      :loading="isSaving"
+      :disabled="isSaving"
+      >Save</v-btn
+    >
+  </v-form>
+</template>
+
+<script setup lang="ts">
+const emit = defineEmits<{ saved: [] }>()
+const form = useTemplateRef("form")
+const isSaving = ref(false)
+
+async function submit() {
+  if (isSaving.value || !form.value) return
+
+  isSaving.value = true
+  try {
+    const { valid } = await form.value.validate()
+    if (!valid) return
+
+    await saveWorkflow()
+    emit("saved")
+  } catch (error) {
+    reportSaveError(error)
+  } finally {
+    isSaving.value = false
+  }
+}
+</script>
+```
+
+Use the project's supported imports, ref inference, validation result, save/error handling, and completion payload. Preserve existing action-slot placement, authorization, Cancel isolation, pending-update policy, and save lifetime; the parent may navigate on successful completion, not on an attempted or failed save. This example assumes saving resolves only after persistence succeeds and rejects on failure. It does not replace a deliberately different submission contract.
+
+Decide whether a public API is needed separately from its placement. Preserve legitimate component APIs, such as an input's imperative focus operation. Place a necessary `defineExpose` last in `<script setup>`, after the definitions it exposes. For an existing native input with `ref="input"`:
+
+```vue
+<script setup lang="ts">
+const input = useTemplateRef("input")
+
+function focus() {
+  input.value?.focus()
+}
+
+defineExpose({ focus })
+</script>
+```
+
+Respect Vue's [exposure lifecycle](https://vuejs.org/guide/essentials/template-refs.html#ref-on-component): `defineExpose` must execute before the first top-level `await`. If setup awaits, keep exposure and its required definitions before that suspension rather than moving it past `await` to satisfy the last-declaration preference. An `await` inside a later-invoked handler is not a top-level setup suspension. Do not remove an accepted public API or change initialization order merely to apply this convention.
+
 ### Singular Invocation State and Shared Collections
 
 When `useWorkflowStep(workflowStepId)` has a component-scoped single-record contract, each invocation owns one selected step and its local lifecycle, not a hidden shared `steps: Record<number, StepState>` registry. Two independent callers retain isolated local state; changing one caller's selection or disposing it must not switch or tear down the other's lifecycle. Keep collection-wide saved records/subscriptions with their explicit collection owner and review selection changes and teardown against that contract.
