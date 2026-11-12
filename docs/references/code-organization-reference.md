@@ -394,6 +394,15 @@ export type ReservationAttributes = {
 
 Use the project's supported aliases, ORM declaration shape, and barrel conventions; this example does not prescribe a new integration layer. Migrate affected declarations and consumers together, preserving contract names, fields, optionality, validation, and runtime behavior. Remove obsolete duplicate declarations and compatibility re-exports rather than leaving two owners.
 
+Beside a descriptively renamed or normalized integration attribute, retain a concise reference to its verified remote table and exact column spelling, including schema when known:
+
+```typescript
+/** Source: dbo.TravelOrderEvent.PnrCreationDate. */
+passengerNameRecordCreatedAt: Date | null
+```
+
+Inspect the actual source mapping before writing the reference; do not guess provenance. Apply this to comparable normalized attributes in scope, not every unchanged field or mechanical casing conversion. Keep descriptive local names rather than restoring source acronyms or copying the external schema.
+
 ### Workflow-Owned Executables
 
 For an extracted executable owned by one GitHub Actions workflow, prefer `.github/workflows/<workflow-name>/` beside that workflow's YAML. For example, a `test` workflow's disk-reclamation program belongs at `.github/workflows/test/reclaim-runner-disk.sh`, with an explicit descriptive invocation:
@@ -637,6 +646,23 @@ const selectedWorkflowPlayerIds = workflowPlayers.map((workflowPlayer) => workfl
 
 Use the actual factory contract, title format, selected membership, and ordering; the example assumes all 25 created records are selected in creation order. Preserve awaited persistence and sequential creation when the scenario depends on them; do not substitute unawaited async `forEach` or introduce concurrency as a readability change. Generating fixture inputs or collecting IDs is not permission to derive expected business outcomes from production logic: keep those expectations independently specified. Preserve explicit records with meaningful authorization, deletion, ordering, or other scenario differences, and keep persisted generation out of shared hooks.
 
+Distinct, meaningful records should expose named attributes instead of positional tuple tables used only to compress setup. Replace:
+
+```typescript
+for (const [claimType, amount] of [["meal", 25], ["lodging", 140]] as const) {
+  await claimFactory.create({ travelRequest, claimType, amount })
+}
+```
+
+With the same sequential persisted setup:
+
+```typescript
+await claimFactory.create({ travelRequest, claimType: "meal", amount: 25 })
+await claimFactory.create({ travelRequest, claimType: "lodging", amount: 140 })
+```
+
+A supported factory/collection API is also suitable when each record's named attributes remain clear. Preserve values and factory lifecycle; this does not ban homogeneous loops, Lodash iteration, factory list APIs, or input/output case tables.
+
 Arrange data through the project's factories rather than unrelated production services. Service calls remain appropriate when that service is the subject under test or the scenario is a feature test. Reuse opt-in relationship traits for repeated setup; keep scenario-specific values, identities, deletion states, ordering, and explicit preloads visible and preserved. This does not prohibit mocked collaborators or introduce a new factory library.
 
 Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
@@ -850,7 +876,9 @@ When the project adopts this convention, record it in project-local guidance. Co
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
 
-For application-owned boolean state props, prefer an explicit `is` prefix: rename `workflowBusy` to `isWorkflowBusy` or `isBusyWorkflow` when applying this convention. Either meaningful word order is valid; retain the represented domain fact and polarity. Align the prop declaration, default, template bindings, and in-scope callers together without changing values or behavior. Preserve established framework and third-party names, such as `disabled`, and stronger project-local naming contracts. This preference does not authorize unrelated prop renames or a repository-wide sweep.
+For application-owned boolean state, including props, locals, and computed values, prefer `is` over `are` and a positive domain fact where meaningful. For example, rename `workflowBusy` to `isWorkflowBusy` or `isBusyWorkflow`. Prefer `isMatchingAvailableFlightSchedule` over `areScheduleFieldsDisabled` when the existing true value already means the schedule matches; keep the same predicate and `:disabled="isMatchingAvailableFlightSchedule"` behavior. Naming alone must not invert values or controls. Retain negative wording when a positive name would obscure the condition.
+
+Align declarations, defaults, bindings, and in-scope callers together. Preserve framework and third-party names such as `disabled`, stronger local contracts, and established public APIs outside the requested scope; this is not a repository-wide rename.
 
 Use the established domain collection name for an ordinary resource result. Avoid a qualifier such as `loaded` when it merely restates the result's normal availability. For an existing `useWorkflowSteps` result, prefer the direct binding:
 
@@ -918,6 +946,18 @@ Use [UI Navigation Handler Names](#ui-navigation-handler-names) for route change
 
 Name a UI router-navigation handler after its destination and effect. Prefer `goToTemplateWorkflowsPage` or `goToCategoryWorkflowNewPage`; avoid trigger-oriented (`select...`, `open...`) or imprecise names that hide the route change. An established project convention wins.
 
+When navigation needs only identity, accept a descriptively named resource ID and pass `item.id` at the row call site rather than the whole record:
+
+```typescript
+goToCategoryPage(item.id)
+
+function goToCategoryPage(categoryId: Category["id"]) {
+  return router.push({ name: "CategoryPage", params: { categoryId } })
+}
+```
+
+Use the project's actual identifier type and route contract, without a route-building abstraction. Retain a record argument when other fields are genuinely consumed; do not add a lookup to recover data already available.
+
 ## Derived Resource Identifiers
 
 When deriving a resource identifier from configuration, make non-obvious normalization or naming policy visible rather than embedding a transform chain inside an otherwise declarative definition. Prefer the smallest local expression of the rule, such as a descriptively named intermediate value before the definition. Preserve resulting identifiers and existing input behavior unless a naming-policy change is explicitly requested; verify representative before/after names. Do not mandate a helper or new configuration setting, or rewrite already-clear direct values.
@@ -942,7 +982,7 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 Validate required integration connection configuration at the integration client or its existing initialization boundary, not repeatedly in consuming business services. Inspect that boundary before adding a caller guard; remove redundant checks only when the client already guarantees the prerequisite for the relevant call path. Preserve the accepted initialization timing and failure contract, including legitimately optional integrations; do not introduce eager connection attempts or a new configuration framework.
 
-For example, if an integration's database client already rejects missing required database, username, password, and host values before constructing Sequelize, a synchronization service should not repeat those checks. The service still validates its operation-specific inputs, such as the requested record locator, and retains any domain-owned query-error translation. A configured client can still fail at runtime: preserve connection/query failure propagation and existing recovery behavior rather than treating valid configuration as proof of availability. Verify missing required configuration fails at the owning boundary, valid configuration reaches the operation, and operation-specific validation and runtime failure handling remain intact.
+For example, if an integration's database client already rejects missing required database, username, password, and host values before constructing Sequelize, a synchronization service should not repeat those checks. The service still validates inputs required by its actual operation contract; a record locator needs format validation only if that contract requires it, not merely because typical locators have a familiar shape. Retain domain-owned query-error translation. A configured client can still fail at runtime: preserve connection/query failure propagation and recovery behavior. Verify required configuration fails at its owner, valid configuration reaches the operation, accepted unmatched lookups return no matches, and genuine operation invariants and runtime errors remain enforced.
 
 API/HTTP transport classifies failures and throws typed errors; it must not import presentation state or open recovery UI. UI consumers or existing application/framework error boundaries own recovery presentation. When intermediate callers swallow a failure needed there, correct their propagation rather than introducing UI side effects in transport. Preserve ordinary local handling and cleanup without mandating a new global handler or layer.
 
@@ -997,6 +1037,17 @@ For reducing duplicate background-job events while preserving useful permitted p
 ## Text Validation Ownership
 
 In ORM-backed application code, keep ordinary trimming, blank-value handling, accepted character grammar, and canonical-name validation in the existing service/model validation layer; prefer model-level validators for persisted text invariants rather than reproducing that policy in elaborate SQL checks. Follow the accepted normalization-versus-rejection contract; do not invent a universal alphabet or silently normalize rejected input.
+
+Assign canonical text normalization to one established producing boundary. Trace actual callers before removing downstream transformations: if they still forward raw input, fix the owner and test the handoff first. For an existing contract that trims and uppercases locators, the owning boundary converts `" ab12cd "` to `"AB12CD"`:
+
+```typescript
+const recordLocator = rawRecordLocator.trim().toUpperCase()
+await SyncEventsService.perform(recordLocator)
+```
+
+The consumer uses `recordLocator` unchanged in its source query and downstream handoffs, rather than trimming/uppercasing again or reconstructing an equivalent locator from source attributes. This is normalization ownership, not removal of validation assertions or authorization. Keep separately owned external-input boundaries; controllers are not the universal owner. See also [Producer-Owned ID Collections](#producer-owned-id-collections).
+
+Distinguish an accepted lookup with no matches from an invalid required value. If arbitrary strings and zero matches are supported, a parameterized lookup for `"not-a-known-locator"` returns `[]`; do not reject it with an invented six-uppercase-alphanumeric assertion. By contrast, a persisted `name` whose actual contract requires nonblank text still rejects `"   "` at its validation owner. Preserve required input types, authorization, safe query bindings, and real domain invariants. Query or connection failures remain errors, not empty successes.
 
 Retain relational constraints such as foreign keys, uniqueness, and nullability. Necessary narrowly scoped legacy cleanup belongs in its self-contained migration, not a mutable application-model import. This preference does not ban database constraints or remove an independently required database invariant.
 
@@ -1286,6 +1337,8 @@ For multi-property query/options object arguments, put each property on its own 
 
 For explanatory comments, prefer JSDoc-style blocks that explain the mechanism and rationale, especially for non-obvious lifecycle state or invariants. State the actual captured boundary, when it is captured, what it gates, and why that gate or cache exists; describe lazy first-use behavior accurately rather than calling it startup. This does not require converting short inline comments or Arrange/Act/Assert markers.
 
+For normalized integration attributes, preserve verified remote-column provenance beside the declaration under [Integration Model Contracts](#integration-model-contracts). A concise source reference explains a non-obvious mapping; it should not repeat every unchanged field or speculate about its origin.
+
 When a comment explains deliberately omitted behavior, name the omission before its rationale. For example: “This factory does not create the associated record because the database trigger creates it; creating both would duplicate the row.” Describe the actual mechanism without assuming the reader knows a rejected implementation. Do not add comments for obvious omissions or speculative alternatives.
 
 When explaining an execution boundary, name the ordering relation and affected unit explicitly so the explanation remains clear if the screen layout changes. Distinguish the destination group from subsequent groups, and state whole-group effects directly rather than leaving the reader to infer them from individual members or an unqualified "before" or "after."
@@ -1456,9 +1509,39 @@ Prefer named Lodash `isUndefined(value)` when Lodash is already available and th
 
 For a combined null-or-undefined absence check, prefer the existing `isNil(value)` predicate when available instead of repeating `value === null || value === undefined`. Keep `isUndefined` for undefined-only contracts and preserve valid falsy values such as `0`, `false`, and `""`; do not add Lodash solely for this spelling.
 
+Likewise, replace `bookingEvent === null` with `isNil(bookingEvent)` when the missing-record contract treats both null and undefined as absence and the predicate is already available. Keep `bookingEvent === null` when undefined means something different, such as an omitted update; keep undefined-only checks narrow. Do not broaden a contract merely to use the preferred predicate.
+
 For controller query-value guards, prefer the established named Lodash type predicate when Lodash is already available and its accepted values match the input contract; for example, `isString(recordLocator)` before passing the narrowed value to a service without coercion. Inspect sibling guards and predicate semantics first: Lodash `isString` accepts boxed strings as well as primitives, unlike `typeof value === "string"`. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
+
+Express derived completeness or availability with a meaningful predicate and explicit value checks, not a truthiness cast of field values. For string form inputs whose missing value is `""`, replace `Boolean(pickUpDate.value && pickUpTime.value && dropOffDate.value && dropOffTime.value)` with:
+
+```typescript
+const isScheduleComplete = computed(() => {
+  return (
+    pickUpDate.value !== "" &&
+    pickUpTime.value !== "" &&
+    dropOffDate.value !== "" &&
+    dropOffTime.value !== ""
+  )
+})
+```
+
+Use checks matching the actual types: nullable inputs need nil checks; `!isNil("")` does not detect an empty string. Reuse existing predicates without adding dependencies. Presence is not format validity: this example adds no date validation, and does not ban Boolean conversion or require wrapping every boolean expression.
+
+When Luxon already owns date parsing, use its `isValid` result in shallow guards instead of a parallel regex date-validity authority. For an existing ISO timestamp contract that preserves the supplied offset:
+
+```typescript
+if (typeof value !== "string") throw new Error("Expected an ISO timestamp.")
+
+const timestamp = DateTime.fromISO(value, { setZone: true })
+if (!timestamp.isValid) throw new Error("Invalid ISO timestamp.")
+
+return timestamp
+```
+
+Keep the actual parser options, configured timezone, and accepted syntax; this offset-preserving example is not a universal timezone policy. Preserve distinct calendar-date and timestamp paths, including necessary input-type narrowing or independently required syntax restrictions. Do not add Luxon where absent or prohibit regex for unrelated text contracts.
 
 ```ts
 // Before
