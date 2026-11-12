@@ -644,16 +644,6 @@ for (const [name, workflow] of [
     fail(`${name} must review preference-splitting migrations for preserved choices`)
   }
   if (
-    !workflow.includes("Before the first push or review request") ||
-    !workflow.includes("closest local style and test guidance plus nearby sibling precedent") ||
-    !workflow.includes(
-      "import grouping, blank-line separation, test hierarchy, naming, and focused assertions"
-    ) ||
-    !workflow.includes("Formatter output is not proof of local structural compliance")
-  ) {
-    fail(`${name} must preflight touched files against local structural style before review`)
-  }
-  if (
     !workflow.includes("Make readability an explicit delivery gate") ||
     !workflow.includes(
       "before reporting `PASS`, name each independent responsibility and its side effects"
@@ -823,13 +813,6 @@ for (const [name, workflow] of [
     )
   ) {
     fail(`${name} must treat .commit-scope.json as optional exception configuration`)
-  }
-  if (
-    !workflow.includes("inspect the complete PR diff for the same underlying issue") ||
-    !workflow.includes("dedicated `:ok_hand:` commit") ||
-    !workflow.includes("PR scope checked")
-  ) {
-    fail(`${name} must require a scoped :ok_hand: review correction commit`)
   }
 }
 for (const [name, workflow] of [

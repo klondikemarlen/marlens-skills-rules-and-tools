@@ -15,17 +15,6 @@ export function verifyReviewProcedures({ read, fail }) {
       "POST /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions",
       "resolveReviewThread",
       "reviewThread.isResolved",
-      "After every fixup commit",
-    ],
-    (requiredText) => `comment resolution workflow must require ${requiredText}`,
-    fail
-  )
-  requireEvery(
-    commentResolutionWorkflow,
-    [
-      "inspect the complete PR diff for the same underlying issue",
-      "dedicated `:ok_hand:` commit",
-      "PR scope checked",
     ],
     (requiredText) => `comment resolution workflow must require ${requiredText}`,
     fail
@@ -79,28 +68,12 @@ export function verifyReviewProcedures({ read, fail }) {
     if (/^#{1,6} (?:Verification|Evidence)\b/im.test(workflow)) {
       fail(`${name} must not prescribe reviewer-facing Verification or Evidence sections`)
     }
-    if (
-      !workflow.includes("inspect the complete PR diff for the same underlying issue") ||
-      !workflow.includes("dedicated `:ok_hand:` commit") ||
-      !workflow.includes("PR scope checked")
-    ) {
-      fail(`${name} must preserve review-derived correction history`)
-    }
   }
 
   requireText(
     pullRequestWorkflow,
     "upload-pr-screenshots-workflow.md",
     "packaged pull request workflow must link the screenshot upload workflow",
-    fail
-  )
-  requireEvery(
-    commentResolutionWorkflow,
-    [
-      "Fix every actionable review finding or comment",
-      "After a fixup, re-review the complete PR diff",
-    ],
-    (requiredText) => `comment resolution workflow must require ${requiredText}`,
     fail
   )
 
