@@ -60,6 +60,12 @@
   In short: workflows are procedures, templates are copyable end-state shapes, references are durable background, and plans are exploratory or multi-phase implementation notes.
   Keep global rules lean; put codebase-specific architecture, schema, framework, and naming rules in the nearest project `AGENTS.md` or `README.md`.
 
+## Request-Sized Work
+
+- Apply [Work Levels](docs/workflows/hands-off-agentic-coding-workflow.md#work-levels) to the current request: rearchitecture for accepted design changes, normal for ordinary implementation, quick tweak for clear mechanical edits.
+- Quick tweaks read necessary context and references, apply the complete edit, then stop without agent-initiated post-edit tests, lint, builds, verifier runs, or repeated review. Concrete behavior or safety risk requires normal focused proof; independent required CI and delivery gates still apply.
+- Reuse the existing PR and still-valid evidence. Normal fixups review and verify affected contracts, not the whole PR from scratch. Work levels do not change configured models, providers, or advisor cadence.
+
 ## Branch Continuation
 
 - When resuming ongoing branch work, inspect the repository state instead of relying on chat memory

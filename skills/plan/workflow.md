@@ -17,7 +17,7 @@ This packaged fallback preserves the local workflow contract when a target proje
 
 When the person needs help articulating these inputs, use [Shape](../shape/workflow.md) to develop the feature spec collaboratively first. Reuse a confirmed spec here; do not repeat its interview. A shaping draft alone does not authorize implementation planning or delivery.
 
-Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
+Select the current request's [Work Level](../autopilot/workflow.md#work-levels) before planning. Do not use this workflow for an obvious mechanical quick tweak: read the needed context and references, make the behavior-preserving edit, then stop without agent-initiated post-edit verification. Normal work needs bounded planning only for material choices; rearchitecture warrants bounded design across the affected whole.
 
 For HTTP-response and recovery design, apply [Intermediary Responses to JSON Requests](../../docs/references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) when fit-checking failure outcomes, loaded-state preservation, uncertain writes, existing error boundaries, and optional-preview trust.
 

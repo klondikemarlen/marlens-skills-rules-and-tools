@@ -14,13 +14,41 @@ Use when a user wants an agent to complete a feature or bug fix with minimal act
 - Before new implementation, apply [Checkout Selection](../worktree/workflow.md#checkout-selection): default to an appropriate separate worktree, reuse a registered continuation, and honor explicit checkout/boundary instructions. This applies outside feature-labeled work too; use the existing creation/setup procedure rather than duplicating it.
 - When starting or resuming actual ticket work, apply [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle) for the intended person's assignment and active-work status; reconcile the ticket again at review, merge, and delivery. Read-only triage does not claim ownership.
 - Start from the success condition: name the desired behavior, invariant, or regression risk before planning or editing.
-- Establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
+- Apply [Work Levels](#work-levels) first. For normal or rearchitecture work, establish the smallest verification path before implementation continues: targeted test, build/typecheck, browser scenario, fixture diff, or a documented `BLOCKED` reason.
 - Prefer an established relevant suite when one exists. For a one-off tooling change without a relevant suite, use a focused disposable smoke check rather than creating a permanent bespoke runner or assertion API solely for that change; remove temporary scripts and recording fixtures afterward, and preserve reviewer-reproducible commands and truthful evidence. Keep permanent regression coverage when it fits established conventions, and intentionally establishing test infrastructure remains valid when it is accepted scope. Do not replace runnable behavioral proof with source-text assertions or inspection alone.
 - Choose focused checks or a relevant affordable full suite under [Full-Suite Cost](#full-suite-cost), without a routine approval prompt. Preserve independently documented test/release gates; an `npm test` script alone does not mandate a full-suite run. Run an installed verifier only when its declared contract directly covers a changed acceptance criterion; a generic repository-hygiene check is not relevant merely because a source file changed, especially when a required test gate already exercises it. Record unrelated or already-covered verifiers as `N/A`, not `BLOCKED`. If a required relevant verifier is unavailable, record `BLOCKED` with the missing prerequisite.
 - Use [Process](#process) to choose the execution shape, establish proof, iterate, and transfer context only when needed.
 - For initial scope and follow-up priorities, use [Simple-First Delivery](#simple-first-delivery).
-- Completion requires final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. "Looks done" is not evidence.
+- For work requiring verification, report final evidence in `PASS`, `FAIL`, or `BLOCKED` terms. Quick tweaks use the stopping rule below; unrun checks are not a fabricated `PASS`.
 - Keep this repo's role to workflow, rule, skill, and prompt assets. Do not build a task runner, dashboard, queue, or orchestration runtime here.
+
+## Work Levels
+
+Choose the level for the **current request**, not the size or age of the original PR. The user can say “rearchitecture,” “normal work,” or “quick tweak”; equivalent plain-language requests work too. Default ordinary implementation to normal and recognize an obviously mechanical tweak without asking for a mode. An initial request is not automatically architectural. Keep normal code-quality and style standards at every level.
+
+| Level | Use It For | Work and Stop Condition |
+| --- | --- | --- |
+| **Rearchitecture** | The current design no longer fits; accepted changes to ownership, boundaries, or core contracts. | Use bounded outcome-first design, inspect affected callers and invariants, implement the coherent change, and exercise relevant integration and failure paths. Complete review of the affected design and applicable delivery gates, then stop. “Full effort” does not mean unrelated audits or exhaustive hypothetical cases. |
+| **Normal** | Features, bug fixes, and cleanup with meaningful behavior or integration risk. | Reuse established patterns, review the affected change, and run the smallest relevant behavioral check. Follow-up proof covers changed contracts and invalidated evidence, not an automatic whole-PR restart. Stop when that proof and applicable requested delivery gates are satisfied. |
+| **Quick tweak** | A clear behavior-preserving local rename, declaration move, or minor mechanical restructuring. | Read the necessary context and references before editing, make the complete requested change, and report it briefly. Do not initiate post-edit tests, lint, builds, verifier runs, repeated reads/diffs, a second review, or a “verify the verification” loop. No plan, delegation, or verification report is needed. |
+
+### Switching and Escalation
+
+Move naturally from rearchitecture to normal cleanup to quick tweaks as the request narrows; move upward when the next request warrants it. Do not require a confirmation form, persistent mode setting, or classification announcement on every turn. State the reason briefly only when changing an explicitly requested quick tweak to normal.
+
+Before a quick edit, resolve its actual scope using available context and symbol-aware references where needed. A rename must update all affected uses. A declaration move qualifies only when evaluation order, scope, initialization, and side effects stay unchanged. Unknown dynamic references, exported/public contract changes, persistence, authorization, concurrency, or altered control flow require normal work when they materially affect the requested change. A small diff is not proof of low risk; hypothetical risk alone is not a reason to inflate an understood edit.
+
+For example, moving a pure local function declaration or renaming a local binding is a quick tweak; moving an initializer across a side effect or renaming a serialized field is normal work. Redesigning transaction ownership is rearchitecture. If an edit tool reports a failed or partial edit, repair that operation rather than claiming completion; this does not require a broader verification campaign.
+
+### Follow-Ups and Delivery
+
+Reuse the existing ticket, actual PR head, registered worktree, accepted decisions, and valid evidence. A narrow follow-up does not create another issue, branch, worktree, design exercise, or release cycle merely because it edits code. A request to tweak code alone does not authorize merging or publishing it.
+
+Normal fixups review the changed portion and affected contracts, rerunning only evidence invalidated by that change. Expand review to the whole affected design when the fix invalidates earlier architectural assumptions or a broader review is explicitly requested. Complete initial PR self-review remains part of delivery; do not repeat it from scratch after each mechanical correction.
+
+The quick-tweak exemption concerns agent-initiated code verification, not authorization, safe editing, truthful remote-mutation readback, independently mandated CI, or explicit merge/release requirements. Do not disable automatic checks or claim skipped checks passed. When a required delivery gate actually applies, perform that gate without adding optional duplicates. A completed quick tweak can simply say what changed; if verification status is requested, say it was not run for the mechanical tweak, not `PASS` or `BLOCKED`.
+
+These levels are guidance, not model selectors, reasoning-effort settings, or advisor scheduling controls. Keep configured providers, models, fallback routes, and final-yield advisor cadence unchanged. An independently scheduled advisor may require support in its owning runtime to consume request-level scope; do not claim this document disables it.
 
 ## Relative Capability Roles
 
@@ -84,9 +112,10 @@ Focused diffs can make change amplification and recurring change clusters easier
 
 ## Process
 
-1. Choose the execution shape:
-   - **Small diff:** one-sentence request, one obvious area, no exported API change. Read the local pattern, patch, and exercise the relevant proof; no separate framing record, plan, or handoff packet is required.
-   - **Unclear or multi-file:** inspect the affected boundary, then make one bounded plan naming the outcome, first runnable prototype, and its proof. Reuse an existing issue or plan that already supplies this context. For broad work, apply [Plan Reviewable PR Slices](#plan-reviewable-pr-slices) before implementation.
+1. Choose the current request's [Work Level](#work-levels):
+   - **Quick tweak:** read the affected context, apply the complete mechanical edit, report it briefly, and stop. The verification steps below do not apply unless an independent required gate applies or concrete risk moves the request to normal.
+   - **Normal:** inspect the affected boundary and use focused proof. Make a bounded plan only for unresolved decisions; reuse the existing issue and still-valid evidence.
+   - **Rearchitecture:** establish the revised contracts and bounded design before implementation. For broad work, apply [Plan Reviewable PR Slices](#plan-reviewable-pr-slices).
 2. Establish the outcome once for non-trivial work:
    - `Goal`: the user-visible outcome.
    - `Success condition`: the behavior, invariant, or regression risk that proves success.

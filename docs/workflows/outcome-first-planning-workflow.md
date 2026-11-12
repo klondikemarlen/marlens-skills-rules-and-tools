@@ -15,7 +15,7 @@ Use when a request has a material design choice and needs a bounded implementati
 - Validate examples and counter-examples before choosing an interface.
 - Read project-local guidance and existing patterns before selecting package assets or tools.
 - Prefer the smallest existing workflow, rule, skill, or template that can satisfy the success condition.
-- Do not use this workflow for an obvious local or mechanical change; read the local pattern, make the smallest patch, and run its relevant check.
+- Select the current request's [Work Level](hands-off-agentic-coding-workflow.md#work-levels) before planning. Do not use this workflow for an obvious mechanical quick tweak: read the needed context and references, make the behavior-preserving edit, then stop without agent-initiated post-edit verification. Normal work needs bounded planning only for material choices; rearchitecture warrants bounded design across the affected whole.
 - Stop planning when the residual risk is named and the next implementation step is runnable.
 
 For HTTP-response and recovery design, apply [Intermediary Responses to JSON Requests](../references/engineering-techniques-reference.md#intermediary-responses-to-json-requests) when fit-checking failure outcomes, loaded-state preservation, uncertain writes, existing error boundaries, and optional-preview trust.
