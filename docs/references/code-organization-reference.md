@@ -649,7 +649,10 @@ Use the actual factory contract, title format, selected membership, and ordering
 Distinct, meaningful records should expose named attributes instead of positional tuple tables used only to compress setup. Replace:
 
 ```typescript
-for (const [claimType, amount] of [["meal", 25], ["lodging", 140]] as const) {
+for (const [claimType, amount] of [
+  ["meal", 25],
+  ["lodging", 140],
+] as const) {
   await claimFactory.create({ travelRequest, claimType, amount })
 }
 ```

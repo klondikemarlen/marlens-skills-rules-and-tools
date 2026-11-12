@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.8.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1276) - 2026-11-12
+
+### Changed
+
+- Make code-authoring contracts explicit: preserve accepted lookup misses, reuse verified normalization, guard Luxon validity, and distinguish nullish values, field completeness, and positive boolean state.
+- Keep integration-column provenance, named partial indexes, migration field groups, identity-only navigation, and meaningful fixture attributes readable in their existing guidance owners.
+
 ## [5.8.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1274) - 2026-11-12
 
 ### Changed
