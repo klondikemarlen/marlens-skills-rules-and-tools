@@ -1368,11 +1368,13 @@ Hide permission-restricted links from users without the required permission, usi
 For example, an existing navigation owner can gate its administration link:
 
 ```vue
-<v-list-item
-  v-if="canAdministerCategories"
-  :to="{ name: 'category-admin' }"
-  title="Categories"
-/>
+<template>
+  <v-list-item
+    v-if="canAdministerCategories"
+    :to="{ name: 'category-admin' }"
+    title="Categories"
+  />
+</template>
 ```
 
 When the accepted administration boundary already handles restricted access, its authorized child renders the existing editor directly:
