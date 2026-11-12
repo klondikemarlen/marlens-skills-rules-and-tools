@@ -6,6 +6,18 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.9.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1294) - 2026-11-12
+
+### Changed
+
+- Keep Vue domain workflows ahead of cosmetic setup and existing breadcrumbs last when lifecycle permits. Make watcher-local hydration, record availability, and permission-entry ownership explicit without weakening recovery or authorization.
+
+## [5.9.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1293) - 2026-11-12
+
+### Changed
+
+- Prefer a scoped managed restart after an installed plugin update, with honest pending/completed status and a manual fallback. Keep human-facing command reports focused on useful results without hiding missing data.
+
 ## [5.8.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1278) - 2026-11-12
 
 ### Changed

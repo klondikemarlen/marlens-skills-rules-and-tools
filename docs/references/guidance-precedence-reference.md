@@ -58,6 +58,12 @@ For feature descriptions, apply the same reader-first standard to report depth: 
 
 Downstream links supplied as examples of a shared instruction problem are read-only research inputs. Improve the shared owner when that is the requested outcome; a broad follow-up such as “do what you think is best” does not turn those examples into cleanup targets. Editing or deleting downstream history requires an explicit cleanup request and target scope.
 
+### Human-Facing Command Reports
+
+Apply reader-first information selection to product command output as well as agent messages and tracker documents. Lead with the useful result in plain language; avoid repeating equivalent total, daily, and per-model metric blocks or showing irrelevant diagnostic counters. Retain meaningful unknowns, actionable warnings, required safety information, and explicitly requested detail. Keep stored telemetry intact and point to an existing detail surface when useful; do not invent another reporting mode just to shorten the default output.
+
+For example, instead of repeating token categories, coverage fractions, latency, and zero-warning counters in three analytics blocks, summarize: “12 requests across 3 sessions. Typical response time: 4 seconds. Cost unavailable for 2 requests; the reported total is incomplete.” Link the existing detailed records if available. Choose comparisons only when they answer the user's question; this is not a fixed line limit or permission to hide missing data.
+
 ### Actionable Operational Handoffs
 
 Describe the receiving role's actions in its target environment, using artifacts it already has or explicit steps to obtain or generate them. Do not assume developer-local files or prior setup exist for the recipient. Keep necessary filenames, prerequisites, and supplied-file instructions; omit unrelated developer actions.
@@ -65,7 +71,6 @@ Describe the receiving role's actions in its target environment, using artifacts
 For example, instead of “Upload `public_cert.pem`,” explain: “Obtain the application's public certificate from the application owner through the approved transfer channel, confirm its fingerprint and intended application, then upload that supplied public certificate in the target application's certificate settings.” If the accepted setup instead generates the certificate in the target environment, provide that environment's verified generation/export steps. Do not prescribe one cloud provider's certificate-generation procedure universally, share private keys, or imply that the recipient already has the file.
 
 For files a person must open, supply a verified accessible filesystem path or the destination's supported link. An agent-only URI such as `local://` is not a human-readable file handoff unless that interface supports it. Keep local paths in the local conversation, not public GitHub records; preserve the artifact's access and confidentiality boundaries.
-
 
 ### Standalone Reports
 
