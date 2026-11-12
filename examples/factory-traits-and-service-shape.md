@@ -140,19 +140,23 @@ Keep each distinct query matcher and response visible in Arrange instead of bran
 ```ts
 const responsesReady = Promise.withResolvers<void>()
 
-mock.onGet("/api/flight-segments", {
-  params: { order: [["departureAt", "ASC"]] },
-}).reply(async () => {
-  await responsesReady.promise
-  return [200, { flightSegments: [{ id: 7, departureAt: "2026-11-12T08:00:00-07:00" }] }]
-})
+mock
+  .onGet("/api/flight-segments", {
+    params: { order: [["departureAt", "ASC"]] },
+  })
+  .reply(async () => {
+    await responsesReady.promise
+    return [200, { flightSegments: [{ id: 7, departureAt: "2026-11-12T08:00:00-07:00" }] }]
+  })
 
-mock.onGet("/api/flight-segments", {
-  params: { order: [["departureAt", "DESC"]] },
-}).reply(async () => {
-  await responsesReady.promise
-  return [200, { flightSegments: [{ id: 9, departureAt: "2026-11-12T17:00:00-07:00" }] }]
-})
+mock
+  .onGet("/api/flight-segments", {
+    params: { order: [["departureAt", "DESC"]] },
+  })
+  .reply(async () => {
+    await responsesReady.promise
+    return [200, { flightSegments: [{ id: 9, departureAt: "2026-11-12T17:00:00-07:00" }] }]
+  })
 
 // Trigger the real loader and assert its pending state before releasing both responses.
 responsesReady.resolve()

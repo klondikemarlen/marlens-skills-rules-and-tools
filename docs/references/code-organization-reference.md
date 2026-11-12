@@ -711,7 +711,7 @@ const bookingFactory = Factory.define<BookingAttributes>(({ params }) => {
   const pickUpLocation = params.pickUpLocation ?? destination.location
   const pickUpLocationDescription =
     pickUpLocation === "Other"
-      ? params.pickUpLocationDescription ?? faker.location.streetAddress()
+      ? (params.pickUpLocationDescription ?? faker.location.streetAddress())
       : null
 
   return {
