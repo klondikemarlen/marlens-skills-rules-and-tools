@@ -135,17 +135,32 @@ This intentionally narrow mock serves consumers that read `response.data`. If a 
 
 ### Query, Deferred, and Failure Scenarios
 
-Keep decisions local to the scenario. A query-sensitive route can return a literal payload without adding a query language to the helper:
+Keep each distinct query matcher and response visible in Arrange instead of branching on request configuration inside a response handler. For a project already using Axios Mock Adapter, these separate definitions match the same URL with different query configurations and share intentional deferred timing:
 
 ```ts
-mockHttpGetRoute("/api/widgets", (config) => {
-  if (config?.params?.name === "Compass") {
-    return { widgets: [{ id: 7, name: "Compass" }], totalCount: 1 }
-  }
+const responsesReady = Promise.withResolvers<void>()
 
-  return { widgets: [], totalCount: 0 }
+mock.onGet("/api/flight-segments", {
+  params: { order: [["departureAt", "ASC"]] },
+}).reply(async () => {
+  await responsesReady.promise
+  return [200, { flightSegments: [{ id: 7, departureAt: "2026-11-12T08:00:00-07:00" }] }]
 })
+
+mock.onGet("/api/flight-segments", {
+  params: { order: [["departureAt", "DESC"]] },
+}).reply(async () => {
+  await responsesReady.promise
+  return [200, { flightSegments: [{ id: 9, departureAt: "2026-11-12T17:00:00-07:00" }] }]
+})
+
+// Trigger the real loader and assert its pending state before releasing both responses.
+responsesReady.resolve()
 ```
+
+Here `mock` is the project's existing adapter instance; the adapter owns dispatch and Axios supplies the response envelope. Use the actual query keys and parameter representation. Register specific matchers before an overlapping broad fallback: Axios Mock Adapter matches overlapping handlers in registration order, while identical persistent registrations replace earlier ones. Preserve the existing unmatched behavior (404 by default, or the configured throw/passthrough policy), errors, and reset lifecycle; do not introduce network passthrough.
+
+The URL-only delegation helper above deliberately cannot register distinct `config.params` variants of one URL: another registration replaces that URL's handler. Use existing query-aware support instead of pretending the URL map supports this or introducing a new library. Conditional matching belongs in shared infrastructure, not scenario response selection; homogeneous test tables remain appropriate.
 
 For a loading scenario, return a promise controlled by the test. Resolve it only when the scenario requires the loaded transition:
 
