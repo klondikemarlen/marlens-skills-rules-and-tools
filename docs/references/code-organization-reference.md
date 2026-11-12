@@ -81,6 +81,31 @@ When this scope correction is accepted, inspect the complete in-scope PR for equ
 
 A legitimately touched file is not permission to relocate its unchanged setup declarations or initialization calls. Preserve their established relative placement unless requested behavior, an actual dependency/initialization order, project tooling, or explicitly requested cleanup requires a move. For example, leave an unchanged `const snack = useSnack()` beside its original form setup rather than moving it solely because the file gains store logic. Necessary new declarations and justified ordering changes remain valid; preserve initialization effects and do not impose a universal declaration order. When this correction is accepted, inspect analogous incidental moves across the complete in-scope PR, preserving other owners' changes rather than restoring only the highlighted line or sweeping unrelated files.
 
+### Mutually Exclusive Alternatives
+
+Use one `if`/`else if`/`else` chain or `switch` when selecting among mutually exclusive alternatives. Keep independent conditions independent and useful precondition guards separate. A clear loop is appropriate; no reduction or `sumBy` rewrite is required.
+
+For transactions whose amounts are nonnegative bigint minor units and whose supported types are Sale, Refund, and Void:
+
+```typescript
+let total = 0n
+
+for (const transaction of transactions) {
+  switch (transaction.type) {
+    case "Sale":
+      total += transaction.amount
+      break
+    case "Refund":
+      total -= transaction.amount
+      break
+    case "Void":
+      break
+  }
+}
+```
+
+This groups the decision without changing bigint arithmetic or the no-op Void behavior. Preserve the actual sign convention and handling of unsupported types; this is not a blanket ban on early returns or `continue`.
+
 ### Diff-Friendly Configuration Layouts
 
 For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. An addition should not rewrite an existing entry or its delimiters:
@@ -580,6 +605,8 @@ These are alternative Arrange excerpts, not a helper API or response shape to im
 
 For several mocked HTTP endpoints, prefer additive route registration over replacing the whole client's implementation with a scenario-specific URL ladder. Reuse project-native handlers when they fit; otherwise use small shared support with equivalent single-route and map registration. Callbacks return payloads directly; only the transport boundary supplies an envelope such as Axios's `{ data: payload }`. Keep config/query decisions, deferred responses, and failure behavior local. Specify exact matching, duplicate precedence, unmatched behavior, and the configured implementation-reset lifecycle; preserve unrelated shared mocks and propagate errors rather than substituting empty success. See [Composable HTTP GET Routes](../../examples/factory-traits-and-service-shape.md#composable-http-get-routes) for researched alternatives, a narrow delegation example, and behavioral checks. Do not impose its illustrative names, client, or dependency on another project.
 
+For distinct query configurations of the same URL, register separate matcher/response definitions rather than dispatching with `if` inside a scenario response handler. Keep query matchers, payloads, deferred timing, and failures visible in Arrange; shared support owns request matching. Use supported native registrations, preserving precedence and unmatched-request behavior. The URL-only map example cannot distinguish same-URL query variants; see [Separate Query Responses](../../examples/factory-traits-and-service-shape.md#query-deferred-and-failure-scenarios) for an existing-adapter example. This does not prohibit conditional logic in shared matching infrastructure or require splitting homogeneous case tables.
+
 Treat testability as a production-design concern. When test setup reproduces a production algorithm or reconstructs the behavior being protected, inspect production ownership and the test boundary before expanding the mock. Prefer exercising the real operation with controlled I/O, such as supplying a literal API response while retaining the real loader/grouping path. If the existing boundary prevents that, expose only an already cohesive, meaningful operation for direct testing; do not extract a trivial wrapper or invent an abstraction solely for the test framework.
 
 Keep expected outcomes literal and independent of the implementation, and retain consumer-visible regression coverage when removing copied behavior. Collaborator mocks remain appropriate for external or volatile dependencies when they do not replace the behavior under test. This does not require every test to be an integration test or prohibit useful mocks.
@@ -667,6 +694,46 @@ await claimFactory.create({ travelRequest, claimType: "lodging", amount: 140 })
 A supported factory/collection API is also suitable when each record's named attributes remain clear. Preserve values and factory lifecycle; this does not ban homogeneous loops, Lodash iteration, factory list APIs, or input/output case tables.
 
 Arrange data through the project's factories rather than unrelated production services. Service calls remain appropriate when that service is the subject under test or the scenario is a feature test. Reuse opt-in relationship traits for repeated setup; keep scenario-specific values, identities, deletion states, ordering, and explicit preloads visible and preserved. This does not prohibit mocked collaborators or introduce a new factory library.
+
+### Varied Factory Defaults
+
+Prefer realistic randomized defaults for ordinary factory attributes over repeatedly returning one example. Reuse the project's existing generator and domain catalogues; generate related fields together rather than independently. Keep scenario-defining values explicit, and retain intentional constants and nulls. Deterministic cycling is not a substitute for this preference.
+
+For a project already using Fishery and Faker, with `Airport` and `Other` location types and a description required only for `Other`, a factory can choose a valid city/location pair:
+
+```typescript
+const bookingFactory = Factory.define<BookingAttributes>(({ params }) => {
+  const destination = faker.helpers.arrayElement([
+    { city: "Whitehorse (YT)", location: "Airport" as const },
+    { city: "Dawson (YT)", location: "Airport" as const },
+    { city: "Whitehorse (YT)", location: "Other" as const },
+  ])
+  const pickUpLocation = params.pickUpLocation ?? destination.location
+  const pickUpLocationDescription =
+    pickUpLocation === "Other"
+      ? (params.pickUpLocationDescription ?? faker.location.streetAddress())
+      : null
+
+  return {
+    pickUpCity: params.pickUpCity ?? destination.city,
+    pickUpLocation,
+    pickUpLocationDescription,
+    dropOffCity: null,
+    dropOffLocation: null,
+    dropOffLocationDescription: null,
+  }
+})
+
+const airportBooking = bookingFactory.build({
+  pickUpCity: "Dawson (YT)",
+  pickUpLocation: "Airport",
+  pickUpLocationDescription: null,
+})
+```
+
+Use the actual factory's types, merge semantics, allowed locations, and generation facilities. Here the absent drop-off remains an all-null group, and the explicit airport scenario does not depend on the random choice. Fishery merges supplied params over generated attributes: overrides of dependent fields must also form a valid group; generation does not repair a contradictory explicit override. Preserve the project's seed/reproduction facilities without making assertions depend on generated defaults.
+
+### Scenario Inputs and Assertions
 
 Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
 
@@ -1546,6 +1613,22 @@ return timestamp
 
 Keep the actual parser options, configured timezone, and accepted syntax; this offset-preserving example is not a universal timezone policy. Preserve distinct calendar-date and timestamp paths, including necessary input-type narrowing or independently required syntax restrictions. Do not add Luxon where absent or prohibit regex for unrelated text contracts.
 
+When Luxon is available, prefer meaningful parsed values and explicit formats to ISO timestamp `slice(0, 10)` / `slice(11, 16)` extraction. For an already accepted contract of ISO calendar dates or `T`-separated timestamps, preserving the supplied wall-clock offset:
+
+```typescript
+const startDateTime = DateTime.fromISO(startValue, { setZone: true })
+if (!startDateTime.isValid) throw new Error("Invalid start date.")
+
+const startDate = startDateTime.toFormat("yyyy-MM-dd")
+if (!startValue.includes("T")) {
+  return { startDate, startTime: null }
+}
+
+return { startDate, startTime: startDateTime.toFormat("HH:mm") }
+```
+
+The time-presence check distinguishes a date-only input from a midnight timestamp; Luxon validity alone cannot do that. Keep existing input narrowing and syntax restrictions before parsing. `setZone: true` preserves an explicit input offset rather than converting to the machine's zone; retain the actual configured zone for offset-free inputs and any intentional conversion instead of adopting this example's zone policy.
+
 ```ts
 // Before
 if (composable === undefined) throw new Error("Expected workflow composable scope.")
@@ -1654,6 +1737,20 @@ When automatic framework teardown already unmounts each rendered component, do n
 For a private functional helper, accept each value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its inputs and makes behavior harder to reason about or test.
 
 Pass values explicitly when the caller already has them or the helper's result can be described from its arguments. Keep reads through `this` when the helper is inherently bound to object state, such as coordinating the instance lifecycle, mutating owned state, or using a cache whose identity belongs to the object. Do not add artificial parameters that merely restate that bound identity. For service-class conventions, see [Service Orchestration Readability](#service-orchestration-readability).
+
+Explicit dependencies do not mean callers should compute decisions owned by the helper. Pass source values directly and derive the helper's internal choices inside it. For example, replace `buildDestination(destination, !isNil(this.record.tripTypeActual))` with:
+
+```typescript
+const result = buildDestination(destination, this.record.tripTypeActual)
+
+function buildDestination(destination: Destination, tripTypeActual: TripType | null | undefined) {
+  const useActuals = !isNil(tripTypeActual)
+
+  return { city: useActuals ? destination.actualCity : destination.plannedCity }
+}
+```
+
+Here `Destination` supplies actual and planned city fields, and `TripType` is the project's existing source type. Retain computations genuinely owned by the caller and clear calls in argument lists; do not replace explicit inputs with hidden instance reads.
 
 ## Pattern Selection
 

@@ -61,6 +61,18 @@ Reserve subset matching for a contract that genuinely permits additional element
 
 Keep native promise-error assertions such as `await expect(operation()).rejects.toThrow("Not authorized")` and web-first browser assertions such as `await expect(page.getByRole("alert")).toHaveText("Saved")`. This is not a mandate to replace every matcher with `toEqual`.
 
+For synchronous exceptions and promise rejections, prefer an independently specified string or regex message matcher over arranged error-object identity or `arrangedError.message`. With Vitest, these are separate scenario assertions:
+
+```typescript
+expect(() => parseRecord(invalidInput)).toThrow("Invalid record")
+```
+
+```typescript
+await expect(refresh).rejects.toThrow(/Unavailable/)
+```
+
+Here `refresh` is the promise returned by the operation under test. Both matchers prove failure as well as the expected message; do not replace them with an unguarded `catch` assertion that passes when nothing throws. Use the active framework's supported equivalent, retaining native `node:assert` rather than migrating it. Preserve additional error-contract checks where required and ordinary identity assertions for non-error contracts. This is authoring/review guidance, not a new automatic syntax check.
+
 Preserve transition, race, and rollback setup and scenario identities when reorganizing tests. A coupled invariant is not a general multi-expect exception for non-controller tests. Keep the complete causal sequence in each focused scenario that needs it; assert a real returned or persisted object/collection when it naturally represents the invariant, or use separate tests for distinct observations. Never discard an intervening failure, stale completion, or rollback operation merely to reach one expectation.
 
 ### Independent Saves With Concrete Payloads

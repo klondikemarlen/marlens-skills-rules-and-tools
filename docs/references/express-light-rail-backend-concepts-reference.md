@@ -171,6 +171,19 @@ Use the project's real imports, service signature, status, response envelope, an
 
 Preserve explicit operation-specific representations such as a clone response and all accepted response fields, policy visibility, and preload requirements. Do not rename unrelated function-based serializers, introduce classes, broaden payloads, or migrate an application merely to adopt this guidance.
 
+## Serializer Field Allowlists
+
+For fields returned unchanged under the same names, prefer spreading an explicit `pick` allowlist using the project's existing utility instead of repeating assignments. Keep timestamp conversions, renamed/computed fields, and relationship serialization explicit:
+
+```typescript
+return {
+  ...pick(this.record, ["eventType", "recordLocator", "reservationSystemDescription"]),
+  createdAt: this.record.createdAt.toISOString(),
+}
+```
+
+This represents an existing response with those four fields and a required `Date` timestamp. Retain the actual field list, nullability, timestamp conversion, and relation serializers; never spread the whole model or replace the allowlist with an exclusion list. Use this preference only where the installed utility preserves the existing response shape, including optional/missing-property behavior. Do not add a dependency solely for this syntax, rewrite unrelated serializers, or infer an identifier-naming convention from the example.
+
 ## Existing Class-Based Serializer Dispatch
 
 When the project already has a serializer base with a supported collection entrypoint, pass the collection directly to that entrypoint rather than repeating equivalent single-record mapping at each caller. For an index endpoint, prefer `IndexSerializer.perform(records)` to `records.map((record) => IndexSerializer.perform(record))`, forwarding any required context through the supported arguments. Keep [Serializer Selection by Action](#serializer-selection-by-action): accepting an array does not make a show representation the index contract. In an existing class-based family, implement its instance `perform()` contract and inherit dispatch instead of bypassing it with a bespoke static-only method.

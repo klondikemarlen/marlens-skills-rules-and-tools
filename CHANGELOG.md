@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.9.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1295) - 2026-11-12
+
+### Changed
+
+- Keep serializer fields, mutually exclusive decisions, helper-owned derivations, and timestamp parsing explicit at their owners. Clarify varied factory defaults, error-message assertions, and separate mock response definitions without changing existing test contracts.
+
 ## [5.9.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1294) - 2026-11-12
 
 ### Changed
