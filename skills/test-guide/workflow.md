@@ -23,6 +23,8 @@ Keep manual setup small and practical. Do not require database access, counter r
 
 When a scenario needs unavailable data, deployment, role, or setup permission, name the exact missing prerequisite and the owner who can supply it, mark that coverage `BLOCKED`, and continue independent checks. Do not invent access, claim an unrun result, or ask reviewers to manufacture large datasets. Keep legitimate isolated fixtures and seeding under developer-only setup, never as implicit prerequisites for deployed-app QA. Preserve the scenario's intended transitions and behavior assertions when adapting its data requirements.
 
+For developer-only feature-worktree setup, use [Reusable Preview Data](../worktree/workflow.md#reusable-preview-data) to prepare compatible reusable scenarios in primary before copying into an isolated feature database. Do not turn that local procedure into a prerequisite for reviewers on deployed/shared environments.
+
 ## Real-Authentication E2E Preflight
 
 This applies only when a suite claims real-authenticated coverage; it does not require every suite to use real credentials.
