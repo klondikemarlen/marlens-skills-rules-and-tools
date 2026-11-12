@@ -24,7 +24,7 @@ For a stacked child PR, prefer rebasing onto its freshly fetched actual parent r
 1. Read the current PR base/stack metadata and remote refs to identify the actual parent and child. Do not infer the parent from the default branch or an old branch name.
 2. Preserve unrelated work. Record the original child tip, its reviewed remote head for any authorized lease, and available historical parent refs before fetching. Fetch the actual parent; stop if unexpected remote child work is not included in the local history.
 3. Identify and inspect the child-only replay range, `<old-parent-boundary>..<saved-child-tip>`. If the parent was rewritten, establish the historical boundary from saved refs, reflog, or verified stack history; a merge-base with the rewritten parent alone can include obsolete parent commits. Stop if the boundary is uncertain rather than replaying the old parent.
-4. Keep a backup ref for the original child tip, then replay only child commits onto the fetched parent:
+4. Keep a backup ref for the original child tip. If it previously merged its parent, inspect those saved merges with [`git show --remerge-diff <merge>`](https://git-scm.com/docs/git-show): a successful non-merge replay and matching patch series can still drop edits introduced only during merge conflict resolution. Account for that resolution intent when replaying only child commits onto the fetched parent:
 
    ```bash
    git rebase --onto <fetched-parent> <old-parent-boundary> <child-branch>
@@ -32,6 +32,8 @@ For a stacked child PR, prefer rebasing onto its freshly fetched actual parent r
 
 5. Resolve only in-scope conflicts using the existing continue/abort safety guidance. Preserve child changes and unrelated work; do not silently discard merge intent or other commits.
 6. Review `git range-diff <old-parent-boundary>..<saved-child-tip> <fetched-parent>..<new-child-tip>`, the final diff, and affected behavior. Account for intentional conflict resolutions and run the smallest relevant smoke/check plus required current-head CI.
+
+   When supported by the installed Git and appropriate to the intended integration, optionally run [`git merge-tree --write-tree <fetched-parent> <saved-child-tip>`](https://git-scm.com/docs/git-merge-tree). Only a conflict-free result is a comparison baseline: compare its tree OID with `git rev-parse HEAD^{tree}`. Equality proves full-tree content parity with that clean combination, not behavioral correctness; a difference needs explanation or restoration of missing intent, not blind tree replacement. A conflicted merge-tree result is not a valid expected tree.
 7. Update a published child only when that exact rewrite is authorized, using the recorded expected-remote-SHA lease shown below. If the remote changed, stop and inspect/preserve that work; do not retry by blindly refreshing the lease or silently merge the parent as a substitute for authorization.
 
 ## Restoring Deleted Features

@@ -116,21 +116,46 @@ In `finally`, delete only the owned session with `DELETE /session/<id>`, stop an
 
 Keep four outcomes separate: executable startup, control/interaction, application authentication, and visible UI/screenshot evidence. Load only task-authorized test-account credentials through the documented project setup without printing values or dumping environment/configuration. CAPTCHA, MFA, and provider protections remain real boundaries: ask for supported user assistance or report the exact blocker; do not bypass or weaken them. A successful Firefox run does not guarantee a later authentication challenge will be absent.
 
+### Page-Realm Diagnostics
+
+Do not infer broken application authentication from an imported module in an automation sandbox alone. In Firefox 158.0 with Geckodriver 0.37.1, a WebDriver script's direct Vite-module import produced a different singleton from the page's installed authentication plugin. This is a version-bound observation, not a guarantee about every Firefox/binding pair; Mozilla documents separate [script sandboxes](https://firefox-source-docs.mozilla.org/python/marionette_driver.html#marionette_driver.marionette.Marionette.execute_script).
+
+When internal diagnosis is necessary in an owned disposable browser, compare against the page's actual installed instance. A bounded page-owned `<script type="module">` can import the existing same-origin module and transfer only sanitized JSON through a temporary hidden DOM result element for WebDriver to read. Remove both probe elements afterward. Respect CSP, same-origin restrictions, and authentication; do not expose tokens, substitute authentication state, enable privileged browser access, or treat this internal probe as user-visible QA.
+
 ## Authentication
 
 - Use existing safe test accounts or visible sessions.
 - Never print credentials in summaries, PR comments, screenshots, or logs.
 - If SSO or an external auth provider blocks automation, ask for user assistance or report the blocker.
 
+### Public Origins and Auth0 Allowlists
+
+Behind a reverse proxy, derive the browser origin from the opened page's scheme, hostname, and port, not an upstream listener. An API listening on `localhost:3000` does not make that a browser origin; `localhost:8080` applies only when the frontend is actually opened there. Preserve existing direct-localhost entries still used by other development routes.
+
+Use the configured application's actual flow and [Auth0 Application Settings](https://auth0.com/docs/get-started/applications/application-settings), rather than duplicating URLs across all four fields:
+
+- **Allowed Callback URLs:** the actual post-authentication redirect URLs, including required paths.
+- **Allowed Logout URLs:** the actual allowed post-logout return URLs for the selected logout flow.
+- **Allowed Web Origins:** browser origins required by the selected authorization flow, without callback paths, queries, or fragments.
+- **Allowed Origins (CORS):** origins requiring cross-origin requests to Auth0. Auth0's [Configure CORS](https://auth0.com/docs/get-started/applications/set-up-cors) says an origin already approved through Allowed Callback URLs need not also be added here.
+
+Keep entries minimal and flow-specific; reserve wildcard subdomains for development, not production. Diagnosing an allowlist mismatch does not authorize changing provider settings or weakening authentication protections.
+
 ## Flaky UI Controls
 
 - Wait for loading states to settle before retrying.
 - Confirm whether controls are buttons, links, or custom widgets before deciding an action failed.
 - For async search inputs, type a specific search term, wait for options, select an option, and commit the selection before saving.
+- For transient select/autocomplete menus, open the visible picker, take a fresh accessibility snapshot while the menu is open, and select its clickable parent option row/card from that snapshot, not a child paragraph. Refresh references after rerenders; avoid generated input IDs and stale ARIA references. Custom-rendered options may be generic clickable containers rather than semantic `option` nodes; Vuetify's [autocomplete source](https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx) also filters selected values when `hide-selected` applies. Confirm the committed selection and resulting saved value; typed display text or a page-JavaScript value assignment is not selection proof.
+
+### Binding-Specific Locators
+
+Check the installed binding's API rather than translating locator syntax by name. Puppeteer's [`Locator.filter(predicate)`](https://pptr.dev/api/puppeteer.locator.filter) adds a retrying expectation on the located value; it is not Playwright's [collection filtering](https://playwright.dev/docs/locators#filtering-locators). In inspected Puppeteer Core 25.3.0 source (`NodeLocator._wait` and `FilteredLocator._wait`), a CSS locator delegates to `waitForSelector` and filters that returned handle, not every CSS match. A broad dialog-button selector can repeatedly find Cancel and time out while OK is present. Use a unique supported CSS/text/role selector or enumerate handles and select explicitly; verify this behavior against the version in use. Distinguish an actual navigation control from a similarly linked or disabled breadcrumb, then observe the resulting route/state.
 
 ## Screenshots
 
 - Capture stable reviewer-facing states.
+- For a required capture size, measure the page's actual `innerWidth`/`innerHeight` and the saved image's pixel dimensions, not only WebDriver's outer window rectangle. The [layout viewport](https://developer.mozilla.org/en-US/docs/Web/API/Window/innerHeight) differs from the whole browser window; screenshot mode and device scale can also affect output. Adjust using the active runtime's measured difference and remeasure; never hard-code a browser-chrome offset or claim Full HD from launch dimensions alone.
 - Store temporary files outside the repository.
 - Redact sensitive data.
 

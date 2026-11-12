@@ -58,6 +58,15 @@ For feature descriptions, apply the same reader-first standard to report depth: 
 
 Downstream links supplied as examples of a shared instruction problem are read-only research inputs. Improve the shared owner when that is the requested outcome; a broad follow-up such as “do what you think is best” does not turn those examples into cleanup targets. Editing or deleting downstream history requires an explicit cleanup request and target scope.
 
+### Actionable Operational Handoffs
+
+Describe the receiving role's actions in its target environment, using artifacts it already has or explicit steps to obtain or generate them. Do not assume developer-local files or prior setup exist for the recipient. Keep necessary filenames, prerequisites, and supplied-file instructions; omit unrelated developer actions.
+
+For example, instead of “Upload `public_cert.pem`,” explain: “Obtain the application's public certificate from the application owner through the approved transfer channel, confirm its fingerprint and intended application, then upload that supplied public certificate in the target application's certificate settings.” If the accepted setup instead generates the certificate in the target environment, provide that environment's verified generation/export steps. Do not prescribe one cloud provider's certificate-generation procedure universally, share private keys, or imply that the recipient already has the file.
+
+For files a person must open, supply a verified accessible filesystem path or the destination's supported link. An agent-only URI such as `local://` is not a human-readable file handoff unless that interface supports it. Keep local paths in the local conversation, not public GitHub records; preserve the artifact's access and confidentiality boundaries.
+
+
 ### Standalone Reports
 
 Compose a report from the final evidence-backed understanding: lead with the current observable problem and its impact, then give expected versus actual behavior and relevant supporting evidence within the project's report shape. Do not make the opening a rebuttal to the agent's earlier assumptions. Omit superseded hypotheses and conversational corrections unless they independently help the receiving reader; a reader should not need the troubleshooting conversation to understand the report.
