@@ -12,7 +12,7 @@ Use when the user explicitly says `learn`, asks the agent to remember a correcti
 
 - `learn` means durable persistence beyond the current conversation.
 - Extract only durable, reusable lessons from the current session; ignore one-off friction, transient tool failures, and speculative ideas that have not repeated.
-- Store personal preferences or recurring agent behavior corrections in memory.
+- Store personal preferences or recurring agent behavior corrections in memory, subject to [Explicit Remember Requests](#explicit-remember-requests) for reusable shared guidance.
 - Externalize project-specific lessons in the nearest appropriate repo file: `AGENTS.md`, a local `README.md`, or a `docs/` workflow/reference.
 - Propose shared workflow or rule updates only when the lesson is reusable across projects.
 - When a code-style correction repeats, do not only remember it or add another local rule. First classify whether it reveals project-specific style, reusable prompt/workflow/review guidance, or enforceable verifier/advisor/runtime behavior; propose an upstream feature request for `klondikemarlen/marlens-skills-rules-and-tools` or `omp-verifier` as appropriate, but file it only when issue filing is explicitly authorized.
@@ -33,12 +33,23 @@ Use when the user explicitly says `learn`, asks the agent to remember a correcti
 2. Identify the durable lesson: preference, project convention, reusable workflow/rule, repeated code-style correction, verifier guidance, verifier feature request, or no action.
 3. For repeated code-style corrections, choose the upstream capability owner before persistence: product repo docs for project-only style, `klondikemarlen/marlens-skills-rules-and-tools` for shared prompt/workflow/review guidance, or `omp-verifier` for enforceable advisor/runtime/tooling.
 4. Ask for clarification if the lesson is ambiguous.
-5. Store personal or recurring behavior corrections in memory.
+5. Store personal corrections in memory; for reusable shared guidance, memory is supplemental to the issue path below.
 6. Externalize repo-specific guidance in the nearest appropriate repo file.
-7. Propose shared workflow/rule updates for cross-project lessons; apply them only when already authorized.
+7. For cross-project lessons, apply [Explicit Remember Requests](#explicit-remember-requests) when requested; otherwise propose shared workflow/rule updates. Apply updates only when implementation is already authorized.
    7a. When the lesson concerns a prompt, command injection, or agent identity, record it with [`docs/templates/prompt-improvement-template.md`](../templates/prompt-improvement-template.md) before choosing its owner or next step.
 8. Route verifier-related lessons to guidance/rules for prompt behavior or to a proposed upstream feature request for command/runtime support.
 9. Report what was remembered, changed, proposed, or intentionally skipped.
+
+## Explicit Remember Requests
+
+For Marlen, a request to remember reusable cross-project guidance—especially a reference to global memory—authorizes filing an evidence-backed issue in `klondikemarlen/marlens-skills-rules-and-tools`. Supplemental memory may aid recall, but does not replace the issue. This authorization is limited to the requested lesson: it does not authorize implementation, activation, unrelated proposals, or writes in another repository.
+
+1. Honor narrower instructions first: `memory-only`, `no external writes`, or a specified destination override this default.
+2. Inspect equivalent open proposals before filing. Reuse a covering issue; add only materially new evidence, not a duplicate or an agreement-only comment.
+3. If none covers the lesson, file the smallest evidence-backed proposal describing the correction, reusable outcome, and scope.
+4. Read back the new or reused issue to verify its destination and coverage, then report its canonical URL. Do not claim the guidance is implemented merely because an issue exists.
+
+Personal facts and preferences without a reusable shared-guidance outcome remain memory-only; this is not blanket authorization to publish private session content. Preserve necessary evidence without secrets or unrelated personal information.
 
 ## Reconciling Accepted Corrections
 
@@ -77,4 +88,4 @@ Check the proposal's actual origin and potential security impact under [External
 
 ## Output Contract
 
-Return concise bullets with each durable lesson, its placement, and any repo documentation updated or proposed. Include skipped one-offs as `No action` only when that decision matters.
+Return concise bullets with each durable lesson, its placement, and any repo documentation updated or proposed. For a shared remember request, link the verified new or equivalent existing issue; distinguish filing from implementation or activation. If filing is blocked, report the exact blocker rather than claiming memory completed the request. Include skipped one-offs as `No action` only when that decision matters.
