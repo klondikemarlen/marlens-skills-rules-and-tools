@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.6.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1253) - 2026-11-12
+
 ### Changed
 
 - Scale work to the current request: rearchitecture, normal implementation, or quick mechanical tweaks without agent-initiated post-edit verification. Follow-up review and QA reuse valid evidence instead of restarting whole-PR checks; independent CI and delivery gates remain intact.
