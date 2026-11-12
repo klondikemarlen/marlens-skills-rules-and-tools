@@ -26,6 +26,48 @@ Validate input before persistence. Authorize before sensitive reads and all writ
 
 For cumulative field permissions, prefer one explicit base allow-list, conditional additions, and one final return when this makes the policy clearer. For example, an empty base can receive editable question fields for an authorized administrator and response fields for an authorized owner. Preserve the actual roles, overlapping-role behavior, exact field set, and deny-by-default contract; this layout is not permission to combine mutually exclusive rules or broaden authorization.
 
+## Sequelize: Named Partial Indexes
+
+For partial or complex indexes, prefer named `createIndexDecorator` declarations in the owning project's existing index-module layout rather than an inline `@Index({ unique: true, where: ... })`. Use a descriptive stable decorator identifier and an explicit snake_case database index name matching the migration:
+
+```typescript
+import { createIndexDecorator } from "sequelize-typescript"
+
+export const TagsNameUniqueIndex = createIndexDecorator({
+  name: "tags_name_unique",
+  unique: true,
+  where: { deleted_at: null },
+})
+```
+
+The model imports that decorator from its existing index-module location:
+
+```typescript
+@TagsNameUniqueIndex
+@Column
+declare name: string
+```
+
+Here `TagsNameUniqueIndex` is the TypeScript declaration identity; `tags_name_unique` is the migration's database index name on `tags(name)` with the same uniqueness and `deleted_at IS NULL` predicate. Use the installed decorator API and actual column/predicate mapping. When replacing an inline declaration, preserve all indexed fields, ordering, uniqueness, and predicate; do not invent a new constraint. Follow [Self-Contained Migrations](code-organization-reference.md#self-contained-migrations) for routine soft-delete naming. Simple indexes need no mandatory extraction, and another project's directory names are not universal.
+
+## Migration Field Groups
+
+While authoring migrations or doing requested organization cleanup, group columns by role: main fields, timestamps, then extras, with blank lines between groups. Classify from the actual schema, not alphabetically. For example, in an existing Knex migration:
+
+```typescript
+await knex.schema.createTable("source_events", (table) => {
+  table.increments("id")
+  table.string("source_identifier").notNullable().unique()
+
+  table.timestamp("created_at").notNullable().defaultTo(knex.fn.now())
+  table.timestamp("updated_at").notNullable().defaultTo(knex.fn.now())
+
+  table.jsonb("source_snapshot").nullable()
+})
+```
+
+This illustrates layout, not fields or defaults to adopt. Preserve column types, defaults, nullability, constraints, and behavior; do not reorder unrelated existing schemas or released migrations merely for appearance. Follow [Self-Contained Migrations](code-organization-reference.md#self-contained-migrations) for migration ownership and history.
+
 ## Sequelize: Explicit Find, Update, or Create
 
 For Sequelize persistence, prefer finding a record by its actual identity, updating the found instance, or creating when absent instead of `Model.upsert` and its returned tuple. Keep this decision in the existing owning operation. Preserve the complete identity predicate, authorized attributes, transaction, validation/hooks, returned-record contract, and failure propagation. This is a Sequelize-specific preference, not a prohibition on SQL conflict handling or other ORMs.
