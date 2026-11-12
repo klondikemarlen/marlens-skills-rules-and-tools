@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.9.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1293) - 2026-11-12
+
 ### Changed
 
 - Prefer a scoped managed restart after an installed plugin update, with honest pending/completed status and a manual fallback. Keep human-facing command reports focused on useful results without hiding missing data.

@@ -72,7 +72,6 @@ For example, instead of “Upload `public_cert.pem`,” explain: “Obtain the a
 
 For files a person must open, supply a verified accessible filesystem path or the destination's supported link. An agent-only URI such as `local://` is not a human-readable file handoff unless that interface supports it. Keep local paths in the local conversation, not public GitHub records; preserve the artifact's access and confidentiality boundaries.
 
-
 ### Standalone Reports
 
 Compose a report from the final evidence-backed understanding: lead with the current observable problem and its impact, then give expected versus actual behavior and relevant supporting evidence within the project's report shape. Do not make the opening a rebuttal to the agent's earlier assumptions. Omit superseded hypotheses and conversational corrections unless they independently help the receiving reader; a reader should not need the troubleshooting conversation to understand the report.
