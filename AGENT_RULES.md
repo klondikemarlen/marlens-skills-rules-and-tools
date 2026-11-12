@@ -36,6 +36,7 @@ durable prefix patterns over one-off command strings.
 ### Workflow Guidance
 
 - Prioritize [real user needs over speculative edge cases](rules/solve-real-user-needs.md).
+- Choose rearchitecture, normal, or quick-tweak effort for the current request under [Work Levels](docs/workflows/hands-off-agentic-coding-workflow.md#work-levels); a small PR follow-up does not inherit the original task's ceremony.
 - For new implementation work, default to an appropriate separate worktree; reuse the registered checkout for continuation and honor explicit checkout/boundary instructions. Follow [Checkout Selection](docs/workflows/worktree-creation-workflow.md#checkout-selection) instead of duplicating its setup mechanics.
 - Prefer small, logically isolated commits.
 - Keep pull requests scoped to one story slice or one coherent integration step.
@@ -51,6 +52,8 @@ Report verification outcomes with this vocabulary:
 - `PASS`: observed evidence proves the claimed behavior or invariant.
 - `FAIL`: observed evidence disproves the claim or shows a concrete regression or bug.
 - `BLOCKED`: required evidence is missing, unreachable, or cannot be run.
+
+For mechanical quick tweaks, follow [Work Levels](docs/workflows/hands-off-agentic-coding-workflow.md#work-levels): read needed context, edit, and stop without agent-initiated post-edit verification. Do not claim unrun checks passed. Independent required delivery gates still apply when delivery is requested.
 
 ### Plain Language
 

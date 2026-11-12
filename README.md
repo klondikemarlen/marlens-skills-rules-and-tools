@@ -62,6 +62,12 @@ In OMP, type `/skill:` to browse the full catalog. Specialist entrypoints includ
 
 These workflows respect project-local instructions and the task's authorization. Neither `evolve` nor `wrap-up` exits OMP unless you explicitly ask for exit after completion.
 
+### Choose the Work Level
+
+Say **“rearchitecture”** for a major redesign, **“normal work”** for solid implementation with focused verification, or **“quick tweak”** for a mechanical rename, move, or small restructuring without post-edit verification. Agents should recognize clear mechanical requests without requiring these exact words.
+
+The level follows your current request: start with a redesign, switch to normal cleanup, then ask for quick tweaks without restarting whole-PR review. Concrete behavior or safety risk moves a tweak back to normal; required CI and merge/release gates remain separate. These are plain-language instructions, not slash commands or model switches. See [Work Levels](docs/workflows/hands-off-agentic-coding-workflow.md#work-levels) for the boundaries.
+
 ## Useful Tools
 
 | Need                                                  | Tool and Boundary                                                                                                                                                                                                                                                                                                                                      |
