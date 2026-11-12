@@ -509,7 +509,10 @@ For example, with existing record, error, loading, and retry bindings, Vuetify's
     :items="tableRecords"
     :loading="isLoading"
   >
-    <template v-if="isErrored" #no-data>
+    <template
+      v-if="isErrored"
+      #no-data
+    >
       <v-empty-state title="Unable to load records">
         <template #actions>
           <v-btn

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.8.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1275) - 2026-11-12
+
+### Changed
+
+- Clarify Vue form layout, readable locked values, and explicit assignment-before-side-effect bindings. Keep test-support components with components and table load-error recovery inside supported table slots.
+
 ## [5.8.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1276) - 2026-11-12
 
 ### Changed
