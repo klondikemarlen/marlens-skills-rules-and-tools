@@ -2,6 +2,8 @@
 
 Use this reference with browser QA workflows.
 
+For local scenario-data setup, use [Reusable Preview Data](../workflows/worktree-creation-workflow.md#reusable-preview-data). That workflow owns source preparation, safe copying, feature-only schema changes, and isolated fallbacks; the techniques below verify the browser surface afterward.
+
 ## Visible Behavior First
 
 Validate behavior with user-equivalent browser actions when the claim is user-facing. Click, type, navigate, upload, scroll, and inspect visible state before falling back to internal evidence.

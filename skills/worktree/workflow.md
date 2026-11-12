@@ -112,6 +112,18 @@ Each configured path must resolve inside the repository and name a regular file.
 
 Do not add `.envrc.example`; environment and token setup remain local unless a user explicitly requests a versioned example file.
 
+### Reusable Preview Data
+
+For local feature previews and QA, prefer the primary checkout's development database as the reusable scenario-data source, then copy it into the feature worktree's separate database. This is a setup default where compatible and authorized, not permission to reset data or share a writable database between checkouts.
+
+1. **Establish compatibility and identity.** Read the project's wrapper and documented development export/import procedure. Verify the primary and feature checkout paths, database identities, schema versions, and separate storage without printing credentials. Follow project-local exceptions and data-handling restrictions; never use production data for this procedure.
+2. **Prepare reusable records at the source.** Inspect suitable existing primary records first. When setup is authorized and the primary schema supports the scenario, create only the missing synthetic data there. Preserve unrelated records and primary source changes; do not reset the primary database or change its code to make a scenario fit.
+3. **Copy safely.** Use the documented wrapper and consistent snapshot procedure. Stop destination writers before replacement, preserve valuable destination-only data, and retain private export/backup paths until restoration and data verification succeed. If replacement would discard unique work whose disposition is unresolved, stop before overwriting it.
+4. **Adapt only the destination.** Apply feature-branch migrations and feature-only fixture changes to the destination copy. Never migrate the primary database to unmerged schema or point both checkouts at the same writable database/volume.
+5. **Verify the handoff.** Confirm the destination identity again, inspect the copied scenario records and relationships, and check application readiness through the project's supported commands. Keep dataset preparation, runtime readiness, authentication, and actual UI verification as separate results.
+
+If the primary dataset is unavailable or incompatible, or no supported safe copy procedure exists, explain that condition and use the project's supported isolated setup. Do not invent database-engine commands, weaken data protections, or force a copy. For example, reusable bookings can be prepared in primary and copied; a field introduced only by the feature is populated after migrating the feature database, not by modifying primary.
+
 ## OMP Boundary
 
 OMP's `worktree` / `wt` command only lists or clears OMP-managed worktrees under `~/.omp/wt`. It does not create issue worktrees in this layout.
