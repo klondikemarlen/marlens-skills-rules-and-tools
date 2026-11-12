@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.6.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1258) - 2026-11-12
+
 ### Fixed
 
 - Explicit requests to remember reusable shared guidance now lead to a verified new or equivalent existing MSSRT issue, rather than memory alone. Memory-only and no-external-write instructions remain authoritative; filing does not authorize implementation.
