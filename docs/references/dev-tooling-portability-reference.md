@@ -39,6 +39,8 @@ When adopting or integrating a dependency, honor an explicit request for its lat
 
 Before removing consumer setup, check the caller's settings and the release's changed defaults, security implications, and compatibility with the project's dependency constraints. If an evidenced incompatibility or release constraint prevents adoption, state the evidence and the materially different choice before reducing scope. Without an upgrade request, leave intentional pins unchanged; stylistic alignment alone does not authorize an upgrade.
 
+When adding or updating a declared versioned dependency or artifact reference, prefer an exact selected version rather than a compatible range or floating `latest`; keep its lockfile consistent. Preserve deliberate package compatibility ranges, such as peer dependency contracts, and stronger ecosystem/project requirements. This does not authorize upgrading untouched dependencies or override [routine OMP default-branch installation](omp-plugin-install-reference.md#routine-install).
+
 Verify the chosen version in the manifest and lockfile, confirm the installed artifact version, and exercise the changed consumer path. Do not claim a version is latest based on an earlier check in the conversation. Registry inspection is an adoption-time decision, not a repeated query on every tool turn or an automatic-upgrade policy.
 
 ### Before and After

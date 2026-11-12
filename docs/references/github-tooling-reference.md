@@ -24,6 +24,10 @@ gh pr list --json number,title,headRefName,state,isDraft
 gh pr view 456 --json title,body,state,isDraft,mergeStateStatus,url
 ```
 
+### Large Comparisons and Exact-Ref Evidence
+
+An absent path in a large comparison's `files` array does not prove unchanged source. GitHub's [compare endpoint](https://docs.github.com/en/rest/commits/commits#compare-two-commits) limits changed files to 300 for the entire comparison, shown only on the first page; paginating commits does not recover omitted files. For known boundary files, resolve both intended refs to exact commit SHAs and query the [contents endpoint](https://docs.github.com/en/rest/repos/contents#get-repository-content) for each exact path with `ref=<commit-sha>`, comparing file blob SHAs. Fetch and diff changed blobs before judging relevance. Missing/inaccessible paths or unsupported content leave that comparison unverified; do not substitute the default branch or infer equality from a missing patch.
+
 ## Requested Codex Reviews
 
 Use this only when a maintainer specifically requests a Codex review; it is not a universal merge gate. Follow OpenAI's [Codex GitHub review setup and troubleshooting guidance](https://learn.chatgpt.com/docs/third-party/github#troubleshoot-code-review). Before requesting, read the current PR head and draft/ready state. Check the configured review trigger: if it requires a ready PR, preserve draft status unless the maintainer authorizes making it ready. A manual `@codex review` request is distinct from automatic-review preferences.
@@ -127,6 +131,12 @@ gh api repos/OWNER/REPOSITORY/pulls/NUMBER --jq '{title,body}'
 ```
 
 Use the same `gh api -X PATCH` endpoint with `{title: "New Title"}` for title updates. After every mutation, perform a fresh API-backed read and verify the intended title or body before reporting success. Do not pass shell-sensitive Markdown inline.
+
+## Automated Ready Transitions
+
+The documented [`gh pr ready`](https://cli.github.com/manual/gh_pr_ready) interface has no expected-head/CAS flag. For an authorized automated readiness gate, read the exact PR identity, open/draft state, and verified head immediately before transitioning, then freshly verify that it remains open, ready, and on that verified head. These checks detect observed races; they do not make the transition atomic.
+
+If the attempted transition or its postcheck fails or is uncertain—including a lost mutation response or changed head—compensate with `gh pr ready <number> --repo OWNER/REPO --undo`, then freshly read back `state` and `isDraft` to confirm `OPEN` and draft. Preserve and surface the original failure and any restoration/readback failure separately; if draft restoration cannot be confirmed, stop and name the manual remediation needed. Do not report readiness success or silently retry on the new head. This applies to authorized automation, not permission to change an intentionally draft or otherwise unrelated PR.
 
 ## Pull Request File Viewed State
 

@@ -61,6 +61,8 @@ Use plain terms in user-facing summaries, PR bodies, and final reports. Define d
 
 Keep user responses and GitHub comments brief, natural, and human. Lead with the useful outcome, question, or blocker; preserve necessary links, limitations, and explicitly requested detail. Workflow output fields are execution requirements, not automatic public headings or permission to post. Use [Workflow Outputs and Publication](docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication) to select the reader and destination; publish nothing when there is no new reader-needed information.
 
+Operational handoffs must use the recipient's available tools and artifacts, or explain how to obtain them. Follow [Actionable Operational Handoffs](docs/references/guidance-precedence-reference.md#actionable-operational-handoffs); developer-local files are not recipient prerequisites by assumption.
+
 ### Guarded Computations
 
 Prefer explicit logical forks over ternary arguments that hide branch choices; repeat the branch-local call when clearer while sharing dependencies and common setup outside the fork. For a predicate gating related computations, use a named helper with an early return only when it improves readability. Keep concise scalar ternaries when genuinely clearest; see [Guarded Computations](docs/references/code-organization-reference.md#guarded-computations) for scope and examples.

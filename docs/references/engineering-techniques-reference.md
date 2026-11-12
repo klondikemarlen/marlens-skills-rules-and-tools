@@ -24,11 +24,13 @@ Remove only obsolete worktree-specific image tags when safe; preserve shared tag
 
 ## GitHub Asynchronous Merge for PR Stacks
 
-First detect a stacked pull request or the standard merge endpoint's stacked-merge `403`; ordinary pull requests use the normal merge path.
+First detect a native stacked pull request or the standard merge endpoint's stacked-merge rejection; ordinary pull requests use the normal merge path. Read current stack membership, order, heads, and bases before selecting a target: the asynchronous operation includes **all open downstack PRs**, not only the numbered PR. Authorize that exact merge scope and verify its applicable review/check gates; permission for one PR is not permission to merge a higher child and its downstack.
 
-For the asynchronous path, submit `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async` with the current expected head SHA and requested merge method. A `pending` or `enqueued` result carries `details.uuid`; poll `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}` to a terminal result with a bounded timeout, and stop on an unexpected head change or failed operation.
+Under the [GitHub REST API version 2026-03-10 contract](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2026-03-10#merge-a-pull-request-asynchronously), submit `PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge-async` with `sha` set to the exact reviewed head and the authorized merge method/action. Default rule enforcement remains in place. Only an explicitly requested, actor-permitted bypass may use `merge_action: "direct_merge"` and the JSON boolean `bypass_rules: true` (with `gh api`, typed `-F bypass_rules=true`, not string-valued `-f`). A CLI/admin rejection does not authorize bypass or a broader stack merge.
 
-After a successful operation, re-read the pull request and verify its merged state, merge commit, base branch, and fetched remote refs before deleting an agent-owned branch.
+For a `pending` operation, poll `GET /repos/{owner}/{repo}/pulls/{pull_number}/merge-async/{uuid}` using its `details.uuid` to a terminal status with a bounded timeout. An existing-operation `409` is not a new acceptance: inspect its expected head and merge options before following its UUID. `enqueued` confirms queue entry, not merge completion; `failed`, timeout, unexpected head change, or uncertain status never establishes a successful merge.
+
+Independently re-read every affected PR after reported merge success, confirming merged state, merge commit, and base branch; fetch and inspect the corresponding remote refs before deleting agent-owned branches. Reconcile stack retargeting and preserve unaffected open/draft children. Operation acceptance or polling alone is not final-state evidence.
 
 ## Keyed Frontend Request Coalescing
 
@@ -37,6 +39,18 @@ Time-window request aggregation shares one equivalent operation; it is not respo
 Return independently owned fulfilled values to consumers when the value is mutable. Mutations that invalidate the repeated-GET assumption need targeted invalidation for the affected canonical key.
 
 Caller-owned `AbortSignal` handling is a separate cancellation policy. Decide whether an individual caller stops only its own delivery or the shared operation; do not accidentally encode that choice in the aggregation key.
+
+## Request Cancellation Boundaries
+
+For request-owned cancellable work, carry the same request signal through controllers, direct query/count calls, downstream services, and the actual supported network/database I/O boundary. When cancellation is a required service contract, migrate every caller; do not hide missing propagation with an optional signal or no-op default. Accepting a signal in a wrapper or racing its promise does not prove the underlying work stops. Check the installed transport/ORM version's public contract; preserve transaction and connection ownership when it lacks cancellation support rather than inventing a private hook. For example, [Node.js HTTP cancellation](https://nodejs.org/api/http.html#httprequesturl-options-callback) documents `AbortSignal` handling at the request boundary; it does not establish ORM query support.
+
+Recognize genuine request cancellation before the controller's ordinary catch logging and error-response path. If the request transport has ended, exit without an ordinary application-error log or response attempt. `headersSent` alone is not a cancellation classifier. Do not broadly suppress unrelated errors because a signal happens to be aborted, classify every timeout as cancellation, or return successful data for cancelled work. Preserve the existing error path when the failure is not request cancellation, and the application's explicit timeout response contract when the transport remains usable.
+
+Include final ORM/cache writes in the audit: decide whether they remain cancellable or intentionally complete after abort, with ownership and consistency preserved. Cancellation does not prove a write was rolled back or never applied.
+
+When the existing UI design owns a request timeout, bind it to request identity/sequence rather than only loading state or filter values. Clear the replaced request's timer, give its replacement a full fresh deadline, and prevent stale timeout/completion callbacks from affecting the replacement. This does not require adding timers to every request or choosing a universal deadline.
+
+Focused proof should distinguish real transport abort from ordinary failures, confirm signal identity at direct and downstream I/O, and account for the final-write policy. For an existing timeout design, cover a same-input replacement receiving its full deadline and an old timer/completion being unable to affect it; unchanged loading/filter state must not conceal a missing reset.
 
 ## Real Async Runtime Barriers in Integration Tests
 

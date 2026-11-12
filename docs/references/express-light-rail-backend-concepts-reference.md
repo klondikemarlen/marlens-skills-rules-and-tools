@@ -24,6 +24,8 @@ Apply [Service Runtime Exports](code-organization-reference.md#service-runtime-e
 
 Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
 
+For cumulative field permissions, prefer one explicit base allow-list, conditional additions, and one final return when this makes the policy clearer. For example, an empty base can receive editable question fields for an authorized administrator and response fields for an authorized owner. Preserve the actual roles, overlapping-role behavior, exact field set, and deny-by-default contract; this layout is not permission to combine mutually exclusive rules or broaden authorization.
+
 ## Sequelize: Explicit Find, Update, or Create
 
 For Sequelize persistence, prefer finding a record by its actual identity, updating the found instance, or creating when absent instead of `Model.upsert` and its returned tuple. Keep this decision in the existing owning operation. Preserve the complete identity predicate, authorized attributes, transaction, validation/hooks, returned-record contract, and failure propagation. This is a Sequelize-specific preference, not a prohibition on SQL conflict handling or other ORMs.

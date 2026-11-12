@@ -27,6 +27,10 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
 - Avoid repeating generic extraction history or assurances that licensing and attribution were preserved in source headers; use the repository's standard license and central attribution material for general provenance. Retain concise per-file notices required by the applicable license and useful technical rationale. Apply an accepted correction to analogous headers within the authored or requested review scope, not a repository-wide sweep. Uncertainty about license choice does not authorize changing licenses or removing required notices; leave unclear obligations intact pending clarification.
 
+Inspect the installed library or framework defaults before adding options, overrides, or wrappers. If the default satisfies the accepted contract, use it unchanged; customize for a concrete unmet requirement. Removing redundant configuration must preserve timezone, security, and other behavior, not substitute a different explicit setting.
+
+In Bash configuration, prefer the readable `source path` keyword over `. path` for newly added or modified source commands. Keep POSIX `sh` scripts portable with `.` and do not rewrite unrelated lines.
+
 Before explaining an initialization or import-order workaround with a comment, check whether a simpler supported arrangement can remove the workaround itself. For example, prefer a directly imported mock module over asynchronous hoisted helper initialization when it preserves the required registration order and isolation. Rebuild the arrangement and verify affected consumers rather than merely deleting its explanation. Retain rationale for genuine framework constraints and non-obvious invariants when no simpler correct arrangement exists; this is not a universal mocking pattern or permission to refactor unrelated tests.
 
 For a meaningful computed function result used in an object property or nested call, prefer a descriptive local before its use so the processing step has an inspectable value and useful debugger breakpoint. For example, capture `const gaps = captureGaps(rows, container)` before constructing `{ gaps }`. Preserve evaluation order and short-circuit behavior: keep conditional computation inside its branch rather than hoisting it unconditionally. Do not add aliases for already-available values, trivial wrappers, or extra statements solely to increase line count.
@@ -275,6 +279,8 @@ Before adding a helper, service, class, repository, value object, adapter, folde
 
 If none apply, inline it, delete it, or follow the existing local pattern.
 
+Judge cohesion by what changes together over time, not just today's similar code. Keep create and edit forms, their workflow-owned sections, and state transitions independently owned by default: create may become reduced or multi-step while edit changes separately. Do not merge them into a mode-driven form or shared schedule section merely to remove current duplication. Share stable domain facts, calculations, data retrieval, and low-level controls when their semantics genuinely evolve together.
+
 ## Known Application Types
 
 For application data with an available model, serializer, snapshot, or domain contract, use that existing type rather than widening parameters or intermediate values to `Record<string, unknown>`. Both a broad annotation and `as Record<string, unknown>` can erase an already-known shape; an indexing error is a reason to correct the key or transformation's typing at its owner, not bypass the contract. Preserve meaningful key/value relationships through transformations, using the actual allowed keys and their corresponding value types rather than an unrestricted dictionary.
@@ -296,6 +302,10 @@ function snapshotTitle(snapshot: WorkflowSnapshot): WorkflowSnapshot["title"] {
 ```
 
 Keep genuine generic dictionaries generic and genuinely unknown external input unknown until the established validation boundary proves its shape. Do not assert an unvalidated payload as a model, ban necessary assertions, add a generic wrapper to avoid an indexing error, or turn this correction into an unrelated type rewrite.
+
+For a public concrete function contract, export a meaningful named input/result type from its owning module and import that type in consumers rather than publishing `ReturnType<typeof concreteFunction>`. Reserve `ReturnType` for genuine generic type-parameter utilities; do not rewrite unrelated inferred locals or create a duplicate of an existing domain contract.
+
+For flat immutable metadata with primitive values, prefer `Object.freeze({ ... })` when it supplies the required readonly literal inference and runtime immutability. Freezing is shallow: it does not protect nested mutable objects. Use an existing meaningful enum or explicit type when that is the actual contract, verify exact literal inference where required, and retain legitimate const assertions rather than treating this as a blanket ban.
 
 ### Serialized Transport Type Names
 
@@ -441,6 +451,8 @@ For optional live-update behavior around an existing editor, follow [Optional Li
 
 Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
 
+Do not edit applied or released migration history to correct its effects. Add a new forward migration that supersedes or reverses those effects, with the project's required rollback and data-preservation contract. New, actively reviewed, unreleased migrations may still be edited when their deployment state permits; an existing filename alone does not make a migration immutable.
+
 For new or actively reviewed unreleased migrations, separate meaningfully distinct schema/table introduction, dependent SQL objects, independently owned data conversions, and obsolete-schema removal when they have distinct responsibility or rollback boundaries. Keep table-local constraints with their table and cohesive schema/backfill work together when they share one responsibility. Order forward dependencies and backfills before dependent conversion or removal, and undo them in reverse dependency order. Choose cohesive boundaries, not a universal file count or line threshold.
 
 When authoring or reviewing a new or unreleased data-conversion migration, name the operation and both source and destination storage representations, following [Function Action Names](#function-action-names). Prefer `migrate-diverse-needs-from-shared-lines-and-worksheet-json-to-categories-and-records.ts` over the source-only `migrate-diverse-needs-from-worksheet-json.ts` when those are the actual inputs and destination.
@@ -506,7 +518,13 @@ Use structure as evidence, not a numeric proxy. Do not impose line-count, functi
 
 Verification code should expose each independently observable contract through a named scenario. Keep literal fixture data beside the scenario it explains. Share only repeated mechanics, such as writing a file or invoking a command, when their names clarify the setup; do not create a generic fixture builder.
 
+Use separate self-contained tests when scenarios require different control flow, such as transaction commit versus rollback. Intentional duplicate setup is clearer than `shouldRollback` flags, conditional Acts, or conditional expected-data bundles. Keep homogeneous input/output tables when the Act and assertion structure genuinely remain the same.
+
+Control the clock explicitly in time-dependent tests rather than relying on wall time or fixed fixture dates alone. With Vitest, use `vi.useFakeTimers()` and `vi.setSystemTime(...)`; use `await vi.advanceTimersByTimeAsync(...)` when scheduled callbacks are the behavior. Restore real timers through the suite's cleanup owner. For integration tests needing only application-date control while network/database timers must progress, use `vi.useFakeTimers({ toFake: ["Date"] })`. This does not freeze the database server's clock; choose fixtures or a supported database-time mechanism for that separate boundary.
+
 Pair positive-path coverage with at least one meaningful negative control for the same application-owned boundary. Choose a plausible rejected or excluded case that would expose incorrect fixtures, missing filtering, or missing authorization—not an unrelated error. Reuse existing coverage when it already protects that boundary; the purpose is detecting ineffective tests, not meeting an assertion quota or creating an exhaustive matrix.
+
+For SQL `LIKE` escaping, include literal input containing the production dialect's metacharacters and a plausible wildcard-shaped distractor. Assert the intended literal match and exclusion of the distractor through the actual query boundary; ordinary input alone cannot detect missing escaping. Preserve the query's case, collation, and escape-character contract.
 
 For an access-filtered category listing, keep these as separately arranged scenarios:
 
@@ -528,6 +546,8 @@ Test the application's contract, not the dependency's standard API. Before addin
 For dependency adoption, extraction, or upgrades with unchanged application logic, prefer existing application-consumer tests plus a disposable compatibility smoke when those cover the concrete local risk; an unchanged helper already covered by its consumers does not automatically need a second suite. Reuse versioned upstream package/type/runtime compatibility evidence without copying its suite downstream or mistaking it for proof of the application's actual database, access rules, or custom integration. Keep evidence for the prior version separate from verification of the newly selected version; unchanged upstream implementation does not turn old results into installed-version proof. Retain a focused local regression for an observed unusual interaction that existing coverage does not protect. This is an ownership and risk decision, not a ban on integration testing.
 
 For component tests, drive application-owned behavior through user actions and assert the resulting visible content or records, rather than merely reasserting framework model props, pagination arithmetic, or built-in widget behavior. Keep integration assertions for a concrete application-owned contract; component props and accessibility assertions remain appropriate when they express one. If sensitivity is uncertain, use the bounded diagnostic in [Bounded Mutation Spot-Checks](#bounded-mutation-spot-checks); mutation testing is not required for every scenario.
+
+An absence assertion for a conditional child inside a named slot is meaningful only if the test renders that slot. Use the real host or a narrow slot-rendering stub, and establish a positive child-visible scenario before trusting the negative case. A shallow stub that discards the slot can make every absence assertion pass; do not copy the parent's condition into the stub or substitute a child-only test for the parent condition.
 
 Keep component mount options and scenario-specific API response setup visible in each test's Arrange section. Use owned or inferred API types; do not add scenario-local mount or response-envelope wrappers that hide inputs or copy response contracts into test-only aliases. Retain shared environment/infrastructure setup and established entity factories; build each test's scenario-specific overrides inline. A factory build in Arrange does not justify extracting the mount or response setup.
 
@@ -727,6 +747,8 @@ Test layout follows ownership; it is not a one-suite-per-source-file mandate. A 
 
 For source-aligned suites, follow the project's established source-to-test layout where it helps readers locate ownership; do not infer that every source file needs a dedicated behavioral suite. Keep a dedicated suite aligned with its source owner when it protects distinct behavior not already covered by consumer or boundary scenarios. Do not split one source owner's tests into ad hoc topic-suffixed files. A genuinely distinct production responsibility may have its own matching suite, but a test category alone is not a reason to extract a subservice or use case, impose a file-size quota, or add an abstraction.
 
+Keep test-only helpers, fixture models, and environment setup under the project's existing test-support owner, such as `tests/support/`. Executable verification runners remain at their command owner and consume that support. For a standalone package, `scripts/verify-package.mjs` can launch a disposable consumer using models and setup from `tests/support/package-consumer/`, without requiring an application checkout. Preserve dependency resolution, consumer isolation, and setup lifecycle; these paths are examples, not a universal layout or a relocation mandate for production models.
+
 Preserve behavior-oriented feature suites when the project supports them: these protect a feature or domain behavior independently of any single source file. Organize them by feature/domain/behavior rather than forcing a source-file owner. Choose the style by the contract protected, not merely by whether the test runs real collaborators. Do not extract production code solely to give a feature test a matching source unit.
 
 For example, these illustrate the two styles under a project's existing test conventions:
@@ -780,9 +802,19 @@ Retain direct named imports from supported entry points or leaves for base class
 
 Reuse the project's actual export shape and module resolution. This preference concerns import declarations, not barrel re-exports; relative specifiers such as `export { itemsShareGroup } from "./items-share-group"` remain valid. Do not create bundles, widen exports, introduce cycles, or reorganize unrelated imports solely to satisfy the preference. Explicit project-local conventions remain authoritative.
 
-In tests, prefer owning bundle/barrel imports for dependencies and direct full-module imports for the subject under test. Preserve supported resolution, public package/export boundaries, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production service-collaborator preference does not override those explicit test conventions.
+In tests, prefer owning bundle/barrel imports for dependencies and a direct default import for the primary subject under test when its concrete module supports that export. Preserve supported resolution, public package/export boundaries, named-only or third-party export contracts, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production service-collaborator preference does not override those explicit test conventions.
 
 Give the primary subject-under-test import its own group, separated from dependency imports by one blank line. Preserve the project's section order, supported paths, and explicit exceptions; apply an accepted grouping correction across the requested test scope without unrelated cleanup.
+
+For example, keep dependencies in their existing style and isolate the supported default-exported subject:
+
+```typescript
+import { FundingCategory } from "@/models"
+
+import DestroyService from "@/services/children-with-diverse-needs-funding-categories/destroy-service"
+```
+
+Do not add a default export to a third-party module or rewrite unrelated dependency imports to fit this example.
 
 Model barrels are an exception to the dependency-bundle preference: export models only. Import a model-owned constant or enum directly from that model's module instead of expanding the model barrel. This does not change service-barrel grouping or permit bypassing public package/export boundaries. Explicit project-local conventions remain authoritative.
 
@@ -1254,6 +1286,8 @@ For multi-property query/options object arguments, put each property on its own 
 
 For explanatory comments, prefer JSDoc-style blocks that explain the mechanism and rationale, especially for non-obvious lifecycle state or invariants. State the actual captured boundary, when it is captured, what it gates, and why that gate or cache exists; describe lazy first-use behavior accurately rather than calling it startup. This does not require converting short inline comments or Arrange/Act/Assert markers.
 
+When a comment explains deliberately omitted behavior, name the omission before its rationale. For example: “This factory does not create the associated record because the database trigger creates it; creating both would duplicate the row.” Describe the actual mechanism without assuming the reader knows a rejected implementation. Do not add comments for obvious omissions or speculative alternatives.
+
 When explaining an execution boundary, name the ordering relation and affected unit explicitly so the explanation remains clear if the screen layout changes. Distinguish the destination group from subsequent groups, and state whole-group effects directly rather than leaving the reader to infer them from individual members or an unqualified "before" or "after."
 
 For example, when the accepted operation resets whole stages:
@@ -1420,6 +1454,8 @@ Use the project's existing registration APIs; this example does not require anot
 
 Prefer named Lodash `isUndefined(value)` when Lodash is already available and the check is specifically for `undefined`. Do not add a dependency for this preference or substitute `isNil`, truthiness, or another check with different semantics. Preserve safe `typeof` checks for possibly undeclared bindings, and follow explicit contrary user or project-local instructions.
 
+For a combined null-or-undefined absence check, prefer the existing `isNil(value)` predicate when available instead of repeating `value === null || value === undefined`. Keep `isUndefined` for undefined-only contracts and preserve valid falsy values such as `0`, `false`, and `""`; do not add Lodash solely for this spelling.
+
 For controller query-value guards, prefer the established named Lodash type predicate when Lodash is already available and its accepted values match the input contract; for example, `isString(recordLocator)` before passing the narrowed value to a service without coercion. Inspect sibling guards and predicate semantics first: Lodash `isString` accepts boxed strings as well as primitives, unlike `typeof value === "string"`. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
@@ -1548,6 +1584,8 @@ Use patterns only when they earn their keep:
 
 Invoke Ruby action services through class-level `SomeAction.call(...)` and implement their instance action entrypoint as `#call`. Compose returned results through named locals under [Explicit Ruby Workflow Results](#explicit-ruby-workflow-results), rather than retaining an action instance solely to invoke `#perform` or `#call`. Integration clients, value objects, and objects that genuinely own a lifecycle retain their useful instance APIs; this is not a ban on ordinary instance methods.
 
+In projects supporting Ruby 3.1 or newer, prefer omitted keyword values when the keyword matches an existing local or intended method: `project_root:` instead of `project_root: project_root`. Keep explicit values when names differ, such as `env: environment_variables`. Preserve evaluation and the project's supported Ruby version; apply this only to in-scope calls.
+
 Before adding a class-level constructor-to-instance forwarder, inspect the local callable service/operation base and sibling consumers. Reuse an existing base when its forwarding, initialization, instance entrypoint, return values, and failure behavior match. Keep constructor argument declarations in the initializer rather than repeating every keyword in a trivial subclass `.call` wrapper. Preserve supported positional arguments, keywords, and blocks where the actual local contract requires them.
 
 For example, given an existing local `DeployService.call(**arguments)` that invokes `new(**arguments).call`, inherit that contract instead of redeclaring the same forwarder:
@@ -1564,8 +1602,8 @@ class PrepareRelease < DeployService
   end
 end
 
-prepared_release = PrepareRelease.call(repository: repository, version: version)
-publication = PublishRelease.call(prepared_release: prepared_release, client: client)
+prepared_release = PrepareRelease.call(repository:, version:)
+publication = PublishRelease.call(prepared_release:, client:)
 ```
 
 `DeployService` and `PublishRelease` illustrate existing local owners, not new universal classes to introduce. A class-level method that validates, authorizes, normalizes, selects an implementation, or otherwise adds real behavior is not a trivial forwarder: preserve that behavior at its established boundary. Do not collapse a framework-required `perform` callback or another language's action protocol into `call`. Apply this convention to requested Ruby authoring/review scope, not a repository-wide migration or a new client framework.
