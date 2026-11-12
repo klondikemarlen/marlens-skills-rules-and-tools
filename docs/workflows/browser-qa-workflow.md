@@ -13,6 +13,7 @@ Distinguish a user-led opening from automated QA before choosing a browser or pr
 
 1. For automated QA, identify the exact user flow, setup state, and expected outcomes. Select the engine under [Browser Opening Modes](#browser-opening-modes); default to an isolated, headless automation instance, not the user's personal browser. Retain ownership of its process/profile for scoped cleanup.
    Before declaring control unavailable or switching engines, use [Browser Control Discovery](../references/browser-qa-techniques-reference.md#browser-control-discovery): inspect already-installed project tooling and Firefox/Geckodriver where applicable, prefer maintained bindings, and distinguish startup from actual control, authentication, and UI evidence.
+   For local feature-worktree data preparation, follow [Reusable Preview Data](worktree-creation-workflow.md#reusable-preview-data) before browser interaction. A copied dataset or ready server is setup evidence, not UI verification.
 2. Prefer user-equivalent actions: navigate, click, type, upload, scroll, and wait for visible state.
 3. Use backend shortcuts only when the user explicitly approves them or the task is not UI validation.
 4. Verify labels and controls from the browser or source before writing QA notes.
