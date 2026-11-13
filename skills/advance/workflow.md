@@ -8,6 +8,8 @@ Use when asked to move a project forward but not given a specific implementation
 
 **WHAT this workflow produces:** One completed, bounded project outcome, or an evidence-backed no-action/blocker finding, with the applicable verification and release evidence.
 
+When composed inside [Evolve](../evolve/workflow.md#one-outcome-one-delivery-lifecycle), select and progress the accepted outcome within its shared delivery lifecycle. Hand the runnable work and evidence to in-scope refinement before final shipping gates; do not merge solely to complete Advance. Standalone Advance still completes the applicable delivery process.
+
 ## Process
 
 1. Read project-local instructions, README and contribution/release guidance first. Identify the project's purpose, accepted direction, relevant plans, active issues, and known blockers; distinguish accepted work from speculation. Reuse existing outcome and acceptance evidence rather than making another status or planning record.
