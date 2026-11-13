@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.10.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1338) - 2026-11-13
+
 ### Changed
 
 - Give composed page headings one owner and reuse typed default-plugin Vue mount support while preserving fresh plugin state, caller options, and explicit test scenarios.
