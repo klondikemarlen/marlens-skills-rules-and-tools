@@ -55,17 +55,17 @@ function prepared(directory, message = "Check the release") {
 
 test("strict local dates reject both DST gaps and folds, while explicit offsets select the instant", () => {
   assert.throws(
-    () => resolveDue("tomorrow at 02:30", "America/Vancouver", new Date("2026-03-07T20:00:00Z")),
+    () => resolveDue("tomorrow at 02:30", "America/Vancouver", new Date("2024-03-09T20:00:00Z")),
     /nonexistent or ambiguous/u
   )
   assert.throws(
-    () => resolveDue("tomorrow at 01:30", "America/Vancouver", new Date("2026-10-31T20:00:00Z")),
+    () => resolveDue("tomorrow at 01:30", "America/Vancouver", new Date("2024-11-02T20:00:00Z")),
     /nonexistent or ambiguous/u
   )
   assert.equal(
-    resolveDue("2026-11-01T01:30:00-07:00", "America/Vancouver", new Date("2026-10-31T20:00:00Z"))
+    resolveDue("2024-11-03T01:30:00-07:00", "America/Vancouver", new Date("2024-11-02T20:00:00Z"))
       .dueAt,
-    "2026-11-01T08:30:00.000Z"
+    "2024-11-03T08:30:00.000Z"
   )
   assert.equal(
     resolveDue("tomorrow at 09:00", "Asia/Tokyo", new Date("2026-11-13T23:00:00Z")).dueAt,
