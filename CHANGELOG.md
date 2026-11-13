@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefer one helper signature when overloads add no caller guarantee. Distinguish calendar dates from timestamps with Luxon parsing while preserving midnight, accepted syntax, and timezone behavior.
+
 ## [5.10.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1319) - 2026-11-13
 
 ### Changed
