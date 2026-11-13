@@ -10,6 +10,33 @@ When creating or materially rewriting an in-scope Vue single-file component, ord
 
 Inspect the existing layout before editing. Move whole blocks without changing script semantics, imports, behavior, or the supported relationship between multiple script blocks. Preserve expanded multiline formatting inside the blocks, including object literals, route targets, and params; a block move is not a formatting sweep. During authoring and review, check every created or materially rewritten component in scope for this order. Script-only and template-only excerpts remain valid; full-component examples below use template-first order.
 
+## Model Bindings Before Props
+
+Within `<script setup>`, prefer `defineModel` bindings before `defineProps` declarations, including props wrapped in `withDefaults`, when dependencies permit. This setup reading order is separate from the [top-level template/script/style order](#single-file-component-block-order); check both during authoring and review of touched components. Expand model options under [Diff-Friendly Configuration Layouts](code-organization-reference.md#diff-friendly-configuration-layouts), with each option on its own line even when there is only one:
+
+```vue
+<script setup lang="ts">
+const departureDate = defineModel<string>("departureDate", {
+  required: true,
+})
+const departureTime = defineModel<string>("departureTime", {
+  required: true,
+})
+const arrivalDate = defineModel<string>("arrivalDate", {
+  required: true,
+})
+const arrivalTime = defineModel<string>("arrivalTime", {
+  required: true,
+})
+
+const props = defineProps<{
+  workflowId: number
+}>()
+</script>
+```
+
+Preserve the actual model names, types, options, defaults, modifiers, transformers, props contracts, and runtime behavior. Move declarations only when initialization and evaluation dependencies remain valid; do not move an eagerly evaluated setup dependency below its consumer to force the preference. Macro hoisting does not make setup-local values legal in hoisted options: Vue's compiler separates hoisted model prop options from setup-time `get`/`set` transformers ([Vue 3.5.13 compiler source](https://github.com/vuejs/core/blob/6eb29d345aa73746207f80c89ee8b37ff7b949c9/packages/compiler-sfc/src/script/defineModel.ts#L49-L114)). Preserve both hoisted-option restrictions and the timing of transformer reads or captures; verify against the project's installed compiler when dependencies are involved. Do not sweep unrelated components.
+
 ## Setup Priority and Breadcrumbs
 
 Extend [Dependency-Local Ordering](code-organization-reference.md#state-names-and-dependency-local-ordering) by keeping domain state and workflow actions prominent, with cosmetic-only setup state lower in the script when dependencies permit. Responsive display state such as `const { smAndDown } = useDisplay()` belongs below workflow logic if it only controls presentation; responsive state used by domain initialization must remain before that consumer.
@@ -1096,6 +1123,44 @@ const { workflowStep, isLoading, refresh } = useWorkflowStep(workflowStepId, {
 Keep explicit `refresh()` available and invoke it from the caller's existing refresh trigger; suppression of automatic fetching must not silently disable manual refresh. Preserve ordinary immediate/ID-change fetching for default callers and the existing response to a reactive predicate becoming false. These are alternative caller examples, not declarations to combine or an instruction to suppress every watcher.
 
 Retain the composable's accepted cancellation, request-ownership, and loading-state contracts when the ID changes or clears, the guard suppresses watching, the scope disposes, or an obsolete request settles. An older request must not publish into a newer context or clear its loader; follow [Record-Scoped Async Ownership](#record-scoped-async-ownership). Do not introduce `skipWatchIf` in projects lacking it or redesign an adequate watcher API merely to match this example.
+
+## Mutable Component Workflow Snapshots
+
+Prefer `ref` or an appropriate `reactive` object for mutable component-owned workflow state, including nullable saved snapshots. A snapshot that is replaced and reset to `null` fits a nullable ref. For example, this component script excerpt uses the existing nullable `departureDate` and `departureTime` refs to save the manual schedule before flight matching first replaces it:
+
+```typescript
+const scheduleBeforeFlightMatching = ref<{
+  departureDate: string | null
+  departureTime: string | null
+} | null>(null)
+
+function captureManualSchedule() {
+  if (scheduleBeforeFlightMatching.value !== null) return
+
+  scheduleBeforeFlightMatching.value = {
+    departureDate: departureDate.value,
+    departureTime: departureTime.value,
+  }
+}
+
+function restoreManualSchedule() {
+  const savedSchedule = scheduleBeforeFlightMatching.value
+
+  if (savedSchedule === null) return
+
+  departureDate.value = savedSchedule.departureDate
+  departureTime.value = savedSchedule.departureTime
+  scheduleBeforeFlightMatching.value = null
+}
+
+function resetManualScheduleSnapshot() {
+  scheduleBeforeFlightMatching.value = null
+}
+```
+
+Keep capture at the existing transition before the first matching overwrite, not on every refresh; repeated captures must retain the original manual values until restore/reset. Restore the saved fields before clearing the snapshot, and preserve the existing no-snapshot behavior and reset trigger. In script, update every snapshot guard, read, replacement, and reset to use `.value`; a `reactive` container instead uses its supported property access consistently. Preserve the real field types, nullable contents, copy depth, capture timing, restore behavior, and object-identity requirements rather than adopting this illustrative schedule shape.
+
+Constants and function-local temporary values such as `savedSchedule` stay plain. This component-owned state preference does not require rewriting private composable bookkeeping such as `savedWorkflow` in [Writable State and Reset Operations](#writable-state-and-reset-operations), exposing private state, or making every local reactive. Adding a reactive binding does not authorize extra watchers or new side effects. During authoring and review, inspect all accesses and the capture-once, restore, and reset paths within the requested scope.
 
 ## Writable State and Reset Operations
 
