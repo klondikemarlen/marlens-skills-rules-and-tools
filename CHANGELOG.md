@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.10.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1357) - 2026-11-13
+
+### Changed
+
+- Reconcile unreleased notes to net changes from the verified published baseline: remove fully reverted claims, consolidate replacements, and preserve meaningful safety, migration, and breaking-change information without rewriting published history.
+
 ## [5.10.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1355) - 2026-11-13
 
 ### Changed
