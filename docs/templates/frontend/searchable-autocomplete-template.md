@@ -2,7 +2,7 @@
 
 Use this when a Vue 3 + Vuetify form or filter needs a remote reference lookup without loading an entire table into the browser.
 
-Use [Loading and Disabled State](../../references/vue-component-authoring-reference.md#loading-and-disabled-state) for supported loading and disabled bindings.
+Use [Loading and Disabled State](../../references/vue-component-authoring-reference.md#loading-and-disabled-state) to distinguish pending presentation from genuine idle unavailability while preserving the input's supported availability contract.
 
 ## Placeholders
 

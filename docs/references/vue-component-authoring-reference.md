@@ -41,6 +41,36 @@ Preserve the actual model names, types, options, defaults, modifiers, transforme
 
 Extend [Dependency-Local Ordering](code-organization-reference.md#state-names-and-dependency-local-ordering) by keeping domain state and workflow actions prominent, with cosmetic-only setup state lower in the script when dependencies permit. Responsive display state such as `const { smAndDown } = useDisplay()` belongs below workflow logic if it only controls presentation; responsive state used by domain initialization must remain before that consumer.
 
+Table headers are structural table configuration, not cosmetic-only state. Declare them near the start of setup, after component inputs and before pagination and data-loading setup when dependencies permit. For example, this table setup excerpt keeps its reactive headers ahead of its existing query and collection owners:
+
+```vue
+<script setup lang="ts">
+const props = defineProps<{
+  accountId: string
+}>()
+
+const headers = ref([
+  {
+    title: "Name",
+    key: "name",
+  },
+  {
+    title: "Actions",
+    key: "actions",
+    sortable: false,
+  },
+])
+
+const { page, itemsPerPage } = useTablePagination()
+const { items, isLoading } = useAccountItems(() => props.accountId, {
+  page,
+  itemsPerPage,
+})
+</script>
+```
+
+Use the table's existing bindings and APIs; these composable names illustrate ordering, not APIs to introduce. Move the existing header declaration without changing its columns, sorting, or `ref`/`computed`/plain-value representation. Headers derived from permissions, translations, or other setup values must stay after those dependencies; do not move a consumer above eager initialization or replace reactive headers with a static array just to move them earlier. Responsive cosmetics still belong lower when independent.
+
 For in-scope pages that already set breadcrumbs, place breadcrumb setup as the final setup statement, after page declarations and lifecycle registration. For example, this script excerpt retains the page's existing resource, save action, mount refresh, responsive state, and breadcrumb call:
 
 ```vue
@@ -293,12 +323,12 @@ For example, with existing action handlers and busy state, keep both controls in
 <v-card>
   <template #actions>
     <v-btn
-      :disabled="isBusy"
+      :loading="isBusy"
       @click="reviewStep"
       >Review</v-btn
     >
     <v-btn
-      :disabled="isBusy"
+      :loading="isBusy"
       @click="sendBackStep"
       >Send Back</v-btn
     >
@@ -306,7 +336,7 @@ For example, with existing action handlers and busy state, keep both controls in
 </v-card>
 ```
 
-Preserve control order, handlers, loading/disabled states, and keyboard/accessibility behavior. Inspect the actual slot contract and verify the rendered spacing, alignment, and relevant responsive layouts; compilation alone does not prove layout, and a successful gap in one product does not prescribe a universal pixel value. Check equivalent occurrences within the affected authoring or review scope, not unrelated components.
+Preserve control order, handlers, actual busy restrictions, and keyboard/accessibility behavior. The example assumes `isBusy` represents pending work; use [Loading and Disabled State](#loading-and-disabled-state) for presentation without weakening activation guards. Inspect the actual slot contract and verify the rendered spacing, alignment, and relevant responsive layouts; compilation alone does not prove layout, and a successful gap in one product does not prescribe a universal pixel value. Check equivalent occurrences within the affected authoring or review scope, not unrelated components.
 
 Retain wrappers that own evidenced semantics, accessibility, lifecycle, or interaction behavior. This preference removes a spacing-only boundary, not every wrapper or meaningful action component. Genuinely reusable components still follow [One Template Root and Existing Components](#one-template-root-and-existing-components); controls passed into an existing slot do not authorize converting them into fragment-root components.
 
@@ -373,7 +403,7 @@ For an existing schedule field using Vuetify's native-input-backed text field:
 
 Here `readonly` reaches the [native input](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/readonly); it prevents user changes through typing and the native date/time picker, while disabling clear affordances when locked. Keep the existing local-date/time value format and application validation; native read-only inputs do not participate in browser constraint validation, so preserve required domain/backend checks. This is not a timezone conversion. Use the project's configured icon set, and preserve any explanation of why the field is locked.
 
-Inspect the installed component contract before applying this to a custom picker: its `readonly` may protect only the text input, not its menu, picker selection, or clear action. Use its supported read-only/picker controls to block every user edit path, including an already-open picker when the condition changes; preserve any existing guarded update handler. Verify locked typing, opening/selection/clearing, readable contrast, and the transition back to editing. Do not replace disabled controls indiscriminately: unavailable action buttons should remain disabled, as described in [Loading and Disabled State](#loading-and-disabled-state).
+Inspect the installed component contract before applying this to a custom picker: its `readonly` may protect only the text input, not its menu, picker selection, or clear action. Use its supported read-only/picker controls to block every user edit path, including an already-open picker when the condition changes; preserve any existing guarded update handler. Verify locked typing, opening/selection/clearing, readable contrast, and the transition back to editing. Keep unavailable-action presentation separate from locked-value fields; follow [Loading and Disabled State](#loading-and-disabled-state) rather than assuming disabled styling is required.
 
 ## Related-Record Descriptions
 
@@ -881,14 +911,16 @@ For an existing workflow form with `workflow`, `titleRules`, `saveWorkflow`, and
     <v-btn
       type="submit"
       :loading="isSaving"
-      :disabled="isSaving"
       >Save</v-btn
     >
   </v-form>
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits<{ saved: [] }>()
+const emit = defineEmits<{
+  saved: []
+}>()
+
 const form = useTemplateRef("form")
 const isSaving = ref(false)
 
@@ -913,6 +945,8 @@ async function submit() {
 
 Use the project's supported imports, ref inference, validation result, save/error handling, and completion payload. Preserve existing action-slot placement, authorization, Cancel isolation, pending-update policy, and save lifetime; the parent may navigate on successful completion, not on an attempted or failed save. This example assumes saving resolves only after persistence succeeds and rejects on failure. It does not replace a deliberately different submission contract.
 
+Use past-tense notifications such as `saved`, `created`, or `deleted` only after the action completes successfully. A `save` or `submit` event may instead be a command asking another owner to perform work; do not rename that command to `saved` before persistence occurs. Keep existing completion payloads and update affected emitters and listeners together when changing an event contract.
+
 Decide whether a public API is needed separately from its placement. Preserve legitimate component APIs, such as an input's imperative focus operation. Place a necessary `defineExpose` last in `<script setup>`, after the definitions it exposes, except that existing page [breadcrumb setup](#setup-priority-and-breadcrumbs) follows it when dependencies and lifecycle permit. For an existing native input with `ref="input"`:
 
 ```vue
@@ -928,6 +962,30 @@ defineExpose({ focus })
 ```
 
 Respect Vue's [exposure lifecycle](https://vuejs.org/guide/essentials/template-refs.html#ref-on-component): `defineExpose` must execute before the first top-level `await`. If setup awaits, keep exposure and its required definitions before that suspension rather than moving it past `await` to satisfy the last-declaration preference. An `await` inside a later-invoked handler is not a top-level setup suspension. Do not remove an accepted public API or change initialization order merely to apply this convention.
+
+### Navigation-Only Cancel Controls
+
+When Cancel only navigates to a known destination, prefer the component's supported router-link `:to` binding over a child `cancel` emit, parent listener, and handler that only calls `router.push`. Remove that relay together, preserving the destination and every route parameter. Keep imperative cancellation when it resets a draft, confirms unsaved changes, closes a dialog, or aborts an operation; a link alone does not perform those actions. Successful-save notifications remain events, not links.
+
+For a form whose existing contract disallows Cancel while saving, this template excerpt renders a link only while navigation is allowed, retaining the existing details destination and identifier:
+
+```vue
+<v-btn
+  v-if="!isSaving"
+  type="button"
+  :to="{
+    name: 'workflow-details',
+    params: {
+      workflowId: props.workflowId,
+    },
+  }"
+>Cancel</v-btn>
+<p v-else role="status">
+  Saving; Cancel will be available when saving finishes.
+</p>
+```
+
+Use the actual destination, inputs, and busy condition. The pending branch deliberately omits the link rather than assuming loading prevents navigation. Where an established supported link contract preserves the same restriction, use it with the preferred pending presentation instead. Preserve existing route-leave/unsaved-change checks and in-flight save lifetime; do not invent a new restriction for a page that allows navigation while saving. Verify keyboard and link activation against the installed Vue Router/Vuetify version under [Disputed Interaction Behavior](../workflows/browser-qa-workflow.md#disputed-interaction-behavior); prop names alone do not prove busy navigation is blocked.
 
 ### Singular Invocation State and Shared Collections
 
@@ -1359,19 +1417,22 @@ During authoring and review, inspect equivalent callers within the affected chan
 
 ## Loading and Disabled State
 
-Keep idle unavailability distinct from work in progress. For Vue/Vuetify button actions, use the supported disabled presentation when prerequisites such as a selection are missing, keeping the action labeled without a spinner. Reserve `:loading` for actual pending work rather than combining missing selection with busy state. Selecting an item enables an idle action; clearing it restores the idle unavailable state. Keep submission guards for both unavailable actions and duplicate requests: presentation is not protection against form submission, keyboard activation, or direct handler calls. Preserve genuine preparation/loading states and the component's supported contract; do not invent props or rewrite unrelated controls.
+Keep idle unavailability distinct from work in progress. Prefer Vuetify's supported `:loading` presentation for actual pending button work, without adding `:disabled="pending"` styling alongside it. The broader preference is to avoid disabled controls, not to show a false spinner for missing selection, permission, or another idle prerequisite. Use the application's accepted unavailable-action presentation; when that choice is unresolved, conservatively omit the action with an appropriate explanation rather than leave an apparently available action or weaken enforcement. Keep authorization and missing-prerequisite checks with their existing owners; hiding a control alone does not enforce them. This button preference does not prescribe read-only fields or a blanket replacement for other component contracts.
 
-This example accepts the existing download operation as a prop. Reuse the project's established error boundary; the `finally` restores pending state on success or failure.
+Keep existing submission guards for unavailable actions and duplicate requests. Do not assume `loading` blocks keyboard activation, Enter/form submission, direct handler calls, or every router-link path. Vuetify behavior depends on the installed version and component contract; preserve required busy restrictions and obtain [browser evidence for disputed behavior](../workflows/browser-qa-workflow.md#disputed-interaction-behavior) before removing any guard or claiming activation safety. Preserve genuine preparation/loading states; do not invent props or rewrite unrelated controls.
+
+This example accepts the existing download operation as a prop. With no selection, it omits the idle action and explains the prerequisite instead of showing a spinner. Selecting an item reveals the action; clearing the selection restores the explanation. The handler still enforces the prerequisite and pending guard, including non-click submission paths. Reuse the project's established error boundary; the `finally` restores pending state on success or failure.
 
 ```vue
 <template>
   <form @submit.prevent="downloadSelected">
     <v-btn
+      v-if="selectedIds.length > 0"
       type="submit"
       :loading="pending"
-      :disabled="pending || selectedIds.length === 0"
       >Download</v-btn
     >
+    <p v-else>Select at least one item to download.</p>
   </form>
 </template>
 

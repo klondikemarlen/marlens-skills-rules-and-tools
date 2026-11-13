@@ -20,7 +20,7 @@ Use this for new, show, and edit pages whose nested resource list stays in a par
 
 ## Shared Parent Return Navigation
 
-Use the same parent-context return path in new, show, edit, cancel, success, and recoverable-failure UI.
+Use the same parent-context return path in new, show, edit, cancel, success, and recoverable-failure UI. A navigation-only Cancel uses a supported `:to` link directly, not a `cancel` event relay. Retain imperative navigation after successful persistence and any cancellation that actually resets, confirms, closes, or aborts; see [Navigation-Only Cancel Controls](../../../references/vue-component-authoring-reference.md#navigation-only-cancel-controls).
 
 ```ts
 const props = defineProps<{
@@ -45,9 +45,27 @@ function navigateToParentResourceList() {
   <v-card>
     <v-card-title>Add {ResourceName}</v-card-title>
     <v-card-text>
-      <{ResourceFormComponent} v-if="{ResourceCreatePolicyExpression}"
-      :{parent-resource-name}-id="{parentResourceName}Id" :is-submitting="isSubmitting"
-      @submit="createResource" @cancel="navigateToParentResourceList" />
+      <template v-if="{ ResourceCreatePolicyExpression }">
+        <{ResourceFormComponent} :{parent-resource-name}-id="{parentResourceName}Id"
+        :is-submitting="isSubmitting" @submit="createResource" />
+        <v-btn
+          v-if="!isSubmitting"
+          type="button"
+          :to="{
+            name: '{ParentResourceListRouteName}',
+            params: {
+              {parentResourceName}Id: props.{parentResourceName}Id,
+            },
+          }"
+          >Cancel</v-btn
+        >
+        <p
+          v-else
+          role="status"
+        >
+          Saving; Cancel will be available when saving finishes.
+        </p>
+      </template>
       <v-alert
         v-else
         type="error"
@@ -98,6 +116,8 @@ async function createResource(formValues: Record<string, unknown>) {
 }
 </script>
 ```
+
+This example's Cancel is page-owned and navigation-only; remove any superseded child Cancel control and its event declaration/listener together rather than render a duplicate. It illustrates an existing no-navigation-while-saving contract by omitting the busy link with an explanation, not by assuming `loading` blocks a router link. If the actual page permits navigation while saving, preserve that policy instead. Keep the form's existing submission/duplicate guards, validation, and pending presentation; `submit` here requests work from the page, so it is a command, not a completed `saved` notification. Use supported `:loading` for the form's pending submit button without adding busy disabled styling; do not assume it enforces keyboard/form submission safety.
 
 ## Show Page
 
@@ -186,5 +206,6 @@ feedback. Rethrow other failures to the existing application error boundary; ret
 - [ ] New page creates with `{ParentForeignKey}` from the parent route, never from stale local state.
 - [ ] Show page visibly distinguishes loading, successful detail, and failed fetch states.
 - [ ] Successful create/update returns to the named parent list route with the same parent id.
+- [ ] Navigation-only Cancel preserves the named parent list and parent id without an event relay, and honors the existing busy restriction through keyboard and link activation.
 - [ ] Failed create/update leaves the page usable and exposes project-standard error feedback.
 - [ ] No page imports parent-tab host components or assumes a parent shell is mounted.
