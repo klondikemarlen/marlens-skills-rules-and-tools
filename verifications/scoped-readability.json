@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "standardId": "marlens-rules:scoped-readability",
+  "source": "./docs/workflows/readable-code-workflow.md",
+  "gold": "Every ordering or formatting change is justified by the accepted task, a real dependency/initialization requirement, or a binding convention. Applicable nested response and decorator objects use the existing multiline layout. Calls are evaluated into named variables before array/object construction within their original execution scope. Operation calls avoid redundant unary void while preserving completion, intentional concurrency, pending observations, rejection ownership, and TypeScript void types. Requested normalization and contextual exceptions remain valid; no diff-size quota or unrelated cleanup is imposed.",
+  "requiredContext": ["changed-code", "project-guidance"],
+  "rubric": [
+    {
+      "id": "task-baseline-and-scope",
+      "question": "Recover the accepted task, explicit scope/corrections, baseline revision/code, complete changed-code comparison, and governing project guidance before judging justification. If any required evidence is unavailable, report BLOCKED with the missing input rather than guessing intent or treating an empty/partial comparison as PASS. Assess all supplied changed code, not just a highlighted hunk; do not expand into a repository-wide style audit. Shared source links own policy; project guidance and explicit task direction retain precedence."
+    },
+    {
+      "id": "ordering-and-formatting-justification",
+      "question": "For each moved declaration/computed property, reordered destructuring, import move, or formatting-only hunk, cite the baseline and changed location and identify a concrete accepted-task, real dependency/initialization, or binding-convention justification. FAIL an unjustified move even within a legitimately touched file, including unrelated computed-property moves and destructuring reorderings during a focused bug fix. PASS explicitly requested normalization, necessary dependency moves, or binding-convention corrections within scope. Do not invent minimal-diff quotas, blanket refactoring bans, or demand reversal of another owner's unrelated work. Apply Human Readability's existing incidental-cleanup eligibility and Whitespace Matters rather than creating a second scope policy."
+    },
+    {
+      "id": "existing-object-layout-application",
+      "question": "Apply Diff-Friendly Configuration Layouts to authored or meaningfully changed nested non-empty response objects, including a single property such as summaries: { communityCount }, and multi-property decorator option objects such as @Attribute options. Under that convention, compact forms FAIL and one-entry-per-line expanded forms PASS even when a formatter allows compact syntax. Respect stronger project formatting and documented small self-contained type/call-argument exceptions. Do not conflate value objects with import/destructuring layout, sweep untouched objects, or expand an import-only correction into response/decorator formatting. Formatter or typecheck success is not semantic compliance evidence."
+    },
+    {
+      "id": "construction-evaluation-ownership",
+      "question": "Apply Function Calls Before Construction: calls in array elements and object values, computed keys, or spreads must be evaluated into descriptive named variables before construction. Inspect the original and changed execution scope and effectful intervening reads. FAIL hidden inline calls or an extraction that changes count, order, conditional/short-circuit execution, callback/loop/lazy/transaction ownership, receiver binding, async starts/awaits, rejection ownership, spread precedence, or value identity. Preserve deferred function bodies at invocation time, not construction time. Do not demand aliases for already-available values or new wrappers. Fixture API/preload policy remains with the scenario/factory guidance, not this general construction rule. Missing required behavior/context is BLOCKED, not inferred equivalence."
+    },
+    {
+      "id": "operation-completion-and-errors",
+      "question": "Apply Operation Calls and Completion generally, not just to navigation/authentication. Flag unary void used solely to discard an operation result; prefer a plain statement for intentionally unawaited pending work, await when subsequent work requires completion, or a meaningful result/promise owner. Do not introduce unused placeholder bindings, serialize concurrent starts, await away a pending-state observation, or erase return/rejection ownership. Neither plain calls nor unary void handle rejection. Retain established explicit error boundaries and legitimate TypeScript void return types; do not treat every void token as a violation. Inspect operation/helper contracts when needed; unavailable required completion/error evidence is BLOCKED."
+    },
+    {
+      "id": "cited-current-evidence",
+      "question": "Report cited whole-scope PASS, specific location/rule/remediation FAIL findings, or exact missing-prerequisite BLOCKED results. Keep independent findings visible when another criterion is blocked; do not present a partial scope as fully approved. A formatter, typecheck, behavioral suite, source-text assertion, contract installation, or primary author's assurance does not prove this semantic review. Corrections require fresh current-scope assessment through Verifier's supported review path. This supplied policy does not change execution, routes, advisor cadence, or native completion-veto behavior."
+    }
+  ]
+}

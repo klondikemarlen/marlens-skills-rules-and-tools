@@ -6,6 +6,36 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.11.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1358) - 2026-11-13
+
+### Added
+
+- Supply scoped semantic readability review that distinguishes justified normalization from unrelated ordering and formatting churn, reports missing task or baseline evidence honestly, and checks construction and operation ownership.
+
+### Changed
+
+- Apply existing multiline layout to nested non-empty responses and decorator options without expanding narrow cleanup scope.
+- Evaluate calls into named values before array/object construction within their original execution scope, and prefer plain or awaited operation calls according to pending/completion and rejection ownership.
+
+## [5.10.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1356) - 2026-11-13
+
+### Changed
+
+- Apply accepted Vue form guards and loading presentation across sibling create/edit actions, including Cancel links, while keeping field and independent concurrency contracts separate.
+- Distinguish parsed numeric string-route-prop derivations with `AsNumber`, preserving external names, parsing semantics, and reactive consumers.
+
+## [5.10.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1357) - 2026-11-13
+
+### Changed
+
+- Reconcile unreleased notes to net changes from the verified published baseline: remove fully reverted claims, consolidate replacements, and preserve meaningful safety, migration, and breaking-change information without rewriting published history.
+
+## [5.10.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1355) - 2026-11-13
+
+### Changed
+
+- Prefer framed editor-area plugin demos with visible controls and draft restoration; require populated-conversation and small-terminal QA, keeping terminal, native descriptor, and Tern visual evidence distinct.
+
 ## [5.10.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1340) - 2026-11-13
 
 ### Added

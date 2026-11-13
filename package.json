@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "5.10.10",
+  "version": "5.11.0",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -217,6 +217,24 @@
         "pathTriggers": [
           "**/*.md",
           "**/*.mdx"
+        ]
+      },
+      {
+        "id": "marlens-rules:scoped-readability",
+        "label": "Scoped Readability",
+        "description": "Reviews task-scoped ordering, object layout, construction evaluation, and operation completion ownership.",
+        "mode": "agentic",
+        "contract": "./verifications/scoped-readability.json",
+        "pathTriggers": [
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.mjs",
+          "**/*.cjs",
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.mts",
+          "**/*.cts",
+          "**/*.vue"
         ]
       }
     ]

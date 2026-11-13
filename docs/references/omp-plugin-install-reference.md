@@ -40,16 +40,28 @@ Name the demonstrated surface precisely:
 
 Demo dispatch must bypass real checks/providers, privileged or destructive operations, result/verdict persistence, and user-configuration changes. Do not run the real operation and merely relabel its result. Isolate and clean up any necessary temporary preview state; sample UI output is not verification evidence.
 
+#### Default Presentation and Lifecycle
+
+For a small inspect-and-dismiss preview, prefer the host's ordinary custom-UI/editor area with its standard container or frame, an explicit demo heading, and visible close controls. Keep the production content components and native descriptions intact; wrap their presentation rather than rebuilding their renderer. On hosts supporting it, non-overlay `ctx.ui.custom` with a standard `Box` frame is one concrete pattern, not a required helper signature.
+
+Bound the content to ordinary short terminals. Show one sample at a time with discoverable switching when several examples would push controls out of view. Preserve the host-owned editor draft, focus, and restoration lifecycle on close/cancel; do not use transcript messages, advisor delivery, or model turns merely as a temporary display transport.
+
+Use a floating overlay only when the interaction benefits from it and the host supports a coherent backdrop/frame, sizing, and overflow. A bare centered container is not sufficient isolation: conversation fragments at its edges can make a correct content renderer look broken. Prove the overlay on a populated conversation and preserve the same dismissal and restoration contract. Do not introduce a persistent preview runtime.
+
 #### Demo QA
 
 Apply [Released-Plugin QA](#released-plugin-qa) to the authorized target artifact in a fresh OMP process:
 
 1. Use real keys to discover and complete the command and its demo argument; observe the actual rendered output, sample labeling, and stated surface. Registration, formatter output, and a completed command alone do not establish rendered-UI proof.
-2. Exercise representative states and repeated calls. Compare relevant state before and after, and observe the operation boundary to establish that no real checks/providers or unintended actions ran. A sample `PASS` or an unchanged file alone proves neither safety nor verification.
+2. Start with a populated conversation and an unsent draft, not only an empty startup screen. At normal and short/narrow terminal dimensions, verify that old transcript fragments do not mix with preview rows and that the heading, sample label, and close controls remain visible. Resize while open; exercise sample switching and wraparound when applicable, every supported close/cancel key, reopening, and exact draft/focus restoration. Compare relevant state before and after, and observe the operation boundary to establish that no real checks/providers or unintended actions ran. A sample `PASS` or an unchanged file alone proves neither safety nor verification.
 3. Run a safe, authorized normal-action control in the isolated QA target to show that demo dispatch did not replace or disable the real action. Preserve its actual effects and results separately from samples. When that control requires unavailable authority or prerequisites, report the exact gap; never substitute a privileged/destructive action merely to complete QA.
 4. Record UI observation separately from shutdown and cleanup. A visible sample can pass while graceful shutdown remains unproven; forced termination is not graceful-exit evidence. Dispose only owned preview resources and state the outcome.
 
 These are checks for an implemented demo, not a requirement to create a new demo while changing shared guidance. Guidance-only releases use the contrasting-decision proof described above.
+
+Keep evidence surfaces separate: ordinary terminal rendering proves that terminal path; a native card descriptor proves its supplied content/structure, not native pixels. Claim Tern visual coverage only after observing the actual preview in Tern. Preserve native and fallback rendering paths without substituting one path's result for the other.
+
+For guidance-only QA, compare these decisions: reject a bare centered overlay whose margins reveal old conversation fragments, even when its card renderer is correct; accept an editor-area framed preview only with visible controls and restored draft/focus; allow a justified framed overlay with supported backdrop/overflow and populated-transcript proof. An empty-startup screenshot or native descriptor alone leaves the corresponding layout or Tern claim unverified.
 
 #### Example and Adoption
 
