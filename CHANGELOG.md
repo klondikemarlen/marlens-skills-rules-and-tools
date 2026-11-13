@@ -6,6 +6,17 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.11.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1358) - 2026-11-13
+
+### Added
+
+- Supply scoped semantic readability review that distinguishes justified normalization from unrelated ordering and formatting churn, reports missing task or baseline evidence honestly, and checks construction and operation ownership.
+
+### Changed
+
+- Apply existing multiline layout to nested non-empty responses and decorator options without expanding narrow cleanup scope.
+- Evaluate calls into named values before array/object construction within their original execution scope, and prefer plain or awaited operation calls according to pending/completion and rejection ownership.
+
 ## [5.10.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1356) - 2026-11-13
 
 ### Changed
