@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Apply contextual authoring conventions before generic style defaults. Preserve CRUD service order and lifecycle groups, use verified producer formats, separate fixed factory seeds from per-build values, and keep missing values visible to TypeScript.
+
 ## [5.10.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1320) - 2026-11-13
 
 ### Changed

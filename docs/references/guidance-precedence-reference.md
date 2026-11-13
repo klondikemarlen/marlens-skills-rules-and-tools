@@ -21,6 +21,21 @@ Before applying a workflow from this package, read the target project’s local 
 - project-local `docs/` workflows, templates, references, or plans
 - project-local skill files or agent shortcuts
 
+## Contextual Defaults
+
+Resolve authority under [Precedence](#precedence) first, then applicability. A more specific convention refines an applicable default within that authority; specificity alone does not let lower-priority guidance override a binding instruction. Distinguish correctness, security, authorization, and required delivery contracts from style defaults. A readability preference does not waive those contracts.
+
+For authoring and review, identify what the code represents and what order or shape carries meaning before applying a general preference. Use the relevant project convention, accepted maintainer correction, and domain/framework contract. Alphabetical ordering is a useful fallback, not a reason to erase lifecycle order, dependencies, or meaningful groups.
+
+- **Service exports:** use CRUD/controller operation order for CRUD and alphabetical order for other exports within their semantic groups. Do not globally sort the barrel or invent missing CRUD operations.
+- **Setup declarations:** preserve initialization dependencies and the applicable component setup convention. Do not alphabetize all declarations or assume every presentation value belongs together.
+- **Consumer parsing:** inspect the owned producer's serialized representation and parse that contract. An illustrative multi-format example does not require hypothetical format support in every consumer.
+- **Factory data:** keep a fixed seed catalogue at module scope and derive per-build values locally. Do not hoist mutable fixtures merely because fixed seeds belong outside the callback.
+
+A clear maintainer correction is sufficient evidence for the stated authoring/review scope, even when its rationale has not been articulated. Apply it to equivalent in-scope cases; do not invent an explanation, generalize it to unlike code, or demand a new interview for a clear edit. If the requested shape would change behavior or contradict a binding requirement, name that concrete conflict and resolve only the consequential decision.
+
+When learning from a correction, update the existing owner with its applicability, a representative example, and the meaningful exception rather than adding a competing universal rule. Reconcile contradictory examples and review instructions at the same time. Preserve stronger project-local conventions and unrelated code. When evidence leaves two materially different outcomes unresolved, state the uncertainty rather than claiming either is the user's established preference.
+
 ## Placement
 
 | Guidance type               | Canonical home     | Use for                                                                  |
