@@ -147,6 +147,7 @@ Focused diffs can make change amplification and recurring change clusters easier
    - run broader checks only when the changed surface warrants them; apply [Full-Suite Cost](#full-suite-cost) without adding routine permission checks for affordable suites.
 7. Preserve the required completion evidence in the session or existing designated record, including changed files and links, final `PASS`/`FAIL`/`BLOCKED` results, required review/QA and current-head checks, learner or tracker outcomes, and residual risks or missing prerequisites. Do not omit or relabel a required gate.
 8. Give the user the relevant outcome, proof, link, or blocker. Choose useful details for the reader and destination; do not turn internal execution bookkeeping into a mandatory public schema or repeat evidence already available in the linked record or CI. If there is no useful reader-needed information beyond the existing record, do not add a separate public report. Honor any explicitly requested report format. Apply [Workflow Outputs and Publication](../../docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication): this workflow specifies evidence to retain, not permission to publish.
+   Apply [Concise Closeout](../wrap-up/workflow.md#concise-closeout) when finishing; it owns final-response readiness and completion bookkeeping.
 
 ## Exact Reference Alignment
 
