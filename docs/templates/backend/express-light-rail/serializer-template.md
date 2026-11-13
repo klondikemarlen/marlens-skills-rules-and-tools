@@ -6,6 +6,10 @@ For projects using `IndexSerializer` and `ShowSerializer`, select by endpoint ac
 
 Only when the project already uses a class-based family, follow [Existing Class-Based Serializer Dispatch](../../../references/express-light-rail-backend-concepts-reference.md#existing-class-based-serializer-dispatch) for inherited instance serialization, supported collection calls, and typed constructor arguments. Do not replace this function template merely to adopt that pattern.
 
+Follow [Serializer Model Ownership](../../../references/express-light-rail-backend-concepts-reference.md#serializer-model-ownership): standardize this model's output, delegate associated-model mappings to their dedicated serializers, and leave conversion into a different model's contract with its existing service. Check required preloads at the entrypoint before preparing output, distinguishing unloaded `undefined` from accepted loaded null/empty associations.
+
+Use [Repeated Serializer Normalization](../../../references/code-organization-reference.md#repeated-serializer-normalization) for repeated scalar rules and [Serializer Timestamp Conversion](../../../references/code-organization-reference.md#serializer-timestamp-conversion) for named, typed helpers with available Luxon. Preserve the date contract; the pass-through dates below are intentional, not a request to add conversion or a dependency.
+
 ## Template
 
 ```ts
@@ -29,6 +33,9 @@ type ProjectLike = {
 ## Checklist
 
 - [ ] Exposes only intended API fields.
-- [ ] Formats dates/enums the same way as sibling serializers.
-- [ ] Serializes loaded associations explicitly.
+- [ ] Preserves accepted date types, timezone, precision, nullability, and invalid-input behavior across analogous serializer fields.
+- [ ] Checks required preloads before output preparation; preserves loaded null and empty collections.
+- [ ] Delegates associated-model field mapping through existing dedicated serializer single/collection APIs.
+- [ ] Keeps cross-model conversion in its existing service and exposes only this model's intended representation.
+- [ ] Names repeated normalization with private helpers and local results while retaining unchanged field allowlists.
 - [ ] Does not query the database.
