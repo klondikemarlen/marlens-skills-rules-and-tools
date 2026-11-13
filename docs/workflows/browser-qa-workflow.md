@@ -36,6 +36,14 @@ Distinguish a user-led opening from automated QA before choosing a browser or pr
 - Keep personal usernames, absolute home paths, local browser profile/session paths, credentials/tokens, and workstation-specific locations out of all published GitHub QA records, including issue/review/QA comments and screenshot contents, filenames, and metadata. Keep local operational paths and profile/session details in local notes only; legitimate repository-relative source/test paths and reviewer-facing app routes may remain.
 - Before publishing a screenshot, inspect its contents and use a neutral filename and reviewer-facing caption. For screenshot upload and public-safe examples, follow [Upload Pull Request Screenshots](upload-pr-screenshots-workflow.md).
 
+## Disputed Interaction Behavior
+
+When an interaction claim is disputed, prefer a focused experiment in the running interface using the relevant input before asserting library behavior or recommending a dependency upgrade. Reuse the project's ready UI harness when available; do not require unrelated end-to-end infrastructure or promise that runtime investigation is always faster. Preserve the task's browser-control authorization and setup boundaries.
+
+Observe the actual outcome for the claimed path: pointer click, keyboard activation, and form submission are different paths. For a loading button, test the disputed gesture while work is pending and observe whether the action, navigation, or submission occurs. A CSS pointer restriction can affect clicks without establishing keyboard or form behavior; a programmatic handler call does not prove a browser interaction.
+
+Use source inspection alongside or after the experiment to explain the result, including component logic, CSS, browser semantics, and the installed version. Report observed paths separately from source-derived conclusions and untested paths. If the interface or relevant input is unavailable, state that limit and keep the behavioral claim unverified rather than recommending an upgrade from incomplete evidence. This does not require removing submission guards or changing dependencies.
+
 ## External Protocol Links
 
 - Before clicking a link that may dispatch outside the browser, inspect its resolved `href` and decode encoded destination values for inspection only. Identify `mailto:`, `tel:`, and custom schemes without navigating to discover the destination.
