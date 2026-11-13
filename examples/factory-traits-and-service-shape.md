@@ -43,6 +43,112 @@ Run the project’s factory TypeScript check and the focused endpoint test that 
 
 Source: [`test-fixtures`](../skills/test-fixtures/SKILL.md).
 
+## Native Graph Setup and Preloads
+
+### Task
+
+“Arrange a serializer scenario with deliberately out-of-order child insertion, explicit nulls, and loaded relationships, without hiding its contract.”
+
+### Without
+
+The [reported serializer helper](https://github.com/icefoganalytics/travel-authorization/blob/98a131b04619a0dcde83af25e55626cc35286326/api/tests/serializers/travel-authorizations/index-serializer.test.ts#L460-L482) reloads `expenses`, `purpose`, `stops.location`, `travelDeskTravelRequest`, `travelSegments.departureLocation`, `travelSegments.arrivalLocation`, and `user`; it orders separately loaded segments by `segmentNumber` then `id`. Its callers create records and then call `reloadForIndexSerializer(travelAuthorization)`. With the reported Factory Shark 2.7.0 capabilities, this hides setup that native graph/include APIs can express. Cite the helper and affected scenario calls, not a blanket objection to reloads.
+
+This attempted native correction still receives a finding:
+
+```ts
+const travelAuthorization = await travelAuthorizationFactory.create({
+  travelSegments: [
+    travelSegmentFactory.build({ segmentNumber: 3, isActual: false }),
+    travelSegmentFactory.build({ segmentNumber: 1, isActual: false }),
+    travelSegmentFactory.build({ segmentNumber: 2, isActual: false }),
+  ],
+})
+```
+
+Factory calls remain nested in the parent payload. Native API usage alone does not establish readable scenario setup.
+
+### With `test-fixtures`
+
+This Arrange excerpt uses the reported project's existing factories/models and [Factory Shark 2.7.0 child records and includes](https://github.com/klondikemarlen/factory-shark/blob/v2.7.0/README.md#supply-child-records), not a new shared helper or a required library. Resolve the actual installed version and model associations before adapting it:
+
+```ts
+// Arrange
+const currentUser = await userFactory.create()
+const whitehorse = await locationFactory.create({ city: "Whitehorse" })
+const vancouver = await locationFactory.create({ city: "Vancouver" })
+const toronto = await locationFactory.create({ city: "Toronto" })
+
+const estimatedSegment3 = travelSegmentFactory.build({
+  segmentNumber: 3,
+  isActual: false,
+  departureLocationId: toronto.id,
+  arrivalLocationId: whitehorse.id,
+})
+const estimatedSegment1 = travelSegmentFactory.build({
+  segmentNumber: 1,
+  isActual: false,
+  departureLocationId: whitehorse.id,
+  arrivalLocationId: vancouver.id,
+})
+const estimatedSegment2 = travelSegmentFactory.build({
+  segmentNumber: 2,
+  isActual: false,
+  departureLocationId: vancouver.id,
+  arrivalLocationId: toronto.id,
+})
+
+const travelAuthorization = await travelAuthorizationFactory
+  .include([
+    "expenses",
+    "purpose",
+    { association: "stops", include: ["location"] },
+    "travelDeskTravelRequest",
+    {
+      association: "travelSegments",
+      separate: true,
+      order: [
+        ["segmentNumber", "ASC"],
+        ["id", "ASC"],
+      ],
+      include: ["departureLocation", "arrivalLocation"],
+    },
+    "user",
+  ])
+  .create({
+    tripTypeEstimate: TravelAuthorization.TripTypes.ROUND_TRIP,
+    tripTypeActual: null,
+    travelSegments: [estimatedSegment3, estimatedSegment1, estimatedSegment2],
+  })
+
+// Act
+const result = IndexSerializer.perform(travelAuthorization, currentUser)
+
+// Assert
+expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+```
+
+The named unsaved children are supplied in insertion order `3, 1, 2`; the factory saves them under the new parent. Native loading retains the required query order `1, 2, 3` and secondary `id` order, with the original preloads and explicit `null`. Existing location row identities are reused. Factory Shark preserves supplied child instances while saving; `.include()` loads from the database, so loaded associations need not be those same JavaScript objects. Keep any actual object-reference requirement explicit when deciding whether a replacement fits.
+
+### Valid Contrasts
+
+- A named opt-in trait such as `accessibleBy(user)` above still owns reusable persisted relationship mechanics; it is not a redundant scenario preload wrapper.
+- After the action updates related rows, a reload needed to observe fresh persisted state remains valid. An initial `.include()` cannot replace a later reload across a mutation.
+- If the installed library lacks equivalent child-graph support or cannot express the required loading/order/lifecycle, retain explicit creation and loading or justified reusable support. Do not migrate libraries to satisfy this example.
+- Missing invoked helper code, the actual installed API/version, applicable guidance, or necessary association context is `BLOCKED`, not evidence that all reloads fail or that all native calls pass.
+
+### Semantic Verification Scenarios
+
+Use the supplied `marlens-rules:test-fixture-api-alignment` contract through Verifier's supported final-review path in a fresh OMP process with the released package installed. Record the package/Verifier versions, selected contract ID, complete scenario/helper inputs, actual resolved factory version/API evidence, and review outcome. These are behavioral QA cases, not source-text assertions:
+
+1. Change a serializer test with the reported redundant preload helper; provide complete tests, helper, local guidance, model associations, and installed Factory Shark 2.7.0 evidence. Confirm selection for the changed test and a final-review `FAIL` citing the helper/caller and fitting graph/include API, even if ordinary tests and structural checks pass.
+2. Replace it with native includes but nest child builds in the parent payload. Request a fresh assessment; expect a cited `FAIL` for nested construction, not semantic clearance from native API usage.
+3. Extract the child builds into named scenario-local records as above, retaining the original scenario's identities, exact attributes/nulls, insertion/query order, persistence, all preloads, action, and assertions. Request an explicit fresh assessment in a new process; expect `PASS` without relying on a prior assessment.
+4. Independently exercise the valid trait, required post-mutation reload, and a library with documented absence of equivalent APIs. Expect `PASS` when the complete scenario contract is preserved, not invented migration findings.
+5. Omit required helper code, API/version evidence, guidance, or association/lifecycle context in separate cases; expect `BLOCKED` identifying that missing input. Restore it and assess afresh.
+6. Drop a preload, explicit null, foreign-key identity, or ordering tie-breaker from the correction; expect `FAIL` for the actual lost contract. A naming-only fix or passing behavioral/structural checks cannot clear it.
+
+Run the target project's focused tests and test TypeScript check separately. Those results prove their own contracts; they do not prove advisor selection, finding delivery, correction reassessment, or fixture semantics. This package supplies the review standard; Verifier owns execution and its existing completion/reassessment mechanism.
+
 ## Composable HTTP GET Routes
 
 ### Task

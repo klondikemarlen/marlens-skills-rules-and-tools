@@ -2,7 +2,7 @@
 
 Use when TypeScript tests need reusable persisted relationships, non-persisted API entities, or composable HTTP response mocks, including frontend component fixtures.
 
-1. Inspect the existing factory API and the project’s test TypeScript check.
+1. Inspect the existing factory API, installed library/version, and the project’s test TypeScript check. Apply [Native Fixture Setup and Semantic Review](#native-fixture-setup-and-semantic-review) when arranging or reviewing associations and preloads.
 2. Arrange persisted scenario records explicitly inside each test, even when multiple tests use identical attributes. Keep each scenario self-contained; do not move persisted scenario creation into shared `beforeEach` hooks. Environment setup and teardown, such as fake timers, may still use hooks.
    Use the project's factories, not unrelated production services, to arrange data. Service calls remain valid when the service is the subject under test or when writing a feature test. Apply accepted corrections throughout the requested test scope, preserving identities, deletion states, ordering coverage, and explicit preloads.
    For distinct meaningful records, prefer literal factory calls with named attributes or a supported collection API that exposes those attributes, not tuple-destructuring setup loops used only for compression. Preserve fixture values and lifecycle; homogeneous iteration and input/output case tables remain appropriate under [Scenario-Oriented Verification](../../docs/references/code-organization-reference.md#scenario-oriented-verification).
@@ -17,6 +17,18 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
 6. For dependency-bundle versus direct-subject imports, including the model-owned constant/enum exception, follow [Project-Root Imports and Paths](../../docs/references/code-organization-reference.md#project-root-imports-and-paths).
    For integration-model fixtures and their helpers, follow [Integration Factory Ownership](#integration-factory-ownership).
 7. Run the focused test and the test TypeScript check.
+
+## Native Fixture Setup and Semantic Review
+
+Inspect complete changed tests and their invoked setup helpers, not only changed lines. Resolve the actual installed factory package/version and its supported API from the target project's dependency resolution and matching documentation, types, or implementation; do not infer capabilities from a library name or a newer online release. Read applicable local fixture guidance and relevant model associations before proposing a graph/include replacement.
+
+Prefer supported native child-graph and include/loading APIs when they express the scenario without losing behavior. A redundant `reloadForIndexSerializer`-style wrapper that hides scenario-specific preloads or ordering is a finding when the installed API already supports that setup. Keep explicit scenario attributes in Arrange. Evaluate child factory calls into descriptive scenario-local variables before the parent payload, then reference those variables in the association array in the deliberate insertion order. Follow [Function Calls Before Construction](../../docs/references/code-organization-reference.md#function-calls-before-construction); native API usage does not excuse nested factory calls inside parent objects or arrays.
+
+Compare the original and proposed scenario contracts: exact values and overrides, existing record identities and foreign keys, explicit nulls and deletion states, build versus create persistence, lifecycle timing, insertion order versus loaded/query order, every required preload and nested association, and unchanged actions and assertions. A reload may return fresh model instances: preserve the identity guarantee actually required by the test rather than claiming object-reference equality without API evidence. Do not sort insertion data merely to make loading simpler or drop deterministic secondary ordering.
+
+Legitimate opt-in owning-factory traits and reusable infrastructure remain valid. A reload required after a mutation is not a redundant initial preload; retain it at the point where fresh state is needed. When the installed library lacks an equivalent graph/include capability, retain explicit creation/loading or justified support rather than requiring a different library or inventing an opaque scenario builder. There is no universal factory, helper, or reload ban.
+
+The supplied agentic contract [`test-fixture-api-alignment.json`](../../verifications/test-fixture-api-alignment.json) owns this focused semantic assessment; Verifier owns selection, final-review execution, and reassessment. Each finding must cite the affected test/helper location, governing guidance, installed API evidence, and the behavior-preserving correction. Missing complete tests, invoked helper code, applicable guidance, installed API/version, or necessary association/lifecycle context yields `BLOCKED` with the exact missing prerequisite, not a speculative `PASS` or `FAIL`. Structural test alignment, assertion counts, typechecking, and behavioral test success remain useful but do not prove fixture semantics. See [contrasting fixture examples](../../examples/factory-traits-and-service-shape.md#native-graph-setup-and-preloads).
 
 ## Integration Factory Ownership
 
