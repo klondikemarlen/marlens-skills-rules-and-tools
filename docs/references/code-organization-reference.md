@@ -1699,21 +1699,37 @@ return timestamp
 
 Keep the actual parser options, configured timezone, and accepted syntax; this offset-preserving example is not a universal timezone policy. Preserve distinct calendar-date and timestamp paths, including necessary input-type narrowing or independently required syntax restrictions. Do not add Luxon where absent or prohibit regex for unrelated text contracts.
 
-When Luxon is available, prefer meaningful parsed values and explicit formats to ISO timestamp `slice(0, 10)` / `slice(11, 16)` extraction. For an already accepted contract of ISO calendar dates or `T`-separated timestamps, preserving the supplied wall-clock offset:
+When Luxon is available, prefer meaningful parsed values and explicit formats to ISO timestamp `slice(0, 10)` / `slice(11, 16)` extraction. Use Luxon's format parser to recognize the supported date-only forms, separately from ISO validity. This illustration assumes an existing boundary has narrowed `startValue` to a string with this grammar:
+
+- A complete four-digit-year calendar date, either `yyyy-MM-dd` or `yyyyMMdd`.
+- The same date followed by `T` or `t` and an ISO time accepted by the installed Luxon version: hours alone, hours/minutes, or hours/minutes/seconds with optional fractional seconds, using its supported basic or colon-separated forms. The timestamp may be offset-free or end with `Z`/`z` or a numeric offset accepted by that parser.
+- Reduced dates, signed expanded years, week/ordinal dates, time-only strings, bracketed named zones, and space-separated SQL timestamps are outside this illustrative grammar. These are example bounds, not new restrictions to impose on consumers.
+
+For that contract, preserving the supplied wall-clock offset:
 
 ```typescript
 const startDateTime = DateTime.fromISO(startValue, { setZone: true })
 if (!startDateTime.isValid) throw new Error("Invalid start date.")
 
+const isCalendarDate = ["yyyy-MM-dd", "yyyyMMdd"].some((format) => {
+  const explanation = DateTime.fromFormatExplain(startValue, format)
+  return explanation.rawMatches !== null
+})
 const startDate = startDateTime.toFormat("yyyy-MM-dd")
-if (!startValue.includes("T")) {
+if (isCalendarDate) {
   return { startDate, startTime: null }
 }
 
 return { startDate, startTime: startDateTime.toFormat("HH:mm") }
 ```
 
-The time-presence check distinguishes a date-only input from a midnight timestamp; Luxon validity alone cannot do that. Keep existing input narrowing and syntax restrictions before parsing. `setZone: true` preserves an explicit input offset rather than converting to the machine's zone; retain the actual configured zone for offset-free inputs and any intentional conversion instead of adopting this example's zone policy.
+`fromFormatExplain` reports whether the whole input matches a date-only format; its `rawMatches` is syntax evidence, not calendar validity. `fromISO(...).isValid` remains the validity authority, but cannot establish time presence because date-only input also parses successfully. This approach neither tests string contents nor mistakes an hour value of zero for absence. It also avoids constructing deliberately invalid date-only `DateTime` probes for timestamp inputs when `Settings.throwOnInvalid` is enabled. Preserve that setting and the existing invalid-input policy; the shown explicit error assumes the usual invalid-result setting.
+
+For example, `2026-11-13` and `20261113` return `{ startDate: "2026-11-13", startTime: null }`; `2026-11-13T00:00:00Z` returns the same date with `"00:00"`, not null. `20261113t142530.123+0530` returns the date with `"14:25"`, and `2026-11-13T00:30:00+14:00` stays on November 13 rather than shifting to the preceding UTC date. Invalid calendar dates such as `2026-02-30` and invalid times such as `2026-11-13T25:00` follow the rejection path.
+
+Keep existing input narrowing, syntax restrictions, and every accepted form before adopting this illustration. If consumers accept reduced/basic/expanded dates, week or ordinal dates, named zones, or other forms beyond these bounds, preserve them and adapt the Luxon date-only recognition and focused cases first; do not silently reject them or misclassify them as timestamps. A valid `fromISO` result alone does not enforce the illustrative grammar: for example, a time-only string is not a supported calendar-date/timestamp input here. `setZone: true` preserves an explicit input offset rather than converting to the machine's zone; retain the actual configured zone for offset-free inputs and any intentional conversion instead of adopting this example's zone policy.
+
+The immutable [Luxon API implementation](https://github.com/moment/luxon/blob/4262a38ded7762e22608a9feb9f117b40d338ced/src/datetime.js), [format-parser implementation](https://github.com/moment/luxon/blob/4262a38ded7762e22608a9feb9f117b40d338ced/src/impl/tokenParser.js), and [ISO-parser implementation](https://github.com/moment/luxon/blob/4262a38ded7762e22608a9feb9f117b40d338ced/src/impl/regexParser.js) establish these API and parsing claims. Check the consuming project's installed Luxon version, accepted grammar, timezone settings, and invalid behavior with focused executable cases; source inspection alone is not compatibility proof.
 
 ```ts
 // Before
@@ -1887,6 +1903,30 @@ Here `createdAt` is `Date`, `completedAt` is `Date | null`, and `DateTime` uses 
 Calendar-date-only feed values stay on their calendar-date path; do not turn them into midnight instants or shift their date via timezone conversion. Check actual parser/output options and installed Luxon settings: null versus undefined/omission, invalid values (throw, null, or an existing result), offset/zone behavior, fractional precision, and expanded-year formatting all belong to the accepted contract. `toISO()` can return null for invalid values; do not silently adopt that as a formerly throwing API's result or impose throwing on a tolerant API. No new Luxon dependency or shared date framework is required.
 
 The authoritative [Luxon 3.7.2 implementation](https://github.com/moment/luxon/blob/4262a38ded7762e22608a9feb9f117b40d338ced/src/datetime.js) documents `fromJSDate`, `fromISO`, and `toISO`, including zone options and invalid-result behavior. Inspect the installed version before adopting the example; source evidence is not consuming-project compatibility proof.
+
+### Single Helper Signatures
+
+Prefer one union-typed TypeScript signature when a helper has one accepted input/output contract and overload declarations add no required caller distinction. For example, a nullable timestamp formatter whose callers already accept `string | null` can use one signature:
+
+```typescript
+function formatTimestamp(value: Date | null | undefined): string | null {
+  if (value === null || value === undefined) return null
+
+  const timestamp = DateTime.fromJSDate(value, { zone: "utc" })
+  const formattedTimestamp = timestamp.toISO({
+    includeOffset: true,
+    suppressSeconds: false,
+    suppressMilliseconds: false,
+  })
+  if (formattedTimestamp === null) throw new RangeError("Invalid time value")
+
+  return formattedTimestamp
+}
+```
+
+This example accepts null and undefined as absence, returns null for absence, and retains UTC millisecond formatting and rejection of invalid dates. It does not prescribe a tolerant invalid-date policy or broaden a helper that accepts only `Date`. Use the existing nil predicate when available and semantically equivalent.
+
+Keep overloads when callers require distinct call forms or input-dependent result types. If a `Date` call must statically return `string` while an absent input returns null, collapsing those declarations into `string | null` loses a required guarantee; preserve the overloads or the existing separately typed operations. The non-null `serializeTimestamp` example above remains appropriate for that guarantee. Likewise, retain the legitimate single-record and array `BaseSerializer.perform` overloads under [Typed Constructor Inference](express-light-rail-backend-concepts-reference.md#typed-constructor-inference); do not widen their correlated input/result types merely to reduce signature count.
 
 ## Private Helper Inputs
 
