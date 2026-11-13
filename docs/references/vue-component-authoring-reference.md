@@ -997,26 +997,24 @@ watch(
 )
 ```
 
-With hydration beside the same explicit saved-field sources:
+With hydration beside only the saved-field sources it consumes:
 
 ```typescript
 watch(
-  [
-    travelDeskRentalCar,
-    () => travelDeskRentalCar.value?.startDate,
-    () => travelDeskRentalCar.value?.endDate,
-  ],
-  ([newTravelDeskRentalCar]) => {
-    if (isNil(newTravelDeskRentalCar)) return
+  [() => travelDeskRentalCar.value?.startDate, () => travelDeskRentalCar.value?.endDate],
+  ([newStartDate, newEndDate]) => {
+    if (newStartDate === undefined || newEndDate === undefined) return
 
-    schedule.startDate = newTravelDeskRentalCar.startDate
-    schedule.endDate = newTravelDeskRentalCar.endDate
+    schedule.startDate = newStartDate
+    schedule.endDate = newEndDate
   },
   { immediate: true }
 )
 ```
 
-These illustrative existing date fields hydrate immediately when a record is present, on record replacement, and on saved-date changes, but not on unrelated in-place edits. Preserve the actual source/model nil types, supported nil narrowing, absent-record behavior, field conversions, initialization, and watch options. In this example the nil guard retains the existing no-hydration behavior; a workflow that clears on absence must keep that behavior instead. The source list is the trigger contract: callback placement is not permission to add universal `deep: true`, drop accepted field sources, or broaden hydration so unrelated edits overwrite a local schedule. Review initial loading, relevant field changes, replacement, and unrelated edits against that contract.
+This example assumes a loaded record's saved dates are `string | null`; `undefined` comes from an absent record. It hydrates immediately when loaded and when either saved value changes, including transitions to `null`. An absent record leaves the local schedule unchanged. Preserve the actual model's nil types, supported narrowing, field conversions, initialization, and watch options; a workflow that clears on absence must retain that behavior instead.
+
+The source list is the trigger contract. Watch only values that independently require hydration, and consume those observed values rather than rereading the record. Replacing the record with equal saved dates does not reset local schedule bookkeeping in this field-driven contract. Retain a whole-record or identity source when replacement independently requires work; this is not a ban on record watching. During review, justify each source and check initial loading, relevant field changes, equal-value replacement, absence, and unrelated edits. Do not add universal `deep: true` or broaden hydration so unrelated edits overwrite local state.
 
 ## Independent Resource Query Setup
 
