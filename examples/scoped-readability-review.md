@@ -19,13 +19,11 @@ Accepted task: fix a destination fallback; do not normalize setup order. The bas
 
 Expected `FAIL`: cite the moved `isApproved` computed declaration and reordered `useSave` destructuring; neither serves the destination correction. Retain the fallback fix and restore the unrelated original order. This is not a mandate to undo necessary initialization dependencies or to alphabetize declarations.
 
-| Task and Evidence | Expected Decision |
-| --- | --- |
-| Same focused fix, original computed/destructuring order preserved | `PASS` scope; assess the actual fallback behavior separately. |
-| Explicit request to normalize this family's setup/destructuring order, complete family/baseline and binding convention supplied | `PASS` the justified normalization when effects and binding semantics remain unchanged; do not apply a minimal-diff quota. |
-| A new dependency requires the move, with initialization evidence showing the necessary order | `PASS` the justified move, preserving initialization effects. |
-| Missing accepted task, baseline revision/code, changed comparison, or required project guidance | `BLOCKED`; identify the unavailable input rather than guessing whether the move is incidental. |
-| Import-only correction; proposed patch also expands an untouched response object | `FAIL` unrelated formatting scope, even if the expanded object follows the layout convention. Leave the response unchanged. |
+- **Original order preserved:** `PASS` scope for the focused fix; assess fallback behavior separately.
+- **Requested normalization:** `PASS` justified family setup/destructuring normalization when the complete family, baseline, and binding convention support unchanged effects and bindings. Do not impose a minimal-diff quota.
+- **Necessary dependency move:** `PASS` when initialization evidence supports the order and effects remain unchanged.
+- **Missing task, baseline, comparison, or required guidance:** `BLOCKED`; name the unavailable input rather than guessing intent.
+- **Import-only correction also reformats an untouched response:** `FAIL` unrelated formatting scope even if the new layout follows the convention. Leave the response unchanged.
 
 ## Existing Multiline Object Layout
 
@@ -126,15 +124,13 @@ assert.equal(preview.gaps, gapValue)
 assert.equal(preview.markers[0], markerValue)
 ```
 
-| Variant | Expected Decision |
-| --- | --- |
-| Named calls remain inside the branch/loop iteration/callback/lazy getter/transaction that originally executed them | `PASS` when count/order/effects and identity are preserved. |
-| Calls extracted above the visibility guard | `FAIL`: previously excluded work now runs. |
-| Calls in computed keys or spread operands left inline | `FAIL`: those are construction-time calls too. |
-| A later call moved ahead of an earlier effectful property getter | `FAIL`: naming alone does not preserve evaluation order; capture the earlier read at its original point. |
-| Function-valued object's callback invokes an operation only when called | Keep the invocation deferred; extract inside the callback if it constructs another object/array, not during outer construction. |
-| Two existing concurrent starts extracted into named promises before `Promise.all` consumes their array | `PASS` when starts, observation, rejection ownership, and results are preserved; sequential awaits instead are `FAIL`. |
-| Already-available value used directly in a declarative object | `PASS`; no redundant alias or helper is required. |
+- **Original execution scope:** `PASS` calls named inside their branch, loop iteration, callback, lazy getter, or transaction when count, order, effects, and identity remain unchanged.
+- **Calls extracted above the guard:** `FAIL`; excluded work now runs.
+- **Calls left in computed keys or spread operands:** `FAIL`; these execute during construction too.
+- **Later call moved before an effectful getter:** `FAIL`; capture the earlier read at its original evaluation point.
+- **Function-valued callback:** retain deferred invocation; extract inside the callback when it constructs an object/array, not during outer construction.
+- **Concurrent starts:** `PASS` named promises started in their original order before `Promise.all` consumes their array, with rejection ownership and results preserved. Sequential awaits instead `FAIL`.
+- **Already-available value:** `PASS` direct use; no redundant alias/helper is required.
 
 ## Plain Calls, Pending State, and Completion
 
@@ -185,16 +181,14 @@ await failedEditor.commitEdit()
 assert.equal(failedEditor.observedError, saveError)
 ```
 
-| Variant | Expected Decision |
-| --- | --- |
-| Plain call before a pending-state assertion, established rejection owner retained | `PASS`; do not await away the observed state. |
-| `await` before an assertion requiring completed work | `PASS` when it preserves the operation contract. |
-| Unary `void` solely discards the call result | `FAIL` the readability default; use the appropriate plain/awaited/owned-result form. |
-| An unused `const ignored = operation()` replaces `void operation()` | `FAIL`; the placeholder does not clarify ownership. |
-| Removing `void` also removes a `.catch` or caller-owned returned promise | `FAIL` error ownership; plain calls do not handle rejection. |
-| Meaningful promise binding used to start concurrent work and later await or assert its rejection | `PASS`; preserve concurrency and native async assertion APIs. |
-| `function refresh(): void` or a callback typed `() => void` | `PASS`; TypeScript return types are not the unary operator. |
-| Required operation/error boundary or pending-test setup unavailable | `BLOCKED` for that assessment, not a guessed promise-handling verdict. |
+- **Plain pending call with established rejection owner:** `PASS`; do not await away the observed state.
+- **Awaited completion:** `PASS` when subsequent work requires completion and the operation contract remains unchanged.
+- **Unary `void` solely discards a result:** `FAIL` the readability default; use the appropriate plain/awaited/owned-result form.
+- **Unused `const ignored = operation()` replaces unary `void`:** `FAIL`; the placeholder does not clarify ownership.
+- **Removing `void` also removes `.catch` or the caller-owned returned promise:** `FAIL` error ownership; plain calls do not handle rejection.
+- **Meaningful promise binding for concurrent work and later awaiting/rejection assertion:** `PASS`; retain native async assertion APIs.
+- **TypeScript `function refresh(): void` or callback `() => void`:** `PASS`; types are not unary operators.
+- **Missing operation/error-boundary/pending-setup evidence:** `BLOCKED`, not a guessed promise-handling verdict.
 
 ## Evidence Boundary
 
