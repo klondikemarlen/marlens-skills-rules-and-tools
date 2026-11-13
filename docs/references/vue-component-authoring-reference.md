@@ -1387,6 +1387,14 @@ After:
 
 Check actual rendered separation and intentional multiline value formatting; source whitespace alone may be condensed or removed by compilation. Keep dynamic interpolations and intentional whitespace-sensitive rendering. Do not substitute layout margins for meaningful text whitespace or sweep unrelated templates.
 
+### Composed Page Heading Ownership
+
+Before adding a card or form title, inspect the composed layout, routed page, and nested components together. Let the layout or page own the page heading; a nested card should not repeat that same heading merely because it looks complete in isolation. Retain meaningful, distinct section headings when they identify different content, with heading levels that fit the composed hierarchy.
+
+For example, when the layout already renders “Edit Workflow,” the nested edit card can begin with its form rather than another “Edit Workflow” title. A “Participants” section inside that form still has a useful independent heading. Preserve accessible names and standalone uses when removing a duplicate; inspect affected callers instead of deleting every child title.
+
+Reuse [Caller-Owned Outer Layout](#caller-owned-outer-layout)'s rendered checks on the settled desktop and narrow-screen page: inspect the heading hierarchy and the alignment of headings, filters, and actions against nearby content. Source inspection or successful compilation alone cannot establish the composed result. Follow the application's existing spacing and responsive conventions; do not introduce a title-count rule, fixed gaps, or a new layout system.
+
 ### Caller-Owned Outer Layout
 
 Keep outer spacing and parent-layout placement on a reusable component's invocation at the caller, rather than embedding context-specific margins or placement classes in the child's root. The child still owns intrinsic appearance and internal content layout, including appropriate root classes. Preserve its supported class/attribute forwarding, semantic root, accessibility, and interactions; this is not a ban on root styling.

@@ -673,7 +673,7 @@ For component tests, drive application-owned behavior through user actions and a
 
 An absence assertion for a conditional child inside a named slot is meaningful only if the test renders that slot. Use the real host or a narrow slot-rendering stub, and establish a positive child-visible scenario before trusting the negative case. A shallow stub that discards the slot can make every absence assertion pass; do not copy the parent's condition into the stub or substitute a child-only test for the parent condition.
 
-Keep component mount options and scenario-specific API response setup visible in each test's Arrange section. Use owned or inferred API types; do not add scenario-local mount or response-envelope wrappers that hide inputs or copy response contracts into test-only aliases. Retain shared environment/infrastructure setup and established entity factories; build each test's scenario-specific overrides inline. A factory build in Arrange does not justify extracting the mount or response setup.
+Keep component mount options and scenario-specific API response setup visible in each test's Arrange section. Use owned or inferred API types; do not add scenario-local mount or response-envelope wrappers that hide inputs or copy response contracts into test-only aliases. Retain shared environment/infrastructure setup, including [typed default-plugin mount support](#typed-default-plugin-mount-support), and established entity factories; build each test's scenario-specific overrides inline. A factory build in Arrange does not justify extracting the mount or response setup.
 
 Before repeating API-module, configuration, and authentication mocks solely to arrange responses, inspect the project's shared API-response test support and reuse it when its request/response contract fits. If that infrastructure support is missing and repeated scaffolding is needed, add a small shared request/response support helper at the existing test-support owner rather than copying the infrastructure into each component test. Share interception and environment mechanics, not scenario data, mount options, expected results, or the production operation being tested.
 
@@ -784,6 +784,123 @@ await claimFactory.create({ travelRequest, claimType: "lodging", amount: 140 })
 A supported factory/collection API is also suitable when each record's named attributes remain clear. Preserve values and factory lifecycle; this does not ban homogeneous loops, Lodash iteration, factory list APIs, or input/output case tables.
 
 Arrange data through the project's factories rather than unrelated production services. Service calls remain appropriate when that service is the subject under test or the scenario is a feature test. Reuse opt-in relationship traits for repeated setup; keep scenario-specific values, identities, deletion states, ordering, and explicit preloads visible and preserved. This does not prohibit mocked collaborators or introduce a new factory library.
+
+### Typed Default-Plugin Mount Support
+
+When Vue suites repeatedly install the same default plugins, prefer a shared `mountWithDefaultPlugins(Component, options)` at the existing test-infrastructure owner. Default-plugin installation is infrastructure, not a scenario helper. Create fresh stateful default instances inside every call; never share a store, router, or other mutable default instance across mounts. Direct VTU `mount` remains valid when defaults are unnecessary or setup is not repeated. This does not require Vuetify, a new dependency, or migration of unrelated tests.
+
+Keep scenario data, props, slots, stubs, error handlers, router creation/navigation, actions, and assertions explicit in the test. Append caller plugins after defaults, preserving plugin object/function identity and `[plugin, ...options]` tuples. Retain all other mount options without modifying caller inputs or recursively merging identity-bearing resources.
+
+In a project already using Lodash, prefer its existing `mergeWith` import convention over handwritten merging. Scope merging to the plugin-bearing option objects: ordinary Lodash merging combines arrays by index and can descend into plain plugin objects. The customizer below handles the whole `plugins` array before recursion, appending references without merging plugin internals. Other options are forwarded with shallow copies of the outer options and `global` containers, so props, stubs, `provide`, plugin arguments, component definitions, and configuration callbacks retain their original values and identities.
+
+This self-contained infrastructure example uses a tiny stateful plugin to make lifetime visible, not to prescribe an application plugin. Its mount signature follows the public declarations in **Vue Test Utils 2.5.1** (`dist/src/mount.d.ts`, `dist/src/types.d.ts`), with **Vue 3.5.45**, **Lodash 4.18.1**, and **@types/lodash 4.17.27**. Inspect the consuming project's installed declarations before adapting it; preserve VTU's conditional component inference, props and wrapper types rather than widening to `Component`, `MountingOptions<any>`, or casting a wrapper to `typeof mount`. The `any` positions below reproduce VTU's own callable/constructor and prop-name tests.
+
+```typescript
+// tests/support/mount-with-default-plugins.ts
+import { mergeWith } from "lodash"
+import { mount, type ComponentMountingOptions, type GlobalMountOptions } from "@vue/test-utils"
+import { ref, type DefineComponent, type InjectionKey, type Plugin, type Ref } from "vue"
+import type { ComponentProps } from "vue-component-type-helpers"
+
+export const counterKey: InjectionKey<Ref<number>> = Symbol("test counter")
+
+function createCounterPlugin(): Plugin {
+  const counter = ref(0)
+
+  return {
+    install(app) {
+      app.provide(counterKey, counter)
+    },
+  }
+}
+
+type Plugins = NonNullable<GlobalMountOptions["plugins"]>
+
+export function mountWithDefaultPlugins<
+  T,
+  C = T extends ((...args: any) => any) | (new (...args: any) => any)
+    ? T
+    : T extends { props?: infer Props }
+      ? DefineComponent<
+          Props extends Readonly<(infer PropNames)[]> | (infer PropNames)[]
+            ? { [key in PropNames extends string ? PropNames : string]?: any }
+            : Props
+        >
+      : DefineComponent,
+  P extends ComponentProps<C> = ComponentProps<C>,
+>(component: T, options?: ComponentMountingOptions<C, P>) {
+  const defaultPlugins: Plugins = [createCounterPlugin()]
+  const { plugins } = mergeWith(
+    { plugins: [] },
+    { plugins: defaultPlugins },
+    { plugins: options?.global?.plugins ?? [] },
+    (installed: Plugins, incoming: Plugins, key: string) => {
+      if (key === "plugins") return installed.concat(incoming)
+    }
+  )
+
+  return mount<T, C, P>(component, {
+    ...options,
+    global: {
+      ...options?.global,
+      plugins,
+    },
+  })
+}
+
+// Compile-time signature check, not a cast.
+const checkedMount: typeof mount = mountWithDefaultPlugins
+void checkedMount
+```
+
+The type-helper import is the same public package used by VTU's declarations; reuse it only where the project's dependency resolver already supports that import. Do not add a dependency solely to copy this example. Adapt against the installed public types and verify the project's actual call forms rather than bypassing unresolved types with a cast.
+
+A runnable consumer with a DOM-enabled test runner keeps its scenario and visible assertion local:
+
+```typescript
+import { defineComponent, h, inject } from "vue"
+import { expect, it } from "vitest"
+import { counterKey, mountWithDefaultPlugins } from "./support/mount-with-default-plugins"
+
+const CounterButton = defineComponent({
+  props: {
+    label: { type: String, required: true },
+  },
+  setup(props) {
+    const counter = inject(counterKey)
+    if (!counter) throw new Error("Counter plugin is required")
+
+    return () =>
+      h(
+        "button",
+        {
+          onClick: () => {
+            counter.value += 1
+          },
+        },
+        `${props.label}: ${counter.value}`
+      )
+  },
+})
+
+it("increments the displayed counter", async () => {
+  const wrapper = mountWithDefaultPlugins(CounterButton, {
+    props: { label: "Visits" },
+    global: {
+      stubs: { UnrelatedChild: true },
+    },
+  })
+
+  await wrapper.get("button").trigger("click")
+
+  expect(wrapper.get("button").text()).toBe("Visits: 1")
+  wrapper.unmount()
+})
+```
+
+For a focused disposable proof, type-check the copied helper and consumer with the project's test TypeScript command. Check `typeof mount` assignability, valid required props and typed `wrapper.props()`/`wrapper.vm`, rejected wrong prop types using `@ts-expect-error`, and representative functional, options-object, and SFC/exposed-member call forms that the project uses. Preserve VTU's actual optional-options behavior; do not claim the helper enforces required props more strictly than `mount`.
+
+Then run the consumer in the project's existing DOM test environment and separately prove two mounts start at zero after changing the first. Observe default-then-caller installation order with distinct plugins, including an option tuple; compare plugin and tuple-argument identities, confirm caller arrays/objects are unchanged, and check retention of props, attrs, slots, `attachTo`, stubs, `provide`, configuration/error handlers, and other used options. Create and navigate any scenario router in Arrange and pass it in `global.plugins`; do not move navigation into the helper. Remove disposable probes afterward. Source/type inspection proves compatibility claims only; it is not observed runtime or application behavior.
 
 ### Varied Factory Defaults
 
