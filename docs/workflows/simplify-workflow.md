@@ -8,6 +8,8 @@ Use when asked to make a codebase easier to understand. This targets evidenced c
 
 **WHAT this workflow produces:** One justified hotspot improved and verified, or a concise evidence-backed no-change conclusion that the inspected candidates do not merit modification.
 
+When composed inside [Evolve](evolve-workflow.md#one-outcome-one-delivery-lifecycle), simplify the active outcome before final shipping gates and return focused behavior-preservation proof to its existing delivery owner. Keep unrelated hotspots out of scope; route a required behavior or design correction back to the accepted specification rather than disguising it as cleanup. Standalone Simplify retains its complete-delivery contract.
+
 ## Process
 
 1. Read project-local instructions, source-adjacent guidance, and the relevant code and tests. Follow local style and verification rules. For potential organization or boundary changes, use the [Domain Discovery Checkpoint](../references/code-organization-reference.md#domain-discovery-checkpoint); revisit topology, cohesive concepts, change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling conventions. Treat signals as hypotheses, not proof of a new boundary.

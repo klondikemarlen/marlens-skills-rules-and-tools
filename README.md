@@ -43,7 +43,7 @@ This is an informed approval handoff, **not a sandbox or popup interceptor**. Ca
 
 ## Four Verbs to Remember
 
-For a complete improvement cycle, ask **“Use evolve on this repo”** or invoke `/skill:evolve` in OMP. It runs **advance → improve → simplify → wrap-up** once, with bounded triage when selecting ticket work. Each stage can conclude that no change is justified; this is not an automatic backlog drain.
+For a complete improvement cycle, ask **“Use evolve on this repo”** or invoke `/skill:evolve` in OMP. It carries one outcome through **design → working implementation → refinement → final verification and delivery → wrap-up**, with bounded triage when selecting ticket work. Prototype only when useful; use Improve and Simplify before shipping, and revisit the affected design or implementation when feedback warrants it. Reuse valid evidence, allow no-change refinement, and stop at the accepted outcome—not an automatic backlog drain.
 
 For a narrower task:
 

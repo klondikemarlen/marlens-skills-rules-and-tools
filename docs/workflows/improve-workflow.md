@@ -18,6 +18,8 @@ Use when asked to reassess a project's purpose, durable knowledge, or implementa
 - For a drastic alternative such as replacing the language or architecture, establish the concrete problem, compare realistic alternatives against the outcome, identify migration/interoperability/maintenance costs and risks, and produce a bounded outcome-first plan with reviewable slices before any implementation. Do not autonomously begin the rewrite.
 - A no-change result must name the evidence and relevant owners checked, explain why they already meet the stated purpose or why no actionable gap was established, and identify meaningful residual uncertainty. It is not a substitute for reachable authorized work.
 
+When composed inside [Evolve](evolve-workflow.md#one-outcome-one-delivery-lifecycle), reassess the active outcome and feed justified refinements or design corrections back into the same issue, draft PR, and evidence. Do not select an unrelated improvement or start a separate release merely to complete this phase. Standalone Improve retains its bounded selection and delivery contract.
+
 ## Process
 
 1. **Bound the reassessment.** Identify project, intended purpose/users, authorized target, success condition, non-goals, and relevant local release/review constraints. Reuse an issue or plan rather than creating a parallel record.

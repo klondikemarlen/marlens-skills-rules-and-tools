@@ -4,6 +4,8 @@ Use for user-facing feature work that should move through an issue, branch, pull
 
 Apply [Work Levels](hands-off-agentic-coding-workflow.md#work-levels) to the current request, including continuation on an existing PR. The delivery process below does not restart for each fixup: preserve the existing PR head/worktree and scope. A quick tweak stops after the mechanical edit without agent-initiated post-edit verification; it alone does not authorize merge or release. Independently required delivery gates still apply when delivery is authorized.
 
+For a feature composed through [Evolve](evolve-workflow.md#one-outcome-one-delivery-lifecycle), this workflow owns one delivery lifecycle across design, working implementation, improvement, and simplification. Keep required early issue/draft-PR steps and incremental checks; perform final readiness, merge, release, and installed-artifact gates after in-scope refinement. Feedback returns to the affected design or implementation step without restarting unrelated discovery or discarding still-valid evidence. This does not mandate every skill for ordinary feature work or defer project-local gates.
+
 ## Intent
 
 **WHY this workflow exists:** Feature work should leave an auditable trail from user story through release instead of disappearing into an unlinked local change.
