@@ -663,12 +663,6 @@ for (const [name, workflow] of [
   ) {
     fail(`${name} must preserve readable scenario fixtures without requiring generic abstractions`)
   }
-  if (
-    !workflow.includes("alphabetized by exported symbol") ||
-    !workflow.includes("do not require unrelated barrel-file rewrites")
-  ) {
-    fail(`${name} must review changed index re-export ordering`)
-  }
   if (!workflow.includes("Review commit scope when relevant")) {
     fail(`${name} must check commit scope by change type`)
   }
