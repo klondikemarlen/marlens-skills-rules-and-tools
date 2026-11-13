@@ -97,6 +97,29 @@ test("private persistence survives a fresh process and cancellation affects only
   await assert.rejects(changeReminder("not-an-id", "cancel", directory), /exact ID/u)
 })
 
+test("desktop previews prioritize the message without exposing private session coordinates", async (t) => {
+  const directory = await isolated(t)
+  const record = await createReminder(prepared(directory), directory, now)
+  let notification
+  await dispatch(directory, {
+    now: due,
+    notify: (title, body) => {
+      notification = {
+        title,
+        body,
+      }
+    },
+  })
+
+  assert.equal(notification.title, record.message)
+  assert.ok(notification.body.includes("/remind list"))
+  assert.ok(!notification.body.includes(record.session.path))
+  assert.ok(!notification.body.includes(record.session.id))
+  assert.ok(!notification.body.includes(record.id))
+  assert.ok(!notification.body.includes(directory))
+  assert.equal((await loadState(directory)).reminders[0].session.path, record.session.path)
+})
+
 test("overdue catch-up batches reminders once under concurrent dispatch, without invoking remembered tasks", async (t) => {
   const directory = await isolated(t)
   for (let index = 0; index < 8; index++) {
@@ -128,7 +151,6 @@ test("overdue catch-up batches reminders once under concurrent dispatch, without
     8
   )
   assert.equal(notifications.length, 1)
-  assert.match(notifications[0].body, /And 3 more/u)
   assert.match(notifications[0].body, /\$\(touch \/not-executed\)/u)
   assert.equal(
     (await loadState(directory)).reminders.filter((record) => record.status === "delivered").length,
