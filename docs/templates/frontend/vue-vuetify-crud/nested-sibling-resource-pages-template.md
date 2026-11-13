@@ -49,7 +49,7 @@ function navigateToParentResourceList() {
         <{ResourceFormComponent} :{parent-resource-name}-id="{parentResourceName}Id"
         :is-submitting="isSubmitting" @submit="createResource" />
         <v-btn
-          v-if="!isSubmitting"
+          :loading="isSubmitting"
           type="button"
           :to="{
             name: '{ParentResourceListRouteName}',
@@ -59,12 +59,6 @@ function navigateToParentResourceList() {
           }"
           >Cancel</v-btn
         >
-        <p
-          v-else
-          role="status"
-        >
-          Saving; Cancel will be available when saving finishes.
-        </p>
       </template>
       <v-alert
         v-else
@@ -117,7 +111,7 @@ async function createResource(formValues: Record<string, unknown>) {
 </script>
 ```
 
-This example's Cancel is page-owned and navigation-only; remove any superseded child Cancel control and its event declaration/listener together rather than render a duplicate. It illustrates an existing no-navigation-while-saving contract by omitting the busy link with an explanation, not by assuming `loading` blocks a router link. If the actual page permits navigation while saving, preserve that policy instead. Keep the form's existing submission/duplicate guards, validation, and pending presentation; `submit` here requests work from the page, so it is a command, not a completed `saved` notification. Use supported `:loading` for the form's pending submit button without adding busy disabled styling; do not assume it enforces keyboard/form submission safety.
+This example's Cancel is page-owned and navigation-only; remove any superseded child Cancel control and its event declaration/listener together rather than render a duplicate. Bind all in-flight form action buttons, including Cancel and the form's submit button, to supported `:loading` without busy disabled styling. Apply [Accepted Form Guards](../../../references/vue-component-authoring-reference.md#accepted-form-guards) to relevant loading-controlled create/edit handlers: use `isNil` for the form ref and omit redundant busy early returns, preserving validation and independent authorization/concurrency contracts. Keep existing route-leave/unsaved-change checks and in-flight save ownership; where navigation is independently prohibited while saving, retain supported enforcement, including conditional omission with an explanation if needed. Do not assume loading enforces keyboard/form or router-link activation safety. Here `submit` requests work from the page, so it is a command, not a completed `saved` notification.
 
 ## Show Page
 

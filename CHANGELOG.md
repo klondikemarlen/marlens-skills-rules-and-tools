@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.10.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1356) - 2026-11-13
+
+### Changed
+
+- Apply accepted Vue form guards and loading presentation across sibling create/edit actions, including Cancel links, while keeping field and independent concurrency contracts separate.
+- Distinguish parsed numeric string-route-prop derivations with `AsNumber`, preserving external names, parsing semantics, and reactive consumers.
+
 ## [5.10.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1357) - 2026-11-13
 
 ### Changed
