@@ -159,6 +159,14 @@ Readiness is not merge approval. Missing, failed, cancelled, stale, or still-run
 
 For documentation-only path-filter skips, establish that the skipped suite/build is not required by the actual diff and project policy; report it as not required, not as passing application tests or a successful image build. Preserve automatic post-merge CI and separately required release checks.
 
+## Closing Without Merging
+
+When closing a PR without merging is already authorized, inspect its discussion for an adequate closure explanation. Reuse an existing comment that states the reason and disposition of the work, including the canonical or replacement PR link when applicable; otherwise add one concise explanatory comment before closing. For consolidated or superseded work, say where it continues; for abandoned work, say that it is not proceeding. A description change alone is insufficient. Preserve existing discussion and do not add a duplicate explanation.
+
+After closing, read back the remote discussion and PR state to confirm the explanation and any applicable destination link are present, the PR is closed, and it is unmerged. If either the comment or state cannot be verified, report that missing evidence rather than claiming closure is complete. This procedure grants no new authority to close a PR.
+
+For final reporting and bookkeeping, use [Concise Closeout](wrap-up-workflow.md#concise-closeout).
+
 ## Temporary Authoring Files
 
 When a workflow needs a temporary authoring artifact, including a PR body file, allocate a unique file or private run directory for that invocation. Do not use a fixed global path: concurrent runs can overwrite or remove one another's work. Quote the allocated path at every use and clean up only the artifact owned by the current invocation. For example, this Bash pattern works with a `TMPDIR` containing spaces and `mktemp` creates the file privately:
