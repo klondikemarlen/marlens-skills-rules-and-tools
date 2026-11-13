@@ -1,6 +1,6 @@
 # Code Organization Reference
 
-Use this when a change needs clearer names, files, modules, service boundaries, data handoffs, or dependency direction. This reference is intentionally stack-neutral: project-local architecture and naming conventions still win.
+Use this when a change needs clearer names, files, modules, service boundaries, data handoffs, or dependency direction. This reference is intentionally stack-neutral: project-local architecture and naming conventions still win. Apply its preferences as [contextual defaults](guidance-precedence-reference.md#contextual-defaults), not universal rewrites.
 
 ## Core Idea
 
@@ -401,6 +401,23 @@ import type { WorkflowStepAsChannel } from "@/api/workflow-steps-api"
 
 Use the project's actual serializer fields, supported paths, and type-sharing boundary; the minimal example does not prescribe a new payload or module. Do not force imports across incompatible frontend/backend builds, introduce a shared package solely for naming, or rename deliberately transformed projections and local view models as if they were the transport contract. Preserve serialization, validation, and behavior. Apply an accepted correction to affected transport declarations and consumers within the requested scope, not unrelated types.
 
+When the application owns a producer, inspect its serializer and the actual transport representation before choosing consumer parsing. A source `Date` type alone does not establish the wire format: follow serialization through JSON or the relevant transport. Parse the verified representation directly instead of detecting hypothetical formats or testing inputs that producer cannot emit. Keep required invalid-input handling and independently evidenced external or multiple-format contracts.
+
+For example, suppose inspection confirms a nullable `Date` passes through ordinary JSON serialization as an ISO string such as `"2026-11-13T14:25:30.000Z"` or `null`. The existing display contract preserves the supplied zone, returns `null` for absence, formats as `yyyy-MM-dd HH:mm`, and throws `Error("Invalid timestamp.")` for an invalid timestamp. Do not invent a branch such as `value.endsWith("Z") ? parseIso(value) : parseSql(value)` for a SQL-style format the producer never emits. With the project's existing Luxon import and `Settings.throwOnInvalid` already disabled, the consumer can retain that contract directly:
+
+```typescript
+function displayTimestamp(value: string | null): string | null {
+  if (value === null) return null
+
+  const timestamp = DateTime.fromISO(value, { setZone: true })
+  if (!timestamp.isValid) throw new Error("Invalid timestamp.")
+
+  return timestamp.toFormat("yyyy-MM-dd HH:mm")
+}
+```
+
+Here the sample displays as `"2026-11-13 14:25"`. Preserve the actual null versus omission contract, parser settings (including Luxon's throw-on-invalid behavior), error path, output format, precision, and zone policy when applying this pattern; neither UTC nor ISO is a global requirement. A verified external feed accepting both ISO and SQL timestamps still needs both formats and their focused cases. Date-only values retain their separate calendar-date semantics.
+
 ## Simplification After Scope Changes
 
 When a feature is deferred or removed, remove its supporting abstractions if accepted work no longer needs them. Prefer restoring the original simple code shape over retaining a behavior-equivalent refactor solely from the deferred feature. Keep refactors required by accepted work and preserve unrelated changes.
@@ -493,6 +510,8 @@ Keep genuinely shared developer commands with their existing shared owner rather
 ### Library Index Barrels
 
 Use application-library `index` files for bundling and re-exports; put implementations in descriptive named sibling modules. Keep named functions and their matching default exports in those implementation modules under the existing export convention. A barrel may re-export values/types, import named/default/namespace bindings and re-export them, or default-export a static object of imported bindings. Do not hide functions, classes, locally computed values, side-effect imports, or executable initialization in a library barrel.
+
+For export ordering, follow the owning barrel's established logical groups; the [service-barrel convention](#service-orchestration-readability) below preserves CRUD/controller order before alphabetizing other exports. Alphabetization is a default within the applicable group, not a global sort or permission to move initialization-sensitive imports.
 
 For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations, then put the matching `export default someName` statement last. Keep imports, supporting types, and initialization-sensitive declarations where module semantics require them. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
 
@@ -770,15 +789,19 @@ Arrange data through the project's factories rather than unrelated production se
 
 Prefer realistic randomized defaults for ordinary factory attributes over repeatedly returning one example. Reuse the project's existing generator and domain catalogues; generate related fields together rather than independently. Keep scenario-defining values explicit, and retain intentional constants and nulls. Deterministic cycling is not a substitute for this preference.
 
+Declare fixed factory seed catalogues at module scope with CONSTANT_CASE names, such as `CITIES`. Select or derive each build's values inside the callback. Keep generated values, parameter-dependent choices, scenario overrides, and mutable fixture state local to their owning build or test; do not mutate the shared catalogue. Copy selected nested data when a build needs independent mutation.
+
 For a project already using Fishery and Faker, with `Airport` and `Other` location types and a description required only for `Other`, a factory can choose a valid city/location pair:
 
 ```typescript
+const DESTINATIONS = [
+  { city: "Whitehorse (YT)", location: "Airport" },
+  { city: "Dawson (YT)", location: "Airport" },
+  { city: "Whitehorse (YT)", location: "Other" },
+] as const
+
 const bookingFactory = Factory.define<BookingAttributes>(({ params }) => {
-  const destination = faker.helpers.arrayElement([
-    { city: "Whitehorse (YT)", location: "Airport" as const },
-    { city: "Dawson (YT)", location: "Airport" as const },
-    { city: "Whitehorse (YT)", location: "Other" as const },
-  ])
+  const destination = faker.helpers.arrayElement(DESTINATIONS)
   const pickUpLocation = params.pickUpLocation ?? destination.location
   const pickUpLocationDescription =
     pickUpLocation === "Other"
@@ -879,6 +902,17 @@ The `status` tag narrows each branch to the fields valid for that state, so no v
 ## Initialization Safety
 
 Prefer initialization that TypeScript can verify over definite-assignment assertions such as `let callback!: () => void`. For asynchronous coordination, use directly initialized values or appropriate standard synchronization primitives supported by the project runtime. Do not replace the assertion with casts, dummy callbacks, or optional calls that conceal missing initialization or silently discard a signal. Preserve pending-state behavior, signal delivery, ownership, lifecycle, and failure behavior. This is not a requirement to use `EventEmitter` everywhere or a blanket ban on unrelated TypeScript syntax.
+
+Likewise, avoid postfix expression-level non-null assertions such as `nth(values, index)!` or `record!.id`: they erase a possible absence without checking it at runtime. Prefer a supported type-safe API whose contract guarantees the needed value, or narrow explicitly and preserve the actual missing-value behavior. For a required fixture selection that should fail when the index is absent:
+
+```typescript
+const value = nth(values, index)
+if (value === undefined) throw new Error("Required fixture value is missing.")
+
+useFixture(value)
+```
+
+This example assumes `nth` returns an element or `undefined` and elements cannot themselves be `undefined`; preserve the actual selection semantics, including negative indices. Use the project's meaningful error or test-failure mechanism, not an invented fallback. If absence is valid, handle it through that existing optional-result contract instead. Do not substitute a cast, a dummy/default value, or `value?.perform()` to hide a required value's absence. Boolean negation such as `!isReady` and runtime guards such as `if (!record) throw ...` are legitimate when they match the value's actual missing/falsy contract; they are not non-null assertions. This guidance requires neither Faker nor randomized selection, new dependencies, or a repository-wide rewrite.
 
 ## Whole-Family Normalization
 
@@ -1439,17 +1473,33 @@ Prefer CRUD-style operation names for new or refactored services when they accur
 
 For job/service operation vocabulary and the fan-out meaning of `Enqueue` names, apply [Function Action Names](#function-action-names). Naming does not change scheduling ownership or delivery semantics.
 
-Group service barrel exports with standard CRUD/read entries first, special actions next, and bundled namespaces last. Independently owned read-only definitions and values belong in the ordinary CRUD/read group, alphabetized with its entries; do not create a separate category merely because they are definitions. Re-export a service and its accompanying public types together in one declaration from their owning module, retaining inline `type` markers. Place that declaration by the service's role instead of sorting its companion types independently into CRUD/read. Do not combine declarations from different source modules. Alphabetize exports within each group, not globally across groups; keep named exports, namespace imports, and default-export object keys aligned with those groups. Separate groups with one blank line and established section labels. Preserve exported names and runtime behavior; do not reorganize unrelated barrels.
+Group service barrel exports in this order, omitting absent groups:
 
-For example, a special-action service keeps its companion request type beside it, while an independently owned read-only definition remains in CRUD/read:
+1. Unlabeled basic CRUD/read exports. Keep operations in the resource's established CRUD/controller order: `CreateService`, `UpdateService`, then `DestroyService` when those are the available operations, not Create/Destroy/Update alphabetically. Place existing reads according to that controller convention; do not fabricate missing operations. Independently owned read-only definitions and values remain in this initial group, alphabetized with other non-operation entries rather than given a one-off category.
+2. **State Management** for lifecycle transitions, such as approve or cancel.
+3. **Special Actions** for other operations, such as building an overview or reordering; do not invent an overview-only section.
+4. **Bundled Exports** for existing nested namespaces.
+
+Alphabetize non-CRUD exports within their groups, not globally across groups. Re-export a service and its accompanying public types together in one declaration from their owning module, retaining inline `type` markers. Place that declaration by the service's role instead of sorting its companion types independently into CRUD/read. Do not combine declarations from different source modules. Keep named exports, namespace imports, and default-export object keys aligned with the applicable groups and operation order. Separate groups with one blank line and the established section labels, leaving the initial group unlabeled. Preserve stronger project-local conventions, exported names, and runtime behavior; do not require empty groups or reorganize unrelated barrels.
+
+For a resource that already exports the following symbols, lifecycle transitions remain separate from other special actions, and each service retains its companion types:
 
 ```ts
-// CRUD / Read
 export { CreateService } from "./create-service"
+export { UpdateService } from "./update-service"
+export { DestroyService } from "./destroy-service"
 export { type IndexStatus } from "./index-status"
 
+// State Management
+export { ApproveService } from "./approve-service"
+export { CancelService } from "./cancel-service"
+
 // Special Actions
+export { BuildOverviewService } from "./build-overview-service"
 export { ReorderService, type ReorderRequest } from "./reorder-service"
+
+// Bundled Exports
+export * as Attachments from "./attachments"
 ```
 
 ### Producer-Owned ID Collections
