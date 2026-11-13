@@ -216,6 +216,24 @@
           "**/*.md",
           "**/*.mdx"
         ]
+      },
+      {
+        "id": "marlens-rules:scoped-readability",
+        "label": "Scoped Readability",
+        "description": "Reviews task-scoped ordering, object layout, construction evaluation, and operation completion ownership.",
+        "mode": "agentic",
+        "contract": "./verifications/scoped-readability.json",
+        "pathTriggers": [
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.mjs",
+          "**/*.cjs",
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.mts",
+          "**/*.cts",
+          "**/*.vue"
+        ]
       }
     ]
   },
