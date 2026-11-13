@@ -21,6 +21,17 @@ Keep project-local release mechanisms and deliberate compatible format exception
 3. Remote repository metadata.
 4. Status pages or deployment records, when available.
 
+## Reconcile Unreleased Notes
+
+An unreleased draft is editable, not an append-only record of implementation attempts. Whenever release scope changes, and again before publication, reconcile it to the net reader-visible difference between the verified prior published baseline and the final candidate.
+
+1. **Establish the comparison.** Identify the prior published version/revision through the project's release mechanism and the exact candidate revision. Inspect their comparison and supporting behavior evidence; do not infer the shipped outcome from commit titles or the existing draft alone. If either identity or behavior is unverified, name the missing evidence and keep the affected claims provisional.
+2. **Remove fully reverted in-range changes.** If a feature, its replacement, and their pre-release revert leave the candidate equivalent to the baseline for that behavior, remove their draft entries. Do not append a restoration entry for behavior that never changed in a published release.
+3. **Consolidate superseded outcomes.** Rewrite related entries to describe the surviving candidate behavior, replacing incompatible intermediate API or feature claims. Preserve distinct user outcomes rather than collapsing unrelated changes into one generic entry.
+4. **Retain material consequences.** Keep independently meaningful security/safety fixes, breaking changes, deprecations, migrations, and recovery instructions supported by the final candidate or verified effects of the unreleased work. A code revert does not erase a persisted-data migration or a recovery action still required by affected preview users. Remove instructions that no longer apply; explain the affected audience when only preview users need action.
+5. **Preserve published history.** Reconciliation edits only the unreleased range, not published version records. A candidate that reverses already-published behavior has a new reader-visible change relative to its baseline and needs an appropriate new-release entry, including any compatibility or migration impact.
+6. **Review the resulting draft.** Check each remaining claim against the baseline and candidate, remove empty categories, and ensure no contradictory additions/restorations remain. A shorter draft, or no entry for a fully reverted change, is correct; there is no entry-count target or format change.
+
 ## Rules
 
 - Separate user-facing changes from internal-only changes.
