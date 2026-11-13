@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.10.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1355) - 2026-11-13
+
 ### Changed
 
 - Prefer framed editor-area plugin demos with visible controls and draft restoration; require populated-conversation and small-terminal QA, keeping terminal, native descriptor, and Tern visual evidence distinct.
