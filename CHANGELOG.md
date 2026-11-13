@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Explain authorized pull-request closures in the discussion and keep completion bookkeeping alongside substantive work, including indirect tool orchestration, without skipping review or cleanup gates.
+
 ## [5.10.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1332) - 2026-11-13
 
 ### Changed
