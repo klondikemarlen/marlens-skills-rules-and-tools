@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keep associated-model mapping in dedicated serializers and cross-model conversion in services. Surface required preloads early, name repeated normalization and timestamp conversions, and make summary construction explicit without changing accepted output contracts.
+
 ## [5.10.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1312) - 2026-11-13
 
 ### Changed
