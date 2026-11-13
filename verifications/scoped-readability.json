@@ -1,7 +1,7 @@
 {
   "version": 1,
   "standardId": "marlens-rules:scoped-readability",
-  "source": "./docs/references/code-organization-reference.md#scoped-readability-review",
+  "source": "./docs/workflows/readable-code-workflow.md",
   "gold": "Every ordering or formatting change is justified by the accepted task, a real dependency/initialization requirement, or a binding convention. Applicable nested response and decorator objects use the existing multiline layout. Calls are evaluated into named variables before array/object construction within their original execution scope. Operation calls avoid redundant unary void while preserving completion, intentional concurrency, pending observations, rejection ownership, and TypeScript void types. Requested normalization and contextual exceptions remain valid; no diff-size quota or unrelated cleanup is imposed.",
   "requiredContext": ["changed-code", "project-guidance"],
   "rubric": [
