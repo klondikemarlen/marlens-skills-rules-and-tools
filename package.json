@@ -190,6 +190,34 @@
         ]
       },
       {
+        "id": "marlens-rules:test-fixture-api-alignment",
+        "label": "Test Fixture API Alignment",
+        "description": "Reviews complete changed tests and setup helpers against installed factory APIs and scenario-local fixture standards.",
+        "mode": "agentic",
+        "contract": "./verifications/test-fixture-api-alignment.json",
+        "pathTriggers": [
+          "test/**",
+          "tests/**",
+          "__tests__/**",
+          "**/*.test.js",
+          "**/*.test.cjs",
+          "**/*.test.mjs",
+          "**/*.test.jsx",
+          "**/*.test.ts",
+          "**/*.test.cts",
+          "**/*.test.mts",
+          "**/*.test.tsx",
+          "**/*.spec.js",
+          "**/*.spec.cjs",
+          "**/*.spec.mjs",
+          "**/*.spec.jsx",
+          "**/*.spec.ts",
+          "**/*.spec.cts",
+          "**/*.spec.mts",
+          "**/*.spec.tsx"
+        ]
+      },
+      {
         "id": "marlens-rules:module-boundary-alignment",
         "label": "Module Boundary Alignment",
         "description": "Evaluates changed modules against the accepted module-boundary standard.",
