@@ -22,21 +22,27 @@ The following fictional identities and behavior checks are supplied facts, not r
 
 Reconcile after each scope change, using the same published baseline:
 
-| Candidate | Verified Behavior | Reconciled Draft |
-| --------- | ----------------- | ---------------- |
-| A | Adds parallel groups through `moveGroup(groupId, beforeGroupId)`; fixes CSV export. | Added: “Reorder parallel groups together.” Fixed: “Include the final row in CSV exports.” |
-| B | Replaces the group API with `reorderGroups(groupIds)`; fixes CSV export. | Replace A's group entry with “Set the order of all parallel groups in one operation.” Keep the CSV fix; do not claim both group APIs remain available. |
-| C (final) | Reverts all group work, restoring baseline individual-step behavior; keeps the CSV fix. No persisted-data or preview recovery consequences remain. | Remove the group entry entirely. Keep only “Include the final row in CSV exports” under Fixed. |
+| Candidate | Verified Behavior                                                                                                                                  | Reconciled Draft                                                                                                                                       |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A         | Adds parallel groups through `moveGroup(groupId, beforeGroupId)`; fixes CSV export.                                                                | Added: “Reorder parallel groups together.” Fixed: “Include the final row in CSV exports.”                                                              |
+| B         | Replaces the group API with `reorderGroups(groupIds)`; fixes CSV export.                                                                           | Replace A's group entry with “Set the order of all parallel groups in one operation.” Keep the CSV fix; do not claim both group APIs remain available. |
+| C (final) | Reverts all group work, restoring baseline individual-step behavior; keeps the CSV fix. No persisted-data or preview recovery consequences remain. | Remove the group entry entirely. Keep only “Include the final row in CSV exports” under Fixed.                                                         |
 
 Before reconciliation, an accumulated draft might incorrectly read:
 
 ```markdown
 ## [Unreleased]
+
 ### Added
+
 - Reorder parallel groups with moveGroup(groupId, beforeGroupId).
+
 ### Changed
+
 - Replace moveGroup with reorderGroups(groupIds).
+
 ### Fixed
+
 - Restore individual-step reordering with moveStep(id, beforeId).
 - Include the final row in CSV exports.
 ```
@@ -45,7 +51,9 @@ After comparing `v2.0.0` with final candidate C:
 
 ```markdown
 ## [Unreleased]
+
 ### Fixed
+
 - Include the final row in CSV exports.
 ```
 
@@ -57,9 +65,13 @@ In a separate candidate, supplied evidence establishes that the group preview pe
 
 ```markdown
 ## [Unreleased]
+
 ### Changed
+
 - Users of the parallel-group preview must run the documented group-to-step conversion before opening saved preview projects. Projects from published 2.0.0 need no conversion.
+
 ### Security
+
 - Prevent users without project access from exporting its steps.
 ```
 
@@ -71,9 +83,13 @@ Contrast a separate release line where verified published `v2.1.0` already shipp
 
 ```markdown
 ## [Unreleased]
+
 ### Removed
+
 - Breaking: remove reorderGroups(groupIds). Integrations must replace group-order calls with individual moveStep(id, beforeId) calls.
+
 ### Added
+
 - Restore individual-step reordering through moveStep(id, beforeId).
 ```
 
