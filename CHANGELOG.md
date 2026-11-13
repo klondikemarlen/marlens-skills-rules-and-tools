@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Added
+
+- Define faithful OMP TUI demos using labeled samples through the real rendering path, with safe execution boundaries and installed-surface QA.
+
 ## [5.10.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1338) - 2026-11-13
 
 ### Changed
