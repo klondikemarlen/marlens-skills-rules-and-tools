@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.10.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1307) - 2026-11-13
+
 ### Changed
 
 - Compose evolve around one iterative delivery: design and prototype where useful, build a working version, improve and simplify with feedback, then finish verification, shipping, and wrap-up. Revisit affected requirements when needed without restarting unrelated work or repeating valid checks.
