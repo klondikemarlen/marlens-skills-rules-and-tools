@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Keep watcher-local hydration driven by the saved fields it consumes, without resetting local state when only record identity changes. Preserve meaningful identity triggers and nullable-field behavior.
+
 ## [5.10.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1307) - 2026-11-13
 
 ### Changed
