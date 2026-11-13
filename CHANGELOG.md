@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Keep table headers near component inputs, use links for navigation-only Cancel controls, and show pending work through Vuetify loading presentation without disabled busy styling. Preserve interaction guards and verify disputed behavior in the running interface.
+
 ## [5.10.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1330) - 2026-11-13
 
 ### Changed
