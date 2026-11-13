@@ -34,7 +34,7 @@ function enableFlightMatching(): void {
   if (!availableFlight.value) return
 
   applyAvailableFlight(availableFlight.value)
-  void nextTick(refreshValidation)
+  nextTick(refreshValidation)
 }
 
 function disableFlightMatching(): void {
@@ -61,7 +61,31 @@ In Bash configuration, prefer the readable `source path` keyword over `. path` f
 
 Before explaining an initialization or import-order workaround with a comment, check whether a simpler supported arrangement can remove the workaround itself. For example, prefer a directly imported mock module over asynchronous hoisted helper initialization when it preserves the required registration order and isolation. Rebuild the arrangement and verify affected consumers rather than merely deleting its explanation. Retain rationale for genuine framework constraints and non-obvious invariants when no simpler correct arrangement exists; this is not a universal mocking pattern or permission to refactor unrelated tests.
 
-For a meaningful computed function result used in an object property or nested call, prefer a descriptive local before its use so the processing step has an inspectable value and useful debugger breakpoint. For example, capture `const gaps = captureGaps(rows, container)` before constructing `{ gaps }`. Preserve evaluation order and short-circuit behavior: keep conditional computation inside its branch rather than hoisting it unconditionally. Do not add aliases for already-available values, trivial wrappers, or extra statements solely to increase line count.
+### Function Calls Before Construction
+
+Do not perform function calls inside array or object definitions. Evaluate calls into descriptive named variables before constructing the array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep the construction declarative and each operation inspectable; do not add placeholder aliases for already-available values.
+
+Keep each evaluation within its original execution scope: a branch, loop iteration, callback invocation, lazy getter, or transaction must still own its work. Preserve evaluation count and left-to-right order, conditional/short-circuit execution, receiver binding, async/concurrent starts and awaits, rejection ownership, spread precedence, and returned identity. Capture intervening effectful property/index reads at their original evaluation points when needed; do not hoist a later call ahead of an earlier getter or turn concurrent starts into sequential awaits.
+
+```typescript
+function buildPreview(rows: Row[], container: Container, isVisible: boolean) {
+  if (!isVisible) return null
+
+  const gaps = captureGaps(rows, container)
+  const bounds = container.getBoundingClientRect()
+
+  return {
+    gaps,
+    bounds,
+  }
+}
+```
+
+The calls still run only for a visible preview, in the original order, and the returned object contains the exact computed values. A function body defined inside an object or array remains deferred: extract a call inside that body at invocation time, never into construction-time setup. For native test factories, apply the same rule within each scenario's Arrange scope; factory API and association choices remain owned by [Scenario-Oriented Verification](#scenario-oriented-verification).
+
+For a meaningful computed result consumed by another nested call, also prefer a descriptive local when it makes the processing step inspectable and gives a useful debugger breakpoint. Preserve short-circuit execution and avoid trivial aliases or wrappers; the general construction rule above does not make every other nested expression a violation.
+
+### Simple Construction and Values
 
 Keep self-explanatory one-use option literals inline when the property already explains their meaning: use `{ arrayLimit: 1000, parameterLimit: 1500 }` rather than one-use `MAX_QUERY_ARRAY_LENGTH` and `MAX_QUERY_PARAMETER_COUNT` aliases. These values illustrate preserved inputs, not parser limits to adopt elsewhere. Retain named constants that express an additional domain rule or are genuinely shared, and retain meaningful computed intermediates; this is not a ban on constants or debugger-friendly locals.
 
@@ -128,6 +152,31 @@ When this scope correction is accepted, inspect the complete in-scope PR for equ
 
 A legitimately touched file is not permission to relocate its unchanged setup declarations or initialization calls. Preserve their established relative placement unless requested behavior, an actual dependency/initialization order, project tooling, or explicitly requested cleanup requires a move. For example, leave an unchanged `const snack = useSnack()` beside its original form setup rather than moving it solely because the file gains store logic. Necessary new declarations and justified ordering changes remain valid; preserve initialization effects and do not impose a universal declaration order. When this correction is accepted, inspect analogous incidental moves across the complete in-scope PR, preserving other owners' changes rather than restoring only the highlighted line or sweeping unrelated files.
 
+### Scoped Readability Review
+
+Compare every ordering or formatting change with the accepted task and baseline, including computed-property moves and destructuring reorderings within otherwise legitimately changed files. Require a concrete task, dependency/initialization, or binding-convention reason; a touched file alone does not justify churn. Preserve justified normalization, explicit cleanup, and necessary formatting without diff-size quotas or a blanket refactoring ban. [Whitespace Matters](../../rules/whitespace-matters.md) owns whitespace/import scope, and [Diff-Friendly Configuration Layouts](#diff-friendly-configuration-layouts) owns object-layout application.
+
+The supplied `marlens-rules:scoped-readability` contract reviews these decisions alongside construction and operation clarity. Missing accepted-task, baseline, changed-code, or governing guidance evidence is `BLOCKED`, not permission to infer intent or approve from formatter/typecheck success. Cite specific changed locations and their justification or violation, assess the complete supplied scope, and request a fresh assessment after correction. See the contrasting [scoped readability scenarios](../../examples/scoped-readability-review.md); Verifier owns capture, execution, and native result delivery, not this policy document.
+
+### Operation Calls and Completion
+
+Generally avoid unary `void` used only to discard an operation's result. Use a plain expression statement when no result is needed, `await` when completion must precede the next step, or a meaningful binding when the result or pending operation has an owner. Do not introduce unused placeholder bindings merely to replace `void`. TypeScript `void` return types remain valid; this preference concerns the unary operator, not the type.
+
+```typescript
+// Pending-state test: the operation owns its rejection through the existing
+// application error boundary; the controlled save has not settled.
+wrapper.vm.commitEdit()
+expect(wrapper.vm.isSaving).toBe(true)
+```
+
+```typescript
+// Completion test: wait for the existing successful save to finish.
+await wrapper.vm.commitEdit()
+expect(wrapper.vm.isSaving).toBe(false)
+```
+
+These excerpts assume the existing test setup supplies the controlled operation and error boundary. Preserve intentional concurrency, pending observations, deferred callbacks, and established rejection handling; neither removing `void` nor adding it handles a rejected promise. Awaiting a pending operation can hang the test or erase the state being tested. Where a caller owns rejection, preserve its meaningful returned/awaited promise or existing explicit handler rather than silently dropping it.
+
 ### Mutually Exclusive Alternatives
 
 Use one `if`/`else if`/`else` chain or `switch` when selecting among mutually exclusive alternatives. Keep independent conditions independent and useful precondition guards separate. A clear loop is appropriate; no reduction or `sumBy` rewrite is required.
@@ -155,7 +204,7 @@ This groups the decision without changing bigint arithmetic or the no-op Void be
 
 ### Diff-Friendly Configuration Layouts
 
-For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. An addition should not rewrite an existing entry or its delimiters:
+For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. Apply the same layout to nested non-empty response objects, including single-property objects, and multi-property decorator option objects such as `@Attribute` options. This is application of the existing one-entry-per-line convention, not a separate nesting or decorator policy. An addition should not rewrite an existing entry or its delimiters:
 
 ```typescript
 const defaults = {
@@ -168,6 +217,25 @@ const extendedDefaults = {
   disabled: false,
 }
 ```
+
+```typescript
+const response = {
+  summaries: {
+    communityCount,
+  },
+}
+
+class TravelOrderEvent {
+  @Attribute({
+    type: UtcSqlServerDateTime,
+    columnName: "HostEventTimeStamp",
+    allowNull: true,
+  })
+  declare eventTimestamp: Date | null
+}
+```
+
+Keep import/destructuring conventions distinct from value-object layout. Check objects authored or meaningfully changed by the accepted task, plus any explicitly requested normalization scope; an import-only correction does not authorize response/decorator reformatting elsewhere.
 
 This applies beyond Vue defaults. Preserve multiline extensible layouts rather than compacting them solely because a formatter permits it, subject to project formatting constraints. Small self-contained types and call arguments may remain inline as above; this is not a mandate to expand every expression or sweep unrelated formatting.
 
@@ -850,7 +918,6 @@ export function mountWithDefaultPlugins<
 
 // Compile-time signature check, not a cast.
 const checkedMount: typeof mount = mountWithDefaultPlugins
-void checkedMount
 ```
 
 The type-helper import is the same public package used by VTU's declarations; reuse it only where the project's dependency resolver already supports that import. Do not add a dependency solely to copy this example. Adapt against the installed public types and verify the project's actual call forms rather than bypassing unresolved types with a cast.

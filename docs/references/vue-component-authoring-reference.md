@@ -925,7 +925,7 @@ const form = useTemplateRef("form")
 const isSaving = ref(false)
 
 async function submit() {
-  if (isSaving.value || !form.value) return
+  if (isNil(form.value)) return
 
   isSaving.value = true
   try {
@@ -963,15 +963,21 @@ defineExpose({ focus })
 
 Respect Vue's [exposure lifecycle](https://vuejs.org/guide/essentials/template-refs.html#ref-on-component): `defineExpose` must execute before the first top-level `await`. If setup awaits, keep exposure and its required definitions before that suspension rather than moving it past `await` to satisfy the last-declaration preference. An `await` inside a later-invoked handler is not a top-level setup suspension. Do not remove an accepted public API or change initialization order merely to apply this convention.
 
+### Accepted Form Guards
+
+In loading-controlled create/edit form handlers under this convention, use `if (isNil(form.value)) return` for the template-ref availability guard and remove redundant `isCreating`/`isSaving` early returns. Reuse the project's supported `isNil` import and narrowing for both `null` and `undefined`; do not substitute a null-only or truthiness check. Apply an accepted correction to the relevant sibling create/edit handlers in the PR, including their guards and imports, rather than fixing only the reported line.
+
+This maintainer-accepted form convention supersedes the earlier unresolved guard-removal boundary; it is not contingent on proving that loading blocks every submission path. Keep validation, authorization, error/finally handling, and save ownership intact. Retain genuinely distinct request-ownership/concurrency guards outside these redundant form checks, including an explicitly accepted queued or reject-while-pending operation contract. Do not remove guards from unrelated downloads, lookups, or other workflows by analogy. When interaction safety itself is disputed, verify that behavior separately rather than inventing a universal keyboard guarantee from a style decision.
+
 ### Navigation-Only Cancel Controls
 
 When Cancel only navigates to a known destination, prefer the component's supported router-link `:to` binding over a child `cancel` emit, parent listener, and handler that only calls `router.push`. Remove that relay together, preserving the destination and every route parameter. Keep imperative cancellation when it resets a draft, confirms unsaved changes, closes a dialog, or aborts an operation; a link alone does not perform those actions. Successful-save notifications remain events, not links.
 
-For a form whose existing contract disallows Cancel while saving, this template excerpt renders a link only while navigation is allowed, retaining the existing details destination and identifier:
+For a form's navigation-only Cancel action, this template excerpt uses the same pending presentation as Save while retaining the existing details destination and string identifier:
 
 ```vue
 <v-btn
-  v-if="!isSaving"
+  :loading="isSaving"
   type="button"
   :to="{
     name: 'workflow-details',
@@ -980,12 +986,9 @@ For a form whose existing contract disallows Cancel while saving, this template 
     },
   }"
 >Cancel</v-btn>
-<p v-else role="status">
-  Saving; Cancel will be available when saving finishes.
-</p>
 ```
 
-Use the actual destination, inputs, and busy condition. The pending branch deliberately omits the link rather than assuming loading prevents navigation. Where an established supported link contract preserves the same restriction, use it with the preferred pending presentation instead. Preserve existing route-leave/unsaved-change checks and in-flight save lifetime; do not invent a new restriction for a page that allows navigation while saving. Verify keyboard and link activation against the installed Vue Router/Vuetify version under [Disputed Interaction Behavior](../workflows/browser-qa-workflow.md#disputed-interaction-behavior); prop names alone do not prove busy navigation is blocked.
+Use the actual destination, inputs, and busy condition. Loading is the accepted pending presentation for Cancel as well as Save; it is not proof that every link or keyboard path is blocked. Preserve existing route-leave/unsaved-change checks and in-flight save lifetime. If the application independently requires no navigation while saving, retain its supported enforcement, including conditional omission with an explanation when needed; do not invent a restriction for a page that permits navigation. Verify disputed activation behavior against the installed Vue Router/Vuetify version under [Disputed Interaction Behavior](../workflows/browser-qa-workflow.md#disputed-interaction-behavior).
 
 ### Singular Invocation State and Shared Collections
 
@@ -1153,10 +1156,10 @@ For parsing or another transformation, read `props.<name>` directly inside the c
 ```typescript
 import { computed } from "vue"
 
-const travelAuthorizationId = computed(() => parseInt(props.travelAuthorizationId))
+const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthorizationId))
 ```
 
-The getter tracks prop updates, so a change from `"5"` to `"9"` updates the derived value from `5` to `9`; do not move the prop read or conversion outside the getter into a one-time snapshot. Keep the accepted conversion function, radix, invalid-input behavior, and prop contract unchanged rather than introducing a new parser or fallback during this cleanup.
+The getter tracks prop updates, so a change from `"5"` to `"9"` updates the derived value from `5` to `9`; do not move the prop read or conversion outside the getter into a one-time snapshot. Name numeric derivations of string route props `<propName>AsNumber` and update their numeric consumers together, including relevant sibling edit/detail pages in the PR. Keep the external prop name and route parameter keys unchanged; callers needing the original string continue to use that representation. Preserve the accepted conversion function, radix, invalid-input behavior, and prop contract rather than introducing a new parser or fallback. This distinguishes the parsed representation; it does not require an `AsNumber` suffix on every numeric value or an unchanged numeric prop ref.
 
 During authoring and review, distinguish derivation-only refs from refs with independent consumers. Remove the intermediate binding and an unused `toRefs` import only when no other use remains. Preserve `toRefs(props)` for unchanged reactive inputs, such as a composable accepting the original string ref, and retain refs needed by other consumers. This is a scoped removal of redundant indirection, not a ban on combining legitimate refs and derived values in one component.
 
@@ -1425,9 +1428,9 @@ During authoring and review, inspect equivalent callers within the affected chan
 
 ## Loading and Disabled State
 
-Keep idle unavailability distinct from work in progress. Prefer Vuetify's supported `:loading` presentation for actual pending button work, without adding `:disabled="pending"` styling alongside it. The broader preference is to avoid disabled controls, not to show a false spinner for missing selection, permission, or another idle prerequisite. Use the application's accepted unavailable-action presentation; when that choice is unresolved, conservatively omit the action with an appropriate explanation rather than leave an apparently available action or weaken enforcement. Keep authorization and missing-prerequisite checks with their existing owners; hiding a control alone does not enforce them. This button preference does not prescribe read-only fields or a blanket replacement for other component contracts.
+Keep idle unavailability distinct from work in progress. Use Vuetify's supported `:loading` presentation for every in-flight form action button, including submit, secondary actions, and Cancel router links, rather than `:disabled="isCreating"` or `:disabled="isSaving"`; do not add busy disabled styling alongside loading. Check all action siblings and relevant create/edit forms after an accepted correction, not only the selected submit button. The broader preference is to avoid disabled controls, not to show a false spinner for missing selection, permission, or another idle prerequisite. Use the application's accepted unavailable-action presentation; when that choice is unresolved, conservatively omit the action with an appropriate explanation rather than leave an apparently available action or weaken enforcement. Keep authorization and missing-prerequisite checks with their existing owners; hiding a control alone does not enforce them. Field `readonly`/`disabled` semantics are separate: this action-button convention does not authorize blanket changes to inputs, custom pickers, or unrelated controls.
 
-Keep existing submission guards for unavailable actions and duplicate requests. Do not assume `loading` blocks keyboard activation, Enter/form submission, direct handler calls, or every router-link path. Vuetify behavior depends on the installed version and component contract; preserve required busy restrictions and obtain [browser evidence for disputed behavior](../workflows/browser-qa-workflow.md#disputed-interaction-behavior) before removing any guard or claiming activation safety. Preserve genuine preparation/loading states; do not invent props or rewrite unrelated controls.
+For loading-controlled create/edit form handlers under the accepted convention, apply [Accepted Form Guards](#accepted-form-guards), not a blanket requirement to retain duplicate busy checks. Preserve independent authorization, unavailable-action checks, and explicitly different concurrency contracts. Do not assume `loading` blocks keyboard activation, Enter/form submission, direct handler calls, or every router-link path. Vuetify behavior depends on the installed version and component contract; obtain [browser evidence for disputed behavior](../workflows/browser-qa-workflow.md#disputed-interaction-behavior) before claiming activation safety. Preserve genuine preparation/loading states; do not invent props or rewrite unrelated controls.
 
 This example accepts the existing download operation as a prop. With no selection, it omits the idle action and explains the prerequisite instead of showing a spinner. Selecting an item reveals the action; clearing the selection restores the explanation. The handler still enforces the prerequisite and pending guard, including non-click submission paths. Reuse the project's established error boundary; the `finally` restores pending state on success or failure.
 
