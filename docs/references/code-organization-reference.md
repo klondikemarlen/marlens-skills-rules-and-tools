@@ -1311,7 +1311,7 @@ Use the project's existing validation error and persistence/transaction options;
 
 Apply the same partial-input contract to an existing dependent ensure service where it reuses creation attributes. Guard required lookup identity before querying and delegate missing-record creation to the create service, which retains its required-field checks. This does not mandate an ensure service, broaden accepted attributes, or require unrelated service refactors.
 
-When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, serialize into a named local first, then sort or transform on a separate line rather than nesting the calls. Preserve response values, required association ordering, preload guards, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
+When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, delegate field mapping to the associated model's dedicated serializer using its supported collection entrypoint, store the result in a named local, then sort or transform on a separate line rather than nesting the calls. Check required preloads at the parent entrypoint before output preparation, and pass narrowed inputs to composition helpers under [Serializer Model Ownership](express-light-rail-backend-concepts-reference.md#serializer-model-ownership). Preserve response values, ordering, errors, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
 
 Prefer this shape:
 
@@ -1818,6 +1818,76 @@ expect(unsubscribe).toHaveBeenCalledOnce()
 
 When automatic framework teardown already unmounts each rendered component, do not add another explicit unmount solely for completeness.
 
+## Repeated Serializer Normalization
+
+Name repeated scalar normalization in a descriptive private serializer method, and compute each normalized field into a named local before assembling the response with property shorthand. For example, replace repeated inline expressions:
+
+```typescript
+return {
+  firstName: this.record.firstName?.trim() ?? null,
+  lastName: this.record.lastName?.trim() ?? null,
+}
+```
+
+With these methods inside the owning serializer:
+
+```typescript
+perform() {
+  const firstName = this.normalizeNullableText(this.record.firstName)
+  const lastName = this.normalizeNullableText(this.record.lastName)
+
+  return {
+    ...pick(this.record, ["id", "externalTravelPortIdentifier"]),
+    firstName,
+    lastName,
+  }
+}
+
+private normalizeNullableText(value: string | null | undefined): string | null {
+  return value?.trim() ?? null
+}
+```
+
+The before excerpt omits the unchanged allowlist for brevity; keep it unchanged in the response. `"  Ada  "` remains `"Ada"`, whitespace-only text remains `""`, `""` remains `""`, and null/undefined remain null. Do not replace this with a truthiness fallback that converts empty strings to null. Keep independently owned shared normalization at its existing owner, and leave clear single-use one-step expressions and unchanged allowlisted fields inline. Dedicated associated serializers own their repeated normalization too; a parent does not take over those mappings.
+
+## Serializer Timestamp Conversion
+
+When Luxon is already available, prefer a named typed private serializer helper and named output locals over scattered direct timestamp conversions. Review equivalent conversions across the requested serializer scope, including nullable siblings, not just the selected field. Choose parsing from the actual input type and preserve the accepted timezone, precision, nullability, and invalid-input policy.
+
+For example, inside a serializer whose accepted contract is native `Date` instants rendered in UTC with seconds and three millisecond digits, nullable completion dates rendered as null, and invalid dates rejected with the existing `RangeError`:
+
+```typescript
+perform() {
+  const createdAt = this.serializeTimestamp(this.record.createdAt)
+  const completedAt =
+    this.record.completedAt === null ? null : this.serializeTimestamp(this.record.completedAt)
+
+  return {
+    ...pick(this.record, ["id"]),
+    createdAt,
+    completedAt,
+  }
+}
+
+private serializeTimestamp(value: Date): string {
+  const timestamp = DateTime.fromJSDate(value, { zone: "utc" })
+  const serializedTimestamp = timestamp.toISO({
+    includeOffset: true,
+    suppressSeconds: false,
+    suppressMilliseconds: false,
+  })
+  if (serializedTimestamp === null) throw new RangeError("Invalid time value")
+
+  return serializedTimestamp
+}
+```
+
+Here `createdAt` is `Date`, `completedAt` is `Date | null`, and `DateTime` uses the project's existing Luxon import. UTC and rejection are this example's existing contract, not defaults to impose. For an accepted ISO **string** input, use a separately typed string helper with `DateTime.fromISO(value, actualParserOptions)`, not `fromJSDate`, a cast, or an intermediate native `Date`. Preserve supplied offsets with `setZone: true` only when that is the accepted policy; preserve the configured interpretation zone for offset-free strings and any intentional output-zone conversion. Luxon accepts more ISO forms than many timestamp contracts, so retain existing syntax restrictions and do not widen them accidentally.
+
+Calendar-date-only feed values stay on their calendar-date path; do not turn them into midnight instants or shift their date via timezone conversion. Check actual parser/output options and installed Luxon settings: null versus undefined/omission, invalid values (throw, null, or an existing result), offset/zone behavior, fractional precision, and expanded-year formatting all belong to the accepted contract. `toISO()` can return null for invalid values; do not silently adopt that as a formerly throwing API's result or impose throwing on a tolerant API. No new Luxon dependency or shared date framework is required.
+
+The authoritative [Luxon 3.7.2 implementation](https://github.com/moment/luxon/blob/4262a38ded7762e22608a9feb9f117b40d338ced/src/datetime.js) documents `fromJSDate`, `fromISO`, and `toISO`, including zone options and invalid-result behavior. Inspect the installed version before adopting the example; source evidence is not consuming-project compatibility proof.
+
 ## Private Helper Inputs
 
 For a private functional helper, accept each value it uses as an explicit parameter when practical. A helper that accepts one model but reaches through `this` for another hidden dependency obscures its inputs and makes behavior harder to reason about or test.
@@ -1837,6 +1907,35 @@ function buildDestination(destination: Destination, tripTypeActual: TripType | n
 ```
 
 Here `Destination` supplies actual and planned city fields, and `TripType` is the project's existing source type. Retain computations genuinely owned by the caller and clear calls in argument lists; do not replace explicit inputs with hidden instance reads.
+
+For a named serializer construction step, pass its explicit dependencies to `buildSummary(...)` and assemble a one-use service input object directly at the existing summary service call. For example, these methods belong inside a serializer already using `BuildSummaryService` and the application's existing `BookingEvent`, `TripType`, `Segment`, `Expense`, and `TravelDeskRequest` types:
+
+```typescript
+perform() {
+  const { status, tripTypes, segments, expenses, travelDeskRequest } = this.record
+  const summary = this.buildSummary(status, tripTypes, segments, expenses, travelDeskRequest)
+
+  return { ...pick(this.record, ["id"]), summary }
+}
+
+private buildSummary(
+  status: BookingEvent["status"],
+  tripTypes: TripType[],
+  segments: Segment[],
+  expenses: Expense[],
+  travelDeskRequest: TravelDeskRequest | null
+) {
+  return BuildSummaryService.perform({
+    status,
+    tripTypes,
+    segments,
+    expenses,
+    travelDeskRequest,
+  })
+}
+```
+
+The input types and sync/async call follow the existing service contract; retain awaiting and preload guards before construction where required. The private method names summary construction without moving domain calculations or cross-model conversion out of the service. Avoid a `summaryInput` variable that only packages these already-available values for one call. Keep meaningful computed intermediates, reused inputs, and snapshots whose evaluation timing matters. Preserve values, access/evaluation order, and service ownership rather than moving effectful reads across other work. This is not a requirement to wrap every service call or introduce a summary service.
 
 ## Pattern Selection
 

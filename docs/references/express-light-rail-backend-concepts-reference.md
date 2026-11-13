@@ -141,12 +141,18 @@ For a project whose existing `findEach(options, processRecord)` loads bounded ba
 
 ```typescript
 await SourceEvent.findEach(sourceQuery, async (sourceEvent) => {
-  const attributes = SourceEventSerializer.perform(sourceEvent)
+  const sourceEventOutput = SourceEventSerializer.perform(sourceEvent)
+  const attributes = {
+    externalTravelPortIdentifier: sourceEventOutput.travelOrderIdentifier,
+    eventType: sourceEventOutput.eventType,
+  }
   const localEvent = await persistEvent(attributes, transaction)
 
   synchronizedEvents.push(localEvent)
 })
 ```
+
+Here the source serializer standardizes source-model output; the synchronization service maps that output into the local model's persistence attributes. The two fields illustrate the boundary, not a replacement for the operation's complete accepted mapping. Keep every existing persisted value and its evaluation order.
 
 This bounds source-batch loading and avoids a second full source-serialization array; it does **not** make total operation memory constant. The returned `synchronizedEvents` collection still grows with the result count, and association fan-out or a large individual record can make a batch large. Identify these remaining accumulations separately. Changing the response to streaming, summaries, or pagination requires its own accepted contract change.
 
@@ -176,13 +182,77 @@ Preserve explicit operation-specific representations such as a clone response an
 For fields returned unchanged under the same names, prefer spreading an explicit `pick` allowlist using the project's existing utility instead of repeating assignments. Keep timestamp conversions, renamed/computed fields, and relationship serialization explicit:
 
 ```typescript
+const createdAt = this.serializeTimestamp(this.record.createdAt)
+
 return {
   ...pick(this.record, ["eventType", "recordLocator", "reservationSystemDescription"]),
-  createdAt: this.record.createdAt.toISOString(),
+  createdAt,
 }
 ```
 
-This represents an existing response with those four fields and a required `Date` timestamp. Retain the actual field list, nullability, timestamp conversion, and relation serializers; never spread the whole model or replace the allowlist with an exclusion list. Use this preference only where the installed utility preserves the existing response shape, including optional/missing-property behavior. Do not add a dependency solely for this syntax, rewrite unrelated serializers, or infer an identifier-naming convention from the example.
+This represents an existing response with those four fields and a required `Date` timestamp. Use the typed private helper under [Serializer Timestamp Conversion](code-organization-reference.md#serializer-timestamp-conversion) when Luxon is available, retaining the actual date contract. Retain the actual field list, nullability, timestamp conversion, and relation serializers; never spread the whole model or replace the allowlist with an exclusion list. Use this preference only where the installed utility preserves the existing response shape, including optional/missing-property behavior. Do not add a dependency solely for this syntax, rewrite unrelated serializers, or infer an identifier-naming convention from the example.
+
+## Serializer Model Ownership
+
+A serializer normally standardizes the representation of its input model. Keep local-model output recognizable as that model's data: a `TravelDeskBookingEvent` response retains `externalTravelPortIdentifier`, rather than renaming it to the remote model's `travelOrderIdentifier` merely to resemble that model. Services own conversion between distinct model contracts, as in [Bounded Synchronization Reads](#bounded-synchronization-reads). Ordinary formatting, computed response fields, and intentional presentation aliases remain valid; they do not require a new service.
+
+Prefer dedicated associated-model serializers for their field mappings instead of embedding those mappings in private parent methods. Compose using the project's existing single/collection interface; do not introduce another base. The parent owns its response's preload requirements and any parent-specific ordering or composition, while each associated serializer owns its model's representation.
+
+### Required Preloads and Composition
+
+Check required preloads at the beginning of `perform()`, before normalization or projection. In a loading contract where `undefined` means unloaded, reject it without conflating it with a loaded nullable association (`null`) or loaded empty collection (`[]`). Keep helpers focused on narrowed, already-validated inputs. Do not query/reload here, repeat guarantees already established by the actual input contract, or move unrelated business validation into serialization.
+
+For example, these illustrative types distinguish the loading states and use the existing synchronous `BaseSerializer.perform(recordOrRecords)` contract:
+
+```typescript
+type PassengerRecord = { id: number; name: string }
+type FeeRecord = { id: number; amount: number }
+type EventRecord = {
+  externalTravelPortIdentifier: string
+  passengers?: PassengerRecord[]
+  serviceFeeTransaction?: FeeRecord | null
+}
+type EventJson = {
+  externalTravelPortIdentifier: string
+  passengers: PassengerRecord[]
+  serviceFeeTransaction: FeeRecord | null
+}
+
+class PassengerSerializer extends BaseSerializer<PassengerRecord, PassengerRecord> {
+  perform() {
+    return pick(this.record, ["id", "name"])
+  }
+}
+
+class ServiceFeeTransactionSerializer extends BaseSerializer<FeeRecord, FeeRecord> {
+  perform() {
+    return pick(this.record, ["id", "amount"])
+  }
+}
+
+class EventSerializer extends BaseSerializer<EventRecord, EventJson> {
+  perform() {
+    const { passengers, serviceFeeTransaction } = this.record
+    if (passengers === undefined) throw new Error("passengers must be preloaded")
+    if (serviceFeeTransaction === undefined)
+      throw new Error("serviceFeeTransaction must be preloaded")
+
+    const serializedPassengers = PassengerSerializer.perform(passengers)
+    const serializedServiceFeeTransaction =
+      serviceFeeTransaction === null
+        ? null
+        : ServiceFeeTransactionSerializer.perform(serviceFeeTransaction)
+
+    return {
+      ...pick(this.record, ["externalTravelPortIdentifier"]),
+      passengers: serializedPassengers,
+      serviceFeeTransaction: serializedServiceFeeTransaction,
+    }
+  }
+}
+```
+
+Use the actual model/output types, imports, established preload errors, and dedicated serializer names; the example's identical record/output field sets only keep the composition small. Preserve all fields, normalization, ordering, context forwarding, sync/async behavior, and accepted null/empty outputs. The collection call returns `[]` for a loaded empty passenger list; null fees remain null. Keep meaningful sorting/transformation in a parent private composition helper under [Service Orchestration Readability](code-organization-reference.md#service-orchestration-readability), not the associated model's field mapping.
 
 ## Existing Class-Based Serializer Dispatch
 
