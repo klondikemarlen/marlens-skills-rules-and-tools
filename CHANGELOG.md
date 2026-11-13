@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.10.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1319) - 2026-11-13
+
 ### Changed
 
 - Place Vue model declarations before props and keep mutable component workflow snapshots reactive. Preserve dependency order, snapshot timing, and private composable state.
