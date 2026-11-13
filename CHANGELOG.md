@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Prefer named operations, source-named computed projections, direct simple state assignment, and same-name destructuring. Keep single-use test tables beside their runner and integration factories under their integration namespace while preserving behavior and meaningful exceptions.
+
 ## [5.10.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1311) - 2026-11-13
 
 ### Fixed
