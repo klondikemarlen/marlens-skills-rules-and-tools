@@ -7,6 +7,7 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
    Use the project's factories, not unrelated production services, to arrange data. Service calls remain valid when the service is the subject under test or when writing a feature test. Apply accepted corrections throughout the requested test scope, preserving identities, deletion states, ordering coverage, and explicit preloads.
 3. Keep one-off scenario inputs in the test; for homogeneous local generation rather than individually numbered declarations, follow [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification). For recurring persisted relationship setup, add a named opt-in builder trait to the owning Fishery-style factory; the trait must not change ordinary factory creation.
    For distinct meaningful records, prefer literal factory calls with named attributes or a supported collection API that exposes those attributes, not tuple-destructuring setup loops used only for compression. Preserve fixture values and lifecycle; homogeneous iteration and input/output case tables remain appropriate under the same reference.
+   Inline single-use literal tables at `describe.each` or `test.each`, with explicit names and callback references, following the same reference's typed registration example. Preserve order, titles, and runtime timing; shared or independently meaningful fixture tables may remain named.
    Use realistic randomized ordinary defaults through existing generators under [Varied Factory Defaults](../references/code-organization-reference.md#varied-factory-defaults); preserve dependent-field invariants and explicit scenario overrides.
 4. When component tests repeat complete API response entities, reuse or add a factory in the project's established frontend factory location and library, typed to the frontend API contract. Keep scenario-specific overrides inline at each build call; keep one-off inputs literal when no reusable entity shape is needed. Do not import backend model dependencies or mandate a factory library.
    For shared API-response infrastructure support versus scenario-local response data and mount setup, follow [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification) before repeating API/configuration/authentication mocks.
@@ -14,4 +15,42 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
 5. Keep relationship creation inside the trait; do not use per-test transient flags or `.afterCreate(...)` mutations to simulate a trait.
 6. Use fixture-backed tests under their descriptive exported names; do not alias them to generic `test` or `it`. Inspect the active runner configuration before adding mock cleanup, rely on configured cleanup, and add local cleanup only for resources or state it does not cover. Preserve intentional mid-test restoration.
 7. For dependency-bundle versus direct-subject imports, including the model-owned constant/enum exception, follow [Project-Root Imports and Paths](../references/code-organization-reference.md#project-root-imports-and-paths).
+   For integration-model fixtures and their helpers, follow [Integration Factory Ownership](#integration-factory-ownership).
 8. Run the focused test and test TypeScript check.
+
+## Integration Factory Ownership
+
+Group integration-model factories and integration-specific fixture helpers under that integration's directory in the existing test infrastructure. For example, a project using `api/tests/factories/` can keep:
+
+```text
+api/tests/factories/
+  index.ts
+  travel-authorization-factory.ts
+  travel-port-integration/
+    index.ts
+    air-reservation-segment-factory.ts
+```
+
+Here `travelAuthorizationFactory` creates an application-owned model and remains outside the integration namespace; `airReservationSegmentFactory` creates a TravelPort integration model. Integration-specific fixture helpers belong beside the integration factories, not in production integration modules or an unrelated application factory.
+
+Use the project's existing named bundle and barrel convention. In a project using default factory exports and namespace barrels, the integration barrel and test-factory root can expose:
+
+```typescript
+// api/tests/factories/travel-port-integration/index.ts
+export { default as airReservationSegmentFactory } from "./air-reservation-segment-factory"
+
+// api/tests/factories/index.ts
+export * as TravelPortIntegration from "./travel-port-integration"
+export { default as travelAuthorizationFactory } from "./travel-authorization-factory"
+```
+
+A test directly under `api/tests/` then consumes the appropriate owner:
+
+```typescript
+import { TravelPortIntegration, travelAuthorizationFactory } from "./factories"
+
+const segment = await TravelPortIntegration.airReservationSegmentFactory.create()
+const travelAuthorization = await travelAuthorizationFactory.create()
+```
+
+Keep existing factory/model types and lifecycle semantics. Adapt paths and export syntax to the established bundle convention rather than adding a second convention or factory library. Move affected helper owners, exports, and imports together, removing obsolete flat exports instead of adding compatibility aliases; do not relocate unrelated fixtures.

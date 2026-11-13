@@ -27,6 +27,34 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
 - Avoid repeating generic extraction history or assurances that licensing and attribution were preserved in source headers; use the repository's standard license and central attribution material for general provenance. Retain concise per-file notices required by the applicable license and useful technical rationale. Apply an accepted correction to analogous headers within the authored or requested review scope, not a repository-wide sweep. Uncertainty about license choice does not authorize changing licenses or removing required notices; leave unclear obligations intact pending clarification.
 
+When a boolean flag selects distinct actions, prefer intention-revealing operations such as `enableFlightMatching()` and `disableFlightMatching()` over internal calls to `updateFlightMatching(true)` and `updateFlightMatching(false)`. Move each existing branch into its named operation; keep shared mechanics in their existing owner rather than copying the implementation. An adapter may still dispatch an actual boolean control payload:
+
+```typescript
+function enableFlightMatching(): void {
+  if (!availableFlight.value) return
+
+  applyAvailableFlight(availableFlight.value)
+  void nextTick(refreshValidation)
+}
+
+function disableFlightMatching(): void {
+  restoreOriginalFlight()
+}
+
+function updateFlightMatching(isEnabled: boolean): void {
+  if (isEnabled) {
+    enableFlightMatching()
+  } else {
+    disableFlightMatching()
+  }
+}
+
+// Internal work requests the action directly; the control uses the adapter.
+watch(delayedFlight, enableFlightMatching)
+```
+
+This excerpt assumes the existing enable branch owns the availability guard, matching effect, and deferred validation, while disable owns restoration. Preserve the actual branches' guards, effects, evaluation order, deferred timing, and failure behavior when extracting them; do not add or remove work to fit the example. Ordinary boolean data, predicates, and framework payloads remain valid, and this does not require trivial wrappers for every boolean parameter.
+
 Inspect the installed library or framework defaults before adding options, overrides, or wrappers. If the default satisfies the accepted contract, use it unchanged; customize for a concrete unmet requirement. Removing redundant configuration must preserve timezone, security, and other behavior, not substitute a different explicit setting.
 
 In Bash configuration, prefer the readable `source path` keyword over `. path` for newly added or modified source commands. Keep POSIX `sh` scripts portable with `.` and do not rewrite unrelated lines.
@@ -36,6 +64,25 @@ Before explaining an initialization or import-order workaround with a comment, c
 For a meaningful computed function result used in an object property or nested call, prefer a descriptive local before its use so the processing step has an inspectable value and useful debugger breakpoint. For example, capture `const gaps = captureGaps(rows, container)` before constructing `{ gaps }`. Preserve evaluation order and short-circuit behavior: keep conditional computation inside its branch rather than hoisting it unconditionally. Do not add aliases for already-available values, trivial wrappers, or extra statements solely to increase line count.
 
 Keep self-explanatory one-use option literals inline when the property already explains their meaning: use `{ arrayLimit: 1000, parameterLimit: 1500 }` rather than one-use `MAX_QUERY_ARRAY_LENGTH` and `MAX_QUERY_PARAMETER_COUNT` aliases. These values illustrate preserved inputs, not parser limits to adopt elsewhere. Retain named constants that express an additional domain rule or are genuinely shared, and retain meaningful computed intermediates; this is not a ban on constants or debugger-friendly locals.
+
+For a simple value constructed from already-available fields solely to assign it to state and return it, prefer direct construction at the owning property rather than a staging local:
+
+Before:
+
+```typescript
+const statistics = { centreCount: totalCount, communityCount: summaries.communityCount }
+state.statistics = statistics
+return statistics
+```
+
+After, when `state` is a plain object with unchanged read/write semantics:
+
+```typescript
+state.statistics = { centreCount: totalCount, communityCount: summaries.communityCount }
+return state.statistics
+```
+
+Retain a local for meaningful computation or a required snapshot. Return the property only when getters, setters, reactive wrapping, intervening mutations, and identity semantics cannot change the original return contract; a reactive proxy read is not necessarily the constructed object's identity. Preserve property-access timing and evaluation count rather than introducing a new state read merely to remove a name.
 
 Keep simple single-field object type annotations and object arguments inline when they fit readably: `const response: { id: string } = await request()` and `logger.error(message, { error })`. Wrap a long surrounding request chain independently; the small shape need not expand with it. Retain multiline complex shapes, test expectations, and stronger project conventions.
 
@@ -201,6 +248,8 @@ state.policy = policy
 ```
 
 Keep the domain record intact rather than flattening its fields. Preserve result names, policy updates, return values, and property-access behavior (including getters and conditional reads); destructuring is not an API response redesign or permission to evaluate previously unread properties.
+
+For an existing object's same-name property binding, prefer `const { table } = model` over `const table = model.table`, including a single property. This retains a useful local; it does not eliminate meaningful computed intermediates or flatten the model. Preserve when and how often the property is read, and extract only needed fields. Keep receiver-dependent methods attached to their object and keep live reactive property reads live rather than destructuring them into snapshots.
 
 ### Grouped Model Hook Registration
 
@@ -553,6 +602,28 @@ Use structure as evidence, not a numeric proxy. Do not impose line-count, functi
 Verification code should expose each independently observable contract through a named scenario. Keep literal fixture data beside the scenario it explains. Share only repeated mechanics, such as writing a file or invoking a command, when their names clarify the setup; do not create a generic fixture builder.
 
 Use separate self-contained tests when scenarios require different control flow, such as transaction commit versus rollback. Intentional duplicate setup is clearer than `shouldRollback` flags, conditional Acts, or conditional expected-data bundles. Keep homogeneous input/output tables when the Act and assertion structure genuinely remain the same.
+
+Place a single-use literal case table directly at its `describe.each` or `test.each` call rather than declaring a detached `registrationForms` constant. Keep case names, callback references, types, and scenario data explicit:
+
+```typescript
+type RegistrationCase = {
+  name: string
+  register: () => void
+}
+
+describe.each<RegistrationCase>([
+  { name: "keyboard", register: registerWithKeyboard },
+  { name: "pointer", register: registerWithPointer },
+])("$name registration", ({ register }) => {
+  test("registers the selected account", () => {
+    register()
+
+    expect(account.isRegistered).toBe(true)
+  })
+})
+```
+
+Here the existing callbacks operate on the scenario's arranged account; the table holds references rather than invoking registration during suite definition. Apply the same placement to `test.each` when it owns the cases. Preserve the runner's supported typing, case order, titles, callback identity, and evaluation/registration timing. Genuinely reused tables and independently meaningful fixture data may stay named; do not inline shared setup or hide complex scenario behavior in the table.
 
 Control the clock explicitly in time-dependent tests rather than relying on wall time or fixed fixture dates alone. With Vitest, use `vi.useFakeTimers()` and `vi.setSystemTime(...)`; use `await vi.advanceTimersByTimeAsync(...)` when scheduled callbacks are the behavior. Restore real timers through the suite's cleanup owner. For integration tests needing only application-date control while network/database timers must progress, use `vi.useFakeTimers({ toFake: ["Date"] })`. This does not freeze the database server's clock; choose fixtures or a supported database-time mechanism for that separate boundary.
 
@@ -965,6 +1036,21 @@ const { workflowSteps } = useWorkflowSteps(query)
 ```
 
 Reserve a meaningful role name such as `displayedWorkflowSteps` for a genuinely distinct snapshot-backed display projection. Keep qualifiers that distinguish a real lifecycle state, domain filter, or separate role, and honor stronger local conventions. Update affected uses within the requested change; do not turn a collection-name correction into unrelated cleanup.
+
+Likewise, keep the source domain field name for an unchanged pass-through computed projection, including a nullable fallback. Prefer `finalDestination` to a synonym such as `tripDestination` when no transformation or distinct role is introduced:
+
+```typescript
+function useFinalDestination(record: Ref<{ finalDestination: string } | null>) {
+  const finalDestination = computed(() => record.value?.finalDestination ?? null)
+
+  return { finalDestination }
+}
+
+const { finalDestination } = useFinalDestination(record)
+// Read finalDestination.value in script; templates retain normal ref unwrapping.
+```
+
+Update the computed binding, returned member, and affected consumers together, retaining the getter's reactive read and exact null fallback. Preserve meaningful names for transformed values, distinct roles, or necessary collision avoidance. Do not rename external contracts or unrelated fields to enforce this preference.
 
 Keep each query or composable result adjacent to its direct derived state. Put broader coordination state and action handlers after their inputs, and lower-priority shared helpers further down.
 
