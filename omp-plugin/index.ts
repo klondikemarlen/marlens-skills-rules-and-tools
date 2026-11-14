@@ -1,5 +1,6 @@
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent"
 import { registerMemorySync } from "./memory-sync.ts"
+import { registerReminders } from "./reminders.ts"
 declare const process: {
   env: { PATH?: string }
   platform: string
@@ -21,6 +22,7 @@ export function marlensSkillsRulesAndTools(pi: ExtensionAPI) {
   }
 
   registerMemorySync(pi)
+  registerReminders(pi)
 
   pi.registerCommand("privilege-preview", {
     description: "Open the safe native GNOME operation-preview demo",
