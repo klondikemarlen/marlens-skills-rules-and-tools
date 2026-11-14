@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "standardId": "marlens-rules:test-fixture-api-alignment",
+  "source": "./docs/workflows/test-factory-traits-and-service-shape-workflow.md#native-fixture-setup-and-semantic-review",
+  "gold": "Complete changed tests and invoked setup helpers expose scenario-local fixture construction through the actual installed factory API. Prefer fitting native graph/include APIs over redundant preload wrappers, name child records before parent payloads, and preserve values, identities, nulls, persistence, ordering, lifecycle, and required preloads. Legitimate traits, necessary post-mutation reloads, reusable infrastructure, and libraries lacking equivalent APIs remain valid; structural or behavioral test success alone does not prove fixture compliance.",
+  "requiredContext": ["changed-code", "project-guidance"],
+  "rubric": [
+    {
+      "id": "complete-scenario-and-helper-scope",
+      "question": "Inspect every complete changed test and its invoked setup helpers, including relevant hooks, factory traits, and association/lifecycle context, not only changed lines or helper names. A helper change requires the relevant caller scenarios needed to assess its contract. Missing required test/helper/context evidence yields BLOCKED with the exact missing prerequisite. Tests with no applicable fixture arrangement need no factory migration; explain their non-applicability rather than demanding unrelated dependencies."
+    },
+    {
+      "id": "installed-api-and-guidance-evidence",
+      "question": "Identify applicable shared/local fixture guidance and cite the actual resolved factory library/package version and supported API from installed documentation, types, or implementation matched to that version. Inspect relevant project factory definitions and model associations. A package declaration alone, an assumed API, or documentation for a different release is insufficient. If required API/version or guidance cannot be established, return BLOCKED rather than proposing a speculative replacement."
+    },
+    {
+      "id": "native-graph-and-loading-fit",
+      "question": "Determine whether the installed factory supports the scenario's child graph and required include/loading options. Cite a finding for a redundant reloadForIndexSerializer-style wrapper hiding scenario-specific association preloads or ordered collection loading when supported native APIs express the same contract. Name both the wrapper/call sites and the fitting API evidence. Do not accept a wrapper merely because tests pass, or invent unsupported graph/association features. Prefer explicit scenario-local native setup without replacing the wrapper with another opaque scenario builder."
+    },
+    {
+      "id": "named-child-construction",
+      "question": "Apply Function Calls Before Construction in docs/references/code-organization-reference.md#function-calls-before-construction to fixture setup: factory calls nested inside parent payload objects or association arrays receive a cited finding even when the native API is correct. Evaluate calls into descriptive scenario-local variables first, then reference the records in the parent payload. Preserve execution order, conditional scope, async awaiting, identities, and deliberate insertion order; named records before the parent call pass this criterion. Do not move persisted scenario setup into shared hooks or compress distinct meaningful records into opaque loops."
+    },
+    {
+      "id": "scenario-contract-preservation",
+      "question": "Compare original and corrected arrangements for exact scenario values/overrides, record identities and foreign keys, explicit nulls and deletion states, build versus create persistence, lifecycle timing, insertion order versus query order including deterministic tie-breakers, and all required preloads/nested associations. Preserve the action and meaningful assertions. Distinguish supplied child object identities from fresh instances returned by native loading; do not promise reference equality the API does not guarantee. Any semantic loss is a finding, even if naming, types, test behavior, or assertion counts pass."
+    },
+    {
+      "id": "valid-support-and-review-outcome",
+      "question": "Accept legitimate named opt-in owning-factory traits, reusable infrastructure, reloads required after mutation, and explicit creation/loading or justified helpers when the installed library lacks an equivalent API. Do not impose a universal factory/library mandate or a blanket helper/reload ban. Each FAIL finding must cite test/helper locations, governing guidance, installed API evidence, and a behavior-preserving correction. PASS requires complete applicable evidence and no unresolved findings; missing required evidence is BLOCKED. Prior structural/behavioral passes remain narrow evidence, not semantic clearance. After correction, assess the complete current scenario afresh through supported final review; this contract does not create a runtime, repair loop, or new advisor cadence."
+    }
+  ]
+}

@@ -9,6 +9,8 @@ Use the local `docs/workflows/test-factory-traits-and-service-shape-workflow.md`
 
 Use the project’s existing factory API. When multiple tests need persisted related records, add an opt-in named builder trait to the owning factory. Keep ordinary factory creation unchanged. See [Fishery reusable builders/traits](https://github.com/thoughtbot/fishery#adding-reusable-builders-traits-to-factories).
 
+For scenario-local child graphs, preloads, and fixture review, use [Native Fixture Setup and Semantic Review](workflow.md#native-fixture-setup-and-semantic-review). Resolve the installed API/version, name child records before the parent payload, and preserve scenario contracts; valid traits, necessary post-mutation reloads, and libraries without equivalent native APIs remain supported. The [supplied agentic contract](../../verifications/test-fixture-api-alignment.json) assesses semantics, not just test structure.
+
 For repeated HTTP response setup, reuse project-native route mocking or small composable support. Keep scenario payloads local; see [Composable HTTP GET Routes](../../examples/factory-traits-and-service-shape.md#composable-http-get-routes) for single-route and map forms, lifecycle, and failure semantics.
 
 ## Without This Guidance
