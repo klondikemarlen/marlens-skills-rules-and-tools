@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1371) - 2026-11-16
+
+### Changed
+
+- Preserve accepted thin-controller input handoffs without adding or relocating unnecessary guards, and name denied actions and resources without weakening authorization or concealment.
+
 ## [5.13.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1374) - 2026-11-16
 
 ### Fixed
