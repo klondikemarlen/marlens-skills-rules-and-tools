@@ -1252,6 +1252,16 @@ For runtime file paths, define one application/source root and derive paths from
 Before converting imports, confirm the existing module-resolution configuration and exercise the affected build and test path. Treat a deep relative path as a review signal, not an automatic rewrite: preserve a relative path when moving the dependency would be clearer than widening module visibility. Do not bulk-rewrite imports solely for style.
 When the project adopts this convention, record it in project-local guidance. Configure an already-installed import-style lint rule only when it can enforce the same resolved root; do not add a dependency merely to police import spelling.
 
+## Accepted Domain Meaning
+
+Distinguish choosing a domain contract from verifying an external fact. When the maintainer explicitly accepts a reasonable interpretation, use a precise name expressing that meaning and implement the accepted contract. For example, use `externalCreatedAt` for the accepted external booking-event creation time; do not substitute `recordedAt` merely because the provider's timestamp semantics have not been independently verified. `recordedAt` remains appropriate when recording time is the actual domain meaning.
+
+Record material uncertainty in the existing issue, PR, or evidence notes: identify the accepted assumption and what remains unverified without presenting either as external proof. Do not repeatedly reopen the same decision in the absence of new contradictory evidence. If new evidence contradicts the chosen meaning, explain the concrete conflict and resolve the affected contract rather than silently changing the name or behavior.
+
+Preserve production-schema names at direct external integration mappings when they identify the actual source column or payload field. An internal `externalCreatedAt` may map from the provider's existing `created_at`; the internal name does not authorize renaming that external field, changing timestamp parsing or time-zone semantics, or claiming the provider confirmed its meaning. Retain stronger project conventions and public contracts outside the requested scope.
+
+An accepted naming interpretation is not permission to invent security, financial, or destructive behavior. Unresolved assumptions that control authorization, money movement, or irreversible effects still require their own evidence and scoped decision before those effects are implemented.
+
 ## State Names and Dependency-Local Ordering
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
