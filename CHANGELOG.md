@@ -6,6 +6,17 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1395) - 2026-11-16
+
+### Added
+
+- Extend `data-mine` to review selected project and global memory banks independently, reconcile supported lessons into repository guidance, and verify release-backed regeneration without treating generated memories as new evidence.
+
+### Changed
+
+- Use established historical timezone transitions for gap/fold regression fixtures, preserving separate future scheduling coverage.
+- Preserve dirty primary checkouts instead of relying on autostash, and regenerate conflicted lockfiles through the package workflow after reconciling manifest intent.
+
 ## [5.13.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1394) - 2026-11-16
 
 ### Changed
