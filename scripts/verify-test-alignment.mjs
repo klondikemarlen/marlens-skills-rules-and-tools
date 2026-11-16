@@ -826,7 +826,8 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
   // Arrange: a large scope exceeds the coordinator's evidence limit on both outcomes.
   const largePaths = Array.from(
     { length: 100 },
-    (_, index) => `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
+    (_, index) =>
+      `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
   )
   const largeScope = { OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(largePaths) }
   for (const testPath of largePaths) {
