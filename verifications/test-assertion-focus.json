@@ -2,12 +2,20 @@
   "version": 1,
   "standardId": "marlens-rules:test-assertion-focus",
   "source": "./docs/references/test-alignment-verifier-reference.md#assertion-quality-requires-review",
-  "gold": "Every changed non-controller expect-based test has exactly one direct expect proving its intended observable contract without hidden assertions or synthetic bundles. Controller tests retain meaningful direct status/body assertions, and native node:assert tests retain their framework. Independent saves and outcomes remain independently visible with concrete expectations; required transition, race, and rollback evidence is preserved. Structural compliance alone never proves semantic quality.",
+  "gold": "Every authored or modified test file proves meaningful success and a relevant negative outcome for its actual subject, establishing usable setup rather than token coverage. Every changed non-controller expect-based test has exactly one direct expect proving its intended observable contract without hidden assertions or synthetic bundles. Controller tests retain meaningful direct status/body assertions, and native node:assert tests retain their framework. Independently evolving workflows and distinct scenarios remain explicit; concrete multi-property expectations stay multiline. Required transition, race, and rollback evidence is preserved. Structural compliance alone never proves semantic quality.",
   "requiredContext": ["changed-code", "project-guidance"],
   "rubric": [
     {
       "id": "complete-current-scope",
       "question": "Review every complete changed test in the supplied scope, not only edited lines. If the changed-test scope is missing or incomplete, return BLOCKED with the exact missing evidence."
+    },
+    {
+      "id": "meaningful-scenarios-and-subject-ownership",
+      "question": "Apply the canonical Scenario-Oriented Verification section in docs/references/code-organization-reference.md. For every authored or modified test file, identify a meaningful successful result establishing valid setup and a relevant rejection, absence, exclusion, or contrasting outcome for the subject. Reject rejection-only files, bare not-to-throw controls, unrelated token positives, or reliance on another file; do not decide from names or counts. Inspect necessary subject/setup/helpers; missing evidence is BLOCKED. Name files and describe scopes for the actual asserted subject. Preserve independently evolving workflows rather than parameterizing coincidentally similar components. Prefer explicit concrete missing-association scenarios with literal expectations; identical Act/assertion shapes alone do not justify computed property/error machinery. Retain readable homogeneous transformation tables, shared infrastructure and genuine shared invariants, including native node:assert."
+    },
+    {
+      "id": "readable-expected-object-layout",
+      "question": "Apply Human Readability in docs/references/code-organization-reference.md: multi-property expected object literals, including partial-matcher arguments, put each property on its own line even within formatter width. Preserve literal values, order, and matcher semantics; compact single-field arguments remain allowed. Do not demand matcher replacement or unrelated formatting."
     },
     {
       "id": "local-policy-and-shared-default",

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1372) - 2026-11-16
+
+### Changed
+
+- Require meaningful successful and negative scenarios in touched test files, preserve independent workflow ownership and explicit scenario setup, and expand multi-property matcher expectations without weakening assertions.
+
 ## [5.13.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1373) - 2026-11-16
 
 ### Changed
