@@ -1276,7 +1276,7 @@ const { workflowStep, isLoading, refresh } = useWorkflowStep(workflowStepId, {
 
 Keep explicit `refresh()` available and invoke it from the caller's existing refresh trigger; suppression of automatic fetching must not silently disable manual refresh. Preserve ordinary immediate/ID-change fetching for default callers and the existing response to a reactive predicate becoming false. These are alternative caller examples, not declarations to combine or an instruction to suppress every watcher.
 
-Retain the composable's accepted cancellation, request-ownership, and loading-state contracts when the ID changes or clears, the guard suppresses watching, the scope disposes, or an obsolete request settles. An older request must not publish into a newer context or clear its loader; follow [Record-Scoped Async Ownership](#record-scoped-async-ownership). Do not introduce `skipWatchIf` in projects lacking it or redesign an adequate watcher API merely to match this example.
+Retain the composable's accepted cancellation and request-ownership contracts when the ID changes or clears, the guard suppresses watching, the scope disposes, or an obsolete request settles. An older request must not publish data, policy, or errors into a newer context, but each model-composable request resets `isLoading` to `false` unconditionally in `finally`, even while a replacement is pending; follow [Record-Scoped Async Ownership](#record-scoped-async-ownership). Do not introduce `skipWatchIf` in projects lacking it or redesign an adequate watcher API merely to match this example.
 
 ## Mutable Component Workflow Snapshots
 
@@ -1403,13 +1403,61 @@ This is a naming/alias excerpt using existing API, watcher, and ownership helper
 
 ## Record-Scoped Async Ownership
 
-For record/list data-access composables, name the owner of fetched records, policy, loading/error state, pending edits, and save completion. Bind request publication to the record/query context that started it: an obsolete read must not publish data, policy, errors, or `finally` loader completion into a newer context. Check both identity and overlapping request ownership, including success, failure, and completion paths. Reuse the project's supported cancellation and stale-result mechanisms; do not prescribe a new queue, global cache, retry policy, or state library.
+For record/list data-access composables, name the owner of fetched records, policy, loading/error state, pending edits, and save completion. Bind data, policy, and error publication to the record/query context that started the read: an obsolete read must not publish these into a newer context. Check both identity and overlapping request ownership on success and failure. Separately, each model-composable request must reset `isLoading` to `false` unconditionally in `finally`, including completed, cancelled, and superseded requests. This loading flag is not an outstanding-request counter: an older completion may clear the spinner while its replacement is still pending. Reuse the project's supported cancellation and stale-result mechanisms; do not prescribe a new queue, global cache, retry policy, or state library or change an independently accepted pending-operation contract.
 
-When cancellation is needed for the requested interaction and the existing transport supports it, prefer native `AbortController`/`AbortSignal` over a new cancellation abstraction or dependency. Do not add signal parameters or replace an adequate stale-result mechanism merely to gain cancellation; apply [Solve Real User Needs](../../rules/solve-real-user-needs.md). For reads that use cancellation, pass the signal through the existing API client and abort when selection clears or the consuming scope disposes. Retain current-controller and record/query ownership checks around data, policy, error, and `finally` publication: cancellation may arrive after completion or be unsupported by intermediate work. Treat an aborted read as cancellation without hiding ordinary failures from the current request.
+When cancellation is needed for the requested interaction and the existing transport supports it, prefer native `AbortController`/`AbortSignal` over a new cancellation abstraction or dependency. Do not add signal parameters or replace an adequate stale-result mechanism merely to gain cancellation; apply [Solve Real User Needs](../../rules/solve-real-user-needs.md). For reads that use cancellation, pass the signal through the existing API client and abort when selection clears or the consuming scope disposes. Retain current-controller and record/query ownership checks around data, policy, and error publication: cancellation may arrive after completion or be unsupported by intermediate work. Do not put loading cleanup behind those checks, an abort check, or an early return in `finally`. Treat an aborted read as cancellation without hiding ordinary failures from the current request.
+
+For example, this model-composable excerpt assumes existing reactive `state` fields, a normalized ID ref, and a signal-capable API. Its `state.error` assignment represents the project's existing handled-read-error contract; retain the established application boundary for unexpected failures under [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery).
+
+```typescript
+let currentController: AbortController | null = null
+
+async function fetch() {
+  currentController?.abort()
+  const controller = new AbortController()
+  const workflowId = normalizedWorkflowId.value
+  currentController = controller
+  state.isLoading = true
+  state.error = null
+
+  try {
+    const { workflow, policy } = await workflowsApi.get(workflowId, {
+      signal: controller.signal,
+    })
+    if (
+      controller.signal.aborted ||
+      currentController !== controller ||
+      normalizedWorkflowId.value !== workflowId
+    ) {
+      return
+    }
+
+    state.workflow = workflow
+    state.policy = policy
+  } catch (error) {
+    if (
+      controller.signal.aborted ||
+      currentController !== controller ||
+      normalizedWorkflowId.value !== workflowId
+    ) {
+      return
+    }
+
+    state.error = error
+  } finally {
+    state.isLoading = false
+    if (currentController === controller) {
+      currentController = null
+    }
+  }
+}
+```
+
+Keep the existing missing-ID/query guard, watcher, selection-clear cancellation, and scope-disposal behavior around this operation. The guarded controller cleanup releases only its own controller; it never guards `state.isLoading = false`. Do not adopt this transport signature, error shape, or cancellation mechanism where the project's existing contract differs.
 
 Canceling an obsolete read does not roll back a committed mutation. A save for A finishing while B is displayed must settle A's accepted operation without overwriting B's model or recovery state. If edits/failures/retry must survive navigation, give them explicit record-scoped ownership under the existing editor lifetime/draft contract rather than silently dropping them or creating a parallel canonical model.
 
-Verify controlled completion order: start A, select/query B, finish A last; deliver A's failure and `finally` while B is pending; finish save A after selecting B. Observe the displayed record, policy, loading/error state, and persisted outcome. Add failed-draft retry only when it is part of the accepted contract. A cited risk or a shared-guidance change is not proof of a reproduced or fixed downstream application defect.
+Verify controlled completion order: start A, select/query B, then finish A while B is still pending. A must not overwrite B's data, policy, or errors, and A's unconditional `finally` must set `isLoading` to `false`; B remains in flight without its spinner until it settles. Repeat with an aborted A and a stale failure from A, then confirm B's current success or ordinary failure still follows its existing publication/error contract and ends with `isLoading` false. Clear selection or dispose the scope during a read and confirm cancellation is silent, stale publication is blocked, and loading cleanup still runs. Finish save A after selecting B and observe both B's unchanged model/recovery state and A's persisted outcome. Add failed-draft retry only when it is part of the accepted contract. A cited risk or a shared-guidance change is not proof of a reproduced or fixed downstream application defect.
 
 ### Per-Record UI Pending Flags
 
