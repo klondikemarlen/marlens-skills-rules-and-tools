@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1373) - 2026-11-16
+
+### Changed
+
+- Review Vue action guards against accepted UI and independent authorization/concurrency owners; prefer safe existing page containment and remove unused properties without losing active default overrides.
+
 ## [5.13.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1371) - 2026-11-16
 
 ### Changed
