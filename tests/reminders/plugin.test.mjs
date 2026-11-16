@@ -82,19 +82,20 @@ test(
     })
     const plugin = capturePlugin(directory)
     const start = plugin.handlers.get("session_start")
+    const notices = []
     // Act and Assert
     await start(
       {},
       {
         hasUI: false,
         ui: {
-          notify: () => assert.fail("Headless startup must not attempt a dropped UI notice"),
+          notify: (message) => notices.push(message),
         },
       }
     )
     assert.equal((await loadState(directory)).reminders[0].surfacedStatus, undefined)
+    assert.deepEqual(notices, [])
 
-    const notices = []
     const interactive = {
       hasUI: true,
       ui: {
@@ -111,15 +112,14 @@ test(
   }
 )
 
-test("when creation is reviewed, only acceptance saves the originating session", async (t) => {
+test("when creation is declined, reviewed session details are not persisted", async (t) => {
   // Arrange
   const directory = await isolate(t)
   const plugin = capturePlugin(directory)
   const sessionPath = join(directory, "original.jsonl")
   const command = plugin.commands.get("remind")
-  let accept = false
-  const reviews = []
-  const notices = []
+  let review
+  let stateAtReview
   const context = {
     hasUI: true,
     cwd: directory,
@@ -129,24 +129,57 @@ test("when creation is reviewed, only acceptance saves the originating session",
     },
     ui: {
       async confirm(_title, body) {
-        assert.equal((await loadState(directory)).reminders.length, 0)
-        reviews.push(body)
-        return accept
+        stateAtReview = await loadState(directory)
+        review = body
+        return false
+      },
+      notify: () => {},
+    },
+  }
+
+  // Act
+  await command.handler("create tomorrow at 09:00 | UTC | Check the release", context)
+
+  // Assert
+  assert.deepEqual(stateAtReview.reminders, [])
+  assert.match(review, /\[UTC\]/u)
+  assert.match(review, /Session: original-session/u)
+  assert.ok(review.includes(sessionPath))
+  assert.deepEqual((await loadState(directory)).reminders, [])
+})
+
+test("when creation is accepted, persistence follows review of the original session", async (t) => {
+  // Arrange
+  const directory = await isolate(t)
+  const plugin = capturePlugin(directory)
+  const sessionPath = join(directory, "original.jsonl")
+  const command = plugin.commands.get("remind")
+  let stateAtReview
+  const notices = []
+  const context = {
+    hasUI: true,
+    cwd: directory,
+    sessionManager: {
+      getSessionId: () => "original-session",
+      getSessionFile: () => sessionPath,
+    },
+    ui: {
+      async confirm() {
+        stateAtReview = await loadState(directory)
+        return true
       },
       notify: (message) => notices.push(message),
     },
   }
-  // Act and Assert
-  await command.handler("create tomorrow at 09:00 | UTC | Check the release", context)
-  assert.equal((await loadState(directory)).reminders.length, 0)
-  assert.match(reviews[0], /\[UTC\]/u)
-  assert.match(reviews[0], /Session: original-session/u)
-  assert.ok(reviews[0].includes(sessionPath))
-  assert.ok(notices.includes("Reminder not saved."))
 
-  accept = true
+  // Act
   await command.handler("create tomorrow at 09:00 | UTC | Check the release", context)
-  const record = (await loadState(directory)).reminders[0]
+
+  // Assert
+  assert.deepEqual(stateAtReview.reminders, [])
+  const state = await loadState(directory)
+  assert.equal(state.reminders.length, 1)
+  const record = state.reminders[0]
   assert.equal(record.session.path, sessionPath)
   assert.equal(record.message, "Check the release")
   assert.ok(notices.some((notice) => notice.includes(`Reminder saved: ${record.id}`)))

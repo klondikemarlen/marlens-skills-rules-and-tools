@@ -223,7 +223,7 @@ test("when delivery is uncertain, only an explicit retry resends the reminder", 
   assert.equal((await loadState(directory)).reminders[1].status, "uncertain")
 })
 
-test("when delivery is off or session identity changes, actions fail safely", async (t) => {
+test("when a session is missing or replaced, resume instructions fail closed", async (t) => {
   // Arrange
   const directory = await isolated(t)
   const record = await createReminder(prepared(directory), directory, now)
@@ -247,16 +247,26 @@ test("when delivery is off or session identity changes, actions fail safely", as
   })
   await writeFile(record.session.path, `${titleSlot}\n${sessionHeader}\n`)
   assert.match(await resumeInstructions(record), /omp --session/u)
+})
+
+test("when reminders are off, new saves and delivery preserve the pending record", async (t) => {
+  // Arrange
+  const directory = await isolated(t)
+  await createReminder(prepared(directory), directory, now)
   await withStore(directory, async (state, save) => {
     state.isEnabled = false
     await save(state)
   })
+  const notifications = []
+
+  // Act and Assert
   await assert.rejects(createReminder(prepared(directory), directory, now), /off/u)
   await dispatch(directory, {
     now: due,
-    notify: () => assert.fail("Off must not notify"),
+    notify: (title) => notifications.push(title),
   })
   assert.equal((await loadState(directory)).reminders[0].status, "pending")
+  assert.deepEqual(notifications, [])
 })
 
 test("when state is malformed, delivery fails without overwriting it", async (t) => {
