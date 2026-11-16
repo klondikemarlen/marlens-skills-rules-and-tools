@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1381) - 2026-11-16
+
+### Changed
+
+- Keep model-access composable notifications with UI owners and preserve read/save error contracts; compose route-backed server-table options without changing URL compatibility or guarded page updates.
+
 ## [5.13.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1380) - 2026-11-16
 
 ### Changed
