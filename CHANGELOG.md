@@ -6,6 +6,16 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.11.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1359) - 2026-11-14
+
+### Added
+
+- Review complete fixture scenarios and setup helpers against the installed factory API, finding redundant preload wrappers and nested child construction while preserving valid traits and required reloads.
+
+### Changed
+
+- Arrange native child graphs with named scenario-local records and explicit preloads, preserving values, identities, nulls, persistence, and insertion versus query ordering.
+
 ## [5.11.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1358) - 2026-11-13
 
 ### Added
