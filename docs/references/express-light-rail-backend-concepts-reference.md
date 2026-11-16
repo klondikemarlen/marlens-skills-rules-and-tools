@@ -143,6 +143,57 @@ A transaction alone does not make the find/create sequence race-free. Preserve t
 
 Verify both paths in the consuming project: an existing identity updates the same record without a duplicate, an absent identity creates the expected record, and the returned instance has the required persisted fields. Exercise a persistence failure and verify propagation and the existing rollback contract, including earlier writes in a multi-record synchronization. Preserve unrelated records and check concurrent writers when the operation requires that guarantee.
 
+## Sequelize: Contextual Association Loading
+
+Choose association loading for the selected parent population and response needs, not a blanket rule for every include. For a single parent constrained by its primary key, prefer a normal include when appropriate. Put deterministic child ordering at the query's top level; ordering the one selected parent adds nothing:
+
+```typescript
+const invoice = await scopedInvoices.findOne({
+  where: { id: invoiceId },
+  include: ["items"],
+  order: [
+    ["items", "position", "ASC"],
+    ["items", "id", "ASC"],
+  ],
+})
+```
+
+Here `scopedInvoices` is the existing policy-scoped query, `items` is a registered has-many association, and the child's unique `id` breaks equal-position ties. Keep any parent/tenant constraints in addition to the primary key. A supported `findByPk` lookup follows the same include/order shape; do not replace a scoped query with an unscoped lookup.
+
+For a paginated parent collection with a has-many response association, prefer `separate: true` where appropriate. Put child ordering inside that include, independently of the parent's top-level ordering and pagination:
+
+```typescript
+const invoices = await scopedInvoices.findAll({
+  where,
+  include: [
+    {
+      association: "items",
+      separate: true,
+      order: [
+        ["position", "ASC"],
+        ["id", "ASC"],
+      ],
+    },
+  ],
+  order: [
+    ["createdAt", "DESC"],
+    ["id", "DESC"],
+  ],
+  limit,
+  offset,
+})
+```
+
+These fields illustrate an already accepted response and sort, not fields or associations to add to every endpoint. Retain the actual parent sort and a unique tie-breaker where needed, supported client sorting, authorized filters, count semantics, and response envelope. Do not add an include when its association is not needed.
+
+A join avoids a separate association fetch but repeats parent columns in the SQL result for each child; several to-many joins can multiply rows further. Separate loading avoids that joined-row multiplication and keeps parent pagination independent, at the cost of an additional association query and round trip. Sequelize normally batches the has-many fetch for the selected parents rather than issuing one query per parent; `separate: true` is not inherently N+1. Inspect the installed implementation and generated SQL for per-parent limits, nested associations, or other options before making an exact query-count claim.
+
+Joined paginated loading can work with Sequelize's ORM subquery pagination behavior; it is not categorically incorrect. Keep a supported join when association predicates or ordering determine the parent population, an existing contract requires it, or measured workload tradeoffs favor it. Separate loading is a has-many-specific option, not a universal replacement for belongs-to, has-one, or many-to-many includes. Verify installed ORM/version/dialect support and actual parent-page and count behavior; do not disable subqueries or alter required/include predicates merely to match an example. See [Sequelize eager-loading and ordering documentation](https://sequelize.org/docs/v6/advanced-association-concepts/eager-loading/#ordering-eager-loaded-associations).
+
+In either form, preserve authorization, parent constraints, child visibility and soft-delete filtering, projection, existing transaction/snapshot requirements, requiredness, and serializer/response contracts. Moving a child filter out of a join can change which parents qualify; do not make that change as a loading optimization. Retain the existing transaction propagation or explicit options for every query; a separate read must not silently escape its owning transaction.
+
+In a consuming project, check a primary-key detail lookup with equal-position children and an empty child collection; verify deterministic child order and missing/forbidden/other-parent visibility without changing its response. For the paginated list, use several parents with unequal child counts and tied child positions across a page boundary: verify stable parent pages and total counts, complete ordered children, empty-child parents where allowed, and excluded unauthorized/deleted rows. Observe generated SQL to distinguish batched association loading from per-parent fetching, and retain required rollback/read-consistency behavior when the query belongs to a transaction.
+
 ## Model Collection Queries
 
 Use the model's supported collection APIs at the owning operation, such as `findAll` for a genuinely bounded read or the project's `findEach` for incremental processing. Do not add a custom model finder solely to package ordinary filters, includes, and ordering behind another public name. Preserve meaningful model validation, domain behavior, supported ORM scopes, and demonstrated specialized query contracts; this is not a ban on model methods.

@@ -15,6 +15,7 @@ Use this when a downstream API already follows an Express controller, Sequelize 
 - `{searchField}`: searchable model field.
 - `{lookupField}`: reuse-identity field for the optional ensure slice, distinct from search where needed.
 - `{requiredAssociation}`: association to reload for show/edit responses, if any.
+- `{childOrderField}`: accepted child sort field for an optional has-many response association; use its unique key as a tie-breaker.
 
 ## Model Slice
 
@@ -107,6 +108,51 @@ export class {ResourceNames}Controller extends BaseController<{ResourceName}> {
 }
 ```
 
+### Optional Has-Many Response Loading
+
+When the existing response needs a registered has-many association, adapt these query excerpts under [Contextual Association Loading](../../../references/express-light-rail-backend-concepts-reference.md#sequelize-contextual-association-loading). They supplement the controller slice; they do not add an association to the model or broaden the serializer's fields.
+
+In the single-record loader used by `show()`/`update()`/`destroy()`, prefer a normal include for the primary-key-constrained lookup when appropriate, with child order at the top level and no unnecessary parent order:
+
+```ts
+private async load{ResourceName}(): Promise<{ResourceName} | null> {
+  return {ResourceName}.findByPk(this.request.params.{resourceName}Id, {
+    include: ["{requiredAssociation}"],
+    order: [
+      ["{requiredAssociation}", "{childOrderField}", "ASC"],
+      ["{requiredAssociation}", "id", "ASC"],
+    ],
+  })
+}
+```
+
+Retain the project's actual loader and parameter names, policy/tenant scope, parent constraints, and other preloads. If those predicates require a scoped `findOne`, keep that query rather than substituting this bare-model example. HTTP missing/forbidden decisions stay in the public action.
+
+For the paginated index, prefer separate loading where appropriate. Replace only the `findAll` options in the existing policy-scoped index query with this shape:
+
+```ts
+const resources = await scopedResources.findAll({
+  where,
+  include: [
+    {
+      association: "{requiredAssociation}",
+      separate: true,
+      order: [
+        ["{childOrderField}", "ASC"],
+        ["id", "ASC"],
+      ],
+    },
+  ],
+  order,
+  limit: this.pagination.limit,
+  offset: this.pagination.offset,
+})
+```
+
+Child order belongs inside the separate include; `order` remains the independent supported parent sort, with a unique tie-breaker where needed. Use the actual child unique key, omitting a duplicate tie-breaker if it is already the primary sort. Preserve the authorized count query and existing response envelope. Keep all existing association visibility, required/include predicates, and transaction options or managed context. Do not move a child predicate that determines parent eligibility into a separate fetch.
+
+These are contextual defaults, not mandatory rewrites: Sequelize normally batches separate has-many loading, and supported joined pagination can work through ORM subqueries. Choose from the canonical reference's tradeoffs and verify the installed ORM/dialect; keep a join when its semantics or workload require it.
+
 ## Policy Slice
 
 ```ts
@@ -194,6 +240,7 @@ export type {ResourceName}AsReference = Pick<{ResourceName}, "id" | "{searchFiel
 ## Verification Checklist
 
 - [ ] Index applies policy scope, filters, sort, pagination, and returns `totalCount`.
+- [ ] Where has-many response loading is needed, detail child order is top-level for a normal include; paginated separate loading orders children inside the include without changing parent pages/counts, visibility, transactions, or response fields.
 - [ ] Show/create/update return serialized data and policy; missing records return `404`; forbidden actions return `403`.
 - [ ] Mutations use services when they need transactions, reloads, audit, or side effects.
 - [ ] Reuse-intended ensure returns an existing record or delegates creation; required-new creation remains strict.

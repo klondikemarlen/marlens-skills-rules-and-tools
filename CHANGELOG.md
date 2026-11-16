@@ -6,6 +6,18 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1394) - 2026-11-16
+
+### Changed
+
+- Suggest context-aware Sequelize association loading for detail and paginated-list queries, with deterministic child ordering and explicit authorization, pagination, and batching tradeoffs.
+
+## [5.13.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1389) - 2026-11-16
+
+### Fixed
+
+- Reset model-composable loading flags unconditionally when requests finish, including cancellation and supersession, while retaining stale-data/error guards and committed-save ownership.
+
 ## [5.13.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1385) - 2026-11-16
 
 ### Changed
