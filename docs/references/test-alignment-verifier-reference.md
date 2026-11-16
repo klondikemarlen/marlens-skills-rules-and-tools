@@ -159,7 +159,7 @@ Use the repository-root `.marlens-verifications.json` only when a bounded legacy
 
 `id`, project-relative `path`, and non-empty `reason` are required. `path` is a file or directory, not a glob; use `.` only to suppress the whole project. `expiresOn` is optional and uses `YYYY-MM-DD`.
 
-The verifier reports every matching suppression and its reason in `PASS` or `FAIL` evidence. Invalid or expired suppressions return `BLOCKED`; they never silently disable a check.
+The verifier includes matching suppressions and their reasons in `PASS` or `FAIL` evidence, with [explicit shortening and complete diagnostics](#large-result-diagnostics) for large scopes. Invalid or expired suppressions return `BLOCKED`; they never silently disable a check.
 
 ## Automatic Selection
 
@@ -182,6 +182,12 @@ Do not run the slash command as a shell executable. Clearing `OMP_VERIFIER_CHANG
 The standalone entry prints the same structured result and uses a fail-closed shell contract: `PASS` exits zero; `FAIL` and `BLOCKED` exit nonzero. Its JSON output retains the actual status, evidence, and next check; callers must not reinterpret `BLOCKED` as a structural failure or pass. An unavailable base therefore stops a shell `&&` continuation while preserving its prerequisite evidence. No installed coordinator is needed for this standalone path. Preserve explicit local additions and supported scoped suppressions. If the relevant check or base ref is unavailable, record `BLOCKED` with the exact prerequisite rather than claiming a structural PASS. No matching changed tests means `N/A` for this gate. This is focused pre-merge evidence, not a new runtime completion barrier, advisor cadence, model route, or unrelated hygiene scan.
 
 Coordinator integration needs support for nonzero structured `BLOCKED` results, introduced in OMP Verifier 0.10.9. Upgrade older coordinators before relying on the preserved prerequisite fields.
+
+### Large Result Diagnostics
+
+Default evidence is capped at the coordinator's 4,000-character field limit. Oversized results retain their actual `PASS`, `FAIL`, or `BLOCKED` status and full violation count, show the leading diagnostics, and explicitly disclose shortened evidence. This bounds reporting, not the inspected scope or enforcement.
+
+For complete evidence, run the same installed `verifications/test-alignment.mjs` entry with `--full` from the same project directory, preserving `OMP_VERIFIER_CHANGED_PATHS` for automatic selection or `MARLENS_TEST_ALIGNMENT_BASE` for PR scope. Redirect stdout to a local JSON file if needed. This explicit standalone diagnostic mode includes every finding, inspected filename, and suppression; it is not coordinator-schema output. Exit status remains zero only for `PASS`. It re-inspects current files, so preserve the source revision and selection when comparing with an earlier result.
 
 From a source checkout, exercise an installed or unpacked package's standalone CLI by pointing the repository's focused behavioral check at that entrypoint. The maintainer check lives in `scripts/`, which is not part of the installed package:
 
