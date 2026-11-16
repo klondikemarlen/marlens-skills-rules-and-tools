@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1386) - 2026-11-16
+
+### Changed
+
+- Repair established intended contracts during lint cleanup rather than deleting ineffective constructs; verify the accepted behavior and preserve justified obsolete-code removal.
+
 ## [5.13.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1388) - 2026-11-16
 
 ### Changed
