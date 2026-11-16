@@ -190,6 +190,74 @@ assert.equal(failedEditor.observedError, saveError)
 - **TypeScript `function refresh(): void` or callback `() => void`:** `PASS`; types are not unary operators.
 - **Missing operation/error-boundary/pending-setup evidence:** `BLOCKED`, not a guessed promise-handling verdict.
 
+## Vue Action Guard Ownership
+
+Use the [accepted UI-gated action convention](../docs/references/vue-component-authoring-reference.md#ui-gated-action-guard-ownership), not a blanket guard-removal rule. For these cases the accepted task is to apply that correction to the changed retirement action and its relevant in-scope sibling actions. Supply the complete baseline/comparison and project guidance as well as the following owner context; these excerpts alone do not establish a real application's caller inventory.
+
+### Accepted UI Owner: Rejected and Corrected Handler
+
+Case context: inspection finds only the existing button calls this local, unexposed handler; no form, keyboard listener, or other caller invokes it. The accepted convention assigns UI policy visibility to `policy?.destroy` and pending presentation to `isDeleting`. The existing API boundary authorizes every retirement request independently; there is no separately accepted reject-while-pending handler contract. Confirmation cancellation must perform no request; request rejection must reach the existing error owner, and `finally` must restore pending state.
+
+```vue
+<template>
+  <v-btn
+    v-if="policy?.destroy"
+    :loading="isDeleting"
+    @click="retire"
+    >Retire</v-btn
+  >
+</template>
+
+<script setup lang="ts">
+// Excerpt: retain the project's existing imports, bindings and request API.
+async function retire() {
+  if (!policy.value?.destroy || isDeleting.value) return
+
+  const confirmed = await confirmRetirement()
+  if (!confirmed) return
+
+  isDeleting.value = true
+  try {
+    await retireRecord()
+  } catch (error) {
+    reportRetirementError(error)
+  } finally {
+    isDeleting.value = false
+  }
+}
+</script>
+```
+
+Expected `FAIL`: cite the early return and the template/accepted-owner context; remove only the repeated policy/busy checks. The corrected comparison is:
+
+```diff
+ async function retire() {
+-  if (!policy.value?.destroy || isDeleting.value) return
+-
+   const confirmed = await confirmRetirement()
+```
+
+Expected `PASS` for this criterion after inspecting the complete corrected action and relevant siblings: the redundant checks are absent, while confirmation, cancellation, server authorization, error propagation and cleanup retain their existing owners. Loading is presentation here, not evidence of universal activation blocking. If an equivalent changed sibling still repeats speculative checks, the whole-scope result remains `FAIL`.
+
+### Independent Entry and Concurrency Owner
+
+Contrasting case context: the changed Vue component exposes an existing `retire` command consumed by a parent bulk-action path as well as its button. The documented command contract requires a live permission decision for direct calls and rejects concurrent requests; the server still authorizes requests. Its baseline and changed handler both retain the following guards before confirmation and the same request/error/finally body:
+
+```typescript
+async function retire() {
+  if (!policy.value?.destroy) return
+  if (isDeleting.value) return
+
+  // Existing confirmation and request/error/finally body remains unchanged.
+}
+```
+
+Expected `PASS`: cite the actual exposed API, parent caller, accepted live-permission and concurrency contracts, and retained server boundary. The matching guard tokens are not inherently redundant. Deleting them solely because a button has `v-if` and `loading` is `FAIL`; restore the independent command protections. Do not invent this exposed API or concurrency policy for the first case.
+
+### Missing Owner Context
+
+Supply the rejected handler excerpt but omit its template/callers or accepted authorization/concurrency contract. Expected `BLOCKED`: identify the unavailable entry-point or owner evidence needed to decide redundancy. A green typecheck or behavioral suite does not fill that gap. Keep any independently evidenced findings visible, but do not mark partial action coverage as whole-scope `PASS`.
+
 ## Evidence Boundary
 
 For each case obtain a cited, current-scope `PASS`, `FAIL`, or `BLOCKED` through the supported semantic review path. Preserve concrete findings even when another criterion lacks context. Formatter/typecheck success and the disposable behavioral exercises protect different contracts; none substitutes for semantic review. Supplied policy and installation do not establish automatic selection, native advisor delivery, or a hard completion gate. Fresh-process discovery and corrective re-review remain release QA responsibilities owned by Verifier.
