@@ -19,7 +19,7 @@ const createAccessibleWorkflow = async (user: User) =>
 
 The helper hides persistence and changes the factory lifecycle for one call site.
 
-### With `test-fixtures`
+### With `agent-test-fixtures`
 
 ```ts
 await workflowFactory.accessibleBy(user).create()
@@ -41,7 +41,7 @@ The owning factory names and owns the opt-in relationship. Ordinary creation rem
 
 Run the project’s factory TypeScript check and the focused endpoint test that requires this relationship.
 
-Source: [`test-fixtures`](../skills/test-fixtures/SKILL.md).
+Source: [`agent-test-fixtures`](../skills/agent-test-fixtures/SKILL.md).
 
 ## Native Graph Setup and Preloads
 
@@ -67,7 +67,7 @@ const travelAuthorization = await travelAuthorizationFactory.create({
 
 Factory calls remain nested in the parent payload. Native API usage alone does not establish readable scenario setup.
 
-### With `test-fixtures`
+### With `agent-test-fixtures`
 
 This Arrange excerpt uses the reported project's existing factories/models and [Factory Shark 2.7.0 child records and includes](https://github.com/klondikemarlen/factory-shark/blob/v2.7.0/README.md#supply-child-records), not a new shared helper or a required library. Resolve the actual installed version and model associations before adapting it:
 
@@ -161,7 +161,7 @@ Run the target project's focused tests and test TypeScript check separately. Tho
 
 Each test replaces the entire GET implementation with another URL-dispatch ladder, repeats `{ data: ... }`, and can accidentally discard shared configuration/authentication mocks.
 
-### With `test-fixtures`
+### With `agent-test-fixtures`
 
 Use the project's existing interception layer first. These equivalent Arrange excerpts illustrate payload callbacks, not an MSSRT runtime API or a required dependency:
 
