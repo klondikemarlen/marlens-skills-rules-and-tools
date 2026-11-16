@@ -23,6 +23,7 @@ Use when a feature, bug fix, or refactor needs clearer domain concepts, invarian
 1. State the **success condition**: the user-visible action or domain invariant that must remain true. Record non-goals and the complexity ceiling.
 2. Inspect the target topology, cohesive concepts, lifecycles, repeated change clusters, varying dispatch dimensions, owned invariants, dependency direction, and sibling-domain conventions.
 3. Name the smallest useful domain concepts and actions. Prefer intention-revealing names over generic `manager`, `processor`, `helper`, or `utils` names.
+   Apply [Accepted Domain Meaning](../../docs/references/code-organization-reference.md#accepted-domain-meaning): implement an explicitly accepted interpretation with a precise name, keep unverified external facts in evidence notes, and preserve source-schema names at direct integration mappings. Reopen the decision only for new contradictory evidence or a distinct unresolved safety-sensitive contract.
 4. Classify each boundary and its owner:
    - **Data-shape validation:** parse and validate untrusted input once at the request, file, or API boundary.
    - **Domain invariant:** protect a rule that remains true regardless of transport, UI, persistence, or external API shape.
