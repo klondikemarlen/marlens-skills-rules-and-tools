@@ -887,6 +887,73 @@ const { workflow } = workflowStore()
 
 Use the project's actual resource availability, store API, and form controls. Simpler bindings must preserve Cancel isolation, unsaved local edits during remote refresh, and the accepted lifetime and completion behavior of in-flight saves, including navigation. Keep one canonical model owner; do not introduce a separately reconciled model copy or discard pending work merely to simplify the interface. An accepted local editable view or snapshot needs explicit ownership, not a prescribed watcher, proxy, or draft/reconciliation algorithm.
 
+## URL-Backed Server Table Options
+
+Use a narrow `useRouteQueriableTableOptions` composition when a server table needs route-backed pagination and sorting together. Compose existing local route-pagination, sort-query encoding and API-order primitives, not a universal table framework or new runtime dependency. The [TravelAuth implementation](https://github.com/icefoganalytics/travel-authorization/blob/55f20a7656f1d6d56e54375c4b252550e4385ade/web/src/use/utils/use-route-queriable-table-options.ts), [tests](https://github.com/icefoganalytics/travel-authorization/blob/55f20a7656f1d6d56e54375c4b252550e4385ade/web/tests/use/utils/use-route-queriable-table-options.test.ts), and [README](https://github.com/icefoganalytics/travel-authorization/blob/55f20a7656f1d6d56e54375c4b252550e4385ade/web/src/use/README.md) are pinned pattern evidence, not adoption by another project.
+
+This TypeScript contract excerpt uses Vue's `Ref`/`ComputedRef` and the owning project's `SortItem`/`ModelOrder` types. It is guidance, not an executable shared template:
+
+```typescript
+type RouteQueriableTableOptions = {
+  page: Ref<number>
+  perPage: Ref<number>
+  sortBy: Ref<SortItem[] | undefined>
+  order: ComputedRef<ModelOrder[] | undefined>
+}
+
+declare function useRouteQueriableTableOptions(options?: {
+  routeQuerySuffix?: string
+  page?: number
+  perPage?: number
+  sortBy?: SortItem[]
+}): RouteQueriableTableOptions
+
+const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
+  routeQuerySuffix: "Meals",
+  page: 1,
+  perPage: 25,
+  sortBy: [
+    {
+      key: "traveller.lastName",
+      order: "desc",
+    },
+  ],
+})
+const mealsQuery = computed(() => ({
+  page: page.value,
+  perPage: perPage.value,
+  order: order.value,
+}))
+
+const codingsTableOptions = useRouteQueriableTableOptions({
+  routeQuerySuffix: "Codings",
+})
+```
+
+Pass `mealsQuery` to the existing data owner. Where native two-way updates already own the table contract, bind the refs using this template excerpt:
+
+```vue
+<v-data-table-server
+  v-model:page="page"
+  v-model:items-per-page="perPage"
+  v-model:sort-by="sortBy"
+/>
+```
+
+This is not a complete table: retain rows, headers, counts, loading, events, filters, permissions and rendering. Never replace guarded handlers with unconditional `v-model`. WRAP's `UsersDataTableServer` intentionally guards `updatePage` while loading/waiting; preserve that handler and page-reset timing during adoption. Fetch/filter/loading/auth ownership is outside this composition.
+
+One suffix identifies all three keys (TravelAuth: `pageMeals`, `perPageMeals`, `sortByMeals`). Give independent tables distinct suffixes; retain existing suffixes, exact query names, nested sort encoding, multi-column order and unrelated parameters during migration. Existing primitives retain history/reload synchronization. Do not rename bookmarks or replace the whole query. Omitted defaults retain local pagination defaults (TravelAuth: page 1, perPage 10); omitted sorting leaves `sortBy` and API `order` unspecified. Clearing sorting must clear previous API ordering, not restore a default or retain stale order. Preserve supported “All” semantics end to end (TravelAuth uses `-1`), not a newly clamped positive size.
+
+| Input / Action | Required Result | Reject |
+| --- | --- | --- |
+| Bookmark `pageMeals=3&perPageMeals=-1&sortByMeals=traveller.lastName_desc` | Page 3, All size, nested order `[["traveller", "lastName", "DESC"]]` | Flatten nested keys, clamp All, overwrite bookmarks with defaults |
+| Meals changes with Codings and `filter=active` present | Only Meals keys change; Codings/filter survive | Shared empty suffix or whole-query replacement changes another table |
+| No sort query/default | `sortBy` and API `order` remain `undefined` | Invent mandatory sorting |
+| Clear an existing sort with `[]` | API `order` becomes `undefined`; preserve the primitive's accepted cleared URL representation | Keep stale order or resurrect defaults |
+| Back/forward and reload | Restore saved table state and history policy | Read URL only during initial setup |
+
+Smaller pagination-only helpers and non-route helpers remain valid when they fit. ELCC's `CentresDataTableServer` and WRAP's `UsersDataTableServer` are adoption suggestions, not migrated consumers. Adoption requires each project's delivery and runnable checks for bookmarks, independent tables, absent/cleared sorting, All, history/reload and loading/page-reset guards. Published guidance, native project tests, fresh OMP consumption, verifier enforcement and adoption are separate evidence claims.
+
 ## Model-Mirror Composables and Editor Ownership
 
 Inspect established sibling composables and any user-designated architecture before extending a `use` module. When singular/plural data-access composables mirror the model layer, retain those mirrors while the underlying model exists, even with zero current callers. An editor-specific wrapper does not replace the model mirror. Remove obsolete mirrors when their model is deleted; do not use this exception to preserve arbitrary dead code or invent speculative wrappers.
@@ -894,6 +961,20 @@ Inspect established sibling composables and any user-designated architecture bef
 Keep component-specific editing workflows—drafts, queued writes, reconciliation, editor errors, and retry feedback—with the owning editor component, rather than accumulating them in a model-access composable. Preserve genuine shared reactive/lifecycle composables and explicit project ownership contracts; a function starting with `use` is not evidence that it owns every editing operation.
 
 Consumers use the composable's returned reactive record/collection refs as the model source. Do not copy them into a parallel record map and watch fetches to merge fields or revision counters. Keep genuine pending commands and failure feedback with the editor. If accepted edits must survive navigation, inspect editor lifetime and supported framework retention before adding parallel model ownership; preserve the accepted save/navigation guarantee. An explicitly contracted detached draft remains valid; neither `KeepAlive` nor a particular draft-storage design is mandatory.
+
+Compare singular/plural siblings within the requested scope for consistent loading/error transitions, cancellation, direct watcher awaits, and returned `fetch`/`refresh` promises. Watchers should directly await fetch completion where needed, preserving the framework's actual rejection boundary. Keep genuine differences: a singular mirror may skip absent ids and expose `save`, while a collection owns query watching and counts. Do not add saves to collections or force identical return values for symmetry.
+
+Model-access composables expose data, loading/error state needed by accepted consumers, and operations—not snackbar/toast presentation. Apply [Error Ownership and Local Recovery](code-organization-reference.md#error-ownership-and-local-recovery): unexpected reads reach the existing application boundary before local logging, expected handled failures may retain local state/logs, cancellation stays silent, and cleanup runs on every path. Save failures propagate to the owning form without catch-log-rethrow duplication. Keep the project's actual classification helper, watcher rejection handling, cancellation and lifecycle contract; neither ELCC's helper name nor one cancellation mechanism is a shared API requirement.
+
+| Review Case | Accept | Reject |
+| --- | --- | --- |
+| Unexpected read failure | Existing application boundary receives it without a prior local log; loading cleanup runs | Log then forward to another logging owner; substitute empty success |
+| Expected operation failure | Accepted local error/retry state and operation log | Remove required state merely because shared feedback exists |
+| Cancellation | Existing recognition, silent exit and lifecycle cleanup | Toast/error log, or deletion of abort/listener cleanup |
+| Save failure | Returned save promise rejects to the form's feedback owner | Catch only to log and rethrow, or swallow failure |
+| Notifications | Dedicated `use-snack` adapter; UI uses a named `snack` instance | Singular or plural data mirror imports `useSnack` and calls `snack.error` |
+
+Named-instance style is separate from ownership: [Named Snackbar Composable Instances](#named-snackbar-composable-instances) does not authorize presentation inside data access.
 
 ### Form-Owned Submission and Public Component APIs
 
