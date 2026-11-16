@@ -58,7 +58,7 @@ Use [`triage`](skills/triage/SKILL.md) to assess tickets and apply supported evi
 
 Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights from a given OMP chat: `/skill:data-mine <session ID or path>`, or supply the transcript. Standalone mining is read-only unless you authorize follow-up actions. `wrap-up` uses the same workflow for the current session and completed task's commits.
 
-Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for “review, get Codex review, fix findings, and merge when ready”: `/skill:review-and-merge <PR URL>`. Add `with override` only when you authorize an administrative merge restriction to be bypassed for that PR; requested reviews and verification still apply.
+Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for “review, get Codex review, and merge if no changes are required”: `/skill:review-and-merge <PR URL>`. By default, required fixes are made and verified, but the PR stays open for your merge approval. Explicitly say “fix findings and merge after fixes” to authorize that path. Add `with override` only to authorize bypassing an administrative merge restriction for that PR; it does not authorize merging after fixes or waive requested review and verification.
 
 In OMP, type `/skill:` to browse the full catalog. Specialist entrypoints include [`feature`](skills/feature/SKILL.md), [`code-review`](skills/code-review/SKILL.md), [`test-guide`](skills/test-guide/SKILL.md), and [`jira-report`](skills/jira-report/SKILL.md). Agents can also discover the relevant skill from its task description.
 

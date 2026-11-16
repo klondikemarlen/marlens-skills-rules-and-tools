@@ -1,6 +1,6 @@
 ---
 name: review-and-merge
-description: Use to review an existing PR, get Codex review, fix findings, and merge when ready; preserves explicit administrative override scope without waiving verification.
+description: Review an existing PR with Codex and merge only if no changes are required by default; fix findings but leave the PR open unless merging after fixes is explicitly authorized.
 ---
 
 # Review and Merge
