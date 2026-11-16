@@ -100,6 +100,8 @@ private async loadWorkflow(): Promise<Workflow | null> {
 
 Use the existing loader's actual predicates and required preloads, not a broader query copied from this example. A functional handler may use the equivalent named local loader; do not introduce a class, service, repository layer, or base controller just for this shape. Verify missing/forbidden/success cases and association-dependent authorization; ordinary collection reads may remain controller-owned.
 
+For Sequelize response preloads, apply [Contextual Association Loading](../../../references/express-light-rail-backend-concepts-reference.md#sequelize-contextual-association-loading): a primary-key detail lookup normally uses a joined include with any deterministic child ordering at the query top level, without ordering the sole parent. A paginated has-many list may instead use `separate: true`, with child order inside the include and independent parent sorting/pagination. Use the [copyable single-record and list query shapes](../express-sequelize-crud/resource-rail-template.md#optional-has-many-response-loading) only when the response needs that association; retain the loader's policy/parent constraints, transaction context, and existing association/response contracts. Do not invent ordering fields for the access preloads shown here.
+
 ### Nested Record Loading
 
 When the action already loads a parent model, pass that model explicitly to the nested child loader and scope the lookup with its identifier. Keep the child identifier, other visibility predicates, and required preloads. Do not load a parent solely to replace a valid ID-taking API.

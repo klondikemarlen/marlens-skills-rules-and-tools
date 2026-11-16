@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1394) - 2026-11-16
+
+### Changed
+
+- Suggest context-aware Sequelize association loading for detail and paginated-list queries, with deterministic child ordering and explicit authorization, pagination, and batching tradeoffs.
+
 ## [5.13.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1389) - 2026-11-16
 
 ### Fixed
