@@ -1262,6 +1262,14 @@ Preserve production-schema names at direct external integration mappings when th
 
 An accepted naming interpretation is not permission to invent security, financial, or destructive behavior. Unresolved assumptions that control authorization, money movement, or irreversible effects still require their own evidence and scoped decision before those effects are implemented.
 
+### Externally Owned Identifiers
+
+Distinguish a local record's identifier from the identifier assigned by another system. For application-owned names representing external identifiers, prefer `external` or the specific provider name over generic `source`. For example, replace `source_booking_event_id` with `external_booking_event_identifier`, or use `travel_port_booking_event_identifier` when TravelPort is the relevant provider. Follow the project's casing conventions for corresponding attributes, such as `externalBookingEventIdentifier`; keep the local record's own identifier distinct.
+
+Within an authorized naming change, update affected application-owned database columns, model/API attributes, and consumers together using the project's migration and compatibility rules. Preserve identifier values and actual provider field mappings; an external payload's `source_booking_event_id` can map to the application's `externalBookingEventIdentifier` without renaming the provider field. This preference does not authorize changing upstream schemas, unrelated public contracts, or repository-wide migrations.
+
+Keep legitimate `source` names for other meanings, such as a source file, copy source, or a local source record's foreign key. Establish who owns the identified record before applying the convention; do not mechanically rename every `source` prefix or use a provider name that does not match the integration.
+
 ## State Names and Dependency-Local Ordering
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
