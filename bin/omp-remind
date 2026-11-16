@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+import { runCli } from "../lib/reminders/run-cli.mjs"
+
+try {
+  process.exitCode = await runCli(process.argv.slice(2))
+} catch (error) {
+  console.error(`Reminder action failed: ${error.message}`)
+  process.exitCode = 1
+}

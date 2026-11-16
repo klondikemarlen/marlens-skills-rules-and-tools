@@ -45,6 +45,8 @@ jobs:
         run: npm test
       - name: Verify native convention imports
         run: npm run test:memory
+      - name: Verify persistent reminder boundaries
+        run: npm run test:reminders
       - name: Verify reviewed-file state boundaries
         run: npm run test:reviewed-files
       - name: Validate package contents
