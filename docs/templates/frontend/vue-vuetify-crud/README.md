@@ -11,6 +11,8 @@ Use these templates for Vue 3 + TypeScript admin CRUD screens that use Vuetify, 
 
 For component structure, loading/disabled state, stock UI reuse, and scoped utility-style presentation, use the [Vue Component Authoring Reference](../../../references/vue-component-authoring-reference.md).
 
+For model-access state/error/notification boundaries, use [Model-Mirror Composables](../../../references/vue-component-authoring-reference.md#model-mirror-composables-and-editor-ownership). For combined route pagination/sorting and API ordering, use [URL-Backed Server Table Options](../../../references/vue-component-authoring-reference.md#url-backed-server-table-options); retain smaller helpers and project-specific guarded updates where appropriate. These references are authoring guidance, not executable helper implementations or consumer adoption.
+
 ## Templates
 
 - `admin-resource-pages-template.md` - list/show/form page composition and observable states.
