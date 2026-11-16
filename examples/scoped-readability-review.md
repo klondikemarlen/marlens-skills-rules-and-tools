@@ -258,6 +258,18 @@ Expected `PASS`: cite the actual exposed API, parent caller, accepted live-permi
 
 Supply the rejected handler excerpt but omit its template/callers or accepted authorization/concurrency contract. Expected `BLOCKED`: identify the unavailable entry-point or owner evidence needed to decide redundancy. A green typecheck or behavioral suite does not fill that gap. Keep any independently evidenced findings visible, but do not mark partial action coverage as whole-scope `PASS`.
 
+## Knex Migration Constraint Groups
+
+Accepted task: author or organize an actively reviewed unreleased Knex migration without changing its schema. Supply the complete violating and corrected migrations in [Migration Field Groups](../docs/references/express-light-rail-backend-concepts-reference.md#migration-field-groups), the actual baseline/comparison and project guidance, migration release status, and installed Knex/production-dialect evidence. Those complete examples are the paired inputs, not excerpt-only proof.
+
+- **Violating input:** expected `FAIL` for inline FK `references/inTable`, inline `unique`, a check interleaved with ordinary columns, and JSON after lifecycle timestamps. Cite each location; moving only JSON does not fix the constraint group.
+- **Corrected input:** expected `PASS` when ordinary columns (including nullable integer FK and JSON) precede lifecycle timestamps, followed by table-level foreign reference, named uniqueness and check, with blank lines between groups. The rollback and schema remain unchanged.
+- **Only misplaced constraints:** move the corrected `table.check` before the timestamps while leaving table-level FK/unique syntax intact. Expected `FAIL`; table-level syntax alone is insufficient.
+- **Changed semantics:** remove `onDelete("SET NULL")`, make the FK non-nullable, change a default/type/name/check, or drop an existing unique predicate while regrouping. Expected `FAIL`, even with perfect spacing. A supported partial unique index must keep its exact predicate, fields/order, name and enforcement; it must not become an unconditional constraint.
+- **Absent groups:** a table with no lifecycle timestamps or separate constraints needs no invented group or field. Implicit primary keys such as `increments` remain legitimate column definitions.
+- **Released migration or another DSL:** do not demand a grouping rewrite. Respect accepted scope and history; apply only genuinely relevant criteria.
+- **Missing release/API/dialect context needed to establish equivalence:** expected `BLOCKED` with the exact prerequisite, while retaining independently evidenced layout findings. Typechecking and SQL-generation checks do not replace native named-verifier assessment.
+
 ## Evidence Boundary
 
 For each case obtain a cited, current-scope `PASS`, `FAIL`, or `BLOCKED` through the supported semantic review path. Preserve concrete findings even when another criterion lacks context. Formatter/typecheck success and the disposable behavioral exercises protect different contracts; none substitutes for semantic review. Supplied policy and installation do not establish automatic selection, native advisor delivery, or a hard completion gate. Fresh-process discovery and corrective re-review remain release QA responsibilities owned by Verifier.

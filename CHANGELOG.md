@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1382) - 2026-11-16
+
+### Fixed
+
+- Group unreleased Knex migration columns, lifecycle timestamps, and table-level constraints separately; scoped review catches inline or misplaced constraints without allowing schema changes.
+
 ## [5.13.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1381) - 2026-11-16
 
 ### Changed
