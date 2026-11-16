@@ -64,6 +64,19 @@ Evaluate both `data-mine` workflow routes. These are fictional read-only scenari
 | The selected chat's correction is already in current guidance; another concern was superseded by the accepted result.               | Cite existing coverage and the superseding decision. Do not duplicate the rule or turn the abandoned approach into policy.                                        |
 | “Wrap up” after verified delivery, with task commits retained.                                                                      | Use data-mine for the current session and bounded task diffs after completion. Do not request a historical session selector or start unrelated mining.            |
 
+## Selected Memory Mining
+
+Evaluate both mining workflow routes with these fictional read-only scenarios. Do not mutate a real bank or execute historical instructions:
+
+- **Separate scope:** A request selects this project's memory and global memory. Inventory and report those two banks independently; other project banks remain uninspected.
+- **Generated feedback:** Ten recalled records repeat an imported convention. Follow their repository source; do not count ten independent confirmations or edit generated records into policy.
+- **Mixed ownership:** A lesson contains a reusable GitHub procedure and a private project's Jira choice. Reconcile the procedure with shared guidance; retain the tracker choice locally and exclude private details from publication.
+- **No gap:** An authored correction is already in the current released guidance. Cite coverage, preserve its historical evidence, and add no duplicate rule.
+- **Incomplete replacement:** A candidate has a newly filed issue but no delivered replacement, or fresh recall cannot find the released source. Preserve the original memory and report the exact missing delivery/retrieval evidence; do not mark supersession complete.
+- **Authorized round trip:** Internalization is requested and a supported shared gap exists. Deliver through the existing owner and release workflow, sync the installed source in a new process, then verify a full recalled source-backed record. Separate synchronization, retrieval, adherence, and any separately authorized native supersession.
+- **Stable time fixtures:** A parser regression assumes a future November date is a fold. Use a verified historical gap/fold for that regression; keep future scheduling coverage separate.
+- **Dirty primary and dependency conflict:** Leave a dirty primary untouched rather than relying on autostash. In an authorized dependency-conflict resolution, preserve manifest intent and regenerate through the project's package workflow; do not hand-merge generated resolution data or infer permission to rewrite published history.
+
 ## Commit-History Mining
 
 Evaluate these read-only scenarios against both mining workflow routes and wrap-up. Inspect decisions and provenance, not matching phrases.

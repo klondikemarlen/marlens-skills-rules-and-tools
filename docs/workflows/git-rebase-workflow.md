@@ -17,6 +17,8 @@ Use when the user asks to fix up, amend, reword, squash, or reorder commits that
 - Avoid opening an editor. Use helper modes or `GIT_SEQUENCE_EDITOR=true` for autosquash fallback rebases when the generated todo is sufficient.
 - For an authorized published rewrite, use an exact expected-remote-SHA lease; never plain force or an implicit remote-tracking-ref lease.
 
+For an authorized dependency-conflict resolution, reconcile the intended manifest changes first, then regenerate the lockfile through the project's documented package-manager workflow rather than hand-merging generated resolution data. Preserve unrelated dependency intent, use the required package-manager version, and inspect resulting resolution changes before accepting them. Regeneration is not permission to discard a dependency, upgrade everything, or rewrite a published branch without its separate authorization.
+
 ## Stacked Pull Request Conflicts
 
 For a stacked child PR, prefer rebasing onto its freshly fetched actual parent rather than merging the parent into the child. Use this procedure instead of the older-commit helper flow below. This preference does not authorize rewriting a published branch; retain the explicit authorization and PR draft/fixup gates.
