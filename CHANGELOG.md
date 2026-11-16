@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.12.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1360) - 2026-11-16
+
+### Added
+
+- Create reviewed, session-linked one-shot reminders with `/remind`. Explicit Linux user-timer setup delivers concise desktop notifications after OMP closes, without running models or remembered tasks; cancellation, overdue summaries, and recovery preserve private records.
+
 ## [5.11.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1359) - 2026-11-14
 
 ### Added
