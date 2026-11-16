@@ -121,6 +121,7 @@ async function deleteResource({resourceName}Id: string) {
 - Scope the table's server query with exactly `{ParentForeignKey}: props.{parentResourceName}Id`.
 - Let `{ResourceTableComponent}` retain the project's pagination, sorting, filters, loading, and empty-state behavior. Do not rebuild that state in the tab.
 - Use a unique `{RouteQuerySuffix}` so sibling tabs do not share table query state.
+- When authoring the underlying server table, follow [URL-Backed Server Table Options](../../../references/vue-component-authoring-reference.md#url-backed-server-table-options) for combined pagination/sorting; preserve existing bookmarks, optional clearing, All semantics and guarded page updates. Keep fetching and loading with their existing owners.
 - Refresh the table in place after a successful mutation that starts in the tab; sibling pages navigate back instead.
 - Gate actions with the project-local policy expression and use its existing confirmation/toast behavior.
 
