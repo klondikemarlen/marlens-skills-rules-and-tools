@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1387) - 2026-11-16
+
+### Changed
+
+- Keep QA instructions concise and grounded in actual environment permissions, with nearby expected results and purpose-driven cleanup while preserving safeguards and required transitions.
+
 ## [5.13.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1386) - 2026-11-16
 
 ### Changed
