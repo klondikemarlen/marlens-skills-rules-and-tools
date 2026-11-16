@@ -37,6 +37,7 @@ const DIRECTIVES = {
 const BASELINE_DIRECTIVES = ["test-name-when", "arrange-act-assert", "one-direct-expect"]
 const CHECK_ID = "marlens-rules:test-alignment"
 const SUPPRESSION_FILE = ".marlens-verifications.json"
+const MAX_EVIDENCE_LENGTH = 4000
 
 function result(status, summary, evidence, nextCheck) {
   return { status, summary, evidence, nextCheck }
@@ -469,7 +470,7 @@ function formatViolation(testPath, block, source, reason) {
   return `${testPath}:${block.line}: \`${block.code}\` — ${reason}; source ${source.path}:${source.line} (\`marlens-test-alignment: ${source.directive}\`).`
 }
 
-export function runVerification(projectDirectory = process.cwd(), environment = process.env) {
+function collectVerification(projectDirectory, environment) {
   let root
   try {
     if (!statSync(projectDirectory).isDirectory()) {
@@ -577,8 +578,29 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   )
 }
 
+export function runVerification(
+  projectDirectory = process.cwd(),
+  environment = process.env,
+  { full = false } = {}
+) {
+  const verification = collectVerification(projectDirectory, environment)
+  if (full || verification.evidence.length <= MAX_EVIDENCE_LENGTH) return verification
+
+  const notice =
+    `\n… Evidence shortened from ${verification.evidence.length} characters. ` +
+    "For complete diagnostics, run this test-alignment.mjs entry with --full " +
+    "from the same project directory and scope environment."
+  const available = MAX_EVIDENCE_LENGTH - notice.length
+  const lastLineEnd = verification.evidence.lastIndexOf("\n", available)
+  const end = lastLineEnd > 0 ? lastLineEnd : available
+  verification.evidence = verification.evidence.slice(0, end) + notice
+  return verification
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const verification = runVerification()
+  const verification = runVerification(process.cwd(), process.env, {
+    full: process.argv.includes("--full"),
+  })
   process.stdout.write(`${JSON.stringify(verification)}\n`)
   if (verification.status !== "PASS") process.exitCode = 1
 }

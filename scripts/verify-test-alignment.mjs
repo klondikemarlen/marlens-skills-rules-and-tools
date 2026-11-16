@@ -10,8 +10,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const verifierPath =
   process.env.MARLENS_TEST_ALIGNMENT_ENTRY ?? path.join(root, "verifications/test-alignment.mjs")
 
-function runStandalone(projectDirectory, environment) {
-  return spawnSync(process.execPath, [verifierPath], {
+function runStandalone(projectDirectory, environment, argumentsList = []) {
+  return spawnSync(process.execPath, [verifierPath, ...argumentsList], {
     cwd: projectDirectory,
     encoding: "utf8",
     env: { ...process.env, ...environment },
@@ -87,6 +87,7 @@ const automaticScopeProject = createProject()
 const combinedPhaseProject = createProject()
 const regexProject = createProject()
 const cliBlockedProject = createProject()
+const largeScopeProject = createProject()
 try {
   write(project, "tests/README.md", guidance)
   write(project, "tests/widget.test.ts", alignedTest)
@@ -822,6 +823,88 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
     nextCheck: "Add ordered Arrange, Act, and Assert comments to the test.",
   })
 
+  // Arrange: a large scope exceeds the coordinator's evidence limit on both outcomes.
+  const largePaths = Array.from(
+    { length: 100 },
+    (_, index) =>
+      `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
+  )
+  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(largePaths) }
+  for (const testPath of largePaths) {
+    write(largeScopeProject, testPath, alignedTest.replace("when the widget is valid, ", ""))
+  }
+
+  // Act
+  const largeFailure = runStandalone(largeScopeProject, largeScope)
+  const boundedFailure = standaloneResult(largeFailure)
+  const fullFailureProcess = runStandalone(largeScopeProject, largeScope, ["--full"])
+  const fullFailure = standaloneResult(fullFailureProcess)
+
+  // Assert
+  assert.equal(largeFailure.status, 1)
+  assert.equal(fullFailureProcess.status, 1)
+  assert.equal(boundedFailure.status, "FAIL")
+  assert.equal(boundedFailure.summary, "100 test-alignment violation(s) found.")
+  assert.ok(boundedFailure.evidence.length <= 4000)
+  assert.ok(boundedFailure.evidence.includes(`${largePaths[0]}:4:`))
+  assert.match(boundedFailure.evidence, /Evidence shortened.*[\s\S]*--full/u)
+  assert.equal(fullFailure.status, "FAIL")
+  assert.equal(fullFailure.summary, boundedFailure.summary)
+  assert.ok(fullFailure.evidence.includes(`${largePaths[99]}:4:`))
+  assert.equal(fullFailure.evidence.split("\n").length, 100)
+
+  // Arrange: correct every file without changing selection.
+  for (const testPath of largePaths) write(largeScopeProject, testPath, alignedTest)
+
+  // Act
+  const largeSuccess = runStandalone(largeScopeProject, largeScope)
+  const boundedSuccess = standaloneResult(largeSuccess)
+  const fullSuccessProcess = runStandalone(largeScopeProject, largeScope, ["--full"])
+  const fullSuccess = standaloneResult(fullSuccessProcess)
+
+  // Assert
+  assert.equal(largeSuccess.status, 0)
+  assert.equal(fullSuccessProcess.status, 0)
+  assert.equal(boundedSuccess.status, "PASS")
+  assert.ok(boundedSuccess.evidence.length <= 4000)
+  assert.match(boundedSuccess.evidence, /Evidence shortened.*[\s\S]*--full/u)
+  assert.equal(fullSuccess.status, "PASS")
+  assert.equal(fullSuccess.summary, boundedSuccess.summary)
+  for (const testPath of largePaths) assert.ok(fullSuccess.evidence.includes(testPath))
+
+  // Arrange: expired suppression metadata can itself contain oversized diagnostics.
+  const expiredPath = "long-scope/".repeat(500)
+  write(
+    largeScopeProject,
+    ".marlens-verifications.json",
+    JSON.stringify({
+      suppressions: [
+        {
+          id: "marlens-rules:test-alignment",
+          path: expiredPath,
+          reason: "Legacy migration",
+          expiresOn: "2000-01-01",
+        },
+      ],
+    })
+  )
+
+  // Act
+  const largeBlocker = runStandalone(largeScopeProject, largeScope)
+  const boundedBlocker = standaloneResult(largeBlocker)
+  const fullBlockerProcess = runStandalone(largeScopeProject, largeScope, ["--full"])
+  const fullBlocker = standaloneResult(fullBlockerProcess)
+
+  // Assert
+  assert.equal(largeBlocker.status, 1)
+  assert.equal(fullBlockerProcess.status, 1)
+  assert.equal(boundedBlocker.status, "BLOCKED")
+  assert.ok(boundedBlocker.evidence.length <= 4000)
+  assert.match(boundedBlocker.evidence, /Evidence shortened.*[\s\S]*--full/u)
+  assert.equal(fullBlocker.status, "BLOCKED")
+  assert.ok(fullBlocker.evidence.includes(expiredPath))
+  assert.match(fullBlocker.evidence, /expired on 2000-01-01/u)
+
   console.log("Test alignment verification checks passed")
 } finally {
   rmSync(project, { recursive: true, force: true })
@@ -835,4 +918,5 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
   rmSync(combinedPhaseProject, { recursive: true, force: true })
   rmSync(regexProject, { recursive: true, force: true })
   rmSync(cliBlockedProject, { recursive: true, force: true })
+  rmSync(largeScopeProject, { recursive: true, force: true })
 }

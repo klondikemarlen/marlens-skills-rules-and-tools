@@ -2,6 +2,8 @@
 
 Use for thin Express handlers that delegate auth, domain work, and serialization.
 
+Authorization denials name the attempted action and resource: list/view for reads, create/update/delete for mutations. For example, say "You are not authorized to list invoices for this travel request", not "manage invoices"; an update or delete denial says "update this project" or "delete this project". Include useful parent context only when it is safe to disclose. Keep the established policy checks, status codes, and concealment contract: do not replace a deliberate 404 or generic denial with wording that reveals resource existence, private identifiers, or internal policy details.
+
 ## Template
 
 ```ts
@@ -83,7 +85,7 @@ async show() {
     return this.response.status(404).json({ message: "Workflow not found" })
   }
   if (!this.policy.canRead(workflow)) {
-    return this.response.status(403).json({ message: "Not authorized" })
+    return this.response.status(403).json({ message: "You are not authorized to view this workflow" })
   }
 
   return this.response.json({ workflow: serializeWorkflow(workflow) })
@@ -117,7 +119,7 @@ async show() {
   }
 
   if (!this.policy.canRead(workflowStep)) {
-    return this.response.status(403).json({ message: "Not authorized" })
+    return this.response.status(403).json({ message: "You are not authorized to view this workflow step in this workflow" })
   }
 
   return this.response.json({ workflowStep: serializeWorkflowStep(workflowStep) })
@@ -140,23 +142,27 @@ Keep missing-record and authorization responses in the action. Verify successful
 
 For a controller's own services, use direct named imports from the deepest supported matching resource entry point. For example, an invoice controller uses `import { CreateService, UpdateService } from "@/services/travel-desk-invoices"` when those exports exist, rather than importing the root `TravelDeskInvoices` namespace. Other-domain collaborators and service-to-service dependencies retain [Project-Root Imports and Paths](../../../references/code-organization-reference.md#project-root-imports-and-paths); do not add barrels or bypass public exports for this shape.
 
-Use the established named Lodash predicate for a query-value guard when Lodash is available and its semantics match the accepted input contract, following [Guard Clauses and Exceptional Responses](../../../references/code-organization-reference.md#guard-clauses-and-exceptional-responses). For example, in an action whose existing contract rejects non-string locators with 400:
+When the accepted controller contract forwards a request value to an existing service/model boundary, pass it unchanged. Do not add defensive type or locator-grammar checks merely because the value comes from a request, or move the same unnecessary checks into the service. This example assumes `LookupService` is the existing owner, accepts the established request-query type, and already uses safe query bindings; malformed values fail naturally in its downstream operation and reach the existing error middleware:
 
 ```typescript
-const { recordLocator } = this.query
-if (!isString(recordLocator)) {
-  return this.response.status(400).json({ message: "Record locator must be a string" })
-}
+export async function lookupFlight(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { recordLocator } = req.query
+    const flight = await LookupService.perform(recordLocator)
 
-const flight = await LookupService.perform(recordLocator)
+    res.json({ flight: serializeFlight(flight) })
+  } catch (error) {
+    next(error)
+  }
+}
 ```
 
-Import `isString` through the project's existing Lodash convention; `LookupService` stands for the existing owning service. Pass the narrowed value without coercion. Lodash also accepts boxed strings: preserve a deliberate primitive-only contract rather than broadening it for style.
+Retain independently required request validation, domain invariants, authorization, attribute filtering, and parameterized queries with their existing owners. If the actual API contract explicitly rejects non-string values with 400, preserve that contract and its established predicate semantics; predicate selection does not itself require a guard. Do not coerce or assert a request value into compatibility, swallow downstream failures, or add a replacement downstream guard to keep a controller thin.
 
 ## Checklist
 
 - [ ] Handler reads auth context from the project-standard location.
-- [ ] Missing records return 404.
-- [ ] Unauthorized access returns 403 before mutation.
-- [ ] Validation/attribute picking happens before service calls.
-- [ ] Errors flow through the project error middleware.
+- [ ] Missing/forbidden responses preserve the project's status and concealment contracts.
+- [ ] Authorization precedes sensitive reads and mutations; denial wording names the action/resource with only safe context.
+- [ ] Required validation/attribute filtering retains its existing owner; no unnecessary type/grammar guard is added or relocated.
+- [ ] Request values follow the accepted service/model handoff with safe query bindings; failures flow through the project error middleware.
