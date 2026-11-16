@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1388) - 2026-11-16
+
+### Changed
+
+- Name externally owned identifiers with external or provider-specific names while preserving local keys, provider mappings, and legitimate source terminology.
+
 ## [5.13.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1382) - 2026-11-16
 
 ### Fixed
