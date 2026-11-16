@@ -52,11 +52,12 @@ async function isolate(t) {
 }
 
 test(
-  "headless startup preserves due notices for the subsequent interactive user",
+  "when startup is headless, due notices remain for the next interactive user",
   {
     skip: process.platform !== "linux",
   },
   async (t) => {
+    // Arrange
     const directory = await isolate(t)
     const due = new Date(Date.now() - 60_000)
     const created = new Date(due.getTime() - 60_000)
@@ -81,6 +82,7 @@ test(
     })
     const plugin = capturePlugin(directory)
     const start = plugin.handlers.get("session_start")
+    // Act and Assert
     await start(
       {},
       {
@@ -109,7 +111,8 @@ test(
   }
 )
 
-test("creation review resolves the originating session before save, and declining saves nothing", async (t) => {
+test("when creation is reviewed, only acceptance saves the originating session", async (t) => {
+  // Arrange
   const directory = await isolate(t)
   const plugin = capturePlugin(directory)
   const sessionPath = join(directory, "original.jsonl")
@@ -133,6 +136,7 @@ test("creation review resolves the originating session before save, and declinin
       notify: (message) => notices.push(message),
     },
   }
+  // Act and Assert
   await command.handler("create tomorrow at 09:00 | UTC | Check the release", context)
   assert.equal((await loadState(directory)).reminders.length, 0)
   assert.match(reviews[0], /\[UTC\]/u)

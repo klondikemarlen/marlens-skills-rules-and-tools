@@ -53,18 +53,22 @@ function prepared(directory, message = "Check the release") {
   )
 }
 
-test("strict local dates reject both DST gaps and folds, while explicit offsets select the instant", () => {
+test("when time crosses DST, gaps and folds require an explicit offset", () => {
+  // Arrange: fixed historical transitions, not a future timezone-policy assumption.
+  const beforeGap = new Date("2024-03-09T20:00:00Z")
+  const beforeFold = new Date("2024-11-02T20:00:00Z")
+
+  // Act and Assert
   assert.throws(
-    () => resolveDue("tomorrow at 02:30", "America/Vancouver", new Date("2024-03-09T20:00:00Z")),
+    () => resolveDue("tomorrow at 02:30", "America/Vancouver", beforeGap),
     /nonexistent or ambiguous/u
   )
   assert.throws(
-    () => resolveDue("tomorrow at 01:30", "America/Vancouver", new Date("2024-11-02T20:00:00Z")),
+    () => resolveDue("tomorrow at 01:30", "America/Vancouver", beforeFold),
     /nonexistent or ambiguous/u
   )
   assert.equal(
-    resolveDue("2024-11-03T01:30:00-07:00", "America/Vancouver", new Date("2024-11-02T20:00:00Z"))
-      .dueAt,
+    resolveDue("2024-11-03T01:30:00-07:00", "America/Vancouver", beforeFold).dueAt,
     "2024-11-03T08:30:00.000Z"
   )
   assert.equal(
@@ -82,10 +86,12 @@ test("strict local dates reject both DST gaps and folds, while explicit offsets 
   }
 })
 
-test("private persistence survives a fresh process and cancellation affects only the exact reminder", async (t) => {
+test("when one reminder is cancelled, a fresh process retains the other", async (t) => {
+  // Arrange
   const directory = await isolated(t)
   const first = await createReminder(prepared(directory), directory, now)
   const second = await createReminder(prepared(directory, "Other task"), directory, now)
+  // Act and Assert
   await changeReminder(first.id, "cancel", directory)
   const cli = new URL("../../bin/omp-remind", import.meta.url).pathname
   const { stdout } = await execute(process.execPath, [cli, "--state-dir", directory, "list"])
@@ -97,10 +103,12 @@ test("private persistence survives a fresh process and cancellation affects only
   await assert.rejects(changeReminder("not-an-id", "cancel", directory), /exact ID/u)
 })
 
-test("desktop previews prioritize the message without exposing private session coordinates", async (t) => {
+test("when a reminder is due, its preview omits private session coordinates", async (t) => {
+  // Arrange
   const directory = await isolated(t)
   const record = await createReminder(prepared(directory), directory, now)
   let notification
+  // Act and Assert
   await dispatch(directory, {
     now: due,
     notify: (title, body) => {
@@ -120,7 +128,8 @@ test("desktop previews prioritize the message without exposing private session c
   assert.equal((await loadState(directory)).reminders[0].session.path, record.session.path)
 })
 
-test("overdue catch-up batches reminders once under concurrent dispatch, without invoking remembered tasks", async (t) => {
+test("when reminders are overdue, concurrent checks send one summary", async (t) => {
+  // Arrange
   const directory = await isolated(t)
   for (let index = 0; index < 8; index++) {
     await createReminder(
@@ -137,6 +146,7 @@ test("overdue catch-up batches reminders once under concurrent dispatch, without
     })
     await new Promise((done) => setTimeout(done, 30))
   }
+  // Act and Assert
   const firstDispatch = dispatch(directory, {
     now: due,
     notify,
@@ -169,9 +179,11 @@ test("overdue catch-up batches reminders once under concurrent dispatch, without
   assert.equal((await returningReminders(directory, due)).length, 0)
 })
 
-test("notification failures and interrupted claims are uncertain until an explicit retry", async (t) => {
+test("when delivery is uncertain, only an explicit retry resends the reminder", async (t) => {
+  // Arrange
   const directory = await isolated(t)
   const first = await createReminder(prepared(directory), directory, now)
+  // Act and Assert
   await assert.rejects(
     dispatch(directory, {
       now: due,
@@ -211,9 +223,11 @@ test("notification failures and interrupted claims are uncertain until an explic
   assert.equal((await loadState(directory)).reminders[1].status, "uncertain")
 })
 
-test("off prevents delivery and new saves; unavailable or replaced sessions never produce resume commands", async (t) => {
+test("when delivery is off or session identity changes, actions fail safely", async (t) => {
+  // Arrange
   const directory = await isolated(t)
   const record = await createReminder(prepared(directory), directory, now)
+  // Act and Assert
   assert.match(await resumeInstructions(record), /unavailable/u)
   await writeFile(
     record.session.path,
@@ -245,10 +259,12 @@ test("off prevents delivery and new saves; unavailable or replaced sessions neve
   assert.equal((await loadState(directory)).reminders[0].status, "pending")
 })
 
-test("malformed state fails closed without overwriting the durable file", async (t) => {
+test("when state is malformed, delivery fails without overwriting it", async (t) => {
+  // Arrange
   const directory = await isolated(t)
   const contents = '{"version":2,"reminders":[]}'
   await writeFile(join(directory, "state.json"), contents)
+  // Act and Assert
   await assert.rejects(dispatch(directory), /Invalid reminder state/u)
   assert.equal(await readFile(join(directory, "state.json"), "utf8"), contents)
 })
