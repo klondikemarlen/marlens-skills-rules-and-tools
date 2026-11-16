@@ -36,6 +36,7 @@ For a stacked child PR, prefer rebasing onto its freshly fetched actual parent r
 6. Review `git range-diff <old-parent-boundary>..<saved-child-tip> <fetched-parent>..<new-child-tip>`, the final diff, and affected behavior. Account for intentional conflict resolutions and run the smallest relevant smoke/check plus required current-head CI.
 
    When supported by the installed Git and appropriate to the intended integration, optionally run [`git merge-tree --write-tree <fetched-parent> <saved-child-tip>`](https://git-scm.com/docs/git-merge-tree). Only a conflict-free result is a comparison baseline: compare its tree OID with `git rev-parse HEAD^{tree}`. Equality proves full-tree content parity with that clean combination, not behavioral correctness; a difference needs explanation or restoration of missing intent, not blind tree replacement. A conflicted merge-tree result is not a valid expected tree.
+
 7. Update a published child only when that exact rewrite is authorized, using the recorded expected-remote-SHA lease shown below. If the remote changed, stop and inspect/preserve that work; do not retry by blindly refreshing the lease or silently merge the parent as a substitute for authorization.
 
 ## Restoring Deleted Features
