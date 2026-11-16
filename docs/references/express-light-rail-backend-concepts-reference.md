@@ -52,21 +52,69 @@ Here `TagsNameUniqueIndex` is the TypeScript declaration identity; `tags_name_un
 
 ## Migration Field Groups
 
-While authoring migrations or doing requested organization cleanup, group columns by role: main fields, timestamps, then extras, with blank lines between groups. Classify from the actual schema, not alphabetically. For example, in an existing Knex migration:
+For new or actively reviewed unreleased Knex migrations, use three blank-line-separated groups inside each table definition:
+
+1. Ordinary columns, including foreign-key column types/nullability and JSON/JSONB data. A business timestamp belongs here when it is ordinary domain data.
+2. Lifecycle timestamps, such as the schema's existing created, updated, and deleted timestamps.
+3. Table-level foreign-key references, unique indexes/constraints, other indexes, and check constraints.
+
+Keep column modifiers such as types, defaults, and nullability with their columns; move inline references and unique declarations into the final table-level group. Omit absent groups rather than inventing fields. This Knex convention does not apply to unrelated schema DSLs or authorize appearance-only edits to released migrations. For example, this complete unreleased PostgreSQL migration violates the grouping:
 
 ```typescript
-await knex.schema.createTable("source_events", (table) => {
-  table.increments("id")
-  table.string("source_identifier").notNullable().unique()
+import type { Knex } from "knex"
 
-  table.timestamp("created_at").notNullable().defaultTo(knex.fn.now())
-  table.timestamp("updated_at").notNullable().defaultTo(knex.fn.now())
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.createTable("source_events", (table) => {
+    table.increments("id")
+    table.integer("source_id").nullable().references("id").inTable("sources").onUpdate("CASCADE").onDelete("SET NULL")
+    table.string("source_identifier").notNullable().unique({ indexName: "source_events_identifier_unique" })
+    table.integer("attempt_count").notNullable().defaultTo(0)
+    table.check("attempt_count >= 0", [], "source_events_attempt_count_check")
 
-  table.jsonb("source_snapshot").nullable()
-})
+    table.timestamp("created_at").notNullable().defaultTo(knex.fn.now())
+    table.timestamp("updated_at").notNullable().defaultTo(knex.fn.now())
+    table.timestamp("deleted_at").nullable()
+
+    table.jsonb("source_snapshot").nullable()
+  })
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTable("source_events")
+}
 ```
 
-This illustrates layout, not fields or defaults to adopt. Preserve column types, defaults, nullability, constraints, and behavior; do not reorder unrelated existing schemas or released migrations merely for appearance. Follow [Self-Contained Migrations](code-organization-reference.md#self-contained-migrations) for migration ownership and history.
+The corrected migration keeps the same schema and rollback while separating the three groups:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.createTable("source_events", (table) => {
+    table.increments("id")
+    table.integer("source_id").nullable()
+    table.string("source_identifier").notNullable()
+    table.integer("attempt_count").notNullable().defaultTo(0)
+    table.jsonb("source_snapshot").nullable()
+
+    table.timestamp("created_at").notNullable().defaultTo(knex.fn.now())
+    table.timestamp("updated_at").notNullable().defaultTo(knex.fn.now())
+    table.timestamp("deleted_at").nullable()
+
+    table.foreign("source_id").references("id").inTable("sources").onUpdate("CASCADE").onDelete("SET NULL")
+    table.unique(["source_identifier"], { indexName: "source_events_identifier_unique" })
+    table.check("attempt_count >= 0", [], "source_events_attempt_count_check")
+  })
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTable("source_events")
+}
+```
+
+These illustrate layout, not fields or defaults to adopt; the referenced `sources` table already exists. Inspect the installed Knex API and production dialect before translating column modifiers to table-level declarations. Preserve every type, default, nullability, FK column/target/schema/action/deferrability, indexed field/order, uniqueness, database constraint/index name (including a previously generated name), predicate, and check expression/binding. Do not turn a partial unique index into an unconditional constraint or alter enforcement merely to fit the example. Implicit primary keys such as `increments` retain their existing column API. When equivalent syntax or migration release status cannot be established, report the missing prerequisite instead of guessing or rewriting history. Follow [Self-Contained Migrations](code-organization-reference.md#self-contained-migrations) for ownership and history.
+
+Author through the [backend workflow](../workflows/express-light-rail-backend-workflow.md), review through the [code-review workflow](../workflows/code-review-workflow.md), and exercise the [scoped migration review cases](../../examples/scoped-readability-review.md#knex-migration-constraint-groups). The existing scoped-readability contract checks this rule; installation and structural checks alone do not establish semantic compliance.
 
 ## Sequelize: Explicit Find, Update, or Create
 
