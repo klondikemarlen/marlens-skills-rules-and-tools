@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1370) - 2026-11-16
+
 ### Added
 
 - Compose PR review, current-head Codex feedback, fixes, and authorized merge with `review-and-merge`; administrative override remains explicit and does not waive verification.
