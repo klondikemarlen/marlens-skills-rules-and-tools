@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1385) - 2026-11-16
+
+### Changed
+
+- Prefer the established seed system for built-in reference records while preserving migration-owned data conversions and released migration history.
+
 ## [5.13.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1393) - 2026-11-16
 
 ### Changed
