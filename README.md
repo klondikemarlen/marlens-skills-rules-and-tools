@@ -56,7 +56,7 @@ For a narrower task:
 
 Use [`triage`](skills/triage/SKILL.md) to assess tickets and apply supported evidence-backed updates without starting implementation. Add “assessment only” or “no writes” when you want a read-only assessment. Triage is not implementation approval.
 
-Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights from a given OMP chat: `/skill:data-mine <session ID or path>`, or supply the transcript. Standalone mining is read-only unless you authorize follow-up actions. `wrap-up` uses the same workflow for the current session and completed task's commits.
+Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights from a given OMP chat: `/skill:data-mine <session ID or path>`, or supply the transcript. You can also request “mine this project's memory and global memory separately”; explicitly request internalization and regeneration to deliver reusable gaps into repository guidance and refresh derived OMP memory. Standalone mining is read-only unless you authorize follow-up actions. `wrap-up` uses the same workflow for the current session and completed task's commits.
 
 Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for “review, get Codex review, and merge if no changes are required”: `/skill:review-and-merge <PR URL>`. By default, required fixes are made and verified, but the PR stays open for your merge approval. Explicitly say “fix findings and merge after fixes” to authorize that path. Add `with override` only to authorize bypassing an administrative merge restriction for that PR; it does not authorize merging after fixes or waive requested review and verification.
 

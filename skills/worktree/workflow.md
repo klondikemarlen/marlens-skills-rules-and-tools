@@ -11,6 +11,8 @@ For new repository implementation work, default to an appropriate separate Git w
 - For genuinely new implementation with no selected continuation, create the appropriate same-repository worktree using this workflow and the project's branch/path conventions. Prepare its own documented runtime environment; preserve primary and unrelated checkouts.
 - Read-only investigation does not require a new worktree. Follow deliberate project-local exceptions rather than mechanically creating one.
 
+Do not synchronize a dirty primary checkout by relying on configured Git autostash: even a fast-forward can conflict when unrelated edits are restored. Leave those edits and the primary checkout untouched while working in the task-owned worktree. Before authorized primary synchronization, establish clean state and disable automatic stashing for that operation; preserve unrelated changes through an explicitly agreed disposition rather than reconciling or committing them as incidental cleanup.
+
 Before creating or resuming an implementation worktree for a ticket, apply [Ticket Source Selection](../feature/workflow.md#ticket-source-selection) and [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle): verify the authoritative ticket, assign the intended person, and move it into the project's active-work state. Preserve its exact key in the project-approved branch format; never infer a Jira key from a GitHub issue number. A worktree or draft-PR request is a work-start event, not just Git setup. Read-only inspection does not claim the ticket.
 
 ## Continue an Existing Pull Request

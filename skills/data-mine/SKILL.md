@@ -1,6 +1,6 @@
 ---
 name: data-mine
-description: Extract insights from a selected OMP chat session, session ID/path, or supplied transcript; also mine current-session and task commit-history lessons during wrap-up.
+description: Extract evidence-backed insights from selected OMP sessions, bounded commit history, or separately selected project/global memory banks; reconcile authorized reusable findings into repository guidance and regenerate derived convention memory.
 ---
 
 # Data Mine
