@@ -32,6 +32,10 @@ The naming, Arrange/Act/Assert, and `one-direct-expect` directives remain accept
 
 The shared default is **exactly one `expect` per non-controller test**, proving one observable contract. It is not merely an at-most-one rule or a local opt-in. Independent persistence effects, saves, and other independently meaningful outcomes belong in separate focused tests. Do not hide assertions in Arrange, Act, hooks, or helpers, bundle `.mock.calls`, weaken expected payloads, or fabricate summary objects to meet the count.
 
+Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) as the canonical owner for meaningful success and negative coverage in every authored or modified test file, actual-subject filenames/`describe` scopes, independent workflow ownership, and explicit scenarios versus readable utility tables. Assess the complete file and relevant subject/setup, not names, token positives, or counts. Rejection-only tests lack a successful setup control; an exact successful result plus relevant association regressions can establish both outcomes. Missing necessary source/setup evidence is `BLOCKED`, not compliance. Native `node:assert` remains supported.
+
+Apply [Human Readability](code-organization-reference.md#human-readability) to multi-property expected object literals, including partial matchers: one property per line even within formatter width, preserving values, order, and matcher semantics. Compact single-field arguments remain allowed.
+
 Controller tests are the exception: direct meaningful status and body assertions may remain together to prove the response contract. Prefer a native or meaningful matcher such as [`toHaveHttpResponse`](http-response-matcher-reference.md) when it naturally expresses that contract, but do not force its adoption or replace clear direct controller assertions with a synthetic wrapper. The exception does not justify bundling independent persistence effects.
 
 Controller classification uses an explicit path convention: a `controller/` or `controllers/` directory segment (case-insensitive), or a filename ending `.controller.test.<extension>`, `.controller.spec.<extension>`, `-controller.test.<extension>`, `-controller.spec.<extension>`, `_controller.test.<extension>`, `_controller.spec.<extension>`, `Controller.test.<extension>`, or `Controller.spec.<extension>` with the PascalCase `Controller` suffix. Extensions are the check's supported JavaScript/TypeScript extensions. HTTP usage or a variable named `response` does not classify a test as a controller.
@@ -47,7 +51,16 @@ expect({ status: response.status, body: response.body }).toEqual({
 })
 ```
 
-A real returned object or array is a valid direct assertion target: `expect(result).toEqual({ id: 7, name: "Widget" })` and `expect(records).toEqual([{ id: 7 }])` compare actual contracts, not synthetic wrappers. An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
+A real returned object or array is a valid direct assertion target, not a synthetic wrapper:
+
+```typescript
+expect(result).toEqual({
+  id: 7,
+  name: "Widget",
+})
+```
+
+Likewise, `expect(records).toEqual([{ id: 7 }])` compares an actual collection contract. An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
 
 When the full expected collection is known, compare the complete returned collection directly rather than wrapping its expected members in `expect.arrayContaining`. Adding `toHaveLength(...)` to the subset assertion is not the preferred replacement: express the complete-result contract in the collection expectation itself. Partial object matchers may still appear inside that complete expected array when incidental record fields are outside the contract:
 

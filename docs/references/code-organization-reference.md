@@ -110,6 +110,19 @@ Retain a local for meaningful computation or a required snapshot. Return the pro
 
 Keep simple single-field object type annotations and object arguments inline when they fit readably: `const response: { id: string } = await request()` and `logger.error(message, { error })`. Wrap a long surrounding request chain independently; the small shape need not expand with it. Retain multiline complex shapes, test expectations, and stronger project conventions.
 
+Expand multi-property expected object literals one property per line, including objects passed to partial matchers, even when they fit within formatter print width:
+
+```typescript
+expect(result).toEqual(
+  expect.objectContaining({
+    id: cachedBookingEvent.id,
+    deletedAt: null,
+  })
+)
+```
+
+Keep the literal values, partial-matcher semantics, and property order unchanged. Compact single-field arguments such as `expect.objectContaining({ id: record.id })` remain allowed; do not collapse existing multiline expectations or sweep unrelated files. A formatter accepting a compact multi-property literal does not establish readability compliance.
+
 In named input declarations, group required members before optional members, preserving their relative order within each group where possible. This is declaration organization: preserve names, types, nullability, optionality, defaults, positional APIs, evaluation order, and runtime behavior. Do not reorder value expressions or sweep unrelated files. For Vue prop examples, see [Multiline Prop Object Types](vue-component-authoring-reference.md#multiline-prop-object-types).
 
 For straightforward persistence payloads made only from stable, already-available fields, prefer an explicit object literal at the creation call instead of staging a trivial `attributes` object and spreading it later. Keep the creation fields visible even when the same simple fields appear in current- and future-period calls. For example, replace this staging:
@@ -688,7 +701,11 @@ Use structure as evidence, not a numeric proxy. Do not impose line-count, functi
 
 Verification code should expose each independently observable contract through a named scenario. Keep literal fixture data beside the scenario it explains. Share only repeated mechanics, such as writing a file or invoking a command, when their names clarify the setup; do not create a generic fixture builder.
 
-Use separate self-contained tests when scenarios require different control flow, such as transaction commit versus rollback. Intentional duplicate setup is clearer than `shouldRollback` flags, conditional Acts, or conditional expected-data bundles. Keep homogeneous input/output tables when the Act and assertion structure genuinely remain the same.
+Name test files and `describe` scopes for the actual subject whose result is asserted: a test of `SummaryHeaderPanel` belongs in `SummaryHeaderPanel.test.ts`, not a file named for a child it happens to render. Estimated and actual travel workflows may look alike today but have independent reasons to change; keep their scenarios independently owned. Share infrastructure, established factories, and genuinely shared invariant tests, not helpers or component-family parameterization justified only by coincidentally similar setup. This is not a requirement to create a test file for every source file.
+
+Prefer separate explicit tests with concrete setup and literal expectations for distinct behavioral scenarios, even when their Act and assertion shapes match. Three missing-association scenarios should each name and omit their concrete relationship, not assign `travelOrderEvent[association]` and interpolate an error message. Different control flow, such as commit versus rollback, also needs self-contained tests. Intentional duplicate setup is clearer than scenario flags, conditional Acts, or computed expected-data bundles.
+
+Parameterization needs a clear readability win and a genuinely shared invariant, not merely fewer lines or identical assertion syntax. Homogeneous transformation-utility input/output tables remain useful; this is not a ban on `test.each`. See the [contrasting scenario examples](../../examples/test-assertion-focus.md#meaningful-scenarios-and-independent-ownership).
 
 Place a single-use literal case table directly at its `describe.each` or `test.each` call rather than declaring a detached `registrationForms` constant. Keep case names, callback references, types, and scenario data explicit:
 
@@ -714,7 +731,11 @@ Here the existing callbacks operate on the scenario's arranged account; the tabl
 
 Control the clock explicitly in time-dependent tests rather than relying on wall time or fixed fixture dates alone. With Vitest, use `vi.useFakeTimers()` and `vi.setSystemTime(...)`; use `await vi.advanceTimersByTimeAsync(...)` when scheduled callbacks are the behavior. Restore real timers through the suite's cleanup owner. For integration tests needing only application-date control while network/database timers must progress, use `vi.useFakeTimers({ toFake: ["Date"] })`. This does not freeze the database server's clock; choose fixtures or a supported database-time mechanism for that separate boundary.
 
-Pair positive-path coverage with at least one meaningful negative control for the same application-owned boundary. Choose a plausible rejected or excluded case that would expose incorrect fixtures, missing filtering, or missing authorization—not an unrelated error. Reuse existing coverage when it already protects that boundary; the purpose is detecting ineffective tests, not meeting an assertion quota or creating an exhaustive matrix.
+Every authored or modified test file must contain at least one meaningful successful scenario and one meaningful negative scenario for its subject. The success must assert a relevant observable result that establishes fixture/setup validity; the negative must prove a relevant rejection, absence, exclusion, or contrasting outcome. A rejection-only file can pass with universally broken setup. A bare not-to-throw check, a test named “positive,” an unrelated token success, or positive coverage only in another file does not establish this control.
+
+Inspect the complete file and needed subject/setup/helpers, not test names or positive/negative counts. Reuse qualifying scenarios already in that file; do not add redundant tests or an exhaustive matrix. Preserve native assertion frameworks, including `node:assert`. If source or setup needed to establish relevance is missing, report the exact review limitation rather than claim compliance. Authoring and review use this same rule; the [semantic assertion-focus check](test-alignment-verifier-reference.md#semantic-assertion-focus-check) assesses it, not a syntax counter.
+
+For example, a final-destination service file with only missing-departure and missing-arrival rejection tests lacks a successful setup control. Add an independently arranged complete two-leg itinerary and assert the exact final location while retaining both association regressions. The successful result demonstrates usable fixtures; the rejections protect the same subject's invalid-input behavior.
 
 For SQL `LIKE` escaping, include literal input containing the production dialect's metacharacters and a plausible wildcard-shaped distractor. Assert the intended literal match and exclusion of the distractor through the actual query boundary; ordinary input alone cannot detect missing escaping. Preserve the query's case, collation, and escape-character contract.
 
