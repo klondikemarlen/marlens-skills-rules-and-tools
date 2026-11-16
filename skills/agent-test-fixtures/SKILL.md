@@ -1,6 +1,6 @@
 ---
-name: test-fixtures
-description: Use when TypeScript tests need reusable persisted relationships, API entity fixtures, or composable HTTP response mocks, including frontend component tests.
+name: agent-test-fixtures
+description: Internal implementation procedure for agents arranging TypeScript test fixtures with reusable persisted relationships, API entities, or composable HTTP response mocks, including frontend component tests.
 ---
 
 # Test Fixtures

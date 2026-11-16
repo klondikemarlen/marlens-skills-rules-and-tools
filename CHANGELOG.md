@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.13.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1393) - 2026-11-16
+
+### Changed
+
+- Rename the internal `test-fixtures` skill to `agent-test-fixtures`; use the new name for explicit invocation. Human-facing and dual-use skills keep their existing names. The prefix indicates intended use without hiding skills or restricting access.
+
 ## [5.13.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1391) - 2026-11-16
 
 ### Changed

@@ -62,6 +62,8 @@ Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for “review, get Co
 
 In OMP, type `/skill:` to browse the full catalog. Specialist entrypoints include [`feature`](skills/feature/SKILL.md), [`code-review`](skills/code-review/SKILL.md), [`test-guide`](skills/test-guide/SKILL.md), and [`jira-report`](skills/jira-report/SKILL.md). Agents can also discover the relevant skill from its task description.
 
+Skills prefixed with `agent-`, such as [`agent-test-fixtures`](skills/agent-test-fixtures/SKILL.md), are internal implementation procedures normally selected by an agent within a larger task. Human-facing outcome skills and dual-use workflows keep their short names; a specialist skill is not automatically internal. The prefix is a naming convention, not an access restriction or autocomplete filter: you can still invoke `/skill:agent-test-fixtures` explicitly, and agents discover it by description.
+
 These workflows respect project-local instructions and the task's authorization. Neither `evolve` nor `wrap-up` exits OMP unless you explicitly ask for exit after completion.
 
 ### Choose the Work Level
