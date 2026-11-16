@@ -11,13 +11,19 @@ Use when writing or updating pull request testing instructions.
 5. Verify exact UI labels, routes, commands, and required setup from source or a running app. Do not guess.
 6. Write steps in execution order, checking each action is available in the state produced by the previous action. When repairing instructions, preserve the scenario's intended transitions and invariant coverage: restore a required real user action rather than moving setup earlier if that removes the behavior under test. For a completed-record edit scenario, this may mean reopen/revert, reassign/edit, then re-complete; an initial-assignment scenario needs no unnecessary revert.
 7. Write the user-visible end-user/QA checks first, in the order a reviewer can perform them. Keep any local developer setup or developer-only checks in a separate section afterward when needed; the project's existing PR template chooses section labels and structure, so do not impose a new heading or skeleton.
-8. State real prerequisites before the first action that needs them, even when developer setup is presented afterward. Keep end-user scenario prerequisites distinct from optional or developer-only checks; do not move a prerequisite later if doing so makes an earlier action unavailable or changes the behavior under test.
-9. Give each scenario enough tester-facing context to identify where the tester is, the starting state, the action, and the expected result. Use exact labels or values when they matter. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end.
+8. State short, real prerequisites before the first action that needs them, even when developer setup is presented afterward. Keep end-user scenario prerequisites distinct from optional or developer-only checks; do not move a prerequisite later if doing so makes an earlier action unavailable or changes the behavior under test.
+9. Give each scenario enough tester-facing context to identify where the tester is and the starting state, then pair concrete actions with nearby observable results. Distinguish what should change from what must remain unchanged, and check the named invariant after relevant actions, not only at the end. Remove process commentary that does not help the tester perform or evaluate the check; keep required setup, transitions, and coverage.
 10. Separate independent scenarios with numbered test cases when the flow is complex.
 
 ## Reviewer and Data Feasibility
 
 Choose scenarios for the reviewer's actual environment and permissions, not the agent's local proof. For deployed/shared environments, explain how to find suitable existing records through verified normal UI filters, search, or navigation, and state the observable properties that make them suitable. Expect mixed unrelated data and unknown personal history; do not require local fixture names, IDs, fixed counters, or a pristine dataset.
+
+Use established environment permissions and scoped maintainer authorization. When application-data changes are already permitted, write the test directly; do not add redundant owner-consent gates, agreed-record requirements, or warnings about protecting production users without evidence they apply. Retain documented or evidenced safeguards for shared or restricted environments. A UAT or non-production label alone proves neither unrestricted access nor disposability; keep environment-specific permissions in the owning project, not this shared workflow.
+
+Permission to modify test application data does not authorize production changes, external directory changes, account/provider administration, or unrelated systems. Establish the actual scope rather than extending application-data permission across those boundaries.
+
+Include cleanup only when needed for isolation, repeatability, resource cost, or explicit environment policy. Name the affected test records/resources and the reason for restoring or removing them; omit automatic cleanup boilerplate when no such need exists. Do not treat a state transition under test, such as re-completing a reopened record, as optional cleanup.
 
 Keep manual setup small and practical. Do not require database access, counter resets, bulk generation, or repeated actions solely to manufacture usage thresholds. Separate observable manual checks from exact algorithm, ranking-weight, threshold, and edge-case proof in controlled developer tests; preserve that precise coverage rather than describing a plausible displayed order as mathematical proof.
 
@@ -78,7 +84,7 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 - Prefer user-visible verification over internal plumbing.
 - Include setup commands only when they are needed for the scenario.
 - Use exact labels for buttons, fields, tabs, pages, and messages.
-- Write from the tester's point of view: explain where they are, what state they should start from, what to do, and what should happen next. Use plain user-facing terms; implementation-specific UI terminology is optional.
+- Write from the tester's point of view: explain where they are, the starting state, one primary action per numbered step, and its nearby visible result. Use plain user-facing terms and exact product labels; briefly explain unfamiliar product terms needed to follow the scenario instead of substituting implementation jargon.
 - Screenshots are optional supporting evidence. Do not require agents to create or annotate screenshots, and do not rely on an image to supply missing action or expected-result context.
 - Do not include credentials, secrets, or local-only state values.
 - If something was not verified, say so explicitly.
@@ -94,15 +100,14 @@ This evidence-ownership guidance is adapted from Tura's [contribution guide](htt
 
 Prerequisite: <required app/account/data state, established before the first action that needs it>.
 
-1. Navigate to `<page>`.
-2. Perform `<action>`.
-3. Verify `<observable result>`.
+1. Open `<page>` and confirm its visible heading.
+2. Perform `<one primary action>`; confirm `<visible result>`.
 
 ### <project template's developer setup/checks section, when needed>
 
 Prerequisite: <local developer environment or credentials, when required by these checks>.
 
-1. Run `<focused developer check>`.
+1. Run `<focused developer check>` and confirm `<check result>`.
 ```
 
 Use the project's existing template headings and structure; these labels illustrate ordering, not required new headings.
