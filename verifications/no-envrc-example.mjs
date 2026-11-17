@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process"
 import { statSync } from "node:fs"
-import { resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+
+import { isMainModule } from "../lib/is-main-module.mjs"
 
 const FORBIDDEN_PATH = ".envrc.example"
 
@@ -65,6 +65,6 @@ export function runVerification(projectDirectory = process.cwd()) {
   )
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   process.stdout.write(`${JSON.stringify(runVerification())}\n`)
 }

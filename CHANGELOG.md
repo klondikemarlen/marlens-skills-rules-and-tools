@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1429) - 2026-11-17
+
+### Fixed
+
+- Emit verifier JSON when invoked through a linked package or executable symlink. Keep imports silent and preserve each check's result and exit status.
+
 ## [5.14.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1415) - 2026-11-17
 
 ### Fixed

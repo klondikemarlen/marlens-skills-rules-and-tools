@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process"
 import { lstatSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
+
+import { isMainModule } from "../lib/is-main-module.mjs"
 
 const DEFAULT_MAX_LINES = 1200
 const SOURCE_EXTENSIONS = new Set([
@@ -250,6 +251,6 @@ export function runStagedVerification(projectDirectory = process.cwd(), environm
   )
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   process.stdout.write(`${JSON.stringify(runVerification())}\n`)
 }

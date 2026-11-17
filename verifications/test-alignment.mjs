@@ -1,9 +1,10 @@
 import { execFileSync } from "node:child_process"
 import { existsSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
 
 import ts from "typescript"
+
+import { isMainModule } from "../lib/is-main-module.mjs"
 
 const DIRECTIVES = {
   "test-name-when": {
@@ -597,7 +598,7 @@ export function runVerification(
   return verification
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   const verification = runVerification(process.cwd(), process.env, {
     full: process.argv.includes("--full"),
   })
