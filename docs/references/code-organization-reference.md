@@ -69,7 +69,7 @@ Before explaining an initialization or import-order workaround with a comment, c
 
 ### Function Calls Before Construction
 
-Do not perform function calls inside array or object definitions. Evaluate calls into descriptive named variables before constructing the array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep the construction declarative and each operation inspectable; do not add placeholder aliases for already-available values.
+By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [simple serializer projection exception](#simple-serializer-projections) below permits inline field selection when extraction adds no meaning.
 
 Keep each evaluation within its original execution scope: a branch, loop iteration, callback invocation, lazy getter, or transaction must still own its work. Preserve evaluation count and left-to-right order, conditional/short-circuit execution, receiver binding, async/concurrent starts and awaits, rejection ownership, spread precedence, and returned identity. Capture intervening effectful property/index reads at their original evaluation points when needed; do not hoist a later call ahead of an earlier getter or turn concurrent starts into sequential awaits.
 
@@ -90,6 +90,31 @@ function buildPreview(rows: Row[], container: Container, isVisible: boolean) {
 The calls still run only for a visible preview, in the original order, and the returned object contains the exact computed values. A function body defined inside an object or array remains deferred: extract a call inside that body at invocation time, never into construction-time setup. For native test factories, apply the same rule within each scenario's Arrange scope; factory API and association choices remain owned by [Scenario-Oriented Verification](#scenario-oriented-verification).
 
 For a meaningful computed result consumed by another nested call, also prefer a descriptive local when it makes the processing step inspectable and gives a useful debugger breakpoint. Preserve short-circuit execution and avoid trivial aliases or wrappers; the general construction rule above does not make every other nested expression a violation.
+
+#### Simple Serializer Projections
+
+A simple field projection such as `...pick(record, [fields])` may stay inline in a serializer response when it makes the output shape clearer and a one-use temporary adds no meaning. Do not introduce an `attributes` alias solely because the projection is a function call. Preserve expanded field lists and existing local conventions; this exception does not justify compacting or rewriting unrelated serializers.
+
+For example, inside a serializer with an existing `serializeDepartureTime` helper:
+
+```typescript
+perform() {
+  const departureTime = this.serializeDepartureTime(this.record.departureTime)
+
+  return {
+    ...pick(this.record, [
+      "id",
+      "departureOn",
+      "arrivalLocationId",
+    ]),
+    departureTime,
+  }
+}
+```
+
+The projection selects unchanged fields; `departureTime` names a meaningful transformation. Keep meaningful transformation/serialization stages, reused results, effectful operations, asynchronous work, and required sequencing explicit. This is not permission to inline every synchronous call, nested serializer, factory, or query. The inline projections in [Repeated Serializer Normalization](#repeated-serializer-normalization), [Serializer Timestamp Conversion](#serializer-timestamp-conversion), and [Private Helper Inputs](#private-helper-inputs) use this same exception.
+
+Preserve evaluation count and order, selected fields, and spread precedence. The example assumes the time transformation already precedes the projection; do not move it across the projection merely to match the example. A projection can read getters or proxies: when those reads are effectful or order-sensitive, retain their original evaluation points and any meaningful sequencing locals.
 
 ### Simple Construction and Values
 

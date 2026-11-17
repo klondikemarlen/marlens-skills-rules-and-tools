@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1415) - 2026-11-17
+
+### Fixed
+
+- Allow simple inline serializer field projections without meaningless one-use aliases, while retaining explicit transformations and sequencing. Align authoring guidance, review scenarios, and the semantic review contract.
+
 ## [5.14.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1395) - 2026-11-16
 
 ### Added
