@@ -6,7 +6,7 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
-## 5.14.5 - 2026-11-17
+## [5.14.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1437) - 2026-11-17
 
 ### Changed
 
