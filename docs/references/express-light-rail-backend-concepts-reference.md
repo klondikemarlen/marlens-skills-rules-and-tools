@@ -375,6 +375,59 @@ return {
 
 This represents an existing response with those four fields and a required `Date` timestamp. Use the typed private helper under [Serializer Timestamp Conversion](code-organization-reference.md#serializer-timestamp-conversion) when Luxon is available, retaining the actual date contract. Retain the actual field list, nullability, timestamp conversion, and relation serializers; never spread the whole model or replace the allowlist with an exclusion list. Use this preference only where the installed utility preserves the existing response shape, including optional/missing-property behavior. Do not add a dependency solely for this syntax, rewrite unrelated serializers, or infer an identifier-naming convention from the example.
 
+## Human-Facing Report Formatting
+
+When a server-generated report serializer owns display presentation, destructure source attributes in `perform()`, pass them to named private `formatXyz` methods, and evaluate the formatted results into descriptive locals before constructing the report object. The methods own formatting and blank-value handling without reaching back into `this.record`; combined fields accept the explicit attributes they need. This applies [Private Helper Inputs](code-organization-reference.md#private-helper-inputs) and [Function Calls Before Construction](code-organization-reference.md#function-calls-before-construction) to meaningful report formatting, not to unchanged field projections.
+
+For example, these methods belong inside an existing report serializer whose contract uses uppercase airline labels, blank strings for absent presentation values, two decimal places for amounts, and date-only ranges displayed as `MMM d, yyyy`:
+
+```typescript
+perform() {
+  const { id, invoiceDetailVendorName, amount, departureDate, returnDate, isApproved } = this.record
+  const formattedAirline = this.formatAirline(invoiceDetailVendorName)
+  const formattedAmount = this.formatAmount(amount)
+  const formattedDateRange = this.formatDateRange(departureDate, returnDate)
+
+  return {
+    id,
+    airline: formattedAirline,
+    amount: formattedAmount,
+    dateRange: formattedDateRange,
+    isApproved,
+  }
+}
+
+private formatAirline(vendorName: string | null | undefined): string {
+  if (isNil(vendorName)) return ""
+
+  return vendorName.trim().toUpperCase()
+}
+
+private formatAmount(amount: number | null | undefined): string {
+  if (isNil(amount)) return ""
+
+  return amount.toFixed(2)
+}
+
+private formatDateRange(
+  departureDate: string | null | undefined,
+  returnDate: string | null | undefined
+): string {
+  if (isNil(departureDate) || isNil(returnDate)) return ""
+
+  const formattedDepartureDate = DateTime.fromISO(departureDate).toFormat("MMM d, yyyy")
+  const formattedReturnDate = DateTime.fromISO(returnDate).toFormat("MMM d, yyyy")
+
+  return `${formattedDepartureDate} – ${formattedReturnDate}`
+}
+```
+
+Here `isNil` and `DateTime` use the project's existing nil predicate and Luxon imports; the dates are already validated ISO calendar-date strings. The explicit amount guard preserves `0` as `"0.00"`, the unformatted `isApproved` preserves `false`, and blank airline text remains `""`. Pass unchanged attributes directly; do not add pass-through `formatId`/`formatIsApproved` wrappers or meaningless temporary aliases. [Simple Serializer Projections](code-organization-reference.md#simple-serializer-projections) remain valid for unchanged allowlists.
+
+Adapt to the existing report contract rather than imposing these example defaults. Preserve null versus undefined/omission, meaningful empty strings and false values, accepted casing/blank behavior, date-only versus instant/timezone semantics, locale, currency and rounding precision, invalid-input handling, and required association preload errors. Keep required preload guards at the entrypoint before formatting; a blank formatter fallback must not conceal an unloaded association. Follow [Serializer Timestamp Conversion](code-organization-reference.md#serializer-timestamp-conversion) for actual timestamp inputs rather than treating them as calendar dates.
+
+Presentation does not transfer business ownership: totals, eligibility, rates, and other domain computations stay in their existing domain/service owners; the report serializer formats their results. Ordinary machine-facing API serializers retain their transport types and contracts rather than adopting human-facing display strings. Review every report serializer added or meaningfully changed within the accepted scope, not unrelated existing serializers. Consumers should reference this shared owner rather than copy the pattern into local READMEs, and claim adoption only after the published guidance is actually available in their resolved shared source.
+
 ## Serializer Model Ownership
 
 A serializer normally standardizes the representation of its input model. Keep local-model output recognizable as that model's data: a `TravelDeskBookingEvent` response retains `externalTravelPortIdentifier`, rather than renaming it to the remote model's `travelOrderIdentifier` merely to resemble that model. Ordinary formatting, computed response fields, and intentional presentation aliases remain valid; they do not require a new service.
