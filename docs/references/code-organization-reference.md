@@ -2304,6 +2304,8 @@ For a private functional helper, accept each value it uses as an explicit parame
 
 Pass values explicitly when the caller already has them or the helper's result can be described from its arguments. Keep reads through `this` when the helper is inherently bound to object state, such as coordinating the instance lifecycle, mutating owned state, or using a cache whose identity belongs to the object. Do not add artificial parameters that merely restate that bound identity. For service-class conventions, see [Service Orchestration Readability](#service-orchestration-readability).
 
+For download helpers and services with an explicit HTTP response or writable output, keep that dependency first across related helper signatures, service entrypoints, constructors, and calls. Pass it explicitly rather than retrieving the response from hidden instance state. A service accepting `Writable` should not acquire an Express `Response` dependency merely to change argument order. See [Download Delivery](../workflows/express-light-rail-backend-workflow.md#download-delivery); unrelated injected dependencies have no universal ordering requirement.
+
 Explicit dependencies do not mean callers should compute decisions owned by the helper. Pass source values directly and derive the helper's internal choices inside it. For example, replace `buildDestination(destination, !isNil(this.record.tripTypeActual))` with:
 
 ```typescript
