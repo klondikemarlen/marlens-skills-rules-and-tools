@@ -341,7 +341,10 @@ Verify isolation by editing nested output data, such as an assignee, and asserti
 A clone used to create a new persisted record receives its own primary key. Exclude the source's persisted identity from the clone allowlist **and** the final caller-composed creation payload; do not restore it with `id: source.id` after spreading clone attributes:
 
 ```typescript
-const PERMITTED_ATTRIBUTES_FOR_CLONE = ["departureOn", "arrivalLocationId"]
+const PERMITTED_ATTRIBUTES_FOR_CLONE = [
+  "departureOn",
+  "arrivalLocationId",
+]
 
 const cloneAttributes = pick(sourceItinerary, PERMITTED_ATTRIBUTES_FOR_CLONE)
 
