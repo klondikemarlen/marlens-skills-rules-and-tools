@@ -701,7 +701,7 @@ Use application-library `index` files for bundling and re-exports; put implement
 
 For export ordering, follow the owning barrel's established logical groups; the [service-barrel convention](#service-orchestration-readability) below preserves CRUD/controller order before alphabetizing other exports. Alphabetization is a default within the applicable group, not a global sort or permission to move initialization-sensitive imports.
 
-For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations, then put the matching `export default someName` statement last. Keep imports, supporting types, and initialization-sensitive declarations where module semantics require them. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
+For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations and supporting runtime constants, then put the matching `export default someName` statement last when initialization semantics permit. Keep imports and supporting types in their established positions, and preserve required initialization order. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
 
 For example, the primary operation precedes its supporting function and the matching default export ends the module:
 
@@ -718,6 +718,23 @@ function formatStepPosition(position: number): string {
 
 export default formatWorkflowStepLabel
 ```
+
+A cached formatter is a supporting runtime constant too; keep the primary operation visible before it:
+
+```typescript
+export function formatCurrency(amount: number): string {
+  return currencyFormatter.format(amount)
+}
+
+const currencyFormatter = new Intl.NumberFormat("en-CA", {
+  style: "currency",
+  currency: "CAD",
+})
+
+export default formatCurrency
+```
+
+The function body reads `currencyFormatter` only when called after module initialization; the declaration order does not allocate a formatter per call. Do not move a constant below a top-level call or initializer that invokes the function before that constant initializes. Preserve declarations needed by top-level evaluation, initialization cycles, and other early accesses; a hoisted function declaration does not make a later `const` safe to read before initialization.
 
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
 
