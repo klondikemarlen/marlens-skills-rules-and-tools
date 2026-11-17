@@ -161,6 +161,10 @@ export async function lookupFlight(req: Request, res: Response, next: NextFuncti
 
 Retain independently required request validation, domain invariants, authorization, attribute filtering, and parameterized queries with their existing owners. If the actual API contract explicitly rejects non-string values with 400, preserve that contract and its established predicate semantics; predicate selection does not itself require a guard. Do not coerce or assert a request value into compatibility, swallow downstream failures, or add a replacement downstream guard to keep a controller thin.
 
+If the maintainer explicitly assigns formatting to the caller and rejects both backend normalization and a replacement guard, remove that guard and its obsolete contract test rather than adding fallback checks. Retain authorization, resource ownership, genuine validation, and existing service errors; see [Text Validation Ownership](../../../references/code-organization-reference.md#text-validation-ownership).
+
+Where this controller's query helpers own request sorting, resolve defaults and necessary stable tie-breakers in `buildOrder()`, preserving client precedence, and pass the resulting order to services unchanged. See the [controller-ordering example](../../../references/express-light-rail-backend-concepts-reference.md#controller-owned-request-ordering); do not add a helper to architectures that do not use one.
+
 ## Checklist
 
 - [ ] Handler reads auth context from the project-standard location.

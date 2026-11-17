@@ -2,6 +2,8 @@
 
 Use for explicit authorization decisions.
 
+In existing class-based policies, construct delegated policies through a private domain-named method on the calling policy, then invoke the permission check from its action. Follow [Delegated Policy Construction](../../../references/express-light-rail-backend-concepts-reference.md#delegated-policy-construction) for the before/after example; preserve user, record, timing, and result without caching or a factory layer. This does not require converting the function template below to a class.
+
 ## Template
 
 ```ts

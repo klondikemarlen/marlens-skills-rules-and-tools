@@ -336,6 +336,26 @@ editableRows[0].assignees[0].name = "Updated"
 
 Verify isolation by editing nested output data, such as an assignee, and asserting that the original nested input remains unchanged. A different outer array alone does not prove independence. Keep reference sharing when intentional, including immutable/shared values; do not deep-clone every array or arbitrary identity-bearing resource. Choose the copy boundary from the actual ownership and data-type contract.
 
+#### Cloning for New Persisted Records
+
+A clone used to create a new persisted record receives its own primary key. Exclude the source's persisted identity from the clone allowlist **and** the final caller-composed creation payload; do not restore it with `id: source.id` after spreading clone attributes:
+
+```typescript
+const PERMITTED_ATTRIBUTES_FOR_CLONE = [
+  "departureOn",
+  "arrivalLocationId",
+]
+
+const cloneAttributes = pick(sourceItinerary, PERMITTED_ATTRIBUTES_FOR_CLONE)
+
+await Itinerary.create({
+  ...cloneAttributes,
+  travelRequestId: destinationTravelRequest.id,
+})
+```
+
+The source `id` is absent, while legitimate association identifiers remain. Use the actual primary key, including composite identity where applicable, and inspect subsequent assignments/spreads for reintroduced identity. Do not strip every field ending in `Id`. Identity-preserving editor snapshots and ordinary deep copies are not new-record creation; preserve their identity and independent-copy contracts.
+
 ### Named Helper Results
 
 When a helper returns a small set of independent computed values, prefer destructuring its named object result into explanatory locals at the use site when that makes subsequent steps clearer. Pass the values each functional helper needs rather than forwarding a wrapper solely as a packet. Keep named object returns; do not require positional tuples or flatten a meaningful domain object whose identity, invariants, or lifecycle belong together. Preserve evaluation order, property-access behavior, and the requested scope rather than mechanically destructuring every result.
@@ -488,6 +508,21 @@ function snapshotTitle(snapshot: WorkflowSnapshot): WorkflowSnapshot["title"] {
 ```
 
 Keep genuine generic dictionaries generic and genuinely unknown external input unknown until the established validation boundary proves its shape. Do not assert an unvalidated payload as a model, ban necessary assertions, add a generic wrapper to avoid an indexing error, or turn this correction into an unrelated type rewrite.
+
+When a typed API rejects an option or shape, inspect its declared contract and the owner of the required behavior before adding an assertion. Correct option placement or the owning implementation instead of asserting an intersection solely to admit the rejected input. For example, `as IncludeOptions & Pick<FindOptions, "rejectOnEmpty">` does not establish that a separately loaded association supports that option. If root-level `rejectOnEmpty` incorrectly propagates to optional associations, repair the existing root loader, rather than merely deleting rejection:
+
+```typescript
+const record = await scopedRecords.findOne({
+  where: { id },
+  include: [{ association: "itineraries", separate: true }],
+  transaction,
+})
+if (record === null) throw new RecordNotFoundError()
+
+return record
+```
+
+This illustrates the existing `reloadWithScope` behavior owner using its established not-found error: a missing root still fails, an authorized root with an empty itinerary succeeds, and database/association failures still propagate. Preserve its real policy predicates, preloads, transaction, returned shape, and error/status contract. A justified assertion remains valid when independently established runtime behavior is not representable by installed declarations; document that limitation rather than using an assertion as evidence of support. Do not add dependencies or rewrite unrelated types.
 
 For a public concrete function contract, export a meaningful named input/result type from its owning module and import that type in consumers rather than publishing `ReturnType<typeof concreteFunction>`. Reserve `ReturnType` for genuine generic type-parameter utilities; do not rewrite unrelated inferred locals or create a duplicate of an existing domain contract.
 
@@ -1521,6 +1556,8 @@ await SyncEventsService.perform(recordLocator)
 The consumer uses `recordLocator` unchanged in its source query and downstream handoffs, rather than trimming/uppercasing again or reconstructing an equivalent locator from source attributes. This is normalization ownership, not removal of validation assertions or authorization. Keep separately owned external-input boundaries; controllers are not the universal owner. See also [Producer-Owned ID Collections](#producer-owned-id-collections).
 
 Distinguish an accepted lookup with no matches from an invalid required value. If arbitrary strings and zero matches are supported, a parameterized lookup for `"not-a-known-locator"` returns `[]`; do not reject it with an invented six-uppercase-alphanumeric assertion. By contrast, a persisted `name` whose actual contract requires nonblank text still rejects `"   "` at its validation owner. Preserve required input types, authorization, safe query bindings, and real domain invariants. Query or connection failures remain errors, not empty successes.
+
+An explicitly agreed caller-owned formatting guarantee also defines ownership. When a maintainer rejects backend booking-reference normalization **and** a replacement `typeof` guard, remove that guard and its obsolete guard-contract test; do not silently substitute normalization, fallback validation, or the same check downstream. Retain authorization, resource ownership checks, genuine domain validation, safe bindings, and service error handling. Required validation under an established contract still belongs at its owner, with an actionable failure message rather than an invented generic 400.
 
 Retain relational constraints such as foreign keys, uniqueness, and nullability. Necessary narrowly scoped legacy cleanup belongs in its self-contained migration, not a mutable application-model import. This preference does not ban database constraints or remove an independently required database invariant.
 

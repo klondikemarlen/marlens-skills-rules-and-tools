@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1435) - 2026-11-17
+
+### Changed
+
+- Keep backend contracts with their owning model, policy, service, serializer, and controller. Clarify domain imports, transactions, ordering, cloned identities, input validation, and foreign-key column order.
+
 ## [5.14.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1433) - 2026-11-17
 
 ### Changed
