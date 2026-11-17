@@ -180,7 +180,7 @@ async function respondWithDownload(
   response: Response,
   format: string,
   filename: string,
-  generateBuffer: GenerateCsvBuffer,
+  generateBuffer: GenerateCsvBuffer
 ) {
   if (format === "csv") {
     return respondWithCsv(response, filename, generateBuffer)
@@ -192,7 +192,7 @@ async function respondWithDownload(
 async function respondWithCsv(
   response: Response,
   filename: string,
-  generateBuffer: GenerateCsvBuffer,
+  generateBuffer: GenerateCsvBuffer
 ) {
   response.attachment(filename)
   response.setHeader("Content-Type", "text/csv; charset=utf-8")
@@ -202,7 +202,7 @@ async function respondWithCsv(
 class CreateCsvService {
   constructor(
     private output: Writable,
-    private generateBuffer: GenerateCsvBuffer,
+    private generateBuffer: GenerateCsvBuffer
   ) {}
 
   static perform(output: Writable, generateBuffer: GenerateCsvBuffer) {
@@ -215,10 +215,7 @@ class CreateCsvService {
   }
 }
 
-async function quickStartCsvBufferStream(
-  output: Writable,
-  generateBuffer: GenerateCsvBuffer,
-) {
+async function quickStartCsvBufferStream(output: Writable, generateBuffer: GenerateCsvBuffer) {
   const controller = new AbortController()
   const abortOnClose = () => {
     if (!output.writableFinished) controller.abort()
@@ -243,7 +240,7 @@ async function quickStartCsvBufferStream(
         yield buffer
       },
       output,
-      { signal: controller.signal },
+      { signal: controller.signal }
     )
   } finally {
     output.off("close", abortOnClose)
