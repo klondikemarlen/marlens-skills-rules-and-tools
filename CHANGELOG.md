@@ -6,17 +6,29 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
-## [5.14.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1441) - Unreleased
+## [5.14.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1441) - 2026-11-17
 
 ### Changed
 
 - Standardize opt-in early CSV download handoff with exact UTF-8 BOM handling, interrupted generation failures, and cancellation on client disconnect. Keep output first across download helpers and services without replacing true row streaming.
 
-## [5.14.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1436) - Unreleased
+## [5.14.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1436) - 2026-11-17
 
 ### Changed
 
 - Ground recommended integration examples in actual consumer workflows and compare responsibilities removed with ownership costs added or retained. Keep functional success separate from downstream adoption and maintenance evidence.
+
+## [5.14.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1438) - 2026-11-17
+
+### Changed
+
+- Clarify human-facing report formatting with attribute-based private methods, named results, and nil guards that preserve meaningful values. Keep supporting formatter constants below the primary function only when initialization is safe.
+
+## [5.14.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1437) - 2026-11-17
+
+### Changed
+
+- Refine scoped readability review for explicit branches, descriptive derived names, semantic barrel groups, multiline assertions, named fallbacks and behavioral options, and established inline policy allowlists. Preserve contextual exceptions and evaluation semantics.
 
 ## [5.14.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1435) - 2026-11-17
 
