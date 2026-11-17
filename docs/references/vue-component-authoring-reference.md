@@ -41,7 +41,7 @@ Preserve the actual model names, types, options, defaults, modifiers, transforme
 
 Extend [Dependency-Local Ordering](code-organization-reference.md#state-names-and-dependency-local-ordering) by keeping domain state and workflow actions prominent, with cosmetic-only setup state lower in the script when dependencies permit. Responsive display state such as `const { smAndDown } = useDisplay()` belongs below workflow logic if it only controls presentation; responsive state used by domain initialization must remain before that consumer.
 
-Table headers are structural table configuration, not cosmetic-only state. Declare them near the start of setup, after component inputs and before pagination and data-loading setup when dependencies permit. For example, this table setup excerpt keeps its reactive headers ahead of its existing query and collection owners:
+Table headers are structural table configuration, not cosmetic-only state. For newly authored component-owned headers, prefer `ref([...])`, with each header property on its own line under [Diff-Friendly Configuration Layouts](code-organization-reference.md#diff-friendly-configuration-layouts). Dependency-derived headers may use `computed`; this preference does not require wrapping every constant in a ref. Declare headers near the start of setup, after component inputs and before pagination and data-loading setup when dependencies permit. For example:
 
 ```vue
 <script setup lang="ts">
@@ -69,7 +69,7 @@ const { items, isLoading } = useAccountItems(() => props.accountId, {
 </script>
 ```
 
-Use the table's existing bindings and APIs; these composable names illustrate ordering, not APIs to introduce. Move the existing header declaration without changing its columns, sorting, or `ref`/`computed`/plain-value representation. Headers derived from permissions, translations, or other setup values must stay after those dependencies; do not move a consumer above eager initialization or replace reactive headers with a static array just to move them earlier. Responsive cosmetics still belong lower when independent.
+Use the table's existing bindings and APIs; these composable names illustrate ordering, not APIs to introduce. For ordering-only edits, move the existing header declaration without changing its columns, sorting, or `ref`/`computed`/plain-value representation. Headers derived from permissions, translations, or other setup values must stay after those dependencies; do not move a consumer above eager initialization or replace reactive headers with a static array just to move them earlier. Responsive cosmetics still belong lower when independent.
 
 For in-scope pages that already set breadcrumbs, place breadcrumb setup as the final setup statement, after page declarations and lifecycle registration. For example, this script excerpt retains the page's existing resource, save action, mount refresh, responsive state, and breadcrumb call:
 
@@ -90,6 +90,53 @@ useBreadcrumbs("ELCC Home", [])
 ```
 
 The composables and bindings illustrate existing page contracts, not APIs to introduce. Preserve breadcrumb values, reactive behavior, initialization dependencies, and composable lifecycle requirements; do not move calls past a required setup phase or top-level suspension. When a page also needs `defineExpose`, put it after its exposed definitions and before final breadcrumb setup, subject to its [exposure lifecycle](#form-owned-submission-and-public-component-apis). Without breadcrumbs, the existing `defineExpose`-last preference remains. During authoring and review, distinguish cosmetic state from domain dependencies before reordering; apply only within the requested edit scope.
+
+## Template-Local Display Formatting
+
+Prefer simple display formatting in the template interpolation or column slot that uses it, rather than a component-local computed copy of every row solely for presentation. For example, when the only consumer is a display column, replace this projection and its `:items="formattedSubsidies"` binding:
+
+```typescript
+const formattedSubsidies = computed(() =>
+  subsidies.value.map((subsidy) => ({
+    ...subsidy,
+    subsidyRate: formatDecimal(subsidy.subsidyRate),
+  }))
+)
+```
+
+Bind the original records and format only the displayed cell:
+
+```vue
+<template>
+  <v-data-table
+    :headers="headers"
+    :items="subsidies"
+  >
+    <template #item.subsidyRate="{ item }">
+      {{ formatDecimal(item.subsidyRate) }}
+    </template>
+  </v-data-table>
+</template>
+```
+
+These excerpts assume existing records, headers, and formatter. Preserve all other columns, table options, slots, and events. Inspect the installed table's slot/item contract and every projection consumer before removing a projection: sorting, filtering, exports, selection, actions, and child components may depend on its values or row shape. Keep raw data unchanged and preserve those contracts; a display slot alone does not replace them.
+
+Editable drafts, input normalization, dirty comparisons, and reusable or complex derivations are not presentation-only copies. For example, retain a normalized editable draft used by both inputs and saved-value comparison; do not replace it with per-keystroke decimal formatting or alter accepted editing behavior. Keep justified computed derivations and cached object bindings with their existing owners, including [Loaded-Resource Projections](#loaded-resource-projections); this preference is not a ban on computed values.
+
+## Computed Result Type Boundaries
+
+When a computed result needs an explicit type contract, prefer `computed<QueryOptions>(() => ...)` using the existing domain query type rather than suffix checks on returned objects or nested fields. For example, replace a nested `order: [["name", "ASC"]] satisfies ModelOrder[]` check with the enclosing contract:
+
+```typescript
+const queryOptions = computed<AdministrationCostQueryOptions>(() => ({
+  where: {
+    fiscalYearId: fiscalYearId.value,
+  },
+  order: [["name", "ASC"]],
+}))
+```
+
+Use the actual domain type and supported query keys, filters, and ordering; this example does not introduce them into unrelated queries. Check consumers before moving the annotation: contextual typing and `satisfies` do not always preserve the same inferred literal types. Retain required narrowness, overload selection, and valid discriminants; never broaden a contract or add assertions merely to move its annotation. Remove imports made unused by the accepted change. This is not a ban on `satisfies` elsewhere or a requirement to annotate every inferred computed value. Review explicitly typed query results at the computed boundary as well as their consumers.
 
 ## Component-Owned Public Types
 

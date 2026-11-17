@@ -1442,6 +1442,23 @@ For reads, distinguish cancellation, positively recognized expected operation er
 
 Save failures must reject to the owning form's existing feedback/recovery path; remove catches whose only work is logging and rethrowing. Preserve genuine local recovery and `finally` cleanup, accepted error state, abort/listener lifetimes and pending-request ownership. Consistent read/save ownership does not require identical read/save behavior or removal of needed state.
 
+For routine mutation failures, the owning form uses its established snackbar feedback and leaves the ordinary save/action available for user retry. Do not add persistent error alerts, dedicated Reload actions, or error-state gating solely for these failures. Preserve the user's unsaved edits and pending-operation cleanup; do not retry automatically. Independently required validation, synchronization recovery, and uncertain-write/idempotency safety still govern whether retry is safe.
+
+For example, an existing UI-owned save action uses the application's notification adapter and error classification:
+
+```typescript
+async function saveChanges() {
+  try {
+    await save()
+  } catch (error) {
+    rethrowUnexpectedError(error)
+    snack.error("Save failed. Please try again.")
+  }
+}
+```
+
+Here `save` preserves its existing pending state and rejects; the existing Save control remains the retry path after pending cleanup. Use the project's actual expected-error classification and notification API, without duplicate notifications if a parent already owns them. In contrast, storing this routine failure in `saveError`, rendering a persistent Reload alert, and disabling Save until reload adds an unrequested recovery workflow and may discard edits. Retain such contextual recovery only when the accepted workflow independently requires it.
+
 When a local persistence record and its corresponding remote object can be absent independently, distinguish them across error names, machine-readable codes, callers, messages, and recovery state using the application's vocabulary. For example, a missing local `SharePointFolder` record remains the local-record 404, while `RemoteSharePointFolderMissingError` carries `remote_share_point_folder_missing` for an existing record whose remote folder is gone. Only the latter enables `isRemoteSharePointFolderMissing` recovery. Both may legitimately use HTTP 404; a different status or global error hierarchy is not required.
 
 Verify both misses independently: a missing local record does not offer remote-folder recovery, a missing remote object does, and ordinary failures retain their existing handling. Do not add qualifiers where there is no competing resource identity.
