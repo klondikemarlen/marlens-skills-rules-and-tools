@@ -2372,6 +2372,8 @@ For a private functional helper, accept each value it uses as an explicit parame
 
 Pass values explicitly when the caller already has them or the helper's result can be described from its arguments. Keep reads through `this` when the helper is inherently bound to object state, such as coordinating the instance lifecycle, mutating owned state, or using a cache whose identity belongs to the object. Do not add artificial parameters that merely restate that bound identity. For service-class conventions, see [Service Orchestration Readability](#service-orchestration-readability).
 
+See [downloads](../workflows/express-light-rail-backend-workflow.md#download-delivery).
+
 Explicit dependencies do not mean callers should compute decisions owned by the helper. Pass source values directly and derive the helper's internal choices inside it. For example, replace `buildDestination(destination, !isNil(this.record.tripTypeActual))` with:
 
 ```typescript

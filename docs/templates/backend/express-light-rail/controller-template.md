@@ -165,6 +165,99 @@ If the maintainer explicitly assigns formatting to the caller and rejects both b
 
 Where this controller's query helpers own request sorting, resolve defaults and necessary stable tie-breakers in `buildOrder()`, preserving client precedence, and pass the resulting order to services unchanged. See the [controller-ordering example](../../../references/express-light-rail-backend-concepts-reference.md#controller-owned-request-ordering); do not add a helper to architectures that do not use one.
 
+## Quick-Start Download Responses
+
+Use this opt-in shape only when the consumer requests early download handoff and accepts a UTF-8 BOM in CSV output. Authorization, request validation, and policy filtering finish before this excerpt. `generateBuffer` closes over those authorized inputs; its expensive work does not start at the controller call site. The filename must already follow the application's safe attachment convention.
+
+```typescript
+import type { Response } from "express"
+import type { Writable } from "node:stream"
+import { pipeline } from "node:stream/promises"
+
+type GenerateCsvBuffer = (signal: AbortSignal) => Promise<Buffer>
+
+async function respondWithDownload(
+  response: Response,
+  format: string,
+  filename: string,
+  generateBuffer: GenerateCsvBuffer
+) {
+  if (format === "csv") {
+    return respondWithCsv(response, filename, generateBuffer)
+  }
+
+  throw new Error("Unsupported download format")
+}
+
+async function respondWithCsv(
+  response: Response,
+  filename: string,
+  generateBuffer: GenerateCsvBuffer
+) {
+  response.attachment(filename)
+  response.setHeader("Content-Type", "text/csv; charset=utf-8")
+  return CreateCsvService.perform(response, generateBuffer)
+}
+
+class CreateCsvService {
+  constructor(
+    private output: Writable,
+    private generateBuffer: GenerateCsvBuffer
+  ) {}
+
+  static perform(output: Writable, generateBuffer: GenerateCsvBuffer) {
+    const service = new CreateCsvService(output, generateBuffer)
+    return service.perform()
+  }
+
+  perform() {
+    return quickStartCsvBufferStream(this.output, this.generateBuffer)
+  }
+}
+
+async function quickStartCsvBufferStream(output: Writable, generateBuffer: GenerateCsvBuffer) {
+  const controller = new AbortController()
+  const abortOnClose = () => {
+    if (!output.writableFinished) controller.abort()
+  }
+
+  output.once("close", abortOnClose)
+
+  try {
+    await pipeline(
+      async function* ({ signal }) {
+        yield CSV_PREFIX
+        signal.throwIfAborted()
+
+        const buffer = await generateBuffer(signal)
+        signal.throwIfAborted()
+
+        if (buffer.subarray(0, CSV_PREFIX.length).equals(CSV_PREFIX)) {
+          yield buffer.subarray(CSV_PREFIX.length)
+          return
+        }
+
+        yield buffer
+      },
+      output,
+      { signal: controller.signal }
+    )
+  } finally {
+    output.off("close", abortOnClose)
+  }
+}
+
+const CSV_PREFIX = Buffer.from([0xef, 0xbb, 0xbf])
+```
+
+The class illustrates an existing service rail, not a requirement to wrap a shared stream helper in a new class. Reuse the application's service base and CSV generator where present. All output-taking calls and the constructor keep output first; pure buffer generators need no output parameter.
+
+`pipeline` owns backpressure, completion, and destruction on errors. It writes the prefix before awaiting generation, removes only one exact leading prefix from the completed buffer, and leaves every other byte untouched. Do not trim whitespace, decode/re-encode the buffer, or assign a guessed `Content-Length`. Compression and reverse-proxy buffering can delay delivery: prove the browser handoff through the actual deployment path before promising it.
+
+After headers are sent, let pipeline failures reach the existing error boundary for reporting, but do not send a JSON error, retry generation automatically, or call `end()` in a catch/finally block. The transfer must be interrupted, not marked successfully complete. The premature-close listener explicitly aborts the pipeline's generator signal, including while buffer generation is awaiting a result; do not rely on pipeline destruction alone to interrupt that pending work. The buffer generator must observe the signal to stop its own database/CPU work promptly. Preserve errors and observe cancellation through the application's existing owner.
+
+This is an intentionally CSV-only contract, not an exact copy of WRAP's historical multi-format helper. It does not prescribe synthetic prefixes for ZIP-based DOCX or PDF and does not replace true row-by-row CSV streams. See [Download Delivery](../../../workflows/express-light-rail-backend-workflow.md#download-delivery) for verification and the package-versus-example decision.
+
 ## Checklist
 
 - [ ] Handler reads auth context from the project-standard location.

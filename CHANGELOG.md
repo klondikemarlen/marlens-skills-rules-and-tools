@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1441) - 2026-11-17
+
+### Changed
+
+- Standardize opt-in early CSV download handoff with exact UTF-8 BOM handling, interrupted generation failures, and cancellation on client disconnect. Keep output first across download helpers and services without replacing true row streaming.
+
 ## [5.14.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1436) - 2026-11-17
 
 ### Changed
