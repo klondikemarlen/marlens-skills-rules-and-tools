@@ -126,7 +126,7 @@ assert.equal(preview.markers[0], markerValue)
 
 - **Original execution scope:** `PASS` calls named inside their branch, loop iteration, callback, lazy getter, or transaction when count, order, effects, and identity remain unchanged.
 - **Calls extracted above the guard:** `FAIL`; excluded work now runs.
-- **Calls left in computed keys or spread operands:** `FAIL` outside the [simple serializer projection exception](../docs/references/code-organization-reference.md#simple-serializer-projections); these execute during construction too.
+- **Calls left in computed keys or spread operands:** `FAIL` outside the bounded [serializer projection](../docs/references/code-organization-reference.md#simple-serializer-projections) and [existing policy allowlist](../docs/references/code-organization-reference.md#existing-policy-allowlists) exceptions; these execute during construction too.
 - **Later call moved before an effectful getter:** `FAIL`; capture the earlier read at its original evaluation point.
 - **Function-valued callback:** retain deferred invocation; extract inside the callback when it constructs an object/array, not during outer construction.
 - **Concurrent starts:** `PASS` named promises started in their original order before `Promise.all` consumes their array, with rejection ownership and results preserved. Sequential awaits instead `FAIL`.
@@ -281,6 +281,179 @@ Accepted task: author or organize an actively reviewed unreleased Knex migration
 - **Absent groups:** a table with no lifecycle timestamps or separate constraints needs no invented group or field. Implicit primary keys such as `increments` remain legitimate column definitions.
 - **Released migration or another DSL:** do not demand a grouping rewrite. Respect accepted scope and history; apply only genuinely relevant criteria.
 - **Missing release/API/dialect context needed to establish equivalence:** expected `BLOCKED` with the exact prerequisite, while retaining independently evidenced layout findings. Typechecking and SQL-generation checks do not replace native named-verifier assessment.
+
+## Single-Property Assertion Objects
+
+Accepted task: author the not-found controller assertion under the shared multiline convention, with no stronger project override. Baseline/new assertion comparison:
+
+```diff
+-expect(response.body).toEqual({ message: "Travel desk travel request not found." })
++expect(response.body).toEqual({
++  message: "Travel desk travel request not found.",
++})
+```
+
+Expected `FAIL` for the compact input and `PASS` for the expanded input under `existing-object-layout-application`. Cite the assertion location; preserve the exact message and matcher. Partial matchers, including a single `id` property, follow the same expected-data rule. `logger.error(message, { error })` remains a valid small ordinary call argument: that exception does not cover assertion objects. Stronger project overrides remain authoritative, and an untouched assertion outside the task is excluded rather than a reason for a formatting sweep.
+
+## Existing Inline Policy Allowlists
+
+Accepted task: add `actualPrimaryDestinationId` to an established allowlist while retaining its required bulk-replace permission contract. The baseline already contains the inherited spread and nested permission call shown in the [canonical example](../docs/references/code-organization-reference.md#existing-policy-allowlists); the only intended addition is the scalar string.
+
+- **Inline field addition:** expected `PASS` for that complete canonical example; neither permission call needs a one-use alias.
+- **Extraction solely for the default:** expected `FAIL` for the following comparison when inspection confirms no reuse, meaningful computation, snapshot, or sequencing need. Restore the inline calls while retaining the added field and required permission API.
+
+```diff
+ permittedAttributes() {
++  const inheritedAttributes = super.permittedAttributes()
++  const travelSegmentActualsAttributes =
++    this.travelSegmentActualsPolicy.permittedAttributesForBulkReplace()
+   return [
+-    ...super.permittedAttributes(),
++    ...inheritedAttributes,
++    "actualPrimaryDestinationId",
+     {
+-      travelSegmentActualsAttributes: this.travelSegmentActualsPolicy.permittedAttributesForBulkReplace(),
++      travelSegmentActualsAttributes,
+     },
+   ]
+ }
+```
+
+- **Meaningful local:** expected `PASS` when actual reuse or effectful-read ordering requires it; the exception is not a ban on locals.
+- **Revert bulk-replace permission to a different API:** expected `FAIL` permission behavior even if the shape is inline.
+- **Unrelated factory/query call left inline:** expected `FAIL` under the general construction default, not permission to generalize this exception.
+- **Missing actual permission or sequencing contract:** `BLOCKED` for equivalence, retaining any independently evidenced scope finding.
+
+## Named Fallback Preparation
+
+Accepted task: prepare this existing passenger-name fallback without changing its behavior:
+
+```diff
++const passengerName = item.passengerName ?? null
++
+ return {
+-  passengerName: item.passengerName ?? null,
++  passengerName,
+ }
+```
+
+Expected `FAIL` for inline fallback preparation and `PASS` for the corrected input under `construction-evaluation-ownership`. Both preserve null/undefined as null and empty string as empty string. Supply the surrounding original execution scope and property-read order, not just this excerpt.
+
+- Replacing `??` with `||` is `FAIL`: it changes empty-string behavior.
+- Hoisting the local outside its guard/callback, rereading an effectful getter, moving a later fallback before an earlier getter, or eagerly computing its fallback arm is `FAIL`.
+- A direct property read with no fallback and a simple literal option are `PASS` without new aliases. Adding or removing fallback behavior is not this correction.
+
+## Explicit Branches and the Scalar Exception
+
+Accepted task: apply the maintainer's explicit-branch correction to the report date and reconciled label. The existing date formatter is synchronous, returns a string, and may throw; the date is optional and formatting must not run when absent. Negative input:
+
+```typescript
+function invoiceDateLabel(invoiceBookingDate: Date | null) {
+  return invoiceBookingDate
+    ? formatInvoiceDate(invoiceBookingDate)
+    : ""
+}
+
+function reconciledLabel(isReconciled: boolean) {
+  return isReconciled ? "Yes" : "No"
+}
+```
+
+Expected `FAIL` for both conditional expressions: cite each function/location and the accepted correction, not a blanket syntax ban. Positive input, retaining the original function owners rather than adding wrappers:
+
+```typescript
+function invoiceDateLabel(invoiceBookingDate: Date | null) {
+  if (invoiceBookingDate) {
+    return formatInvoiceDate(invoiceBookingDate)
+  }
+
+  return ""
+}
+
+function reconciledLabel(isReconciled: boolean) {
+  if (isReconciled) return "Yes"
+
+  return "No"
+}
+```
+
+Expected `PASS`: no date formatting for null, one formatting call for a present date, identical return values and thrown error propagation. Computing the formatted date before the guard is `FAIL` lazy evaluation; repeating an effectful predicate is `FAIL` evaluation count.
+
+Contrasting exception context: a pure comparator's equal case is already guarded, both scalar operands are stable locals, and there is no accepted branch-only correction:
+
+```typescript
+function compareAmounts(left: number, right: number) {
+  if (left === right) return 0
+
+  return left < right ? -1 : 1
+}
+```
+
+Expected `PASS` for the concise scalar exception when the reviewer finds the conventional ascending comparator mapping clearer at one glance than mutable setup or extra branching; record that concrete reason. This is not precedent for report fields with an accepted explicit-branch correction. `record?.passengerName ?? null` is not a ternary; assess fallback placement separately when constructing an object. Untouched ternaries outside the accepted scope are excluded. Missing baseline, formatter/predicate behavior, or required project guidance is `BLOCKED`, not assumed semantic equivalence.
+
+## Transformation-Aware Domain Names
+
+Accepted task: review a changed building-expense formatting projection and its consumers. The existing `formatCurrency` and `formatRate` helpers format the indicated scalar fields without filtering, sorting, grouping, or indexing. Negative input:
+
+```typescript
+const displayedExpenses = buildingExpenses.map((expense) => {
+  const subsidyRate = formatRate(expense.subsidyRate)
+  const estimatedCost = formatCurrency(expense.estimatedCost)
+  const actualCost = formatCurrency(expense.actualCost)
+
+  return {
+    ...expense,
+    subsidyRate,
+    estimatedCost,
+    actualCost,
+  }
+})
+
+renderExpenses(displayedExpenses)
+```
+
+Expected `FAIL` under `transformation-aware-domain-names`: cite the binding and callback, explain the observed formatting, recommend `formattedBuildingExpenses` and `buildingExpense`, and update the spread, property reads and consumer together. The same complete code with those names consistently substituted is the positive `PASS` input; no `const displayedExpenses = formattedBuildingExpenses` alias remains. For a separately supplied administration-cost formatting projection, `displayedCosts` similarly fails and consistently applied `formattedAdministrationCosts` passes.
+
+Contrasts, assuming their supplied expressions establish the stated effects:
+
+- `visibleBuildingExpenses = buildingExpenses.filter(isVisibleBuildingExpense)` is `PASS`: this is visibility selection, not formatting.
+- `sortedBuildingExpenses` for a non-mutating cost-ordering operation, `groupedBuildingExpenses` for grouping, and `buildingExpensesById` for indexing are `PASS` when those are the actual effects. Calling a formatting-only projection `sortedBuildingExpenses` is `FAIL`.
+- An unchanged `finalDestination` pass-through, including its accepted null fallback, remains `PASS` source-domain-named; inventing `formattedFinalDestination` is `FAIL` when no formatting exists.
+- Distinct display snapshots and necessary collision names remain valid. Keywords alone prove nothing; missing expression/helper or affected-consumer evidence is `BLOCKED`. Findings identify actual file/symbols, not regex matches.
+
+## Semantic Barrel Groups and Local Labels
+
+Accepted task: extend an existing service barrel. Supply its full baseline, comparison and closest maintained local example; in this fixture that example establishes unlabeled Create/Update/Destroy actions followed by **Stateful Services**, **Special Services**, and **Sub-resource Services**. The modules already own the exported symbols/types and have no initialization-order effects. Negative input mixes these categories without labels:
+
+```typescript
+export { ApproveService } from "./approve-service"
+export * as Attachments from "./attachments"
+export { BuildOverviewService, type Overview } from "./build-overview-service"
+export { CreateService } from "./create-service"
+export { DestroyService } from "./destroy-service"
+export { UpdateService } from "./update-service"
+```
+
+Expected `FAIL` under `semantic-barrel-export-groups`: cite this file's mixed categories, the supplied local example and the following concrete correction. Positive input:
+
+```typescript
+export { CreateService } from "./create-service"
+export { UpdateService } from "./update-service"
+export { DestroyService } from "./destroy-service"
+
+// Stateful Services
+export { ApproveService } from "./approve-service"
+
+// Special Services
+export { BuildOverviewService, type Overview } from "./build-overview-service"
+
+// Sub-resource Services
+export * as Attachments from "./attachments"
+```
+
+Expected `PASS`, retaining names, companion `Overview` type and operation order. Established **Bundles** in a serializer layer or **Namespaced services** at the service layer also passes with its actual local precedent; do not impose a universal spelling. A homogeneous barrel containing only the three standard actions passes without headings. An actual runtime `index.ts` is not automatically a barrel. Globally alphabetizing across these groups, dropping a type alias, or changing initialization-sensitive order is `FAIL`.
+
+Both mixed and grouped static inputs may pass the executable structural barrel check; that does not clear the negative semantic case. Keep that existing check enabled and separate. Missing the necessary local source/role evidence or unavailable tooling is `BLOCKED`, not a grouping violation, and cannot clear a partial scope.
 
 ## Evidence Boundary
 
