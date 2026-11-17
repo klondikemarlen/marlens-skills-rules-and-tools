@@ -22,9 +22,82 @@ Apply [Service Runtime Exports](code-organization-reference.md#service-runtime-e
 
 ## Safety Defaults
 
-Validate input before persistence. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
+Validate input at its agreed owner before persistence. Respect caller-owned formatting guarantees under [Text Validation Ownership](code-organization-reference.md#text-validation-ownership), without adding replacement defensive guards after an accepted removal. Authorize before sensitive reads and all writes. Use the project transaction helper for multi-write changes. Keep response fields explicit so private columns, lazy associations, and ORM metadata do not become API surface.
 
 For cumulative field permissions, prefer one explicit base allow-list, conditional additions, and one final return when this makes the policy clearer. For example, an empty base can receive editable question fields for an authorized administrator and response fields for an authorized owner. Preserve the actual roles, overlapping-role behavior, exact field set, and deny-by-default contract; this layout is not permission to combine mutually exclusive rules or broaden authorization.
+
+### Delegated Policy Construction
+
+When one policy constructs another for delegation, put construction in a private, domain-named method on the calling policy. Keep the action focused on the permission decision. For example, replace inline construction:
+
+```typescript
+show() {
+  return new TravelDeskInvoicesPolicy(this.user, this.record).show()
+}
+```
+
+With these methods in the same policy:
+
+```typescript
+show() {
+  const travelDeskInvoicesPolicy = this.buildTravelDeskInvoicesPolicy()
+
+  return travelDeskInvoicesPolicy.show()
+}
+
+private buildTravelDeskInvoicesPolicy() {
+  return new TravelDeskInvoicesPolicy(this.user, this.record)
+}
+```
+
+The builder is inherently bound to the calling policy's user and record; preserve both inputs, construction timing, and the delegated result or thrown failure. Do not add caching, a factory layer, or apply this preference to every constructor or controller policy setup.
+
+### Database Transaction Entry Point
+
+Start required transactions through the project's established database owner, not a scoped model's `.sequelize` property. Where `@/models` exports the database as its default, use `import db from "@/models"` and `db.transaction(...)`. This applies to required read-only snapshots as well as multi-write transactions:
+
+```typescript
+import { Transaction } from "sequelize"
+
+import db from "@/models"
+
+await db.transaction(
+  {
+    readOnly: true,
+    isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
+  },
+  async (transaction) => {
+    await scopedFlightReconciliations.findEach(
+      { ...queryOptions, transaction },
+      async (flightReconciliation) => {
+        await writeCsvRow(flightReconciliation)
+      }
+    )
+  }
+)
+```
+
+This excerpt assumes an existing policy-scoped model with the supported awaited callback API, accepted query options, and a required snapshot. Preserve those scopes, options, callback awaiting, error propagation, and query transaction propagation. Use the installed ORM's supported options. Follow another database owner's actual contract for external integrations; do not route them through an unrelated local database or introduce a transaction without a consistency requirement.
+
+### Controller-Owned Request Ordering
+
+Where controllers already compose request queries, resolve client ordering, defaults, and required traversal tie-breakers in the existing ordering helper. Downstream services consume that order unchanged. For example, in the controller's existing `buildOrder()`:
+
+```typescript
+const clientOrder = super.buildOrder()
+let primaryOrder = clientOrder
+if (primaryOrder.length === 0) {
+  primaryOrder = [["createdAt", "DESC"]]
+}
+
+if (primaryOrder.some(([field]) => field === "id")) {
+  return primaryOrder
+}
+
+return [...primaryOrder, ["id", "ASC"]]
+```
+
+Here client sorts take precedence; `createdAt DESC` is the default only without client sorting, and `id ASC` is an already-required unique tie-breaker when not already present. Use the real helper's types and supported field/direction representation, and retain an explicit client ID sort rather than appending a conflicting duplicate. Pass the resolved `order` into the export service and its scoped query unchanged; do not append another fallback in the service. Service-owned ordering remains valid for independently owned domain operations and other architectures need not add a controller helper.
 
 ## Sequelize: Named Partial Indexes
 
@@ -54,11 +127,11 @@ Here `TagsNameUniqueIndex` is the TypeScript declaration identity; `tags_name_un
 
 For new or actively reviewed unreleased Knex migrations, use three blank-line-separated groups inside each table definition:
 
-1. Ordinary columns, including foreign-key column types/nullability and JSON/JSONB data. A business timestamp belongs here when it is ordinary domain data.
+1. Column declarations: primary key first, foreign-key columns next, then other data columns including JSON/JSONB. A business timestamp belongs with ordinary domain data.
 2. Lifecycle timestamps, such as the schema's existing created, updated, and deleted timestamps.
 3. Table-level foreign-key references, unique indexes/constraints, other indexes, and check constraints.
 
-Keep column modifiers such as types, defaults, and nullability with their columns; move inline references and unique declarations into the final table-level group. Omit absent groups rather than inventing fields. This Knex convention does not apply to unrelated schema DSLs or authorize appearance-only edits to released migrations. For example, this complete unreleased PostgreSQL migration violates the grouping:
+Keep column modifiers such as types, defaults, and nullability with their columns; move inline references and unique declarations into the final table-level group. Foreign-key column order is separate from the final foreign-key constraint declarations: moving a column does not move its constraint into the column group. Omit absent groups rather than inventing fields. This Knex convention does not apply to unrelated schema DSLs or authorize appearance-only edits to released migrations. Preserve schema and dependency semantics. For example, this complete unreleased PostgreSQL migration violates the grouping:
 
 ```typescript
 import type { Knex } from "knex"
@@ -84,7 +157,7 @@ export async function down(knex: Knex): Promise<void> {
 }
 ```
 
-The corrected migration keeps the same schema and rollback while separating the three groups:
+The corrected migration keeps the same schema and rollback: `id`, then the `source_id` foreign-key column, then other data columns; lifecycle timestamps and table-level constraints remain separate:
 
 ```typescript
 import type { Knex } from "knex"
@@ -230,6 +303,21 @@ const sourceEvents = await SourceEvent.findAll(sourceQuery)
 
 Retain policy scoping, association visibility, separate loading, child ordering, projection, pagination, transaction options, and error behavior when removing the wrapper. Update every affected caller and remove the obsolete method rather than keeping a forwarding alias. Moving the query does not authorize changing its population or order. Keep the query in a service when that service owns synchronization or other meaningful orchestration.
 
+If a concrete or authorized scoped model should expose an existing base-model API, repair that API's ownership before borrowing it in consumers. Inspect both runtime inheritance (does the concrete class extend the local supported base?) and static types (did a policy scope or service parameter erase the inherited statics?). Preserve the concrete static contract through those boundaries; do not invent a new base or copy a method into each caller. Inspect user-designated sibling implementations when requested, then reuse the target project's supported base.
+
+For a project whose `findEach` has the awaited callback contract below, replace `await (BaseModel.findEach<FlightReconciliation>).call(scopedFlightReconciliations, options, processRecord)` with a direct call after repairing inheritance or erased types:
+
+```typescript
+await scopedFlightReconciliations.findEach(
+  { ...queryOptions, transaction },
+  async (flightReconciliation) => {
+    await processRecord(flightReconciliation)
+  }
+)
+```
+
+Keep the authorized scope, complete options, transaction, sequential callback awaiting, and propagated query/processing failures. Do not substitute an unscoped concrete model just to satisfy typing. Deliberate rebinding remains valid when it is the actual supported function contract; this is not a universal `.call` ban.
+
 ### Bounded Synchronization Reads
 
 A familiar collection API alone does not make a large synchronization safe. For potentially large source populations, use supported batched iteration and serialize/process records incrementally rather than loading all models and then building another full transformed collection. Keep genuinely bounded reads simple; this does not require pagination of every endpoint or impose a universal batch size.
@@ -240,18 +328,14 @@ For a project whose existing `findEach(options, processRecord)` loads bounded ba
 
 ```typescript
 await SourceEvent.findEach(sourceQuery, async (sourceEvent) => {
-  const sourceEventOutput = SourceEventSerializer.perform(sourceEvent)
-  const attributes = {
-    externalTravelPortIdentifier: sourceEventOutput.travelOrderIdentifier,
-    eventType: sourceEventOutput.eventType,
-  }
+  const attributes = SourceEventSyncSerializer.perform(sourceEvent, normalizedRecordLocator)
   const localEvent = await persistEvent(attributes, transaction)
 
   synchronizedEvents.push(localEvent)
 })
 ```
 
-Here the source serializer standardizes source-model output; the synchronization service maps that output into the local model's persistence attributes. The two fields illustrate the boundary, not a replacement for the operation's complete accepted mapping. Keep every existing persisted value and its evaluation order.
+Here the dedicated `SourceEventSyncSerializer` owns the complete source-to-local attribute conversion, including external identifier/timestamp names, excluded source fields, and caller-supplied normalized context. Its output goes directly to persistence without a second caller-side `omit` or rename mapping. Use the existing serializer's actual context and sync/async contract and retain every accepted persisted value and evaluation order. An ordinary source response serializer may instead standardize source output before service-owned conversion; choose by the serializer's purpose under [Serializer Model Ownership](#serializer-model-ownership).
 
 This bounds source-batch loading and avoids a second full source-serialization array; it does **not** make total operation memory constant. The returned `synchronizedEvents` collection still grows with the result count, and association fan-out or a large individual record can make a batch large. Identify these remaining accumulations separately. Changing the response to streaming, summaries, or pagination requires its own accepted contract change.
 
@@ -293,7 +377,23 @@ This represents an existing response with those four fields and a required `Date
 
 ## Serializer Model Ownership
 
-A serializer normally standardizes the representation of its input model. Keep local-model output recognizable as that model's data: a `TravelDeskBookingEvent` response retains `externalTravelPortIdentifier`, rather than renaming it to the remote model's `travelOrderIdentifier` merely to resemble that model. Services own conversion between distinct model contracts, as in [Bounded Synchronization Reads](#bounded-synchronization-reads). Ordinary formatting, computed response fields, and intentional presentation aliases remain valid; they do not require a new service.
+A serializer normally standardizes the representation of its input model. Keep local-model output recognizable as that model's data: a `TravelDeskBookingEvent` response retains `externalTravelPortIdentifier`, rather than renaming it to the remote model's `travelOrderIdentifier` merely to resemble that model. Ordinary formatting, computed response fields, and intentional presentation aliases remain valid; they do not require a new service.
+
+A dedicated source-to-target sync serializer has a different contract: it owns the complete attribute conversion between those models, including renamed identifiers/timestamps and excluded source fields. Forward necessary caller context through its existing serializer interface instead of retaining a second mapping in the service. The service still owns queries, transactions, persistence, and orchestration; serializers do not gain database access or business workflow decisions. See [Bounded Synchronization Reads](#bounded-synchronization-reads).
+
+For review, consider a dedicated sync serializer whose accepted target attributes are `eventType`, `externalTravelPortIdentifier`, and a caller-normalized `recordLocator`:
+
+```typescript
+perform() {
+  return {
+    ...pick(this.record, ["eventType"]),
+    externalTravelPortIdentifier: this.record.travelOrderIdentifier,
+    recordLocator: this.normalizedRecordLocator,
+  }
+}
+```
+
+Accept this complete conversion inside that serializer: source-only `id` and timestamps are deliberately excluded under this illustrative target contract, and the service persists its output directly. Reject leaving the identifier rename or source-field exclusion as a second service mapping after the dedicated serializer. Conversely, an ordinary local-event response retaining `externalTravelPortIdentifier` is correct; renaming it merely to mimic the remote model is not the same conversion requirement. Intentional presentation aliases remain valid. Review the actual complete accepted fields and constructor/context contract, not these illustrative field names.
 
 Prefer dedicated associated-model serializers for their field mappings instead of embedding those mappings in private parent methods. Compose using the project's existing single/collection interface; do not introduce another base. The parent owns its response's preload requirements and any parent-specific ordering or composition, while each associated serializer owns its model's representation.
 
