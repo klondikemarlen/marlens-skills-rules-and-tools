@@ -61,6 +61,17 @@ watch(delayedFlight, enableFlightMatching)
 
 This excerpt assumes the existing enable branch owns the availability guard, matching effect, and deferred validation, while disable owns restoration. Preserve the actual branches' guards, effects, evaluation order, deferred timing, and failure behavior when extracting them; do not add or remove work to fit the example. Ordinary boolean data, predicates, and framework payloads remain valid, and this does not require trivial wrappers for every boolean parameter.
 
+For independent behavioral settings of one cohesive operation, make option names visible at the call site with an options object or language-supported keyword arguments. Naming positional parameters only in the implementation does not explain `validateDestinations(destinations, false, false)`. Prefer:
+
+```typescript
+validateDestinations(destinations, {
+  isActual: false,
+  requireSelection: false,
+})
+```
+
+First reassess the operation: these flags may legitimately select the data representation and required-selection validation for one destination validator. Preserve that single owner when cohesive; if flags instead conceal distinct actions, use intention-revealing operations rather than mechanically wrapping them in an object. Migrate all in-scope callers and signatures together, retaining requiredness, defaults, validation branches, errors, and evaluation behavior. Ordinary boolean data, predicates, and framework-defined payloads do not require wrappers. During review, inspect the caller's readability and the operation's responsibility, not just whether parameter names exist in its definition.
+
 Inspect the installed library or framework defaults before adding options, overrides, or wrappers. If the default satisfies the accepted contract, use it unchanged; customize for a concrete unmet requirement. Removing redundant configuration must preserve timezone, security, and other behavior, not substitute a different explicit setting.
 
 In Bash configuration, prefer the readable `source path` keyword over `. path` for newly added or modified source commands. Keep POSIX `sh` scripts portable with `.` and do not rewrite unrelated lines.
@@ -69,7 +80,7 @@ Before explaining an initialization or import-order workaround with a comment, c
 
 ### Function Calls Before Construction
 
-By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [simple serializer projection exception](#simple-serializer-projections) below permits inline field selection when extraction adds no meaning.
+By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [simple serializer projection](#simple-serializer-projections) and [existing policy allowlist](#existing-policy-allowlists) exceptions below permit contextual inline construction when extraction adds no meaning.
 
 Keep each evaluation within its original execution scope: a branch, loop iteration, callback invocation, lazy getter, or transaction must still own its work. Preserve evaluation count and left-to-right order, conditional/short-circuit execution, receiver binding, async/concurrent starts and awaits, rejection ownership, spread precedence, and returned identity. Capture intervening effectful property/index reads at their original evaluation points when needed; do not hoist a later call ahead of an earlier getter or turn concurrent starts into sequential awaits.
 
@@ -90,6 +101,36 @@ function buildPreview(rows: Row[], container: Container, isVisible: boolean) {
 The calls still run only for a visible preview, in the original order, and the returned object contains the exact computed values. A function body defined inside an object or array remains deferred: extract a call inside that body at invocation time, never into construction-time setup. For native test factories, apply the same rule within each scenario's Arrange scope; factory API and association choices remain owned by [Scenario-Oriented Verification](#scenario-oriented-verification).
 
 For a meaningful computed result consumed by another nested call, also prefer a descriptive local when it makes the processing step inspectable and gives a useful debugger breakpoint. Preserve short-circuit execution and avoid trivial aliases or wrappers; the general construction rule above does not make every other nested expression a violation.
+
+Resolve fallback expressions into descriptive `const` bindings before assembling an object or array, then use property shorthand where names match:
+
+```typescript
+const passengerName = item.passengerName ?? null
+
+return {
+  passengerName,
+}
+```
+
+This replaces `passengerName: item.passengerName ?? null`, not a direct property read that had no fallback. Null and undefined still yield null; an empty string remains an empty string. Preserve the original operator (`??` versus `||`), fallback laziness, execution scope, property-read order, and evaluation count. Capture earlier effectful reads before preparing a later fallback; never hoist it across a guard or callback. This does not authorize adding/removing fallback behavior, redundant aliases for direct reads, or extracting simple literal options.
+
+#### Existing Policy Allowlists
+
+When extending an established policy attribute allowlist, retain its inline inherited spread and nested permission calls rather than extracting one-use locals solely for the construction default:
+
+```typescript
+permittedAttributes() {
+  return [
+    ...super.permittedAttributes(),
+    "actualPrimaryDestinationId",
+    {
+      travelSegmentActualsAttributes: this.travelSegmentActualsPolicy.permittedAttributesForBulkReplace(),
+    },
+  ]
+}
+```
+
+Here the accepted change adds the permitted scalar field; the nested bulk-replace permission API remains required. Use the actual policy and permission contract, not these illustrative identifiers. Review accepts the inline shape without demanding `inheritedAttributes` or `travelSegmentActualsAttributes` aliases. Retain meaningful computations, sequencing/snapshot locals, or reused results when needed to preserve permission behavior and evaluation order/count. This exception is bounded to the existing policy-allowlist idiom, not a universal preference for inline calls.
 
 #### Simple Serializer Projections
 
@@ -141,7 +182,7 @@ Retain a local for meaningful computation or a required snapshot. Return the pro
 
 Keep simple single-field object type annotations and object arguments inline when they fit readably: `const response: { id: string } = await request()` and `logger.error(message, { error })`. Wrap a long surrounding request chain independently; the small shape need not expand with it. Retain multiline complex shapes, test expectations, and stronger project conventions.
 
-Expand multi-property expected object literals one property per line, including objects passed to partial matchers, even when they fit within formatter print width:
+Expand non-empty expected object literals one property per line, including single-property assertion objects and objects passed to partial matchers, even when they fit within formatter print width:
 
 ```typescript
 expect(result).toEqual(
@@ -152,7 +193,7 @@ expect(result).toEqual(
 )
 ```
 
-Keep the literal values, partial-matcher semantics, and property order unchanged. Compact single-field arguments such as `expect.objectContaining({ id: record.id })` remain allowed; do not collapse existing multiline expectations or sweep unrelated files. A formatter accepting a compact multi-property literal does not establish readability compliance.
+Keep the literal values, matcher semantics, and property order unchanged. This includes `expect(response.body).toEqual({ message: "Not found." })` and `expect.objectContaining({ id: record.id })`: expand both objects under this convention. Assertion data is not covered by the small call-argument exception above. Preserve stronger project overrides and changed-code scope; do not sweep unrelated files. A formatter accepting a compact expected literal does not establish readability compliance.
 
 In named input declarations, group required members before optional members, preserving their relative order within each group where possible. This is declaration organization: preserve names, types, nullability, optionality, defaults, positional APIs, evaluation order, and runtime behavior. Do not reorder value expressions or sweep unrelated files. For Vue prop examples, see [Multiline Prop Object Types](vue-component-authoring-reference.md#multiline-prop-object-types).
 
@@ -248,7 +289,7 @@ This groups the decision without changing bigint arithmetic or the no-op Void be
 
 ### Diff-Friendly Configuration Layouts
 
-For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. Apply the same layout to nested non-empty response objects, including single-property objects, and multi-property decorator option objects such as `@Attribute` options. This is application of the existing one-entry-per-line convention, not a separate nesting or decorator policy. An addition should not rewrite an existing entry or its delimiters:
+For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. Apply the same layout to nested non-empty response objects, non-empty assertion objects (including single-property objects), and multi-property decorator option objects such as `@Attribute` options. Assertion objects are expected data, not the small call-argument exception in [Simple Construction and Values](#simple-construction-and-values). This is application of the existing one-entry-per-line convention, not a separate nesting, assertion, or decorator policy. An addition should not rewrite an existing entry or its delimiters:
 
 ```typescript
 const defaults = {
@@ -660,7 +701,7 @@ Use application-library `index` files for bundling and re-exports; put implement
 
 For export ordering, follow the owning barrel's established logical groups; the [service-barrel convention](#service-orchestration-readability) below preserves CRUD/controller order before alphabetizing other exports. Alphabetization is a default within the applicable group, not a global sort or permission to move initialization-sensitive imports.
 
-For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations, then put the matching `export default someName` statement last. Keep imports, supporting types, and initialization-sensitive declarations where module semantics require them. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
+For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations and supporting runtime constants, then put the matching `export default someName` statement last when initialization semantics permit. Keep imports and supporting types in their established positions, and preserve required initialization order. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
 
 For example, the primary operation precedes its supporting function and the matching default export ends the module:
 
@@ -677,6 +718,23 @@ function formatStepPosition(position: number): string {
 
 export default formatWorkflowStepLabel
 ```
+
+A cached formatter is a supporting runtime constant too; keep the primary operation visible before it:
+
+```typescript
+export function formatCurrency(amount: number): string {
+  return currencyFormatter.format(amount)
+}
+
+const currencyFormatter = new Intl.NumberFormat("en-CA", {
+  style: "currency",
+  currency: "CAD",
+})
+
+export default formatCurrency
+```
+
+The function body reads `currencyFormatter` only when called after module initialization; the declaration order does not allocate a formatter per call. Do not move a constant below a top-level call or initializer that invokes the function before that constant initializes. Preserve declarations needed by top-level evaluation, initialization cycles, and other early accesses; a hoisted function declaration does not make a later `const` safe to read before initialization.
 
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
 
@@ -1381,6 +1439,10 @@ const { finalDestination } = useFinalDestination(record)
 
 Update the computed binding, returned member, and affected consumers together, retaining the getter's reactive read and exact null fallback. Preserve meaningful names for transformed values, distinct roles, or necessary collision avoidance. Do not rename external contracts or unrelated fields to enforce this preference.
 
+For a derived value, inspect the expression before naming its effect: retain the full domain noun and describe the actual transformation, not merely its intended presentation. A projection formatting `subsidyRate`, `estimatedCost`, and `actualCost` on building expenses should be `formattedBuildingExpenses`, not `displayedExpenses`; its singular callback value is `buildingExpense`. Likewise, formatting administration costs yields `formattedAdministrationCosts`, not `displayedCosts`. Use filtering, sorting, grouping, or indexing names only for those actual effects; an unchanged pass-through retains its source field/domain name as above.
+
+Usage-oriented names such as `visibleBuildingExpenses` or `displayedWorkflowSteps` remain valid for genuine visibility selection or a distinct display snapshot, not as substitutes for describing formatting. Inspect the binding, return/export, and affected consumers together and rename them consistently without a same-value compatibility alias. Preserve stronger local/public contracts, collision distinctions, reactive behavior, values, and order. This is semantic review, not a ban on `displayed`/`visible`, a requirement to prefix everything with `formatted`, or permission to rename unrelated code.
+
 Keep each query or composable result adjacent to its direct derived state. Put broader coordination state and action handlers after their inputs, and lower-priority shared helpers further down.
 
 For Vue inputs, normalized reactive values, watcher new values, and fixed operation snapshots, follow the distinct roles in [Reactive Identifier Roles](vue-component-authoring-reference.md#reactive-identifier-roles), not a blanket rename of `selected` or `requested` variables.
@@ -1802,6 +1864,10 @@ Group service barrel exports in this order, omitting absent groups:
 
 Alphabetize non-CRUD exports within their groups, not globally across groups. Re-export a service and its accompanying public types together in one declaration from their owning module, retaining inline `type` markers. Place that declaration by the service's role instead of sorting its companion types independently into CRUD/read. Do not combine declarations from different source modules. Keep named exports, namespace imports, and default-export object keys aligned with the applicable groups and operation order. Separate groups with one blank line and the established section labels, leaving the initial group unlabeled. Preserve stronger project-local conventions, exported names, and runtime behavior; do not require empty groups or reorganize unrelated barrels.
 
+Apply this semantic grouping to actual barrels, not every file named `index.ts`. Recover the closest maintained local barrels and vocabulary before assessing mixed standard actions, stateful actions, special helpers, and sub-resource/namespace bundles. Accept established heading variants such as **Stateful Services**, **Special Services**, **Sub-resource Services**, **Bundles** in serializers, or **Namespaced services** at the service layer; do not replace them with universal headings. A simple homogeneous barrel needs no artificial sections. Preserve export names, companion type aliases, public contracts, meaningful ordering, and initialization behavior.
+
+The scoped-readability semantic contract reviews grouping and descriptive labels with file-specific findings citing the applicable local example. It complements, and does not replace or weaken, the executable `marlens-rules:barrel-only-indexes` structural check. Structural PASS cannot establish semantic grouping. Missing required local source/convention evidence or unavailable tooling is `BLOCKED`, not a grouping violation or an inferred PASS.
+
 For a resource that already exports the following symbols, lifecycle transitions remain separate from other special actions, and each service retains its companion types:
 
 ```ts
@@ -1928,6 +1994,8 @@ When one predicate gates multiple related computed fields or a multi-line comput
 Keep the predicate's exact boundary, result shape, evaluation order, side effects, and excluded-case behavior unchanged. Avoid ternaries when a clear branch or guard expresses the control flow; do not extract a wrapper solely to eliminate a ternary or `?` token.
 
 Prefer explicit logical forks over a shared call with a ternary argument when the branches represent different operations or choices. Repeat the branch-local call in `if`/`else` when that makes the distinction clear, while reusing shared dependencies and common setup outside the fork. Do not force a single call solely to avoid duplication, extract a wrapper solely to remove syntax, or mechanically eliminate every concise scalar ternary.
+
+Review conditional expressions in authored or meaningfully changed code under this default, including multiline formatting and simple scalar selection. A concise scalar ternary is an explicit exception only when the actual context makes it genuinely clearer than branching; brevity or formatter acceptance alone is not that evidence. An accepted in-scope correction requesting explicit branches controls that case, including a `"Yes"`/`"No"` report field. Cite the location, context, and branch remediation for a violation, or the concrete clarity reason for retaining the exception. Do not confuse nullish coalescing or optional chaining with ternaries, sweep untouched code, or add wrapper functions solely to remove syntax. Preserve single evaluation of predicates, lazy branch execution, values, order, and thrown/rejected errors.
 
 For example, a fuzzy-search term may only be expanded up to a length bound. The same limit gates both generated fields:
 
@@ -2234,7 +2302,7 @@ private normalizeNullableText(value: string | null | undefined): string | null {
 }
 ```
 
-The before excerpt omits the unchanged allowlist for brevity; keep it unchanged in the response. `"  Ada  "` remains `"Ada"`, whitespace-only text remains `""`, `""` remains `""`, and null/undefined remain null. Do not replace this with a truthiness fallback that converts empty strings to null. Keep independently owned shared normalization at its existing owner, and leave clear single-use one-step expressions and unchanged allowlisted fields inline. Dedicated associated serializers own their repeated normalization too; a parent does not take over those mappings.
+The before excerpt omits the unchanged allowlist for brevity; keep it unchanged in the response. `"  Ada  "` remains `"Ada"`, whitespace-only text remains `""`, `""` remains `""`, and null/undefined remain null. Do not replace this with a truthiness fallback that converts empty strings to null. Keep independently owned shared normalization at its existing owner and unchanged allowlisted fields inline under [Simple Serializer Projections](#simple-serializer-projections). A clear single-use normalization need not become a helper, but calls and fallback values are still prepared in named locals before construction under [Function Calls Before Construction](#function-calls-before-construction). Dedicated associated serializers own their repeated normalization too; a parent does not take over those mappings.
 
 ## Serializer Timestamp Conversion
 
