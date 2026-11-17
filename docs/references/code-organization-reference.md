@@ -701,7 +701,7 @@ Use application-library `index` files for bundling and re-exports; put implement
 
 For export ordering, follow the owning barrel's established logical groups; the [service-barrel convention](#service-orchestration-readability) below preserves CRUD/controller order before alphabetizing other exports. Alphabetization is a default within the applicable group, not a global sort or permission to move initialization-sensitive imports.
 
-For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations, then put the matching `export default someName` statement last. Keep imports, supporting types, and initialization-sensitive declarations where module semantics require them. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
+For a single-purpose TypeScript function module, declare the primary named exported function before supporting function declarations and supporting runtime constants, then put the matching `export default someName` statement last when initialization semantics permit. Keep imports and supporting types in their established positions, and preserve required initialization order. Its barrel re-exports the named symbol with `export { someName } from "./some-name"`, not `export { default as someName }`. Preserve intentional framework entrypoints and cohesive multi-function modules; do not create one default per secondary function or reorganize unrelated modules.
 
 For example, the primary operation precedes its supporting function and the matching default export ends the module:
 
@@ -718,6 +718,23 @@ function formatStepPosition(position: number): string {
 
 export default formatWorkflowStepLabel
 ```
+
+A cached formatter is a supporting runtime constant too; keep the primary operation visible before it:
+
+```typescript
+export function formatCurrency(amount: number): string {
+  return currencyFormatter.format(amount)
+}
+
+const currencyFormatter = new Intl.NumberFormat("en-CA", {
+  style: "currency",
+  currency: "CAD",
+})
+
+export default formatCurrency
+```
+
+The function body reads `currencyFormatter` only when called after module initialization; the declaration order does not allocate a formatter per call. Do not move a constant below a top-level call or initializer that invokes the function before that constant initializes. Preserve declarations needed by top-level evaluation, initialization cycles, and other early accesses; a hoisted function declaration does not make a later `const` safe to read before initialization.
 
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
 
@@ -2254,6 +2271,59 @@ expect(unsubscribe).toHaveBeenCalledOnce()
 ```
 
 When automatic framework teardown already unmounts each rendered component, do not add another explicit unmount solely for completeness.
+
+## Human-Facing Report Formatting
+
+When a server-generated report serializer owns display presentation, destructure source attributes in `perform()`, pass them to named private `formatXyz` methods, and evaluate the formatted results into descriptive locals before constructing the report object. The methods own formatting and blank-value handling without reaching back into `this.record`; combined fields accept the explicit attributes they need. This applies [Private Helper Inputs](#private-helper-inputs) and [Function Calls Before Construction](#function-calls-before-construction) to meaningful report formatting, not to unchanged field projections.
+
+For example, these methods belong inside an existing report serializer whose contract uses uppercase airline labels, blank strings for absent presentation values, two decimal places for amounts, and date-only ranges displayed as `MMM d, yyyy`:
+
+```typescript
+perform() {
+  const { id, invoiceDetailVendorName, amount, departureDate, returnDate, isApproved } = this.record
+  const formattedAirline = this.formatAirline(invoiceDetailVendorName)
+  const formattedAmount = this.formatAmount(amount)
+  const formattedDateRange = this.formatDateRange(departureDate, returnDate)
+
+  return {
+    id,
+    airline: formattedAirline,
+    amount: formattedAmount,
+    dateRange: formattedDateRange,
+    isApproved,
+  }
+}
+
+private formatAirline(vendorName: string | null | undefined): string {
+  if (isNil(vendorName)) return ""
+
+  return vendorName.trim().toUpperCase()
+}
+
+private formatAmount(amount: number | null | undefined): string {
+  if (isNil(amount)) return ""
+
+  return amount.toFixed(2)
+}
+
+private formatDateRange(
+  departureDate: string | null | undefined,
+  returnDate: string | null | undefined
+): string {
+  if (isNil(departureDate) || isNil(returnDate)) return ""
+
+  const formattedDepartureDate = DateTime.fromISO(departureDate).toFormat("MMM d, yyyy")
+  const formattedReturnDate = DateTime.fromISO(returnDate).toFormat("MMM d, yyyy")
+
+  return `${formattedDepartureDate} – ${formattedReturnDate}`
+}
+```
+
+Here `isNil` and `DateTime` use the project's existing nil predicate and Luxon imports; the dates are already validated ISO calendar-date strings. The explicit amount guard preserves `0` as `"0.00"`, the unformatted `isApproved` preserves `false`, and blank airline text remains `""`. Pass unchanged attributes directly; do not add pass-through `formatId`/`formatIsApproved` wrappers or meaningless temporary aliases. [Simple Serializer Projections](#simple-serializer-projections) remain valid for unchanged allowlists.
+
+Adapt to the existing report contract rather than imposing these example defaults. Preserve null versus undefined/omission, meaningful empty strings and false values, accepted casing/blank behavior, date-only versus instant/timezone semantics, locale, currency and rounding precision, invalid-input handling, and required association preload errors. Keep required preload guards at the entrypoint before formatting; a blank formatter fallback must not conceal an unloaded association. Follow [Serializer Timestamp Conversion](#serializer-timestamp-conversion) for actual timestamp inputs rather than treating them as calendar dates.
+
+Presentation does not transfer business ownership: totals, eligibility, rates, and other domain computations stay in their existing domain/service owners; the report serializer formats their results. Ordinary machine-facing API serializers retain their transport types and contracts rather than adopting human-facing display strings. Review every report serializer added or meaningfully changed within the accepted scope, not unrelated existing serializers. Consumers should reference this shared owner rather than copy the pattern into local READMEs, and claim adoption only after the published guidance is actually available in their resolved shared source.
 
 ## Repeated Serializer Normalization
 
