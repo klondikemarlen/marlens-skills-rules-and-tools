@@ -45,6 +45,7 @@ For a feature composed through [Evolve](evolve-workflow.md#one-outcome-one-deliv
 - Verify the shipped artifact from the remote source after push, publish, tag, or release; local checks alone do not prove the released version is installed or usable.
 - For user-visible OMP terminal effects, apply [Faithful TUI Demos](../references/omp-plugin-install-reference.md#faithful-tui-demos): preview the actual rendering path with labeled, side-effect-free samples and verify the installed surface rather than presenting a mockup as UI evidence. Preserve host-owned surface and live-dispatch boundaries.
 - Apply [Solve Real User Needs](../../rules/solve-real-user-needs.md) to delivery proof: exercise the actual consumer's discovery, first successful use, routine reuse/update, status, and recovery on the installed/released surface where applicable. Distinguish backend success from activation and maintenance evidence; a longer manual recipe does not close a missing product control. Keep legitimate authentication/privilege steps explicit and record unexercised boundaries honestly.
+- For examples intended to guide real consumer integration, apply [Consumer-Grounded Integration Examples](#consumer-grounded-integration-examples) before implementation and during self-review; functional success alone does not establish lower adoption or maintenance burden.
 - For an artifact whose automatic behavior depends on an OMP advisor, release QA MUST start a fresh OMP process, confirm `/advisor status` shows the named advisor with a resolved model rather than `[no model]`, then trigger one matching failure and observe a standard advisor `blocker` in the primary session before remediation produces `PASS`. A UI notification alone is not correction evidence; unavailable advisor runtime is `BLOCKED`.
 - Do not claim a publish, deploy, marketplace update, or install succeeded unless a command or remote source confirms it.
 - When assessing V1 readiness, use [Practical Release Readiness](#practical-release-readiness) to distinguish ordinary-use reliability and value from passing delivery gates.
@@ -72,6 +73,16 @@ When a maintainer asks to create a public tooling repository, include approval-a
 4. Verify the committed default-branch files, links, maintainer identity, and approval-aware consumer decisions. Distinguish these checks from unperformed GitHub UI or unattended-runner enforcement checks.
 
 Do not create account-wide `.github` defaults without separate explicit scope: GitHub inheritance also reaches eligible private and non-tooling repositories. This setup default provisions repository files; it is not a background reconciler for repositories created outside the authorized setup workflow.
+
+## Consumer-Grounded Integration Examples
+
+This applies to examples recommended for real consumer integration, not every standalone teaching sample. Inspect the actual intended consumers' entrypoints, familiar commands, configuration, and delegation patterns before designing the example. Cite representative consumer sources in the existing requirements or review evidence and derive a stripped-down integration from those patterns, retaining the responsibilities needed for correct operation. Prefer existing command and delegation seams over a bespoke management tool; do not recommend a more elaborate demonstration merely because it works.
+
+When reduced downstream complexity is a goal, explicitly compare the consumer responsibilities removed with the code, configuration, and operational responsibilities added or retained. Name who owns each responsibility after adoption, including setup, routine use/update, failure recovery, and cleanup where applicable. Explain the net effect on the consumer's adoption and maintenance burden; fewer entrypoint lines or moving work into another file is not itself a reduction.
+
+Keep necessary provisioning and safety responsibilities intact. Document their owner and cost, including any unavoidable consumer prerequisites or manual steps, rather than hiding or deleting them to meet a size target. Shared delegation can reduce duplication without eliminating the need to maintain its contract or operate its resources.
+
+Keep functional verification separate from burden evidence in the existing self-review or QA record: commands/tests establish the behavior they exercise; the consumer comparison and representative adoption workflow establish what became easier to adopt or maintain. If the latter is unproven or worse, state that limitation and do not claim downstream simplification or recommend the demonstration on functional success alone. Inspecting consumer sources does not authorize changes to those repositories.
 
 ## Practical Release Readiness
 

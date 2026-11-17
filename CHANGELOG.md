@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1436) - 2026-11-17
+
+### Changed
+
+- Ground recommended integration examples in actual consumer workflows and compare responsibilities removed with ownership costs added or retained. Keep functional success separate from downstream adoption and maintenance evidence.
+
 ## [5.14.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1438) - 2026-11-17
 
 ### Changed
