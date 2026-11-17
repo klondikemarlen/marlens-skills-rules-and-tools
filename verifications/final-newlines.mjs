@@ -2,7 +2,8 @@ import { isUtf8 } from "node:buffer"
 import { execFileSync } from "node:child_process"
 import { lstatSync, readFileSync, realpathSync } from "node:fs"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
+
+import { isMainModule } from "../lib/is-main-module.mjs"
 
 const CONFIGURATION_FILE = ".marlens-verifications.json"
 
@@ -202,6 +203,6 @@ export function runVerification(projectDirectory = process.cwd(), environment = 
   )
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   process.stdout.write(`${JSON.stringify(runVerification())}\n`)
 }
