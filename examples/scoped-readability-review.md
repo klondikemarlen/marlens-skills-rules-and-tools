@@ -126,11 +126,23 @@ assert.equal(preview.markers[0], markerValue)
 
 - **Original execution scope:** `PASS` calls named inside their branch, loop iteration, callback, lazy getter, or transaction when count, order, effects, and identity remain unchanged.
 - **Calls extracted above the guard:** `FAIL`; excluded work now runs.
-- **Calls left in computed keys or spread operands:** `FAIL`; these execute during construction too.
+- **Calls left in computed keys or spread operands:** `FAIL` outside the [simple serializer projection exception](../docs/references/code-organization-reference.md#simple-serializer-projections); these execute during construction too.
 - **Later call moved before an effectful getter:** `FAIL`; capture the earlier read at its original evaluation point.
 - **Function-valued callback:** retain deferred invocation; extract inside the callback when it constructs an object/array, not during outer construction.
 - **Concurrent starts:** `PASS` named promises started in their original order before `Promise.all` consumes their array, with rejection ownership and results preserved. Sequential awaits instead `FAIL`.
 - **Already-available value:** `PASS` direct use; no redundant alias/helper is required.
+
+### Simple Serializer Projection Exception
+
+Accepted task: retain the serializer's expanded field projection and separately named `departureTime` transformation, without an `attributes` alias. Apply the [canonical example](../docs/references/code-organization-reference.md#simple-serializer-projections) with the complete baseline, changed code, existing helper contract, and project guidance.
+
+- **Inline field selection:** `PASS` an expanded `...pick(this.record, [fields])` followed by the named `departureTime` value when fields, evaluation count/order, and spread precedence are unchanged. Do not demand extraction solely because `pick` is called in the object.
+- **Meaningful local retained:** `PASS` a reused projection result or a local needed to preserve effectful getter/proxy reads at their original evaluation points. The exception permits inline selection; it does not ban justified locals.
+- **Transformation hidden in the response:** `FAIL` inlining a meaningful time conversion or nested serializer stage under the projection exception.
+- **Effectful or asynchronous work hidden:** `FAIL` treating a query, factory, write, or asynchronous call as simple field selection.
+- **Changed order or precedence:** `FAIL` moving the projection across an effectful read/transformation, duplicating it, changing selected fields, or moving it after an explicit field that it now overwrites.
+
+These are semantic review expectations, not claims of executed Verifier results. Existing construction scenarios still apply outside the bounded projection exception.
 
 ## Plain Calls, Pending State, and Completion
 
