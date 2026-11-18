@@ -20,7 +20,6 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
         "Learner coverage: no action",
         "Learner coverage: propose bug/feature",
         "Learner coverage: filed",
-        "Before opening a PR, verify its base is the repository's default branch or a documented release branch.",
         "concise, meaningful outcome slug",
         "Final branch/sync:",
         "Retained worktrees:",

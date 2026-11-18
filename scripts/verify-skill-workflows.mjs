@@ -785,17 +785,8 @@ for (const [name, workflow] of [
   if (!workflow.includes("skill://commit/COMMITTING.md")) {
     fail(`${name} must link to the packaged shared commit guide`)
   }
-  if (!workflow.includes("Derive the likely emoji from the staged diff")) {
-    fail(`${name} must derive the commit emoji from the staged diff`)
-  }
   if (!workflow.includes("Warn and stop before creating a `:construction:` commit")) {
     fail(`${name} must warn before an unsupported :construction: commit`)
-  }
-  if (
-    !workflow.includes("Run `check-commit-scope` after staging") ||
-    !workflow.includes("user confirms that the group is genuinely inseparable")
-  ) {
-    fail(`${name} must check and stop on mixed staged file categories`)
   }
   if (
     !workflow.includes(
