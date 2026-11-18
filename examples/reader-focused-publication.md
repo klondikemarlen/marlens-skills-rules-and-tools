@@ -74,6 +74,30 @@ In a fictional restore report, an unrelated file was overwritten in a disposable
 
 If the receiving reader explicitly asks for an investigation timeline, retain the initial Slack-only hypothesis, the later confirmation of a whole-machine shutdown hang, and the crash-report observation in their actual order. Label the hypothesis as historical and the causal relationship as unknown; do not present the abandoned hypothesis as the current diagnosis or delete requested history as “noise.”
 
+## Upstream Feature Requests
+
+Apply [Reader-Focused Feature Requests](../docs/references/github-tooling-reference.md#reader-focused-feature-requests). These are illustrative drafts, not claims of publication or supported runtime behavior.
+
+**Before:**
+
+> One additional boundary for the multi-call operation case above: see our internal Verifier issue for the dependency-snapshot lifecycle and continuation requirements.
+
+**After — Safe-Reload Follow-Up:**
+
+> Could active plugin operations keep using the plugin and dependency versions they started with when a plugin is updated? A verification operation may read source in several calls before submitting its result. Switching versions between those calls can interrupt that work or change how its saved state is interpreted.
+>
+> For example, start a verification with plugin version A, install version B while it is still reading, and let it finish with A and A's dependencies. New operations should then use B. This would let users update plugins without restarting an in-progress verification.
+
+**Separate Feature Request:**
+
+> Could the export command accept a destination directory? Today it writes into the working directory, so scheduled exports need an extra move step. An option such as `--output-dir /reports` would let the job place its file directly where the next step expects it. Please report an unwritable destination as an error rather than silently writing elsewhere.
+
+**Bug Report Contrast:**
+
+> Updating a plugin during a multi-call verification interrupted the verification in one observed run. To reproduce the sequence, start a verification, update the plugin while it is reading source, then let it submit its result. The installed versions and exact error should accompany the report when available. The interruption is observed; whether plugin replacement or dependency replacement caused it is not yet established.
+
+The feature examples state behavior, benefit, and concrete acceptance without internal issue links. The bug contrast preserves the reproduction sequence and attribution limit; obtain actual versions/error evidence before calling it a confirmed upstream defect.
+
 ## Why
 
 Completing required work, retaining evidence, and communicating with a reader are separate responsibilities. Good publication answers a real question or changes a decision; a workflow field alone does neither. Historical results remain tied to their revision rather than implying approval of later code.
@@ -83,5 +107,7 @@ Completing required work, retaining evidence, and communicating with a reader ar
 Run a bounded, read-only OMP authoring/review consumer against the supplied situations and the applicable canonical or packaged workflows. Ask for the chosen action, destination, and minimal public text or no write. Include contrasting no-template, explicit-detail, material-blocker, and shared-versus-downstream cases rather than checking for matching phrases.
 
 For report authoring, supply troubleshooting notes with an abandoned hypothesis and request an actual standalone draft, not just a placement recommendation. Check the opening and retained evidence together. Contrast a safety-critical opening and an explicitly requested chronological handoff; do not accept a shortened draft that loses a material warning or requested history.
+
+For feature-request QA, draft all three outputs from supplied notes: a follow-up to an existing safe-reload request, an unrelated feature request with a concrete benefit, and a bug report retaining reproduction and material uncertainty. Assess the actual drafts for self-contained meaning and useful technical detail; do not accept a checklist answer, internal-issue dependency, or vague shortened text.
 
 Compare actual decisions before and after a guidance change in the existing execution record. A baseline that already makes the correct decision is preserved coverage, not evidence of a model defect or a measured improvement. Do not mutate downstream records to validate this example.
