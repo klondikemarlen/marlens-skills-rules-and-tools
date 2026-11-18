@@ -9,8 +9,6 @@ import { reviewCommentReactionEndpoint } from "../../lib/github-review-thread/re
 
 await test("when feedback is rejected, creates the reaction before resolving and verifies both states", async () => {
   // Arrange
-  // Act
-  // Assert
   const restCalls = []
   const graphCalls = []
   const restResponses = [
@@ -59,8 +57,11 @@ await test("when feedback is rejected, creates the reaction before resolving and
     callRest,
     callGraphql,
   })
+
+  // Act
   const result = await github.resolveReviewThread("owner/repo", 456, 123, "-1")
 
+  // Assert
   assert.deepEqual(
     {
       result,
@@ -124,8 +125,6 @@ await test("when feedback is rejected, creates the reaction before resolving and
 
 await test("when a resolved thread lacks its reaction, repairs it without resolving twice", async () => {
   // Arrange
-  // Act
-  // Assert
   const restCalls = []
   const graphCalls = []
   const restResponses = [
@@ -169,8 +168,11 @@ await test("when a resolved thread lacks its reaction, repairs it without resolv
     callRest,
     callGraphql,
   })
+
+  // Act
   const result = await github.resolveReviewThread("owner/repo", 456, 123, "+1")
 
+  // Assert
   assert.deepEqual(
     {
       result,
@@ -195,8 +197,6 @@ await test("when a resolved thread lacks its reaction, repairs it without resolv
 
 await test("when the final reaction check is missing, rejects completion", async () => {
   // Arrange
-  // Act
-  // Assert
   const restResponses = [
     { id: 42 },
     [],
@@ -237,6 +237,8 @@ await test("when the final reaction check is missing, rejects completion", async
     callRest,
     callGraphql,
   })
+
+  // Act / Assert
   await assert.rejects(
     github.resolveReviewThread("owner/repo", 456, 123, "+1"),
     /Completion verification failed/u

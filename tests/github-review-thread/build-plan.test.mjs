@@ -16,8 +16,7 @@ test.after(async () => {
 })
 
 await test("when resolving in dry-run mode, orders operations around the reaction gate", async () => {
-  // Arrange
-  // Act
+  // Arrange / Act
   const plan = await buildPlan(
     "resolve",
     "owner/repo",
@@ -44,10 +43,20 @@ await test("when resolving in dry-run mode, orders operations around the reactio
 })
 
 await test("when a reply body file is provided, includes its literal content in the dry-run plan", async () => {
-  // Arrange
-  // Act
+  // Arrange / Act
   const plan = await buildPlan("reply", "owner/repo", 123, { pr: 456, bodyFile }, "owner", "repo")
 
   // Assert
   assert.equal(plan[0].body.body, "Addressed in abc123.\n")
+})
+
+await test("when a reply body is inline, rejects the unsafe dry-run input", async () => {
+  // Arrange
+  const options = { pr: 456, body: "Inline reply" }
+
+  // Act / Assert
+  await assert.rejects(
+    buildPlan("reply", "owner/repo", 123, options, "owner", "repo"),
+    /reply rejects inline --body/u
+  )
 })

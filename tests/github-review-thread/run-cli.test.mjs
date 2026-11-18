@@ -9,9 +9,7 @@ const bin = path.join(root, "bin/github-review-thread")
 const repository = "klondikemarlen/marlens-skills-rules-and-tools"
 
 await test("when a repository is external, rejects it before any dry-run plan", () => {
-  // Arrange
-  // Act
-  // Assert
+  // Arrange / Act
   const result = spawnSync(
     process.execPath,
     [
@@ -30,6 +28,7 @@ await test("when a repository is external, rejects it before any dry-run plan", 
     { cwd: root, encoding: "utf8" }
   )
 
+  // Assert
   assert.deepEqual(
     { status: result.status, error: result.stderr.trim() },
     {
@@ -41,15 +40,14 @@ await test("when a repository is external, rejects it before any dry-run plan", 
 })
 
 await test("when resolving in dry-run mode, requires the reaction gate", () => {
-  // Arrange
-  // Act
-  // Assert
+  // Arrange / Act
   const result = spawnSync(
     process.execPath,
     [bin, "resolve", "--repo", repository, "--pr", "456", "--comment-id", "123", "--dry-run"],
     { cwd: root, encoding: "utf8" }
   )
 
+  // Assert
   assert.deepEqual(
     { status: result.status, error: result.stderr.trim() },
     {
@@ -60,9 +58,7 @@ await test("when resolving in dry-run mode, requires the reaction gate", () => {
 })
 
 await test("when feedback is accepted, previews the final verification operations", () => {
-  // Arrange
-  // Act
-  // Assert
+  // Arrange / Act
   const result = spawnSync(
     process.execPath,
     [
@@ -82,6 +78,7 @@ await test("when feedback is accepted, previews the final verification operation
   )
   const output = JSON.parse(result.stdout)
 
+  // Assert
   assert.deepEqual(
     {
       status: result.status,
@@ -99,9 +96,7 @@ await test("when feedback is accepted, previews the final verification operation
 })
 
 await test("when feedback is rejected, previews the matching reaction", () => {
-  // Arrange
-  // Act
-  // Assert
+  // Arrange / Act
   const result = spawnSync(
     process.execPath,
     [
@@ -121,5 +116,6 @@ await test("when feedback is rejected, previews the matching reaction", () => {
   )
   const output = JSON.parse(result.stdout)
 
+  // Assert
   assert.equal(output.plan[3].body.content, "-1")
 })

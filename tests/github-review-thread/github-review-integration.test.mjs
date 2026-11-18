@@ -103,3 +103,29 @@ await test("when a review-thread comment is on a later page, finds it", async ()
     }
   )
 })
+
+await test("when the requested comment has no review thread, returns no match", async () => {
+  // Arrange
+  const callGraphql = async () => ({
+    data: {
+      repository: {
+        pullRequest: {
+          reviewThreads: {
+            nodes: [],
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: null,
+            },
+          },
+        },
+      },
+    },
+  })
+  const github = new GitHubReviewIntegration("token", { callGraphql })
+
+  // Act
+  const result = await github.findThreadByCommentId("owner/repo", 456, 123)
+
+  // Assert
+  assert.equal(result, undefined)
+})
