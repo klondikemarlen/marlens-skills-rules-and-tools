@@ -6,11 +6,48 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
-## [5.14.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1449) - 2026-11-18
+## [5.14.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1462) - 2026-11-18
 
 ### Changed
 
 - Make upstream feature requests self-contained, with concrete benefits and acceptance examples while retaining useful evidence and uncertainty.
+
+## [5.14.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1461) - 2026-11-18
+
+### Changed
+
+- Upgrade installed tools through their existing distribution by default rather than adding a second installation.
+
+## [5.14.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1459) - 2026-11-18
+
+### Changed
+
+- Warn before editing above the bottom open PR in a verified stack, preserving deliberate upper-layer work and existing scope.
+
+## [5.14.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1458) - 2026-11-18
+
+### Changed
+
+- Resolve environment settings in configuration, show human duration units, and reuse owner-defined stable projections without changing values or test oracles.
+
+## [5.14.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1457) - 2026-11-18
+
+### Changed
+
+- Clarify assignment-only service construction, PostgreSQL partial-index rollback and binding limits, and explicit scalar serializer types while preserving existing contracts.
+
+## [5.14.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1456) - 2026-11-18
+
+### Changed
+
+- Clarify required selection events without removing nullable drafts or optional clears, connect API-owned server-table query props to existing data and route owners, and separate successful persistence notifications from parent follow-up failures.
+
+## [5.14.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1460) - 2026-11-18
+
+### Changed
+
+- Define cohesive controller-test contracts for exact action/verb/route scopes, factory-default and named-role setup, supported default subject imports, and nested query transport with native-client equivalence and existing-serializer exceptions. Extend existing semantic review contracts and contrasting consumer scenarios rather than adding a runtime mechanism.
+- Clarify that specific verification standards belong in MSSRT while generic enforcement architecture belongs in OMP Verifier.
 
 ## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
 
