@@ -1,7 +1,9 @@
 ---
 name: human-readable-code
-description: "Make human readability and low ownership burden the default when writing or changing code."
+description: "Load task-relevant MSSRT standards before authoring or reviewing code; make readability and low ownership burden the default."
 ---
+
+Before editing or judging code, follow [Task-Relevant Standards Retrieval](../docs/references/guidance-precedence-reference.md#task-relevant-standards-retrieval). Do not wait for a reminder to apply global standards or assume automatic memory recall supplied them.
 
 Write code for the next maintainer: explanatory names, cohesive responsibilities, readable spacing, and straightforward low-complexity control flow. Prefer explicit steps over clever compression; extract only when a meaningful boundary makes behavior easier to follow. Follow the target project's conventions and preserve correctness, effects, and error behavior. Do not optimize complexity metrics through fragmentation or expand the task into unrelated refactoring.
 
