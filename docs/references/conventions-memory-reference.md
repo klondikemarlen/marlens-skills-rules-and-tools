@@ -85,6 +85,8 @@ The OMP command refreshes enabled sync at the next session start after an instal
 
 Only records carrying this importer's source, session, and metadata ownership markers are refreshed or retired. A desired ID owned by another source, or already present in episodic memory, aborts the transaction rather than overwriting it. Unrelated memories remain unchanged. Manually editing an imported record is temporary: the next sync restores the selected source. Put durable convention corrections in Git and release them instead.
 
+Reconciliation also restores source-owned visibility, importance, trust, memory type, veracity, and source/consolidation timestamps when text and provenance are unchanged. Recall counts and last-recalled timestamps remain native bookkeeping: synchronization preserves them and does not treat their changes as source drift.
+
 ## Evaluate Retrieval and Adherence
 
 Compare representative tasks using the same model and requirements: once with the Markdown-only workflow, then in a fresh session with native recall enabled. Inspect both the retrieved source and produced code against the actual convention—for example writable Vue composable state, explicit controller-test setup, and meaningful identifier names. Keep retrieval success separate from adherence and from a causal improvement claim. Lexical recall can return adjacent or irrelevant sections; authoritative source links and the ordinary Markdown workflow remain necessary. Memory is background context and does not replace current instructions, authorization checks, or executable verification.
