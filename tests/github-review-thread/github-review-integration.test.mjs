@@ -19,10 +19,11 @@ await test("when posting a plain reply body, sends it through the GitHub integra
   await github.replyReviewComment("owner/repo", 456, 123, "Addressed in abc123.\n")
 
   // Assert
+  const replyEndpoint = reviewCommentReplyEndpoint("owner/repo", 456, 123)
   assert.deepEqual(calls, [
     {
       method: "POST",
-      endpoint: reviewCommentReplyEndpoint("owner/repo", 456, 123),
+      endpoint: replyEndpoint,
       payload: { body: "Addressed in abc123.\n" },
     },
   ])
@@ -81,9 +82,11 @@ await test("when a review-thread comment is on a later page, finds it", async ()
     threadId: "thread-1",
     isResolved: false,
   })
+  const threadLocatorQuery = graphqlThreadLocatorQuery()
+  const threadCommentsPageQuery = graphqlThreadCommentsPageQuery()
   assert.deepEqual(calls, [
     {
-      query: graphqlThreadLocatorQuery(),
+      query: threadLocatorQuery,
       variables: {
         owner: "owner",
         name: "repo",
@@ -92,7 +95,7 @@ await test("when a review-thread comment is on a later page, finds it", async ()
       },
     },
     {
-      query: graphqlThreadCommentsPageQuery(),
+      query: threadCommentsPageQuery,
       variables: {
         threadId: "thread-1",
         after: "comment-cursor-1",
