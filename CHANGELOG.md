@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1473) - 2026-11-18
+
 ### Fixed
 
 - Require disposition of applicable late review findings after completion or during an unrelated discussion, preserving current-source evidence and authorization boundaries.
