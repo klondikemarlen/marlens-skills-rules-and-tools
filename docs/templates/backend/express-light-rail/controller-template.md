@@ -88,7 +88,7 @@ describe("api/controllers/downloads/flight-reconciliations-controller.ts", () =>
 })
 ```
 
-Both ` - ` separators are required. Functional handler tests retain their actual subject naming; do not invent a controller class. Keep status first and complete body assertions direct, with independent persistence outcomes in separate focused tests. Follow [Structured Controller Query Inputs](../../../references/code-organization-reference.md#structured-controller-query-inputs) for nested scenario data and the native-versus-existing-serializer handoff, and [Project-Root Imports and Paths](../../../references/code-organization-reference.md#project-root-imports-and-paths) for actual subject imports. Preserve project-local overrides and genuine raw-wire tests.
+Both hyphen separators, with surrounding spaces, are required. Functional handler tests retain their actual subject naming; do not invent a controller class. Keep status first and complete body assertions direct, with independent persistence outcomes in separate focused tests. Follow [Structured Controller Query Inputs](../../../references/code-organization-reference.md#structured-controller-query-inputs) for nested scenario data and the native-versus-existing-serializer handoff, and [Project-Root Imports and Paths](../../../references/code-organization-reference.md#project-root-imports-and-paths) for actual subject imports. Preserve project-local overrides and genuine raw-wire tests.
 
 ## Controller-Local Record Loading
 
