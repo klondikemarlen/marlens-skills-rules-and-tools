@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1462) - 2026-11-18
+
+### Changed
+
+- Make upstream feature requests self-contained, with concrete benefits and acceptance examples while retaining useful evidence and uncertainty.
+
 ## [5.14.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1461) - 2026-11-18
 
 ### Changed

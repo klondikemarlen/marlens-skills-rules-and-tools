@@ -108,6 +108,12 @@ Examples:
 
 For agreement without additional information, use a `+1` reaction on the main issue rather than a comment. If the same actor has already reacted, do not add a duplicate reaction. Existing repository-write authorization still applies to comments and reactions; agreement is not permission to write to an external repository.
 
+### Reader-Focused Feature Requests
+
+Before publishing an upstream feature request or follow-up, draft for the receiving maintainer: lead with the user's problem, the requested behavior, and its benefit. Explain relevant plugin/integration behavior in ordinary language and retain technical details that help decide or implement the request. The request must stand on its own without internal project-issue links supplying the explanation; cite directly useful public API or reproduction evidence when needed.
+
+For an existing request, add the missing behavior or acceptance example rather than replaying its history. Remove process reports, defensive disclaimers, and unexplained jargon, not material uncertainty, reproduction details, or safety limits. Review the actual proposed text from the recipient's perspective under [Reader-Focused Publication](../../examples/reader-focused-publication.md#upstream-feature-requests), not just a checklist. This writing guidance does not authorize upstream publication or assert upstream defect ownership.
+
 ## Metadata Updates
 
 For issue or pull request body/title changes, prefer the high-level commands and verify with `gh issue view` or `gh pr view`:
