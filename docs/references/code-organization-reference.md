@@ -772,6 +772,8 @@ Preserve the runner's required timestamp/sequence prefix, casing, separators, an
 
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
+For version-qualified Knex/PostgreSQL partial-index creation, rollback, and embedded SQL highlighting, use [Knex PostgreSQL Partial Unique Indexes](express-light-rail-backend-concepts-reference.md#knex-postgresql-partial-unique-indexes). Keep reusable builder mechanics there and project-specific schema decisions with the project.
+
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
 For TypeScript migrations whose runner supports named module exports, prefer a type-only `Knex` import and named async entry-point declarations:
@@ -1704,6 +1706,26 @@ The values illustrate two different cadences, not a required interval, framework
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
 Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.
+
+Keep service/use-case constructors assignment-only: store supplied inputs without parsing, normalization, validation, queries, or mutations. Execute the action in `perform()` (or the established entry point). When the accepted contract requires canonical caller input, reject noncanonical input at action entry before locks, queries, or writes; preserve producer-owned normalization under [Text Validation Ownership](#text-validation-ownership). Do not invent a grammar or replace an intentionally normalizing contract with rejection. Framework constructors and other class lifecycles retain their required behavior.
+
+For example, where the existing `isCanonicalBookingReference` predicate and `ValidationError` own the accepted contract:
+
+```typescript
+class ImportBookingService {
+  constructor(private bookingReference: string) {}
+
+  perform() {
+    if (!isCanonicalBookingReference(this.bookingReference)) {
+      throw new ValidationError("Booking reference must be canonical.")
+    }
+
+    return importBooking(this.bookingReference)
+  }
+}
+```
+
+Construction stores even noncanonical input unchanged; the first action step rejects it. Here `importBooking` represents the existing domain operation, not a new wrapper to introduce. Check the real producer sends the canonical value, invalid input fails before effects, and valid input reaches the action unchanged, preserving error/async semantics.
 
 When a helper implements an existing service's own responsibility, prefer a private method of that service rather than a standalone function beside the class. For example, a `workflowIdsQuery(sourceIds, sourceType)` that implements only `ResolveWorkflowIdsService`'s source-to-workflow lookup belongs below its calling action as a private method with those explicit inputs and unchanged query behavior. Keep a genuinely shared query definition, schema, domain rule, or independently owned pure function with its actual owner, even with one current caller. Do not invent a schema abstraction solely to relocate a service implementation detail, mandate classes for standalone functions, or move unrelated helpers based on caller count. Apply the [primary-operation distinction](#primary-operations-and-local-implementation) within the requested authoring or review scope.
 

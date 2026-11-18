@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1444) - 2026-11-18
+
+### Changed
+
+- Clarify assignment-only service construction, PostgreSQL partial-index rollback and binding limits, and explicit scalar serializer types while preserving existing contracts.
+
 ## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
 
 ### Changed
