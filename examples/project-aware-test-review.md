@@ -63,7 +63,9 @@ test("when two active steps are due, delivers the first step to Alice", async ()
   await service.perform()
 
   // Assert
-  expect(mailer.deliver).toHaveBeenNthCalledWith(1, ["alice@example.test"], { stepId: 21 })
+  expect(mailer.deliver).toHaveBeenNthCalledWith(1, ["alice@example.test"], {
+    stepId: 21,
+  })
 })
 
 test("when two active steps are due, delivers the second step to Bob", async () => {
@@ -74,7 +76,9 @@ test("when two active steps are due, delivers the second step to Bob", async () 
   await service.perform()
 
   // Assert
-  expect(mailer.deliver).toHaveBeenNthCalledWith(2, ["bob@example.test"], { stepId: 22 })
+  expect(mailer.deliver).toHaveBeenNthCalledWith(2, ["bob@example.test"], {
+    stepId: 22,
+  })
 })
 ```
 
@@ -152,7 +156,9 @@ test("when steps are due, routes the first reminder to Alice", async () => {
   await service.perform()
 
   // Assert
-  expect(mailer.deliver).toHaveBeenNthCalledWith(1, ["alice@example.test"], { stepId: 21 })
+  expect(mailer.deliver).toHaveBeenNthCalledWith(1, ["alice@example.test"], {
+    stepId: 21,
+  })
 })
 
 test("when steps are due, routes the second reminder to Bob", async () => {
@@ -163,7 +169,9 @@ test("when steps are due, routes the second reminder to Bob", async () => {
   await service.perform()
 
   // Assert
-  expect(mailer.deliver).toHaveBeenNthCalledWith(2, ["bob@example.test"], { stepId: 22 })
+  expect(mailer.deliver).toHaveBeenNthCalledWith(2, ["bob@example.test"], {
+    stepId: 22,
+  })
 })
 
 test("when steps are due, delivers exactly two reminders", async () => {

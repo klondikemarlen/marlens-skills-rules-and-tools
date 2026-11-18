@@ -41,10 +41,10 @@ const props = defineProps<{
   {parentResourceName}Id: string
 }>()
 
-const {parentResourceName}Id = computed(() => Number.parseInt(props.{parentResourceName}Id, 10))
+const {parentResourceName}IdAsNumber = computed(() => Number.parseInt(props.{parentResourceName}Id, 10))
 
 const where = computed(() => ({
-  {ParentForeignKey}: {parentResourceName}Id.value,
+  {ParentForeignKey}: {parentResourceName}IdAsNumber.value,
 }))
 </script>
 ```
@@ -85,13 +85,13 @@ const props = defineProps<{
   {parentResourceName}Id: string
 }>()
 
-const {parentResourceName}Id = computed(() => Number.parseInt(props.{parentResourceName}Id, 10))
+const {parentResourceName}IdAsNumber = computed(() => Number.parseInt(props.{parentResourceName}Id, 10))
 const {relatedResourceNames}Table = ref<InstanceType<typeof {RelatedResourceNames}FilterableDataTableServer> | null>(null)
 const isDeleting = ref(false)
 const snack = useSnack()
 
 const where = computed(() => ({
-  {ParentForeignKey}: {parentResourceName}Id.value,
+  {ParentForeignKey}: {parentResourceName}IdAsNumber.value,
 }))
 
 async function deleteRelatedRecord(relatedRecordId: number) {

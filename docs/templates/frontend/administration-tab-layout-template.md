@@ -24,13 +24,13 @@ Use this for the parent route component that owns a resource detail card, header
 
 ```vue
 <template>
-  <{ParentResourceDetailCard} :{parent-resource-name}-id="parentResourceId">
+  <{ParentResourceDetailCard} :{parent-resource-name}-id="{parentResourceName}Id">
     <template #header-actions>
       <v-btn
         color="primary"
         :to="{
           name: '{ParentResourceEditRouteName}',
-          params: { {parentResourceName}Id: parentResourceId },
+          params: { {parentResourceName}Id: {parentResourceName}Id },
         }"
       >
         Edit {ParentResourceName}
@@ -41,7 +41,7 @@ Use this for the parent route component that owns a resource detail card, header
       <v-tab
         :to="{
           name: '{ParentResourceOverviewRouteName}',
-          params: { {parentResourceName}Id: parentResourceId },
+          params: { {parentResourceName}Id: {parentResourceName}Id },
         }"
       >
         Overview
@@ -49,7 +49,7 @@ Use this for the parent route component that owns a resource detail card, header
       <v-tab
         :to="{
           name: '{ParentResourceRelatedRouteName}',
-          params: { {parentResourceName}Id: parentResourceId },
+          params: { {parentResourceName}Id: {parentResourceName}Id },
         }"
       >
         Related Records

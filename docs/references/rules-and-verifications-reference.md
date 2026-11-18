@@ -91,7 +91,7 @@ For intentional unbounded loops, follow the [readable loop preference](code-orga
 
 ## Default-Enabled Package Policies
 
-Shared package policies and manifest verifications are available by default; a consuming project may explicitly opt out only where documented configuration supports it. Automatic execution still requires OMP Verifier and a matching trigger. Test-alignment's explicit local additions, including assertion-count limits, are structural syntax conventions, not shared quality defaults. `test-assertion-focus` separately reviews semantic focus and honors applicable ordinary-language local policy without imposing a universal count.
+Shared package policies and manifest verifications are available by default; a consuming project may explicitly opt out only where documented configuration supports it. Automatic execution still requires OMP Verifier and a matching trigger. [Test alignment](test-alignment-verifier-reference.md#shared-baseline) enforces exactly one direct `expect(...)` per non-controller expect-based test without local opt-in; zero and multiple calls fail. Controller tests retain their explicit response-contract exception, and native `node:assert` tests retain their framework. Explicit local additions supplement this shared structural baseline. `test-assertion-focus` separately reviews meaningful observable contracts, hidden assertions, synthetic bundles, and preserved scenario coverage against the shared default and applicable ordinary-language local policy; a structural count alone does not prove assertion quality.
 
 For `default-function-exports`, inspect all tracked TypeScript modules by default. Add the following to `.marlens-verifications.json` only to disable that verification:
 

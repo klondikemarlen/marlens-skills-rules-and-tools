@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Recover the original MCP configuration before capturing a new temporary-task baseline, and execute both supported command launcher forms.
+- Parse JSONC configuration with TypeScript without altering quoted paths or accepting unterminated comments.
+- Align positive templates, assertion rules, packaged review obligations, and delivery procedures with their canonical standards.
+- Give verification scenarios independent ownership and restore meaningful success/failure controls and test phase placement.
+
 ## [5.14.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1468) - 2026-11-18
 
 ### Fixed

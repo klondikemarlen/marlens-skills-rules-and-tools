@@ -124,7 +124,11 @@ const travelAuthorization = await travelAuthorizationFactory
 const result = IndexSerializer.perform(travelAuthorization, currentUser)
 
 // Assert
-expect(result.finalDestination).toEqual(expect.objectContaining({ city: "Toronto" }))
+expect(result.finalDestination).toEqual(
+  expect.objectContaining({
+    city: "Toronto",
+  })
+)
 ```
 
 The named unsaved children are supplied in insertion order `3, 1, 2`; the factory saves them under the new parent. Native loading retains the required query order `1, 2, 3` and secondary `id` order, with the original preloads and explicit `null`. Existing location row identities are reused. Factory Shark preserves supplied child instances while saving; `.include()` loads from the database, so loaded associations need not be those same JavaScript objects. Keep any actual object-reference requirement explicit when deciding whether a replacement fits.

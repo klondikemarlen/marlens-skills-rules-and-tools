@@ -30,6 +30,8 @@ type ProjectLike = {
   createdAt: Date | string
   updatedAt: Date | string
 }
+
+export default serializeProject
 ```
 
 ## Checklist

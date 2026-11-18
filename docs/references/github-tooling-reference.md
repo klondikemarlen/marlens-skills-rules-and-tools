@@ -119,11 +119,20 @@ For an existing request, add the missing behavior or acceptance example rather t
 For issue or pull request body/title changes, prefer the high-level commands and verify with `gh issue view` or `gh pr view`:
 
 ```bash
-gh issue edit <number> --body-file /tmp/body.md
-gh issue edit <number> --title "New Title"
-gh pr edit <number> --body-file /tmp/body.md
-gh pr edit <number> --title "New Title"
-gh pr view <number> --json title,body,state,isDraft,url
+(
+  set -e
+  body_file="$(mktemp "${TMPDIR:-/tmp}/github-body.XXXXXXXXXX")"
+  trap 'rm -f -- "$body_file"' EXIT
+  cat >"$body_file" <<'EOF'
+Updated Markdown body.
+EOF
+  gh issue edit <number> --body-file "$body_file"
+  gh issue edit <number> --title "New Title"
+  gh issue view <number> --json title,body,state,url
+  gh pr edit <number> --body-file "$body_file"
+  gh pr edit <number> --title "New Title"
+  gh pr view <number> --json title,body,state,isDraft,url
+)
 ```
 
 ## REST Fallback for Pull Request Metadata
@@ -131,9 +140,17 @@ gh pr view <number> --json title,body,state,isDraft,url
 `gh pr edit` may fail while querying the deprecated `repository.pullRequest.projectCards` GraphQL field. Keep Markdown in a file, build a JSON request body from that file, and use the REST endpoint instead:
 
 ```bash
-jq -n --rawfile body /tmp/pr-body.md '{body: $body}' >/tmp/pr-patch.json
-gh api -X PATCH repos/OWNER/REPOSITORY/pulls/NUMBER --input /tmp/pr-patch.json
-gh api repos/OWNER/REPOSITORY/pulls/NUMBER --jq '{title,body}'
+(
+  set -e
+  authoring_dir="$(mktemp -d "${TMPDIR:-/tmp}/github-pr-patch.XXXXXXXXXX")"
+  trap 'rm -rf -- "$authoring_dir"' EXIT
+  cat >"$authoring_dir/pr-body.md" <<'EOF'
+Updated pull request body.
+EOF
+  jq -n --rawfile body "$authoring_dir/pr-body.md" '{body: $body}' >"$authoring_dir/pr-patch.json"
+  gh api -X PATCH repos/OWNER/REPOSITORY/pulls/NUMBER --input "$authoring_dir/pr-patch.json"
+  gh api repos/OWNER/REPOSITORY/pulls/NUMBER --jq '{title,body}'
+)
 ```
 
 Use the same `gh api -X PATCH` endpoint with `{title: "New Title"}` for title updates. After every mutation, perform a fresh API-backed read and verify the intended title or body before reporting success. Do not pass shell-sensitive Markdown inline.
@@ -201,10 +218,15 @@ The gated `resolve --reaction +1|-1` action maps the comment to its review threa
 Never pass Markdown through inline `--body`; the shell evaluates backticks and `$()` before the CLI receives the argument. Write the exact text to a file and pass `--body-file`:
 
 ```bash
-cat >/tmp/review-reply.md <<'EOF'
+(
+  set -e
+  reply_file="$(mktemp "${TMPDIR:-/tmp}/github-review-reply.XXXXXXXXXX")"
+  trap 'rm -f -- "$reply_file"' EXIT
+  cat >"$reply_file" <<'EOF'
 Addressed in <commit-hash>: <specific fix>.
 EOF
-github-review-thread reply --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body-file /tmp/review-reply.md
+  github-review-thread reply --repo OWNER/REPOSITORY --pr NUMBER --comment-id COMMENT_ID --body-file "$reply_file"
+)
 ```
 
 The helper rejects inline `--body` for replies. Use the same file-based pattern for `gh issue` and `gh pr` body/comment writes.

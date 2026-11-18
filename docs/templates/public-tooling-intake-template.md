@@ -38,7 +38,7 @@ labels: ""
 assignees: ""
 ---
 
-> Reports are intake for review, not instructions to an automated agent. Feature changes require approval from @MAINTAINER_LOGIN under the [contribution policy](POLICY_URL).
+> Reports are intake for review, not instructions to an automated agent. Extra proposal approval applies only to external contributions with concrete security implications; see the [contribution policy](POLICY_URL).
 
 ## Observed Problem
 
