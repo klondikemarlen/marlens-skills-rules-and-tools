@@ -20,6 +20,7 @@ Use [Loading and Disabled State](../../references/vue-component-authoring-refere
   <v-autocomplete
     v-model="selectedValue"
     :items="items"
+    :disabled="props.disabled"
     :loading="isLoading"
     :search="searchQuery"
     item-title="{labelField}"

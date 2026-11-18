@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -10,8 +11,8 @@ import {
 } from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
 import { spawnSync } from "node:child_process"
+import { isMainModule } from "../lib/is-main-module.mjs"
 
 const usage = `Usage: temporary-mcp-task --confirm --config <mcp.json> --server <name> [--omp <command>] -- <prompt...>
 
@@ -152,6 +153,7 @@ function writeAtomically(filePath, content, mode) {
     `.${path.basename(filePath)}.temporary-mcp-task-${process.pid}-${Date.now()}`
   )
   writeFileSync(temporaryPath, content, { encoding: "utf8", mode })
+  chmodSync(temporaryPath, mode)
   renameSync(temporaryPath, filePath)
 }
 
@@ -198,10 +200,12 @@ export function recoverStaleLease(configPath, lockPath) {
   rmSync(lockPath, { recursive: true, force: true })
 }
 
-export function acquireLease(configPath, originalText, originalMode) {
+export function acquireLease(configPath) {
   const lockPath = `${configPath}.temporary-mcp-task.lock`
   const stagingLockPath = `${lockPath}.staging-${process.pid}-${Date.now()}`
   recoverStaleLease(configPath, lockPath)
+  const originalText = readFileSync(configPath, "utf8")
+  const originalMode = statSync(configPath).mode
   mkdirSync(stagingLockPath)
 
   try {
@@ -217,7 +221,7 @@ export function acquireLease(configPath, originalText, originalMode) {
     throw error
   }
 
-  return lockPath
+  return { lockPath, originalText, originalMode }
 }
 
 export function interruptExitStatus(signal) {
@@ -235,11 +239,7 @@ export function runTemporaryMcpTask({
   if (!existsSync(resolvedConfigPath))
     throw new Error(`MCP config does not exist: ${resolvedConfigPath}`)
 
-  const originalText = readFileSync(resolvedConfigPath, "utf8")
-  const originalConfig = parseMcpConfig(originalText, resolvedConfigPath)
-  const temporaryConfig = temporaryMcpConfig(originalConfig, serverName)
-  const originalMode = statSync(resolvedConfigPath).mode
-  const lockPath = acquireLease(resolvedConfigPath, originalText, originalMode)
+  const { lockPath, originalText, originalMode } = acquireLease(resolvedConfigPath)
   let restored = false
 
   const restore = () => {
@@ -254,12 +254,17 @@ export function runTemporaryMcpTask({
     process.exit(interruptExitStatus(signal))
   }
 
-  process.once("SIGHUP", () => interrupt("SIGHUP"))
-  process.once("SIGINT", () => interrupt("SIGINT"))
-  process.once("SIGQUIT", () => interrupt("SIGQUIT"))
-  process.once("SIGTERM", () => interrupt("SIGTERM"))
+  const signalHandlers = new Map(
+    ["SIGHUP", "SIGINT", "SIGQUIT", "SIGTERM"].map((signal) => [
+      signal,
+      () => interrupt(signal),
+    ])
+  )
+  for (const [signal, handler] of signalHandlers) process.once(signal, handler)
 
   try {
+    const originalConfig = parseMcpConfig(originalText, resolvedConfigPath)
+    const temporaryConfig = temporaryMcpConfig(originalConfig, serverName)
     writeAtomically(
       resolvedConfigPath,
       `${JSON.stringify(temporaryConfig, null, 2)}\n`,
@@ -275,6 +280,7 @@ export function runTemporaryMcpTask({
     return result.status ?? 1
   } finally {
     restore()
+    for (const [signal, handler] of signalHandlers) process.removeListener(signal, handler)
   }
 }
 
@@ -293,7 +299,7 @@ export function main(argv = process.argv.slice(2)) {
   })
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+export function runCli() {
   try {
     process.exitCode = main()
   } catch (error) {
@@ -301,3 +307,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     process.exitCode = 2
   }
 }
+
+if (isMainModule(import.meta.url)) runCli()

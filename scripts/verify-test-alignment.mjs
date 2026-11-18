@@ -3,53 +3,13 @@ import { execFileSync, spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
+import test from "node:test"
 import { fileURLToPath } from "node:url"
 import { runVerification } from "../verifications/test-alignment.mjs"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const verifierPath =
   process.env.MARLENS_TEST_ALIGNMENT_ENTRY ?? path.join(root, "verifications/test-alignment.mjs")
-
-function runStandalone(projectDirectory, environment, argumentsList = []) {
-  return spawnSync(process.execPath, [verifierPath, ...argumentsList], {
-    cwd: projectDirectory,
-    encoding: "utf8",
-    env: { ...process.env, ...environment },
-  })
-}
-
-function standaloneResult(processResult) {
-  assert.equal(processResult.error, undefined, processResult.error?.message)
-  assert.equal(processResult.stderr, "")
-  return JSON.parse(processResult.stdout)
-}
-
-function git(directory, argumentsList) {
-  return execFileSync("git", argumentsList, {
-    cwd: directory,
-    stdio: "ignore",
-  })
-}
-
-function write(directory, relativePath, contents) {
-  const filePath = path.join(directory, relativePath)
-  mkdirSync(path.dirname(filePath), { recursive: true })
-  writeFileSync(filePath, contents)
-}
-
-function createProject() {
-  const directory = mkdtempSync(path.join(os.tmpdir(), "marlens-test-alignment-"))
-  git(directory, ["init", "--quiet"])
-  git(directory, ["config", "user.email", "test@example.com"])
-  git(directory, ["config", "user.name", "Test User"])
-  git(directory, ["branch", "-M", "main"])
-  return directory
-}
-
-function commit(directory, message) {
-  git(directory, ["add", "."])
-  git(directory, ["commit", "--quiet", "-m", message])
-}
 
 const guidance = `<!-- marlens-test-alignment: test-name-when -->
 <!-- marlens-test-alignment: arrange-act-assert -->
@@ -76,25 +36,10 @@ const alignedTest = `describe('widget.test.ts', () => {
 });
 `
 
-const project = createProject()
-const noGuidanceProject = createProject()
-const nonTestProject = createProject()
-const untrackedTestProject = createProject()
-const exemptionProject = createProject()
-const suppressionProject = createProject()
-const invalidSuppressionProject = createProject()
-const automaticScopeProject = createProject()
-const combinedPhaseProject = createProject()
-const regexProject = createProject()
-const cliBlockedProject = createProject()
-const largeScopeProject = createProject()
-try {
-  write(project, "tests/README.md", guidance)
-  write(project, "tests/widget.test.ts", alignedTest)
-  commit(project, "baseline")
-  git(project, ["switch", "--quiet", "-c", "feature"])
-  write(project, "tests/widget.test.ts", `${alignedTest}\n// Changed on this branch.\n`)
-  commit(project, "aligned test change")
+test("when the PR base is unavailable, the CLI blocks shell continuation", (t) => {
+  const cliBlockedProject = createProject()
+  t.after(() => rmSync(cliBlockedProject, { recursive: true, force: true }))
+
   // The standalone CLI keeps BLOCKED evidence and fails closed for shell gates.
   const blockedCli = runStandalone(cliBlockedProject, {
     MARLENS_TEST_ALIGNMENT_BASE: "missing-pr-base",
@@ -122,46 +67,58 @@ try {
   assert.equal(shellContinuation.status, 1)
   assert.equal(JSON.parse(shellContinuation.stdout).status, "BLOCKED")
   assert.equal(existsSync(continuationPath), false)
+})
 
+test("when a failing branch test is corrected, the CLI changes from FAIL to PASS", (t) => {
   const failingCliProject = createProject()
-  try {
-    write(failingCliProject, "tests/README.md", guidance)
-    write(failingCliProject, "tests/widget.test.ts", alignedTest)
-    commit(failingCliProject, "baseline")
-    git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      "test('saves widget', () => { expect(true).toEqual(true) })\n"
-    )
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
 
-    const failingCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(failingCli.status, 1)
-    assert.equal(standaloneResult(failingCli).status, "FAIL")
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    "test('saves widget', () => { expect(true).toEqual(true) })\n"
+  )
 
-    write(failingCliProject, "tests/widget.test.ts", `${alignedTest}\n// Corrected on branch.\n`)
-    const passingCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(passingCli.status, 0)
-    assert.equal(standaloneResult(passingCli).status, "PASS")
+  const failingCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(failingCli.status, 1)
+  assert.equal(standaloneResult(failingCli).status, "FAIL")
 
-    write(
-      failingCliProject,
-      "tests/README.md",
-      `<!-- marlens-test-alignment: test-name-when -->
+  write(failingCliProject, "tests/widget.test.ts", `${alignedTest}\n// Corrected on branch.\n`)
+  const passingCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(passingCli.status, 0)
+  assert.equal(standaloneResult(passingCli).status, "PASS")
+})
+
+test("when synchronous test options are supplied, the CLI accepts the callback", (t) => {
+  const failingCliProject = createProject()
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
+
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/README.md",
+    `<!-- marlens-test-alignment: test-name-when -->
 <!-- marlens-test-alignment: arrange-act-assert -->
 `
-    )
+  )
 
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      `test("when a synchronous option is supplied, reads the value", { skip: false }, () => {
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    `test("when a synchronous option is supplied, reads the value", { skip: false }, () => {
   // Arrange
   const input = 1;
 
@@ -172,18 +129,35 @@ try {
   expect(result).toBe(2);
 });
 `
-    )
-    const synchronousOptionsCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(synchronousOptionsCli.status, 0)
-    assert.equal(standaloneResult(synchronousOptionsCli).status, "PASS")
+  )
+  const synchronousOptionsCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(synchronousOptionsCli.status, 0)
+  assert.equal(standaloneResult(synchronousOptionsCli).status, "PASS")
+})
 
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      `test("when an asynchronous option is supplied, reads the value", { skip: false }, async () => {
+test("when asynchronous test options are supplied, the CLI accepts the callback", (t) => {
+  const failingCliProject = createProject()
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
+
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/README.md",
+    `<!-- marlens-test-alignment: test-name-when -->
+<!-- marlens-test-alignment: arrange-act-assert -->
+`
+  )
+
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    `test("when an asynchronous option is supplied, reads the value", { skip: false }, async () => {
   // Arrange
   const input = 1;
 
@@ -194,18 +168,35 @@ try {
   expect(result).toBe(2);
 });
 `
-    )
-    const asynchronousOptionsCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(asynchronousOptionsCli.status, 0)
-    assert.equal(standaloneResult(asynchronousOptionsCli).status, "PASS")
+  )
+  const asynchronousOptionsCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(asynchronousOptionsCli.status, 0)
+  assert.equal(standaloneResult(asynchronousOptionsCli).status, "PASS")
+})
 
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      `test.each([2])("when a row is supplied, keeps its callback", (input) => {
+test("when a parameterized test has a timeout, the CLI retains its callback", (t) => {
+  const failingCliProject = createProject()
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
+
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/README.md",
+    `<!-- marlens-test-alignment: test-name-when -->
+<!-- marlens-test-alignment: arrange-act-assert -->
+`
+  )
+
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    `test.each([2])("when a row is supplied, keeps its callback", (input) => {
   // Arrange
   const value = input;
 
@@ -216,18 +207,35 @@ try {
   expect(result).toBe(2);
 }, 100);
 `
-    )
-    const parameterizedTimeoutCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(parameterizedTimeoutCli.status, 0)
-    assert.equal(standaloneResult(parameterizedTimeoutCli).status, "PASS")
+  )
+  const parameterizedTimeoutCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(parameterizedTimeoutCli.status, 0)
+  assert.equal(standaloneResult(parameterizedTimeoutCli).status, "PASS")
+})
 
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      `test.skip("when a test is skipped, keeps its callback", () => {
+test("when a modified test has a timeout, the CLI retains its callback", (t) => {
+  const failingCliProject = createProject()
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
+
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/README.md",
+    `<!-- marlens-test-alignment: test-name-when -->
+<!-- marlens-test-alignment: arrange-act-assert -->
+`
+  )
+
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    `test.skip("when a test is skipped, keeps its callback", () => {
   // Arrange
   const value = 2;
 
@@ -238,18 +246,35 @@ try {
   expect(result).toBe(2);
 }, 100);
 `
-    )
-    const modifiedTimeoutCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(modifiedTimeoutCli.status, 0)
-    assert.equal(standaloneResult(modifiedTimeoutCli).status, "PASS")
+  )
+  const modifiedTimeoutCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(modifiedTimeoutCli.status, 0)
+  assert.equal(standaloneResult(modifiedTimeoutCli).status, "PASS")
+})
 
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      `test("when the Act phase is missing, reports a violation", { skip: false }, () => {
+test("when an options callback omits Act, the CLI reports FAIL", (t) => {
+  const failingCliProject = createProject()
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
+
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/README.md",
+    `<!-- marlens-test-alignment: test-name-when -->
+<!-- marlens-test-alignment: arrange-act-assert -->
+`
+  )
+
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    `test("when the Act phase is missing, reports a violation", { skip: false }, () => {
   // Arrange
   const value = 2;
 
@@ -257,18 +282,35 @@ try {
   expect(value).toBe(2);
 });
 `
-    )
-    const missingOptionPhaseCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(missingOptionPhaseCli.status, 1)
-    assert.equal(standaloneResult(missingOptionPhaseCli).status, "FAIL")
+  )
+  const missingOptionPhaseCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(missingOptionPhaseCli.status, 1)
+  assert.equal(standaloneResult(missingOptionPhaseCli).status, "FAIL")
+})
 
-    write(
-      failingCliProject,
-      "tests/widget.test.ts",
-      `test("when the phases are out of order, reports a violation", { skip: false }, () => {
+test("when an options callback orders phases incorrectly, the CLI reports FAIL", (t) => {
+  const failingCliProject = createProject()
+  t.after(() => rmSync(failingCliProject, { recursive: true, force: true }))
+
+  write(failingCliProject, "tests/README.md", guidance)
+  write(failingCliProject, "tests/widget.test.ts", alignedTest)
+  commit(failingCliProject, "baseline")
+  git(failingCliProject, ["switch", "--quiet", "-c", "feature"])
+  write(
+    failingCliProject,
+    "tests/README.md",
+    `<!-- marlens-test-alignment: test-name-when -->
+<!-- marlens-test-alignment: arrange-act-assert -->
+`
+  )
+
+  write(
+    failingCliProject,
+    "tests/widget.test.ts",
+    `test("when the phases are out of order, reports a violation", { skip: false }, () => {
   // Act
   const value = 2;
 
@@ -279,43 +321,31 @@ try {
   expect(input).toBe(2);
 });
 `
-    )
-    const outOfOrderOptionPhasesCli = runStandalone(failingCliProject, {
-      MARLENS_TEST_ALIGNMENT_BASE: "main",
-      OMP_VERIFIER_CHANGED_PATHS: undefined,
-    })
-    assert.equal(outOfOrderOptionPhasesCli.status, 1)
-    assert.equal(standaloneResult(outOfOrderOptionPhasesCli).status, "FAIL")
-  } finally {
-    rmSync(failingCliProject, { recursive: true, force: true })
-  }
+  )
+  const outOfOrderOptionPhasesCli = runStandalone(failingCliProject, {
+    MARLENS_TEST_ALIGNMENT_BASE: "main",
+    OMP_VERIFIER_CHANGED_PATHS: undefined,
+  })
+  assert.equal(outOfOrderOptionPhasesCli.status, 1)
+  assert.equal(standaloneResult(outOfOrderOptionPhasesCli).status, "FAIL")
+})
+
+test("when a branch test becomes misaligned, every rule and CLI failure is reported", (t) => {
+  const project = createProject()
+  t.after(() => rmSync(project, { recursive: true, force: true }))
+
+  write(project, "tests/README.md", guidance)
+  write(project, "tests/widget.test.ts", alignedTest)
+  commit(project, "baseline")
+  git(project, ["switch", "--quiet", "-c", "feature"])
+  write(project, "tests/widget.test.ts", `${alignedTest}\n// Changed on this branch.\n`)
+  commit(project, "aligned test change")
 
   const aligned = runVerification(project, {
     MARLENS_TEST_ALIGNMENT_BASE: "main",
   })
   assert.equal(aligned.status, "PASS")
   assert.match(aligned.evidence, /tests\/widget\.test\.ts/)
-
-  write(automaticScopeProject, "tests/README.md", guidance)
-  write(automaticScopeProject, "tests/current.test.ts", alignedTest)
-  write(
-    automaticScopeProject,
-    "tests/legacy.test.ts",
-    "test('legacy test', () => { expect(true).toEqual(true) })\n"
-  )
-
-  const scopedPassing = runVerification(automaticScopeProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/current.test.ts"]),
-  })
-  assert.equal(scopedPassing.status, "PASS")
-  assert.match(scopedPassing.evidence, /tests\/current\.test\.ts/u)
-
-  const scopedFailing = runVerification(automaticScopeProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/legacy.test.ts"]),
-  })
-  assert.equal(scopedFailing.status, "FAIL")
-  assert.match(scopedFailing.evidence, /tests\/legacy\.test\.ts/u)
-  assert.doesNotMatch(scopedFailing.evidence, /tests\/current\.test\.ts/u)
 
   write(
     project,
@@ -382,6 +412,39 @@ try {
       }),
     (error) => error.status === 1
   )
+})
+
+test("when automatic selection changes, only the selected test contributes evidence", (t) => {
+  const automaticScopeProject = createProject()
+  t.after(() => rmSync(automaticScopeProject, { recursive: true, force: true }))
+
+  write(automaticScopeProject, "tests/README.md", guidance)
+  write(automaticScopeProject, "tests/current.test.ts", alignedTest)
+  write(
+    automaticScopeProject,
+    "tests/legacy.test.ts",
+    "test('legacy test', () => { expect(true).toEqual(true) })\n"
+  )
+
+  const currentPaths = JSON.stringify(["tests/current.test.ts"])
+  const scopedPassing = runVerification(automaticScopeProject, {
+    OMP_VERIFIER_CHANGED_PATHS: currentPaths,
+  })
+  assert.equal(scopedPassing.status, "PASS")
+  assert.match(scopedPassing.evidence, /tests\/current\.test\.ts/u)
+
+  const legacyPaths = JSON.stringify(["tests/legacy.test.ts"])
+  const scopedFailing = runVerification(automaticScopeProject, {
+    OMP_VERIFIER_CHANGED_PATHS: legacyPaths,
+  })
+  assert.equal(scopedFailing.status, "FAIL")
+  assert.match(scopedFailing.evidence, /tests\/legacy\.test\.ts/u)
+  assert.doesNotMatch(scopedFailing.evidence, /tests\/current\.test\.ts/u)
+})
+
+test("when local guidance is absent, changed tests still use the shared baseline", (t) => {
+  const noGuidanceProject = createProject()
+  t.after(() => rmSync(noGuidanceProject, { recursive: true, force: true }))
 
   write(noGuidanceProject, "tests/widget.test.ts", alignedTest)
   commit(noGuidanceProject, "baseline")
@@ -404,6 +467,11 @@ try {
   assert.match(baseline.evidence, /shared baseline:1/)
   assert.match(baseline.evidence, /marlens-test-alignment: test-name-when/)
   assert.match(baseline.evidence, /marlens-test-alignment: arrange-act-assert/)
+})
+
+test("when only production code changes, unrelated verifier configuration remains accepted", (t) => {
+  const nonTestProject = createProject()
+  t.after(() => rmSync(nonTestProject, { recursive: true, force: true }))
 
   write(nonTestProject, "src/widget.ts", "export const widget = 1;\n")
   commit(nonTestProject, "baseline")
@@ -428,6 +496,11 @@ try {
     runVerification(nonTestProject, { MARLENS_TEST_ALIGNMENT_BASE: "main" }).status,
     "PASS"
   )
+})
+
+test("when a branch adds an untracked test, verification includes its violations", (t) => {
+  const untrackedTestProject = createProject()
+  t.after(() => rmSync(untrackedTestProject, { recursive: true, force: true }))
 
   write(untrackedTestProject, "README.md", guidance)
   commit(untrackedTestProject, "baseline")
@@ -447,6 +520,11 @@ try {
   })
   assert.equal(untracked.status, "FAIL")
   assert.match(untracked.evidence, /tests\/untracked\.test\.ts:1/)
+})
+
+test("when local comments request multiple expectations, the shared assertion policy still applies", (t) => {
+  const exemptionProject = createProject()
+  t.after(() => rmSync(exemptionProject, { recursive: true, force: true }))
 
   write(exemptionProject, "README.md", "# Assertion policy scope\n")
   commit(exemptionProject, "baseline")
@@ -508,60 +586,71 @@ try {
     runVerification(exemptionProject, { MARLENS_TEST_ALIGNMENT_BASE: "main" }).status,
     "FAIL"
   )
+})
 
-  // Assertions are parsed as calls, not counted in source strings or matcher factories.
-  const assertionCases = [
-    ["no assertion", "const result = 1;", "FAIL", 0],
-    [
-      "only factories and counters",
-      "expect.any(Number); expect.anything(); expect.objectContaining({ id: 7 }); expect.assertions(1); expect.hasAssertions();",
-      "FAIL",
-      0,
-    ],
-    [
-      "one assertion with factories",
-      "expect(result).toEqual(expect.objectContaining({ id: expect.any(Number), value: expect.anything() }));",
-      "PASS",
-    ],
-    [
-      "strings comments and regex",
-      String.raw`const text = "expect(result)"; const pattern = /expect\(result\)/; /* expect(other) */ expect(result).toBe(1);`,
-      "PASS",
-    ],
-    ["template expression", "const text = `value: ${expect(result).toBe(1)}`;", "PASS"],
-    ["two assertions", "expect(result).toBe(1); expect(result).toBeDefined();", "FAIL", 2],
-    ["native import without assertions", "const value = result;", "FAIL", 0],
-    ["native assertions", "assert.equal(result, 1); assert.ok(result);", "PASS"],
-    [
-      "mixed native and multiple expectations",
-      "assert.ok(result); expect(result).toBe(1); expect(result).toBeDefined();",
-      "FAIL",
-      2,
-    ],
-  ]
-  for (const [scenario, assertions, expectedStatus, expectedCount] of assertionCases) {
+for (const [scenario, assertions, expectedStatus, expectedCount] of [
+  ["no assertion", "const result = 1;", "FAIL", 0],
+  [
+    "only factories and counters",
+    "expect.any(Number); expect.anything(); expect.objectContaining({ id: 7 }); expect.assertions(1); expect.hasAssertions();",
+    "FAIL",
+    0,
+  ],
+  [
+    "one assertion with factories",
+    "expect(result).toEqual(expect.objectContaining({ id: expect.any(Number), value: expect.anything() }));",
+    "PASS",
+  ],
+  [
+    "strings comments and regex",
+    String.raw`const text = "expect(result)"; const pattern = /expect\(result\)/; /* expect(other) */ expect(result).toBe(1);`,
+    "PASS",
+  ],
+  ["template expression", "const text = `value: ${expect(result).toBe(1)}`;", "PASS"],
+  ["two assertions", "expect(result).toBe(1); expect(result).toBeDefined();", "FAIL", 2],
+  ["native import without assertions", "const value = result;", "FAIL", 0],
+  ["native assertions", "assert.equal(result, 1); assert.ok(result);", "PASS"],
+  [
+    "mixed native and multiple expectations",
+    "assert.ok(result); expect(result).toBe(1); expect(result).toBeDefined();",
+    "FAIL",
+    2,
+  ],
+]) {
+  test(`when parsing ${scenario}, counts only assertion calls`, (t) => {
+    const exemptionProject = createProject()
+    t.after(() => rmSync(exemptionProject, { recursive: true, force: true }))
+    write(exemptionProject, "tests/README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
+  
     write(
       exemptionProject,
       "tests/count.test.ts",
       `import assert from "node:assert/strict";
-test("when ${scenario}, checks the result", () => {
+  test("when ${scenario}, checks the result", () => {
   // Arrange
   const input = 1;
   // Act
   const result = input;
   // Assert
   ${assertions}
-});
-`
+  });
+  `
     )
+    const serializedPaths = JSON.stringify(["tests/count.test.ts"])
     const checked = runVerification(exemptionProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/count.test.ts"]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(checked.status, expectedStatus, `${scenario}: ${checked.evidence}`)
     if (expectedCount !== undefined) {
       assert.ok(checked.evidence.includes(`contains ${expectedCount} direct \`expect(...)\` calls`))
     }
-  }
+  })
+}
+
+test("when independent worksheet saves assert concrete spy payloads, both scenarios pass", (t) => {
+  const exemptionProject = createProject()
+  t.after(() => rmSync(exemptionProject, { recursive: true, force: true }))
+  write(exemptionProject, "tests/README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
 
   // Independent saves remain separate scenarios with API spies and concrete payloads.
   write(
@@ -590,12 +679,14 @@ test("when a saved worksheet changes, sends the second payload", async () => {
 });
 `
   )
+  const serializedPaths = JSON.stringify(["tests/saves.test.ts"])
   const focusedSaves = runVerification(exemptionProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/saves.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
   })
   assert.equal(focusedSaves.status, "PASS", focusedSaves.evidence)
+})
 
-  for (const [testPath, expectedStatus] of [
+for (const [testPath, expectedStatus] of [
     ["tests/controllers/widgets.test.ts", "PASS"],
     ["tests/controller/widgets.test.ts", "PASS"],
     ["tests/widgets.controller.test.ts", "PASS"],
@@ -607,6 +698,11 @@ test("when a saved worksheet changes, sends the second payload", async () => {
     ["tests/http-response.test.ts", "FAIL"],
     ["tests/services/widgets.test.ts", "FAIL"],
   ]) {
+  test(`when the path is ${testPath}, applies the controller assertion exception precisely`, (t) => {
+    const exemptionProject = createProject()
+    t.after(() => rmSync(exemptionProject, { recursive: true, force: true }))
+    write(exemptionProject, "tests/README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
+  
     write(
       exemptionProject,
       testPath,
@@ -618,21 +714,28 @@ test("when a saved worksheet changes, sends the second payload", async () => {
   // Assert
   expect(response.status).toBe(200);
   expect(response.body).toEqual({ id: widget.id });
-});
-`
+  });
+  `
     )
+    const serializedPaths = JSON.stringify([testPath])
     const controllerScope = runVerification(exemptionProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify([testPath]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(controllerScope.status, expectedStatus, `${testPath}: ${controllerScope.evidence}`)
-  }
+  })
+}
 
-  for (const nativeImport of [
+for (const nativeImport of [
     'import * as nativeAssert from "node:assert";',
     'const nativeAssert = require("node:assert/strict");',
     'import { equal as nativeEqual } from "node:assert/strict";',
     'const { equal: nativeEqual } = require("node:assert");',
   ]) {
+  test(`when native assertions use ${nativeImport}, preserves multiple native calls`, (t) => {
+    const exemptionProject = createProject()
+    t.after(() => rmSync(exemptionProject, { recursive: true, force: true }))
+    write(exemptionProject, "tests/README.md", "<!-- marlens-test-alignment: one-direct-expect -->\n")
+  
     const nativeCalls = nativeImport.includes("nativeEqual")
       ? "nativeEqual(result, 1); nativeEqual(typeof result, 'number');"
       : "nativeAssert.equal(result, 1); nativeAssert.ok(result);"
@@ -640,21 +743,27 @@ test("when a saved worksheet changes, sends the second payload", async () => {
       exemptionProject,
       "tests/native.test.ts",
       `${nativeImport}
-test("when native assertions are used, retains the framework", () => {
+  test("when native assertions are used, retains the framework", () => {
   // Arrange
   const input = 1;
   // Act
   const result = input;
   // Assert
   ${nativeCalls}
-});
-`
+  });
+  `
     )
+    const serializedPaths = JSON.stringify(["tests/native.test.ts"])
     const nativeResult = runVerification(exemptionProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/native.test.ts"]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(nativeResult.status, "PASS", nativeResult.evidence)
-  }
+  })
+}
+
+test("when a legacy suppression applies, current test violations remain visible", (t) => {
+  const suppressionProject = createProject()
+  t.after(() => rmSync(suppressionProject, { recursive: true, force: true }))
 
   write(
     suppressionProject,
@@ -713,6 +822,11 @@ test("when native assertions are used, retains the framework", () => {
     /Suppressed marlens-rules:test-alignment for tests\/legacy\/widget\.test\.ts/
   )
   assert.match(suppression.evidence, /Legacy tests are being migrated separately/)
+})
+
+test("when suppression metadata omits a reason, verification is BLOCKED", (t) => {
+  const invalidSuppressionProject = createProject()
+  t.after(() => rmSync(invalidSuppressionProject, { recursive: true, force: true }))
 
   write(invalidSuppressionProject, "tests/widget.test.ts", alignedTest)
   commit(invalidSuppressionProject, "baseline")
@@ -735,13 +849,9 @@ test("when native assertions are used, retains the framework", () => {
   })
   assert.equal(invalidSuppression.status, "BLOCKED")
   assert.match(invalidSuppression.evidence, /reason must be a non-empty string/)
+})
 
-  write(
-    combinedPhaseProject,
-    "tests/README.md",
-    "<!-- marlens-test-alignment: one-direct-expect -->\n"
-  )
-  for (const [phases, expectedStatus] of [
+for (const [phases, expectedStatus] of [
     ["// Arrange\nconst response = makeResponse();\n// Act / Assert", "PASS"],
     ["// Arrange\nconst response = makeResponse();\n// Act and Assert", "PASS"],
     ["// Arrange\nconst response = makeResponse();\n// Act & Assert", "PASS"],
@@ -753,20 +863,35 @@ test("when native assertions are used, retains the framework", () => {
     ["// Act & Assert", "FAIL"],
     ["// Arrange\nconst response = makeResponse();\n// Assert", "FAIL"],
   ]) {
+  test(`when phase comments are ${JSON.stringify(phases)}, reports ${expectedStatus}`, (t) => {
+    const combinedPhaseProject = createProject()
+    t.after(() => rmSync(combinedPhaseProject, { recursive: true, force: true }))
+  
+    write(
+      combinedPhaseProject,
+      "tests/README.md",
+      "<!-- marlens-test-alignment: one-direct-expect -->\n"
+    )
     write(
       combinedPhaseProject,
       "tests/response.test.ts",
       `test("when the response matches, accepts the HTTP contract", () => {
-${phases}
-expect(response).toHaveHttpResponse(200, { id: 7 });
-});
-`
+  ${phases}
+  expect(response).toHaveHttpResponse(200, { id: 7 });
+  });
+  `
     )
+    const serializedPaths = JSON.stringify(["tests/response.test.ts"])
     const result = runVerification(combinedPhaseProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/response.test.ts"]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(result.status, expectedStatus, result.evidence)
-  }
+  })
+}
+
+test("when regex source is rewritten, reparses the callback and reports the updated declaration", (t) => {
+  const regexProject = createProject()
+  t.after(() => rmSync(regexProject, { recursive: true, force: true }))
 
   // Arrange: a compliant callback whose regex used to consume its closing brace.
   write(
@@ -785,9 +910,11 @@ expect(response).toHaveHttpResponse(200, { id: 7 });
 `
   )
 
+  const serializedPaths = JSON.stringify(["tests/csv.test.ts"])
+
   // Act
   const compliantRegex = runVerification(regexProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/csv.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
   })
 
   // Assert
@@ -811,7 +938,7 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
 
   // Act
   const missingPhase = runVerification(regexProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/csv.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
   })
 
   // Assert
@@ -822,6 +949,11 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
       'tests/csv.test.ts:3: `test("when CSV text starts with formula markers, neutralizes the cells", () => {` — does not contain ordered Arrange, Act, and Assert comments; source shared baseline:1 (`marlens-test-alignment: arrange-act-assert`).',
     nextCheck: "Add ordered Arrange, Act, and Assert comments to the test.",
   })
+})
+
+test("when a large selected scope is corrected, bounds FAIL and PASS evidence without losing full output", (t) => {
+  const largeScopeProject = createProject()
+  t.after(() => rmSync(largeScopeProject, { recursive: true, force: true }))
 
   // Arrange: a large scope exceeds the coordinator's evidence limit on both outcomes.
   const largePaths = Array.from(
@@ -829,7 +961,8 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
     (_, index) =>
       `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
   )
-  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(largePaths) }
+  const serializedPaths = JSON.stringify(largePaths)
+  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: serializedPaths }
   for (const testPath of largePaths) {
     write(largeScopeProject, testPath, alignedTest.replace("when the widget is valid, ", ""))
   }
@@ -871,7 +1004,20 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
   assert.equal(fullSuccess.status, "PASS")
   assert.equal(fullSuccess.summary, boundedSuccess.summary)
   for (const testPath of largePaths) assert.ok(fullSuccess.evidence.includes(testPath))
+})
 
+test("when expired suppression diagnostics are oversized, bounds BLOCKED evidence but preserves full output", (t) => {
+  const largeScopeProject = createProject()
+  t.after(() => rmSync(largeScopeProject, { recursive: true, force: true }))
+
+  const largePaths = Array.from(
+    { length: 100 },
+    (_, index) =>
+      `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
+  )
+  const serializedPaths = JSON.stringify(largePaths)
+  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: serializedPaths }
+  for (const testPath of largePaths) write(largeScopeProject, testPath, alignedTest)
   // Arrange: expired suppression metadata can itself contain oversized diagnostics.
   const expiredPath = "long-scope/".repeat(500)
   write(
@@ -904,19 +1050,45 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
   assert.equal(fullBlocker.status, "BLOCKED")
   assert.ok(fullBlocker.evidence.includes(expiredPath))
   assert.match(fullBlocker.evidence, /expired on 2000-01-01/u)
+})
 
-  console.log("Test alignment verification checks passed")
-} finally {
-  rmSync(project, { recursive: true, force: true })
-  rmSync(noGuidanceProject, { recursive: true, force: true })
-  rmSync(nonTestProject, { recursive: true, force: true })
-  rmSync(untrackedTestProject, { recursive: true, force: true })
-  rmSync(exemptionProject, { recursive: true, force: true })
-  rmSync(suppressionProject, { recursive: true, force: true })
-  rmSync(invalidSuppressionProject, { recursive: true, force: true })
-  rmSync(automaticScopeProject, { recursive: true, force: true })
-  rmSync(combinedPhaseProject, { recursive: true, force: true })
-  rmSync(regexProject, { recursive: true, force: true })
-  rmSync(cliBlockedProject, { recursive: true, force: true })
-  rmSync(largeScopeProject, { recursive: true, force: true })
+function runStandalone(projectDirectory, environment, argumentsList = []) {
+  return spawnSync(process.execPath, [verifierPath, ...argumentsList], {
+    cwd: projectDirectory,
+    encoding: "utf8",
+    env: { ...process.env, ...environment },
+  })
+}
+
+function standaloneResult(processResult) {
+  assert.equal(processResult.error, undefined, processResult.error?.message)
+  assert.equal(processResult.stderr, "")
+  return JSON.parse(processResult.stdout)
+}
+
+function git(directory, argumentsList) {
+  return execFileSync("git", argumentsList, {
+    cwd: directory,
+    stdio: "ignore",
+  })
+}
+
+function write(directory, relativePath, contents) {
+  const filePath = path.join(directory, relativePath)
+  mkdirSync(path.dirname(filePath), { recursive: true })
+  writeFileSync(filePath, contents)
+}
+
+function createProject() {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "marlens-test-alignment-"))
+  git(directory, ["init", "--quiet"])
+  git(directory, ["config", "user.email", "test@example.com"])
+  git(directory, ["config", "user.name", "Test User"])
+  git(directory, ["branch", "-M", "main"])
+  return directory
+}
+
+function commit(directory, message) {
+  git(directory, ["add", "."])
+  git(directory, ["commit", "--quiet", "-m", message])
 }

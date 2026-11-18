@@ -34,7 +34,7 @@ The shared default is **exactly one `expect` per non-controller test**, proving 
 
 Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) as the canonical owner for meaningful success and negative coverage in every authored or modified test file, actual-subject filenames/`describe` scopes, independent workflow ownership, and explicit scenarios versus readable utility tables. Assess the complete file and relevant subject/setup, not names, token positives, or counts. Rejection-only tests lack a successful setup control; an exact successful result plus relevant association regressions can establish both outcomes. Missing necessary source/setup evidence is `BLOCKED`, not compliance. Native `node:assert` remains supported.
 
-Apply [Human Readability](code-organization-reference.md#human-readability) to multi-property expected object literals, including partial matchers: one property per line even within formatter width, preserving values, order, and matcher semantics. Compact single-field arguments remain allowed.
+Apply [Human Readability](code-organization-reference.md#human-readability) to all non-empty expected object literals, including single-property assertion objects and partial-matcher arguments: one property per line even within formatter width, preserving values, order, and matcher semantics. Ordinary small single-field call arguments may remain compact; assertion data is not that exception.
 
 Controller tests are the exception: direct meaningful status and body assertions may remain together to prove the response contract. Prefer a native or meaningful matcher such as [`toHaveHttpResponse`](http-response-matcher-reference.md) when it naturally expresses that contract, but do not force its adoption or replace clear direct controller assertions with a synthetic wrapper. The exception does not justify bundling independent persistence effects.
 
@@ -60,12 +60,28 @@ expect(result).toEqual({
 })
 ```
 
-Likewise, `expect(records).toEqual([{ id: 7 }])` compares an actual collection contract. An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
+Likewise, this compares an actual collection contract:
+
+```typescript
+expect(records).toEqual([
+  {
+    id: 7,
+  },
+])
+```
+
+An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
 
 When the full expected collection is known, compare the complete returned collection directly rather than wrapping its expected members in `expect.arrayContaining`. Adding `toHaveLength(...)` to the subset assertion is not the preferred replacement: express the complete-result contract in the collection expectation itself. Partial object matchers may still appear inside that complete expected array when incidental record fields are outside the contract:
 
 ```typescript
-expect(hits).toEqual([expect.objectContaining({ id: 7 }), expect.objectContaining({ id: 9 })])
+const firstHit = expect.objectContaining({
+  id: 7,
+})
+const secondHit = expect.objectContaining({
+  id: 9,
+})
+expect(hits).toEqual([firstHit, secondHit])
 ```
 
 For an established `7`-then-`9` result order, this accepts additional fields on those two records but rejects an unexpected third element, a missing record, or a different member without a separate count assertion. Use the actual result path and supported project matchers. If order is not guaranteed, preserve the real unordered contract with a supported exact unordered collection matcher; do not add sorting solely to normalize assertions. See [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification).

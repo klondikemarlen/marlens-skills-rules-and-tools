@@ -80,20 +80,29 @@ function parentRouteParams() {
 }
 
 function navigateToResourceNewPage() {
-  router.push({ name: "{ResourceNewRouteName}", params: parentRouteParams() })
+  const params = parentRouteParams()
+
+  router.push({
+    name: "{ResourceNewRouteName}",
+    params,
+  })
 }
 
 function navigateToResourceShowPage({resourceName}Id: string) {
+  const parentParams = parentRouteParams()
+
   router.push({
     name: "{ResourceShowRouteName}",
-    params: { ...parentRouteParams(), {resourceName}Id },
+    params: { ...parentParams, {resourceName}Id },
   })
 }
 
 function navigateToResourceEditPage({resourceName}Id: string) {
+  const parentParams = parentRouteParams()
+
   router.push({
     name: "{ResourceEditRouteName}",
-    params: { ...parentRouteParams(), {resourceName}Id },
+    params: { ...parentParams, {resourceName}Id },
   })
 }
 

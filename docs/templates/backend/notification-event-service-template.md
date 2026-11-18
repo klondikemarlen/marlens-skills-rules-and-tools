@@ -55,60 +55,71 @@ import {
 } from "@/services/notifications/delivery-options"
 
 export class {EventServiceName} {
-  private deliveryOptions: Required<NotificationDeliveryOptions>
-
   constructor(
     private source: {SourceModel},
     private recipient: {RecipientModel},
     private actor: {ActorModel},
-    options: NotificationDeliveryOptions = {}
-  ) {
-    this.deliveryOptions = { ...DEFAULT_NOTIFICATION_DELIVERY_OPTIONS, ...options }
-  }
+    private options: NotificationDeliveryOptions = {}
+  ) {}
 
   async perform(): Promise<{NotificationModel} | undefined> {
+    const deliveryOptions = { ...DEFAULT_NOTIFICATION_DELIVERY_OPTIONS, ...this.options }
     let notification: {NotificationModel} | undefined
 
-    if (await this.shouldCreateInAppNotification(this.recipient)) {
-      notification = await this.createInAppNotification(this.recipient)
+    if (await this.shouldCreateInAppNotification(this.recipient, deliveryOptions)) {
+      notification = await this.createInAppNotification(this.source, this.recipient, this.actor)
     }
 
-    if (await this.shouldEnqueueEmailNotification(this.recipient)) {
-      await this.enqueueEmailNotification(this.recipient)
+    if (await this.shouldEnqueueEmailNotification(this.recipient, deliveryOptions)) {
+      await this.enqueueEmailNotification(this.source, this.recipient, this.actor)
     }
 
     return notification
   }
 
-  private async shouldCreateInAppNotification(recipient: {RecipientModel}): Promise<boolean> {
-    if (!this.deliveryOptions.inApp) return false
+  private async shouldCreateInAppNotification(
+    recipient: {RecipientModel},
+    deliveryOptions: Required<NotificationDeliveryOptions>
+  ): Promise<boolean> {
+    if (!deliveryOptions.inApp) return false
 
     return {NotificationPreferenceService}.isChannelEnabled(recipient, "{EventType}", "in_app")
   }
 
-  private async shouldEnqueueEmailNotification(recipient: {RecipientModel}): Promise<boolean> {
-    if (!this.deliveryOptions.email) return false
-
-    return {NotificationPreferenceService}.isChannelEnabled(recipient, "{EventType}", "email")
-  }
-
-  private async createInAppNotification(recipient: {RecipientModel}): Promise<{NotificationModel}> {
+  private async createInAppNotification(
+    source: {SourceModel},
+    recipient: {RecipientModel},
+    actor: {ActorModel}
+  ): Promise<{NotificationModel}> {
     return {NotificationCreateService}.perform(
       {
         eventType: "{EventType}",
         sourceType: "{SourceType}",
-        sourceId: this.source.id,
+        sourceId: source.id,
         title: "Notification title",
         subtitle: "Notification subtitle.",
         href: {eventHref},
         userId: recipient.id,
       },
-      this.actor
+      actor
     )
   }
 
-  private async enqueueEmailNotification(recipient: {RecipientModel}): Promise<void> {
-    await {EventMailer}.performLater(this.source, recipient, this.actor)
+  private async shouldEnqueueEmailNotification(
+    recipient: {RecipientModel},
+    deliveryOptions: Required<NotificationDeliveryOptions>
+  ): Promise<boolean> {
+    if (!deliveryOptions.email) return false
+
+    return {NotificationPreferenceService}.isChannelEnabled(recipient, "{EventType}", "email")
+  }
+
+  private async enqueueEmailNotification(
+    source: {SourceModel},
+    recipient: {RecipientModel},
+    actor: {ActorModel}
+  ): Promise<void> {
+    await {EventMailer}.performLater(source, recipient, actor)
   }
 }
 
@@ -130,70 +141,79 @@ type {EventServiceName}NotificationAttributes = {
 }
 
 export class {EventServiceName} {
-  private deliveryOptions: Required<NotificationDeliveryOptions>
-
   constructor(
     private source: {SourceModel},
     private recipients: {RecipientModel}[],
     private attributes: {EventServiceName}NotificationAttributes,
     private actor: {ActorModel},
-    options: NotificationDeliveryOptions = {}
-  ) {
-    this.deliveryOptions = { ...DEFAULT_NOTIFICATION_DELIVERY_OPTIONS, ...options }
-  }
+    private options: NotificationDeliveryOptions = {}
+  ) {}
 
   async perform(): Promise<{NotificationModel}[]> {
+    const deliveryOptions = { ...DEFAULT_NOTIFICATION_DELIVERY_OPTIONS, ...this.options }
     const notifications: {NotificationModel}[] = []
 
     for (const recipient of this.recipients) {
-      if (await this.shouldCreateInAppNotification(recipient)) {
-        notifications.push(await this.createInAppNotification(recipient, this.attributes))
+      if (await this.shouldCreateInAppNotification(recipient, deliveryOptions)) {
+        notifications.push(
+          await this.createInAppNotification(this.source, recipient, this.attributes, this.actor)
+        )
       }
 
-      if (await this.shouldEnqueueEmailNotification(recipient)) {
-        await this.enqueueEmailNotification(recipient, this.attributes)
+      if (await this.shouldEnqueueEmailNotification(recipient, deliveryOptions)) {
+        await this.enqueueEmailNotification(this.source, recipient, this.attributes, this.actor)
       }
     }
 
     return notifications
   }
 
-  private async shouldCreateInAppNotification(recipient: {RecipientModel}): Promise<boolean> {
-    if (!this.deliveryOptions.inApp) return false
+  private async shouldCreateInAppNotification(
+    recipient: {RecipientModel},
+    deliveryOptions: Required<NotificationDeliveryOptions>
+  ): Promise<boolean> {
+    if (!deliveryOptions.inApp) return false
 
     return {NotificationPreferenceService}.isChannelEnabled(recipient, "{EventType}", "in_app")
   }
 
-  private async shouldEnqueueEmailNotification(recipient: {RecipientModel}): Promise<boolean> {
-    if (!this.deliveryOptions.email) return false
-
-    return {NotificationPreferenceService}.isChannelEnabled(recipient, "{EventType}", "email")
-  }
-
   private async createInAppNotification(
+    source: {SourceModel},
     recipient: {RecipientModel},
-    attributes: {EventServiceName}NotificationAttributes
+    attributes: {EventServiceName}NotificationAttributes,
+    actor: {ActorModel}
   ): Promise<{NotificationModel}> {
     return {NotificationCreateService}.perform(
       {
         ...attributes,
         eventType: "{EventType}",
         sourceType: "{SourceType}",
-        sourceId: this.source.id,
+        sourceId: source.id,
         href: {eventHref},
         userId: recipient.id,
       },
-      this.actor
+      actor
     )
   }
 
-  private async enqueueEmailNotification(
+  private async shouldEnqueueEmailNotification(
     recipient: {RecipientModel},
-    attributes: {EventServiceName}NotificationAttributes
+    deliveryOptions: Required<NotificationDeliveryOptions>
+  ): Promise<boolean> {
+    if (!deliveryOptions.email) return false
+
+    return {NotificationPreferenceService}.isChannelEnabled(recipient, "{EventType}", "email")
+  }
+
+  private async enqueueEmailNotification(
+    source: {SourceModel},
+    recipient: {RecipientModel},
+    attributes: {EventServiceName}NotificationAttributes,
+    actor: {ActorModel}
   ): Promise<void> {
     const { title, subtitle } = attributes
 
-    await {EventMailer}.performLater(this.source, recipient, title, subtitle, this.actor)
+    await {EventMailer}.performLater(source, recipient, title, subtitle, actor)
   }
 }
 ```

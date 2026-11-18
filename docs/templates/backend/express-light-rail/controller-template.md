@@ -18,7 +18,9 @@ export async function listProjects(req: Request, res: Response, next: NextFuncti
     const currentUserId = currentUserIdFrom(res)
     const projects = await listProjectsForUser(currentUserId, req.query)
 
-    res.json({ projects: projects.map(serializeProject) })
+    const serializedProjects = projects.map(serializeProject)
+
+    res.json({ projects: serializedProjects })
   } catch (error) {
     next(error)
   }
@@ -39,7 +41,9 @@ export async function getProject(req: Request, res: Response, next: NextFunction
       return
     }
 
-    res.json({ project: serializeProject(project) })
+    const serializedProject = serializeProject(project)
+
+    res.json({ project: serializedProject })
   } catch (error) {
     next(error)
   }
@@ -56,15 +60,20 @@ export async function createProject(req: Request, res: Response, next: NextFunct
 
     const project = await createProjectForUser(currentUserId, pickCreateProjectAttributes(req.body))
 
-    res.status(201).json({ project: serializeProject(project) })
+    const createdResponse = res.status(201)
+    const serializedProject = serializeProject(project)
+
+    createdResponse.json({ project: serializedProject })
   } catch (error) {
     next(error)
   }
 }
 
 function pickCreateProjectAttributes(body: Record<string, unknown>) {
+  const name = String(body.name ?? "").trim()
+
   return {
-    name: String(body.name ?? "").trim(),
+    name,
   }
 }
 
@@ -104,7 +113,9 @@ async show() {
     return this.response.status(403).json({ message: "You are not authorized to view this workflow" })
   }
 
-  return this.response.json({ workflow: serializeWorkflow(workflow) })
+  const serializedWorkflow = serializeWorkflow(workflow)
+
+  return this.response.json({ workflow: serializedWorkflow })
 }
 
 private async loadWorkflow(): Promise<Workflow | null> {
@@ -140,7 +151,9 @@ async show() {
     return this.response.status(403).json({ message: "You are not authorized to view this workflow step in this workflow" })
   }
 
-  return this.response.json({ workflowStep: serializeWorkflowStep(workflowStep) })
+  const serializedWorkflowStep = serializeWorkflowStep(workflowStep)
+
+  return this.response.json({ workflowStep: serializedWorkflowStep })
 }
 
 private async loadWorkflowStep(workflow: Workflow): Promise<WorkflowStep | null> {
@@ -168,7 +181,9 @@ export async function lookupFlight(req: Request, res: Response, next: NextFuncti
     const { recordLocator } = req.query
     const flight = await LookupService.perform(recordLocator)
 
-    res.json({ flight: serializeFlight(flight) })
+    const serializedFlight = serializeFlight(flight)
+
+    res.json({ flight: serializedFlight })
   } catch (error) {
     next(error)
   }

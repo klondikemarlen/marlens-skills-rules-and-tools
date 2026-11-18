@@ -60,8 +60,10 @@ export class {ResourceNames}Controller extends BaseController<{ResourceName}> {
       offset: this.pagination.offset,
     })
 
+    const serializedResources = {IndexSerializer}.perform(resources)
+
     return this.response.json({
-      {resourceNames}: {IndexSerializer}.perform(resources),
+      {resourceNames}: serializedResources,
       totalCount,
     })
   }
@@ -73,7 +75,9 @@ export class {ResourceNames}Controller extends BaseController<{ResourceName}> {
     const policy = this.buildPolicy(resource)
     if (!policy.show()) return this.response.status(403).json({ message: "Not authorized" })
 
-    return this.response.json({ {resourceName}: {ShowSerializer}.perform(resource), policy })
+    const serializedResource = {ShowSerializer}.perform(resource)
+
+    return this.response.json({ {resourceName}: serializedResource, policy })
   }
 
   async create() {
@@ -81,7 +85,10 @@ export class {ResourceNames}Controller extends BaseController<{ResourceName}> {
     if (!policy.create()) return this.response.status(403).json({ message: "Not authorized" })
 
     const resource = await {CreateService}.perform(policy.permitAttributesForCreate(this.request.body), this.currentUser)
-    return this.response.status(201).json({ {resourceName}: {ShowSerializer}.perform(resource), policy })
+    const createdResponse = this.response.status(201)
+    const serializedResource = {ShowSerializer}.perform(resource)
+
+    return createdResponse.json({ {resourceName}: serializedResource, policy })
   }
 
   async update() {
@@ -92,7 +99,9 @@ export class {ResourceNames}Controller extends BaseController<{ResourceName}> {
     if (!policy.update()) return this.response.status(403).json({ message: "Not authorized" })
 
     const updated = await {UpdateService}.perform(resource, policy.permitAttributes(this.request.body), this.currentUser)
-    return this.response.json({ {resourceName}: {ShowSerializer}.perform(updated), policy })
+    const serializedResource = {ShowSerializer}.perform(updated)
+
+    return this.response.json({ {resourceName}: serializedResource, policy })
   }
 
   async destroy() {

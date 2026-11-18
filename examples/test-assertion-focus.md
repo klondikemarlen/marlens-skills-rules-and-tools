@@ -137,7 +137,7 @@ expect(result).toEqual(
 )
 ```
 
-The two fields stay independently readable even within formatter width. `expect.objectContaining({ id: record.id })` remains a permitted single-field argument.
+The two fields stay independently readable even within formatter width. Expand single-property expected objects such as `expect.objectContaining({ id: record.id })` too; assertion data is not covered by the small ordinary-call-argument exception.
 
 ### Fresh Read-Only Guidance Consumption
 

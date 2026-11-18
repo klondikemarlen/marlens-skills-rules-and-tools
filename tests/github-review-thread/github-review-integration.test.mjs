@@ -19,10 +19,11 @@ await test("when posting a plain reply body, sends it through the GitHub integra
   await github.replyReviewComment("owner/repo", 456, 123, "Addressed in abc123.\n")
 
   // Assert
+  const replyEndpoint = reviewCommentReplyEndpoint("owner/repo", 456, 123)
   assert.deepEqual(calls, [
     {
       method: "POST",
-      endpoint: reviewCommentReplyEndpoint("owner/repo", 456, 123),
+      endpoint: replyEndpoint,
       payload: { body: "Addressed in abc123.\n" },
     },
   ])
@@ -77,29 +78,54 @@ await test("when a review-thread comment is on a later page, finds it", async ()
   const result = await github.findThreadByCommentId("owner/repo", 456, 123)
 
   // Assert
-
-  assert.deepEqual(
+  assert.deepEqual(result, {
+    threadId: "thread-1",
+    isResolved: false,
+  })
+  const threadLocatorQuery = graphqlThreadLocatorQuery()
+  const threadCommentsPageQuery = graphqlThreadCommentsPageQuery()
+  assert.deepEqual(calls, [
     {
-      result,
-      calls: calls.map(({ query, variables }) => ({ query, variables })),
+      query: threadLocatorQuery,
+      variables: {
+        owner: "owner",
+        name: "repo",
+        pullNumber: 456,
+        after: undefined,
+      },
     },
     {
-      result: { threadId: "thread-1", isResolved: false },
-      calls: [
-        {
-          query: graphqlThreadLocatorQuery(),
-          variables: {
-            owner: "owner",
-            name: "repo",
-            pullNumber: 456,
-            after: undefined,
+      query: threadCommentsPageQuery,
+      variables: {
+        threadId: "thread-1",
+        after: "comment-cursor-1",
+      },
+    },
+  ])
+})
+
+await test("when the requested comment has no review thread, returns no match", async () => {
+  // Arrange
+  const callGraphql = async () => ({
+    data: {
+      repository: {
+        pullRequest: {
+          reviewThreads: {
+            nodes: [],
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: null,
+            },
           },
         },
-        {
-          query: graphqlThreadCommentsPageQuery(),
-          variables: { threadId: "thread-1", after: "comment-cursor-1" },
-        },
-      ],
-    }
-  )
+      },
+    },
+  })
+  const github = new GitHubReviewIntegration("token", { callGraphql })
+
+  // Act
+  const result = await github.findThreadByCommentId("owner/repo", 456, 123)
+
+  // Assert
+  assert.equal(result, undefined)
 })
