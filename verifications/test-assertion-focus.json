@@ -2,7 +2,7 @@
   "version": 1,
   "standardId": "marlens-rules:test-assertion-focus",
   "source": "./docs/references/test-alignment-verifier-reference.md#assertion-quality-requires-review",
-  "gold": "Every authored or modified test file proves meaningful success and a relevant negative outcome for its actual subject, establishing usable setup rather than token coverage. Every changed non-controller expect-based test has exactly one direct expect proving its intended observable contract without hidden assertions or synthetic bundles. Controller tests retain meaningful direct status/body assertions, and native node:assert tests retain their framework. Independently evolving workflows and distinct scenarios remain explicit; concrete multi-property expectations stay multiline. Required transition, race, and rollback evidence is preserved. Structural compliance alone never proves semantic quality.",
+  "gold": "Every authored or modified test file proves meaningful success and a relevant negative outcome for its actual subject, establishing usable setup rather than token coverage. Every changed non-controller expect-based test has exactly one direct expect proving its intended observable contract without hidden assertions or synthetic bundles. Controller tests retain meaningful direct status/body assertions, and native node:assert tests retain their framework. Independently evolving workflows and distinct scenarios remain explicit; all non-empty expected objects, including single-property and partial-matcher objects, stay multiline. Required transition, race, and rollback evidence is preserved. Structural compliance alone never proves semantic quality.",
   "requiredContext": ["changed-code", "project-guidance"],
   "rubric": [
     {
@@ -23,7 +23,7 @@
     },
     {
       "id": "readable-expected-object-layout",
-      "question": "Apply Human Readability in docs/references/code-organization-reference.md: multi-property expected object literals, including partial-matcher arguments, put each property on its own line even within formatter width. Preserve literal values, order, and matcher semantics; compact single-field arguments remain allowed. Do not demand matcher replacement or unrelated formatting."
+      "question": "Apply Human Readability in docs/references/code-organization-reference.md: all non-empty expected object literals, including single-property assertion objects and partial-matcher arguments, put each property on its own line even within formatter width. Preserve literal values, order, and matcher semantics. Ordinary small single-field call arguments may remain compact; assertion data is not that exception. Do not demand matcher replacement or unrelated formatting."
     },
     {
       "id": "local-policy-and-shared-default",
