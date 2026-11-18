@@ -62,65 +62,63 @@ await test("when feedback is rejected, creates the reaction before resolving and
   const result = await github.resolveReviewThread("owner/repo", 456, 123, "-1")
 
   // Assert
-  assert.deepEqual(
+  assert.deepEqual(result, {
+    threadId: "thread-1",
+    reactionCreated: true,
+    verified: true,
+  })
+  assert.deepEqual(restCalls, [
     {
-      result,
-      restCalls: restCalls.map(({ method, endpoint, payload }) => ({
-        method,
-        endpoint,
-        payload,
-      })),
-      graphCalls: graphCalls.map(({ query, variables }) => ({
-        query,
-        variables,
-      })),
+      method: "GET",
+      endpoint: "user",
+      payload: undefined,
     },
     {
-      result: { threadId: "thread-1", reactionCreated: true, verified: true },
-      restCalls: [
-        { method: "GET", endpoint: "user", payload: undefined },
-        {
-          method: "GET",
-          endpoint: `${reviewCommentReactionEndpoint("owner/repo", 123)}?per_page=100&page=1`,
-          payload: undefined,
-        },
-        {
-          method: "POST",
-          endpoint: reviewCommentReactionEndpoint("owner/repo", 123),
-          payload: { content: "-1" },
-        },
-        {
-          method: "GET",
-          endpoint: `${reviewCommentReactionEndpoint("owner/repo", 123)}?per_page=100&page=1`,
-          payload: undefined,
-        },
-        {
-          method: "GET",
-          endpoint: `${reviewCommentReactionEndpoint("owner/repo", 123)}?per_page=100&page=1`,
-          payload: undefined,
-        },
-      ],
-      graphCalls: [
-        {
-          query: graphqlThreadLocatorQuery(),
-          variables: {
-            owner: "owner",
-            name: "repo",
-            pullNumber: 456,
-            after: undefined,
-          },
-        },
-        {
-          query: graphqlResolveMutation(),
-          variables: { threadId: "thread-1" },
-        },
-        {
-          query: graphqlThreadVerifyQuery(),
-          variables: { threadId: "thread-1" },
-        },
-      ],
-    }
-  )
+      method: "GET",
+      endpoint: `${reviewCommentReactionEndpoint("owner/repo", 123)}?per_page=100&page=1`,
+      payload: undefined,
+    },
+    {
+      method: "POST",
+      endpoint: reviewCommentReactionEndpoint("owner/repo", 123),
+      payload: {
+        content: "-1",
+      },
+    },
+    {
+      method: "GET",
+      endpoint: `${reviewCommentReactionEndpoint("owner/repo", 123)}?per_page=100&page=1`,
+      payload: undefined,
+    },
+    {
+      method: "GET",
+      endpoint: `${reviewCommentReactionEndpoint("owner/repo", 123)}?per_page=100&page=1`,
+      payload: undefined,
+    },
+  ])
+  assert.deepEqual(graphCalls, [
+    {
+      query: graphqlThreadLocatorQuery(),
+      variables: {
+        owner: "owner",
+        name: "repo",
+        pullNumber: 456,
+        after: undefined,
+      },
+    },
+    {
+      query: graphqlResolveMutation(),
+      variables: {
+        threadId: "thread-1",
+      },
+    },
+    {
+      query: graphqlThreadVerifyQuery(),
+      variables: {
+        threadId: "thread-1",
+      },
+    },
+  ])
 })
 
 await test("when a resolved thread lacks its reaction, repairs it without resolving twice", async () => {
@@ -173,26 +171,22 @@ await test("when a resolved thread lacks its reaction, repairs it without resolv
   const result = await github.resolveReviewThread("owner/repo", 456, 123, "+1")
 
   // Assert
+  assert.deepEqual(result, {
+    threadId: "thread-resolved",
+    reactionCreated: true,
+    verified: true,
+  })
   assert.deepEqual(
-    {
-      result,
-      graphQueries: graphCalls.map(({ query }) => query),
-      reactionWrite: restCalls[2],
-    },
-    {
-      result: {
-        threadId: "thread-resolved",
-        reactionCreated: true,
-        verified: true,
-      },
-      graphQueries: [graphqlThreadLocatorQuery(), graphqlThreadVerifyQuery()],
-      reactionWrite: {
-        method: "POST",
-        endpoint: reviewCommentReactionEndpoint("owner/repo", 123),
-        payload: { content: "+1" },
-      },
-    }
+    graphCalls.map(({ query }) => query),
+    [graphqlThreadLocatorQuery(), graphqlThreadVerifyQuery()]
   )
+  assert.deepEqual(restCalls[2], {
+    method: "POST",
+    endpoint: reviewCommentReactionEndpoint("owner/repo", 123),
+    payload: {
+      content: "+1",
+    },
+  })
 })
 
 await test("when the final reaction check is missing, rejects completion", async () => {

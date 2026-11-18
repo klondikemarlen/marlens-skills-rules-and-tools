@@ -16,15 +16,11 @@ test.after(async () => {
 })
 
 await test("when resolving in dry-run mode, orders operations around the reaction gate", async () => {
-  // Arrange / Act
-  const plan = await buildPlan(
-    "resolve",
-    "owner/repo",
-    123,
-    { pr: 456, reaction: "+1" },
-    "owner",
-    "repo"
-  )
+  // Arrange
+  const options = { pr: 456, reaction: "+1" }
+
+  // Act
+  const plan = await buildPlan("resolve", "owner/repo", 123, options, "owner", "repo")
 
   // Assert
   assert.deepEqual(
@@ -43,8 +39,11 @@ await test("when resolving in dry-run mode, orders operations around the reactio
 })
 
 await test("when a reply body file is provided, includes its literal content in the dry-run plan", async () => {
-  // Arrange / Act
-  const plan = await buildPlan("reply", "owner/repo", 123, { pr: 456, bodyFile }, "owner", "repo")
+  // Arrange
+  const options = { pr: 456, bodyFile }
+
+  // Act
+  const plan = await buildPlan("reply", "owner/repo", 123, options, "owner", "repo")
 
   // Assert
   assert.equal(plan[0].body.body, "Addressed in abc123.\n")

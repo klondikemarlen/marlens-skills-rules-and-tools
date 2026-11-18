@@ -77,31 +77,28 @@ await test("when a review-thread comment is on a later page, finds it", async ()
   const result = await github.findThreadByCommentId("owner/repo", 456, 123)
 
   // Assert
-
-  assert.deepEqual(
+  assert.deepEqual(result, {
+    threadId: "thread-1",
+    isResolved: false,
+  })
+  assert.deepEqual(calls, [
     {
-      result,
-      calls: calls.map(({ query, variables }) => ({ query, variables })),
+      query: graphqlThreadLocatorQuery(),
+      variables: {
+        owner: "owner",
+        name: "repo",
+        pullNumber: 456,
+        after: undefined,
+      },
     },
     {
-      result: { threadId: "thread-1", isResolved: false },
-      calls: [
-        {
-          query: graphqlThreadLocatorQuery(),
-          variables: {
-            owner: "owner",
-            name: "repo",
-            pullNumber: 456,
-            after: undefined,
-          },
-        },
-        {
-          query: graphqlThreadCommentsPageQuery(),
-          variables: { threadId: "thread-1", after: "comment-cursor-1" },
-        },
-      ],
-    }
-  )
+      query: graphqlThreadCommentsPageQuery(),
+      variables: {
+        threadId: "thread-1",
+        after: "comment-cursor-1",
+      },
+    },
+  ])
 })
 
 await test("when the requested comment has no review thread, returns no match", async () => {
