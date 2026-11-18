@@ -11,7 +11,7 @@ import {
 } from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
+import { isMainModule } from "../lib/is-main-module.mjs"
 
 const USAGE = `Usage: agent-guidance-audit [--json] [--strict] [--self-test] [--mirror <left>=<right>] <downstream-root>...
 
@@ -530,7 +530,7 @@ function runSelfTest() {
   }
 }
 
-function main() {
+export function main() {
   try {
     const options = parseArgs(process.argv.slice(2))
     if (options.selfTest) {
@@ -554,6 +554,4 @@ function main() {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main()
-}
+if (isMainModule(import.meta.url)) main()

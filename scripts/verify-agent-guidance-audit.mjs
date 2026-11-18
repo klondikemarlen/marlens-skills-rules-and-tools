@@ -3,10 +3,11 @@ import { spawnSync } from "node:child_process"
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const command = path.join(root, "bin", "agent-guidance-audit.js")
+const launcher = path.join(root, "bin", "agent-guidance-audit")
 const fixtureRoot = mkdtempSync(path.join(os.tmpdir(), "agent-guidance-audit-verify-"))
 
 function createRepository(name) {
@@ -179,6 +180,35 @@ function testAuditSelfTest() {
   expectExit(runAudit("--self-test"), 0, "audit self-test")
 }
 
+function testExtensionlessLauncher() {
+  const selfTest = spawnSync(launcher, ["--self-test"], { encoding: "utf8" })
+  expectExit(selfTest, 0, "extensionless audit self-test")
+  assert.match(selfTest.stdout, /agent guidance audit self-test passed/)
+
+  const invalidArgs = spawnSync(launcher, [], { encoding: "utf8" })
+  expectExit(invalidArgs, 2, "extensionless audit argument error")
+  assert.match(invalidArgs.stderr, /provide at least one downstream root/)
+
+  const repository = createRepository("extensionless-audit")
+  write(repository, "README.md", "[missing](docs/missing.md)\n")
+  const report = spawnSync(launcher, ["--json", repository], { encoding: "utf8" })
+  expectExit(report, 1, "extensionless audit finding")
+  const findings = JSON.parse(report.stdout)
+  assert.equal(findings.length, 1)
+  assert.equal(findings[0].file, "README.md")
+
+  for (const modulePath of [command, launcher]) {
+    const imported = spawnSync(
+      process.execPath,
+      ["--input-type=module", "-e", `await import(${JSON.stringify(pathToFileURL(modulePath).href)})`],
+      { encoding: "utf8" }
+    )
+    expectExit(imported, 0, "inert audit import")
+    assert.equal(imported.stdout, "")
+    assert.equal(imported.stderr, "")
+  }
+}
+
 try {
   testBrokenPaths()
   testLearnerCommands()
@@ -188,6 +218,7 @@ try {
   testConditionalFallbacks()
   testCleanAudit()
   testAuditSelfTest()
+  testExtensionlessLauncher()
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true })
 }
