@@ -831,6 +831,20 @@ Verification code should expose each independently observable contract through a
 
 Name test files and `describe` scopes for the actual subject whose result is asserted: a test of `SummaryHeaderPanel` belongs in `SummaryHeaderPanel.test.ts`, not a file named for a child it happens to render. Estimated and actual travel workflows may look alike today but have independent reasons to change; keep their scenarios independently owned. Share infrastructure, established factories, and genuinely shared invariant tests, not helpers or component-family parameterization justified only by coincidentally similar setup. This is not a requirement to create a test file for every source file.
 
+For controller suites, preserve any outer source-path scopes, use the bare controller class (`SyncController`, not `TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController`), and name endpoint scopes exactly `#action - METHOD - /url-pattern`, with both separators. For example:
+
+```typescript
+describe("api/controllers/travel-desk-travel-requests/sync-controller.ts", () => {
+  describe("SyncController", () => {
+    describe("#create - POST - /api/travel-desk-travel-requests/:id/sync", () => {
+      // Keep each scenario's setup, request, and response assertions local.
+    })
+  })
+})
+```
+
+Resolve the action against the actual controller method and routing declaration; retain the real verb, URL pattern, and outer scopes. Apply an accepted naming correction across equivalent added/changed controller suites in the authorized review scope, not just the selected example. Do not rename production classes or impose endpoint naming on unrelated subjects. For query transport, use [Structured Controller Query Inputs](#structured-controller-query-inputs).
+
 Prefer separate explicit tests with concrete setup and literal expectations for distinct behavioral scenarios, even when their Act and assertion shapes match. Three missing-association scenarios should each name and omit their concrete relationship, not assign `travelOrderEvent[association]` and interpolate an error message. Different control flow, such as commit versus rollback, also needs self-contained tests. Intentional duplicate setup is clearer than scenario flags, conditional Acts, or computed expected-data bundles.
 
 Parameterization needs a clear readability win and a genuinely shared invariant, not merely fewer lines or identical assertion syntax. Homogeneous transformation-utility input/output tables remain useful; this is not a ban on `test.each`. See the [contrasting scenario examples](../../examples/test-assertion-focus.md#meaningful-scenarios-and-independent-ownership).
@@ -1162,6 +1176,8 @@ const airportBooking = bookingFactory.build({
 
 Use the actual factory's types, merge semantics, allowed locations, and generation facilities. Here the absent drop-off remains an all-null group, and the explicit airport scenario does not depend on the random choice. Fishery merges supplied params over generated attributes: overrides of dependent fields must also form a valid group; generation does not repair a contradictory explicit override. Preserve the project's seed/reproduction facilities without making assertions depend on generated defaults.
 
+For ordinary-user defaults versus opt-in special-role traits, follow [Factory Defaults and Role Traits](../workflows/test-factory-traits-and-service-shape-workflow.md#factory-defaults-and-role-traits); scenario-defining nondefault role combinations remain explicit.
+
 ### Scenario Inputs and Assertions
 
 Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
@@ -1197,6 +1213,16 @@ expect(records).toEqual([
 Here ownership and draft status are relevant unchanged state. For multiple unordered records, use the project's supported exact unordered collection/model matcher; do not normalize SQL order or use a subset matcher that misses extra rows.
 
 Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
+
+### Structured Controller Query Inputs
+
+Author structured scenario inputs as nested objects and arrays, such as `where: { id: [record.id] }` and `order: [["invoiceNumber", "ASC"]]`, not hand-indexed keys like `"order[0][0]"`. Let the existing compatible serializer produce wire syntax. Prefer the installed request client's native `.query(query)` when its actual serialization preserves the server's accepted nested filters, arrays, and ordering; do not infer compatibility from the method name.
+
+Inspect the resolved client/version, serialization implementation or matching documentation, and existing server parser/options before migrating. Prove equivalence through real request assertions that distinguish filtering and sort direction, not status alone or a serializer round-trip without the server. Preserve values, array nesting, order clauses, escaping, and existing parser contracts.
+
+Some Superagent versions serialize arrays with `indices: false`, flattening nested ordering arrays. Where that installed limitation applies, retain the project's existing `qs.stringify(query)` handoff to `.query(...)`; see the [controller query example and semantic scenarios](../../examples/test-assertion-focus.md#controller-query-transport-and-import-review). Do not add `qs` when native serialization is equivalent, add another dependency for style, or change server parsing solely for test convenience. Intentional raw/malformed-wire and encoding-contract tests retain their explicit keys or serialized strings.
+
+The existing [assertion-focus semantic contract](../../verifications/test-assertion-focus.json) assesses controller scope names, query transport, and subject imports with their necessary source/client context; the [fixture contract](../../verifications/test-fixture-api-alignment.json) assesses default/trait role setup. Passing focused application tests alone does not establish those semantic review results.
 
 ## Input-Heavy Utility Tests
 
@@ -1340,12 +1366,14 @@ Reuse the project's actual export shape and module resolution. This preference c
 
 In tests, prefer owning bundle/barrel imports for dependencies and a direct default import for the primary subject under test when its concrete module supports that export. Preserve supported resolution, public package/export boundaries, named-only or third-party export contracts, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production service-collaborator preference does not override those explicit test conventions.
 
-Give the primary subject-under-test import its own group, separated from dependency imports by one blank line. Preserve the project's section order, supported paths, and explicit exceptions; apply an accepted grouping correction across the requested test scope without unrelated cleanup.
+Give the actual primary subject-under-test import its own group after factory/test-support imports, separated by one blank line. When its supported module has a default export, use that default import rather than a named subject import from a bundle. Preserve explicit project-local ordering overrides, supported paths, and initialization-sensitive order. Apply an accepted correction across the authorized changed-test scope without unrelated cleanup.
 
-For example, keep dependencies in their existing style and isolate the supported default-exported subject:
+Identify the subject from its Act and assertions, not just a filename or import spelling. Inspect the actual export and applicable local conventions before reporting an exact import/location and concrete correction. Supporting named imports, named-only subjects, and mixed-subject tests without evidence of one primary subject are not violations. Missing necessary source/export or local-guidance context is a review limitation, not permission to invent a default export. For example:
 
 ```typescript
 import { FundingCategory } from "@/models"
+
+import { fundingCategoryFactory } from "@/tests/factories"
 
 import DestroyService from "@/services/children-with-diverse-needs-funding-categories/destroy-service"
 ```
