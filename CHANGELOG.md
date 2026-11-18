@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1470) - 2026-11-18
+
 ### Fixed
 
 - Recover the original MCP configuration before capturing a new temporary-task baseline, and execute both supported command launcher forms.
