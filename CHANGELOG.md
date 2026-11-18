@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1450) - 2026-11-18
+
+### Changed
+
+- Resolve environment settings in configuration, show human duration units, and reuse owner-defined stable projections without changing values or test oracles.
+
 ## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
 
 ### Changed
