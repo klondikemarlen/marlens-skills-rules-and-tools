@@ -426,14 +426,16 @@ test("when automatic selection changes, only the selected test contributes evide
     "test('legacy test', () => { expect(true).toEqual(true) })\n"
   )
 
+  const currentPaths = JSON.stringify(["tests/current.test.ts"])
   const scopedPassing = runVerification(automaticScopeProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/current.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: currentPaths,
   })
   assert.equal(scopedPassing.status, "PASS")
   assert.match(scopedPassing.evidence, /tests\/current\.test\.ts/u)
 
+  const legacyPaths = JSON.stringify(["tests/legacy.test.ts"])
   const scopedFailing = runVerification(automaticScopeProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/legacy.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: legacyPaths,
   })
   assert.equal(scopedFailing.status, "FAIL")
   assert.match(scopedFailing.evidence, /tests\/legacy\.test\.ts/u)
@@ -634,8 +636,9 @@ for (const [scenario, assertions, expectedStatus, expectedCount] of [
   });
   `
     )
+    const serializedPaths = JSON.stringify(["tests/count.test.ts"])
     const checked = runVerification(exemptionProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/count.test.ts"]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(checked.status, expectedStatus, `${scenario}: ${checked.evidence}`)
     if (expectedCount !== undefined) {
@@ -676,8 +679,9 @@ test("when a saved worksheet changes, sends the second payload", async () => {
 });
 `
   )
+  const serializedPaths = JSON.stringify(["tests/saves.test.ts"])
   const focusedSaves = runVerification(exemptionProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/saves.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
   })
   assert.equal(focusedSaves.status, "PASS", focusedSaves.evidence)
 })
@@ -713,8 +717,9 @@ for (const [testPath, expectedStatus] of [
   });
   `
     )
+    const serializedPaths = JSON.stringify([testPath])
     const controllerScope = runVerification(exemptionProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify([testPath]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(controllerScope.status, expectedStatus, `${testPath}: ${controllerScope.evidence}`)
   })
@@ -748,8 +753,9 @@ for (const nativeImport of [
   });
   `
     )
+    const serializedPaths = JSON.stringify(["tests/native.test.ts"])
     const nativeResult = runVerification(exemptionProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/native.test.ts"]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(nativeResult.status, "PASS", nativeResult.evidence)
   })
@@ -875,8 +881,9 @@ for (const [phases, expectedStatus] of [
   });
   `
     )
+    const serializedPaths = JSON.stringify(["tests/response.test.ts"])
     const result = runVerification(combinedPhaseProject, {
-      OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/response.test.ts"]),
+      OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
     })
     assert.equal(result.status, expectedStatus, result.evidence)
   })
@@ -903,9 +910,11 @@ test("when regex source is rewritten, reparses the callback and reports the upda
 `
   )
 
+  const serializedPaths = JSON.stringify(["tests/csv.test.ts"])
+
   // Act
   const compliantRegex = runVerification(regexProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/csv.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
   })
 
   // Assert
@@ -929,7 +938,7 @@ test("when CSV text starts with formula markers, neutralizes the cells", () => {
 
   // Act
   const missingPhase = runVerification(regexProject, {
-    OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(["tests/csv.test.ts"]),
+    OMP_VERIFIER_CHANGED_PATHS: serializedPaths,
   })
 
   // Assert
@@ -952,7 +961,8 @@ test("when a large selected scope is corrected, bounds FAIL and PASS evidence wi
     (_, index) =>
       `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
   )
-  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(largePaths) }
+  const serializedPaths = JSON.stringify(largePaths)
+  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: serializedPaths }
   for (const testPath of largePaths) {
     write(largeScopeProject, testPath, alignedTest.replace("when the widget is valid, ", ""))
   }
@@ -1005,7 +1015,8 @@ test("when expired suppression diagnostics are oversized, bounds BLOCKED evidenc
     (_, index) =>
       `tests/scenario-${String(index).padStart(3, "0")}-${"readable-detail-".repeat(5)}.test.ts`
   )
-  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: JSON.stringify(largePaths) }
+  const serializedPaths = JSON.stringify(largePaths)
+  const largeScope = { OMP_VERIFIER_CHANGED_PATHS: serializedPaths }
   for (const testPath of largePaths) write(largeScopeProject, testPath, alignedTest)
   // Arrange: expired suppression metadata can itself contain oversized diagnostics.
   const expiredPath = "long-scope/".repeat(500)

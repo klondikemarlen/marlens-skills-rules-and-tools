@@ -198,9 +198,12 @@ function testExtensionlessLauncher() {
   assert.equal(findings[0].file, "README.md")
 
   for (const modulePath of [command, launcher]) {
+    const moduleUrl = pathToFileURL(modulePath).href
+    const serializedModuleUrl = JSON.stringify(moduleUrl)
+    const importExpression = `await import(${serializedModuleUrl})`
     const imported = spawnSync(
       process.execPath,
-      ["--input-type=module", "-e", `await import(${JSON.stringify(pathToFileURL(modulePath).href)})`],
+      ["--input-type=module", "-e", importExpression],
       { encoding: "utf8" }
     )
     expectExit(imported, 0, "inert audit import")

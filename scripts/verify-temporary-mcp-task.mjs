@@ -237,9 +237,12 @@ try {
   assert(!existsSync(staleLockPath))
 
   for (const modulePath of [launcherPath, `${launcherPath}.js`]) {
+    const moduleUrl = pathToFileURL(modulePath).href
+    const serializedModuleUrl = JSON.stringify(moduleUrl)
+    const importExpression = `await import(${serializedModuleUrl})`
     const imported = spawnSync(
       process.execPath,
-      ["--input-type=module", "-e", `await import(${JSON.stringify(pathToFileURL(modulePath).href)})`],
+      ["--input-type=module", "-e", importExpression],
       { encoding: "utf8", cwd: root }
     )
     assert.equal(imported.status, 0, imported.stderr)
