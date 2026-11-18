@@ -158,6 +158,59 @@ test("when a foreign memory uses an import identity, synchronization refuses to 
   assert.deepEqual(inspect(database).working_memory, before)
 })
 
+for (const [field, alteredValue] of [
+  ["scope", "session"],
+  ["importance", 0.1],
+  ["trust_tier", "STATED"],
+  ["memory_type", "unknown"],
+  ["veracity", "unknown"],
+  ["consolidated_at", "2000-01-01T00:00:00.000Z"],
+  ["timestamp", "2000-01-01T00:00:00.000Z"],
+  ["created_at", "2000-01-01T00:00:00.000Z"],
+]) {
+  test(`when an owned convention's ${field} drifts, sync repairs it without losing recall history`, (t) => {
+    // Arrange
+    const { source, database } = fixture(t)
+    synchronize(source, database)
+    const original = inspect(database).working_memory[0]
+    const expected = {
+      ...original,
+      recall_count: 7,
+      last_recalled: "2026-01-01T00:00:00.000Z",
+    }
+    const altered = { ...expected, [field]: alteredValue }
+    const unrelated = {
+      id: "conversation",
+      content: "Keep this unrelated memory",
+      source: "conversation",
+      scope: "global",
+    }
+    const records = [altered, unrelated]
+    native(`
+      import { Mnemopi } from '@oh-my-pi/pi-mnemopi'
+      const memory = new Mnemopi({
+        dbPath: ${JSON.stringify(database)}, noEmbeddings: true, llm: false, reconcile: false,
+      })
+      memory.beam.importFromDict({ working_memory: ${JSON.stringify(records)} }, true)
+      console.log('null')
+      memory.close()
+    `)
+    const unrelatedBefore = inspect(database).working_memory.find(({ id }) => id === unrelated.id)
+
+    // Act
+    const repaired = synchronize(source, database)
+    const repeated = synchronize(source, database)
+    const stored = inspect(database).working_memory
+
+    // Assert
+    assert.equal(repaired.updated, 1)
+    assert.equal(repeated.updated, 0)
+    assert.equal(repeated.unchanged, 3)
+    assert.deepEqual(stored.find(({ id }) => id === expected.id), expected)
+    assert.deepEqual(stored.find(({ id }) => id === unrelated.id), unrelatedBefore)
+  })
+}
+
 test("when previewing a source, the command leaves the destination absent", (t) => {
   // Arrange
   const { source, database } = fixture(t)
