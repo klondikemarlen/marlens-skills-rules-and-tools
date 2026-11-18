@@ -37,6 +37,8 @@ Keep completion bookkeeping current as substantive work finishes. Do not spend a
 
 Establish readiness for the final response first: required review, verification, delivery, and cleanup gates must have their truthful dispositions. Never mark an incomplete gate complete to shorten closeout. Continue reachable required work; when blocked, report the exact missing prerequisite rather than success. Once readiness is established, send the final response without further completion-only orchestration.
 
+When review findings arrive after a completion response or during another discussion, apply [Findings Delivered After Completion](../code-review/workflow.md#findings-delivered-after-completion). Reassess the affected completion claim and disposition the findings within existing authority; do not stop at disclosing them.
+
 When investigating a lingering activity label, distinguish observed unnecessary tool orchestration from a stale UI status, scheduler delay, or advisor latency. A screenshot or unmeasured wait alone does not establish which caused the delay. Keep required advisor/review gates intact, and do not claim guidance changes fix runtime/UI behavior or improve latency without measured evidence.
 
 ## Reporting
