@@ -100,6 +100,7 @@ Verify a real browser's download handoff while generation remains pending, heade
 6. Implement persistence through the project’s existing model/repository/ORM shape.
 7. Serialize the response through the project’s response-shaping pattern.
 8. Reuse the project's shared HTTP request/test-support helper when one exists, following its contract. Keep authentication real when testing authentication boundaries; do not replace it with a stub or introduce a new wrapper.
+   Apply the [controller test shape](../../docs/templates/backend/express-light-rail/controller-template.md#controller-test-shape) and [structured query transport contract](../../docs/references/code-organization-reference.md#structured-controller-query-inputs) using the actual routing, client, and server parser.
 9. Add the smallest runnable test that proves the changed success path and the highest-risk edge. Keep behavioral suites aligned with the source unit they own; follow [Domain-Oriented Modules and Tests](../../docs/references/code-organization-reference.md#domain-oriented-modules-and-tests) when a distinct responsibility warrants its own service/use case and matching test file.
 
 ## Output Contract
