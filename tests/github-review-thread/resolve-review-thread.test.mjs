@@ -67,13 +67,8 @@ await test("when feedback is rejected, creates the reaction before resolving and
     reactionCreated: true,
     verified: true,
   })
-  const initialReactionEndpoint = reviewCommentReactionEndpoint("owner/repo", 123)
-  const initialReactionPage = `${initialReactionEndpoint}?per_page=100&page=1`
-  const createdReactionEndpoint = reviewCommentReactionEndpoint("owner/repo", 123)
-  const verifiedReactionEndpoint = reviewCommentReactionEndpoint("owner/repo", 123)
-  const verifiedReactionPage = `${verifiedReactionEndpoint}?per_page=100&page=1`
-  const finalReactionEndpoint = reviewCommentReactionEndpoint("owner/repo", 123)
-  const finalReactionPage = `${finalReactionEndpoint}?per_page=100&page=1`
+  const reactionEndpoint = reviewCommentReactionEndpoint("owner/repo", 123)
+  const reactionPage = `${reactionEndpoint}?per_page=100&page=1`
   assert.deepEqual(restCalls, [
     {
       method: "GET",
@@ -82,24 +77,24 @@ await test("when feedback is rejected, creates the reaction before resolving and
     },
     {
       method: "GET",
-      endpoint: initialReactionPage,
+      endpoint: reactionPage,
       payload: undefined,
     },
     {
       method: "POST",
-      endpoint: createdReactionEndpoint,
+      endpoint: reactionEndpoint,
       payload: {
         content: "-1",
       },
     },
     {
       method: "GET",
-      endpoint: verifiedReactionPage,
+      endpoint: reactionPage,
       payload: undefined,
     },
     {
       method: "GET",
-      endpoint: finalReactionPage,
+      endpoint: reactionPage,
       payload: undefined,
     },
   ])
