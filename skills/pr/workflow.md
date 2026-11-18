@@ -28,6 +28,22 @@ Push coherent progress and revise that existing description as implementation an
 
 Reconcile linked implementation tickets through [Ticket Lifecycle](../feature/workflow.md#ticket-lifecycle) when starting a draft, requesting review, handling rework, or completing a merge. PR assignment does not assign its linked ticket, and merging a PR does not prove that Jira status or GitHub Project Status advanced. After merge, use the project's actual next state; retain QA/release requirements rather than marking incomplete delivery Done.
 
+### Stack Target Advisory
+
+Before beginning edits on a stacked PR, and when changing the target PR, inspect current remote PR states and actual base/head dependencies to identify the bottom-most still-open PR in the selected stack. Use verified native membership when available; ordinary base chaining may also establish dependencies. Exclude merged/closed prerequisites. Do not infer order from issue numbers, branch names, or an old plan.
+
+If the target is above that PR, warn before editing with links to both the target and the bottom unmerged PR. Recommend placing prerequisite/shared fixes in the lower layer that owns them. This is advisory, not a prohibition: honor deliberate upper-layer work or an explicit override, and do not repeat the warning while the target and stack context are unchanged. Do not silently retarget, rebase, merge, or expand scope. If membership or order is unresolved, name that uncertainty instead of inventing a bottom PR.
+
+| Observed Situation | Expected Decision |
+| --- | --- |
+| Target is the verified bottom open PR. | Proceed within scope; no upper-layer warning. |
+| Target depends on a lower open PR. | Warn with both links before editing; recommend the owning lower layer for shared fixes. |
+| Former bottom is merged; its child is now lowest open. | Use the child as bottom; do not warn merely because the merged prerequisite existed. |
+| Remote membership or dependency order is unknown. | State the unknown order; do not invent membership or retarget. |
+| User deliberately selected the upper layer after the advisory. | Continue that scoped work without repeated warnings or unauthorized lower-layer edits. |
+
+Exercise these cases through a read-only guidance consumer using supplied remote-state evidence, including a target change. Check the actual warning/no-warning decision and links, not matching wording. This procedure adds no runtime guard or automatic stack mutation.
+
 ### PR Size and Stack Planning
 
 Use [Plan Reviewable PR Slices](../autopilot/workflow.md#plan-reviewable-pr-slices) for the advisory per-PR changed-file threshold. Reassess at planning, whenever a planned or active PR grows, and before marking it ready. Measure each PR against its actual review base, not cumulatively against trunk; a stacked child is reviewed against its immediate parent.

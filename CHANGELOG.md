@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1459) - 2026-11-18
+
+### Changed
+
+- Warn before editing above the bottom open PR in a verified stack, preserving deliberate upper-layer work and existing scope.
+
 ## [5.14.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1458) - 2026-11-18
 
 ### Changed
