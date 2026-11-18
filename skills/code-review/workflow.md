@@ -184,6 +184,14 @@ Inspect the resulting DOM at the affected boundary for leaked component elements
 9. Check simplicity: flag helpers, options, abstractions, comments, or compatibility paths that solve no current problem. Apply [Default-Safe Lifecycle APIs](../../docs/references/code-organization-reference.md#default-safe-lifecycle-apis) when ordinary safety is opt-in or implementation bookkeeping leaks into a framework-like caller interface.
 10. Check dead code: if a replacement makes old code unreachable, remove stale types, imports, exports, and documentation.
 
+## Findings Delivered After Completion
+
+A delivered review finding requires disposition even after a completion response or while a separate design discussion continues. Reopen the affected part of the already-authorized work; disclosure alone is not disposition, and an unrelated unresolved decision does not defer independent corrections.
+
+- Compare each finding with current source, the reviewed revision, accepted scope, and applicable project precedence. Correct current, applicable findings in owned scope without requiring another user prompt, then run the affected verification and obtain corrective review through the supported review path. Reuse unchanged evidence rather than restarting the entire audit.
+- Reject stale or incorrect findings with source-backed reasons; do not blindly apply them or manufacture Arrange setup in a parameterized test. For work outside authorization, an explicit user pause, or a genuine prerequisite, record the precise boundary or blocker and continue independent authorized corrections. Findings do not authorize another repository, broader implementation, merge, or installation.
+- Distinguish actual delivered findings from an empty automatic-command result. Neither an empty array nor merely listing outstanding findings establishes `PASS`. If findings invalidate an earlier completion claim, correct that status and finish their disposition before claiming completion again.
+
 ## Comments in the Maintainer's Voice
 
 For human-facing PR comments written in the maintainer's voice, state the concern and a concise direction. Retain concrete behavioral risks and why they matter; cut unsolicited helper signatures, parameter lists, guard clauses, intermediate variable names, and step-by-step implementation designs. Keep that detailed analysis in the existing review evidence unless the maintainer asks to include it.
