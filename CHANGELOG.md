@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Clarify required selection events without removing nullable drafts or optional clears, connect API-owned server-table query props to existing data and route owners, and separate successful persistence notifications from parent follow-up failures.
+
 ## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
 
 ### Changed
