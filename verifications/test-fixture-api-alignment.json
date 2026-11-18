@@ -14,6 +14,10 @@
       "question": "Identify applicable shared/local fixture guidance and cite the actual resolved factory library/package version and supported API from installed documentation, types, or implementation matched to that version. Inspect relevant project factory definitions and model associations. A package declaration alone, an assumed API, or documentation for a different release is insufficient. If required API/version or guidance cannot be established, return BLOCKED rather than proposing a speculative replacement."
     },
     {
+      "id": "ordinary-defaults-and-special-role-traits",
+      "question": "Apply Factory Defaults and Role Traits in the source workflow. Inspect the actual default roles, named trait implementation and each scenario's role contract. FAIL repeated ordinary USER arrays when already the factory default, invented ordinary-role traits, or repeated special-role arrays equivalent to an existing asTravelDeskUser-style trait; cite factory/test locations and the concrete plain-create or named-trait correction. PASS ordinary userFactory.create(), fitting existing special-role traits, and explicit genuinely nondefault role combinations. Preserve exact role membership, authorization coverage, hooks, persistence and timing; trait names alone do not establish equivalence. Missing necessary factory/role evidence yields BLOCKED. Do not demand a new library, new default-role trait or prerequisite PR."
+    },
+    {
       "id": "native-graph-and-loading-fit",
       "question": "Determine whether the installed factory supports the scenario's child graph and required include/loading options. Cite a finding for a redundant reloadForIndexSerializer-style wrapper hiding scenario-specific association preloads or ordered collection loading when supported native APIs express the same contract. Name both the wrapper/call sites and the fitting API evidence. Do not accept a wrapper merely because tests pass, or invent unsupported graph/association features. Prefer explicit scenario-local native setup without replacing the wrapper with another opaque scenario builder."
     },

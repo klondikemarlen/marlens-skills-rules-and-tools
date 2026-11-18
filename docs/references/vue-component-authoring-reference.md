@@ -769,6 +769,40 @@ const { fundingPeriods } = useFundingPeriods(fundingPeriodsQuery)
 
 Keep the existing ref type, initializer, identity, and query lifecycle. This preference concerns caller-owned ref definitions, not ordinary inline literals, default parameter expressions, or established reactive-state return patterns; do not add state-management helpers or sweep unrelated code.
 
+### Required Selections and Nullable Drafts
+
+A required selection should normally not offer a clear action; retain its required validation so an initially blank draft still cannot be submitted. Inspect the supported input's actual event contract before making a selection handler or emitted selection payload non-null. Removing `clearable` alone does not prove that a reusable input never emits `null` during reset, model synchronization, or another supported interaction. Narrow only the interaction that guarantees a value; do not assert away nullability or silently drop legitimate clear events.
+
+For example, assume the existing `CitySelect` has a verified `selected` event carrying a numeric city ID for a committed choice, independently of its nullable model value. With the form's existing `cityRules` and request-loading state:
+
+```vue
+<template>
+  <CitySelect
+    :model-value="destinationCityId"
+    :clearable="false"
+    :rules="cityRules"
+    @selected="selectDestinationCity"
+  />
+</template>
+
+<script setup lang="ts">
+const emit = defineEmits<{
+  selected: [cityId: number]
+}>()
+
+const destinationCityId = ref<number | null>(null)
+
+function selectDestinationCity(cityId: number) {
+  if (isLoading.value) return
+
+  destinationCityId.value = cityId
+  emit("selected", cityId)
+}
+</script>
+```
+
+Use the input's actual event name and contract; this example does not add a `selected` event to a reusable input or claim all `update:modelValue` events are non-null. Blank-draft storage and absent/loading resource guards remain valid and nullable; this is not a schema migration or permission to remove the request-loading guard. Optional selections may legitimately clear and retain `number | null` update events, as do required controls whose supported event contract remains nullable. During authoring and review, check required selectors for contradictory clear affordances, retain required validation, and verify committed selection, optional clearing, blank-draft rejection, and loading behavior separately.
+
 ## Nullable Numeric Input Boundaries
 
 When a reusable numeric input accepts values for a nullable numeric model, normalize the cleared value at that input boundary before emitting the parent update. Keep the contract explicit as `number | null`: an empty input emits `null`, while numeric values—including `0`—remain numbers. Vue's [`v-model.number` modifier](https://vuejs.org/guide/essentials/forms.html#number) parses numeric input, but preserves an empty string when the field is cleared; it does not supply this nullable contract on its own.
@@ -938,9 +972,17 @@ Use the project's actual resource availability, store API, and form controls. Si
 
 Use a narrow `useRouteQueriableTableOptions` composition when a server table needs route-backed pagination and sorting together. Compose existing local route-pagination, sort-query encoding and API-order primitives, not a universal table framework or new runtime dependency. The [TravelAuth implementation](https://github.com/icefoganalytics/travel-authorization/blob/55f20a7656f1d6d56e54375c4b252550e4385ade/web/src/use/utils/use-route-queriable-table-options.ts), [tests](https://github.com/icefoganalytics/travel-authorization/blob/55f20a7656f1d6d56e54375c4b252550e4385ade/web/tests/use/utils/use-route-queriable-table-options.test.ts), and [README](https://github.com/icefoganalytics/travel-authorization/blob/55f20a7656f1d6d56e54375c4b252550e4385ade/web/src/use/README.md) are pinned pattern evidence, not adoption by another project.
 
-This TypeScript contract excerpt uses Vue's `Ref`/`ComputedRef` and the owning project's `SortItem`/`ModelOrder` types. It is guidance, not an executable shared template:
+Server-fed tables should reuse the application's established query props: API-owned `where` and `filters` types alongside its route-query namespace option. Do not handwrite a restricted shape such as `where?: { centreId?: number; fiscalPeriodId?: number }` when the resource API already exports the contract. Preserve existing prop defaults and query semantics. Use the actual `routeQuerySuffix` or prefix naming already supported by the route primitives, not a new spelling or parallel namespace mechanism.
+
+This TypeScript contract excerpt uses Vue's `Ref`/`ComputedRef` and the owning project's `SortItem`/`ModelOrder` types. `MealWhereOptions`, `MealFiltersOptions`, and `MealQueryOptions` stand for the resource API's exported types, and `useMeals` stands for its existing query-watching data owner; use the application's actual exports, imports, and call signature. It is guidance, not an executable shared template:
 
 ```typescript
+const props = defineProps<{
+  where?: MealWhereOptions
+  filters?: MealFiltersOptions
+  routeQuerySuffix?: string
+}>()
+
 type RouteQueriableTableOptions = {
   page: Ref<number>
   perPage: Ref<number>
@@ -956,7 +998,7 @@ declare function useRouteQueriableTableOptions(options?: {
 }): RouteQueriableTableOptions
 
 const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
-  routeQuerySuffix: "Meals",
+  routeQuerySuffix: props.routeQuerySuffix,
   page: 1,
   perPage: 25,
   sortBy: [
@@ -966,18 +1008,24 @@ const { page, perPage, sortBy, order } = useRouteQueriableTableOptions({
     },
   ],
 })
-const mealsQuery = computed(() => ({
+const mealsQuery = computed<MealQueryOptions>(() => ({
+  where: props.where,
+  filters: props.filters,
   page: page.value,
   perPage: perPage.value,
   order: order.value,
 }))
+
+const { meals, totalCount, isLoading } = useMeals(mealsQuery)
 
 const codingsTableOptions = useRouteQueriableTableOptions({
   routeQuerySuffix: "Codings",
 })
 ```
 
-Pass `mealsQuery` to the existing data owner. Where native two-way updates already own the table contract, bind the refs using this template excerpt:
+The computed query carries live `where` and `filters` props plus the existing route-owned page, size, and API order into the data owner's request lifecycle. Keep that owner's existing query watching, serialization, fetching, loading, and page-reset behavior; declaring props without forwarding them is not adoption. Do not add a second request watcher or spread/merge filters in a way that changes accepted precedence. The parent can pass `route-query-suffix="Meals"` for this instance; the separate Codings instance retains `"Codings"`. If the application uses a prefix or captures namespace options only at setup, preserve that lifecycle rather than promising reactive namespace changes.
+
+Where native two-way updates already own the table contract, bind the refs using this template excerpt:
 
 ```vue
 <v-data-table-server
@@ -997,7 +1045,7 @@ One suffix identifies all three keys (TravelAuth: `pageMeals`, `perPageMeals`, `
 - **Cleared sorting:** setting an existing sort to `[]` makes API `order` `undefined`; preserve the primitive's accepted cleared URL representation. Reject stale ordering or resurrected defaults.
 - **History/reload:** back/forward and reload restore saved state and history policy. Reject reading the URL only during initial setup.
 
-Smaller pagination-only helpers and non-route helpers remain valid when they fit. ELCC's `CentresDataTableServer` and WRAP's `UsersDataTableServer` are adoption suggestions, not migrated consumers. Adoption requires each project's delivery and runnable checks for bookmarks, independent tables, absent/cleared sorting, All, history/reload and loading/page-reset guards. Published guidance, native project tests, fresh OMP consumption, verifier enforcement and adoption are separate evidence claims.
+Smaller pagination-only helpers and non-route helpers remain valid when they fit. This contract does not authorize a pagination/sorting retrofit or a generic table framework. During authoring and review, compare query prop types to the API exports, then trace a changed `where`/`filters` prop to the outgoing request and a route namespace to its actual URL keys. Reject disconnected props, handwritten restricted API shapes, or a namespace that silently changes another table's state. ELCC's `CentresDataTableServer` and WRAP's `UsersDataTableServer` are adoption suggestions, not migrated consumers. Adoption requires each project's delivery and runnable checks for bookmarks, independent tables, absent/cleared sorting, All, history/reload and loading/page-reset guards. Published guidance, native project tests, fresh OMP consumption, verifier enforcement and adoption are separate evidence claims.
 
 ## Model-Mirror Composables and Editor Ownership
 
@@ -1065,12 +1113,14 @@ async function submit() {
     if (!valid) return
 
     await saveWorkflow()
-    emit("saved")
   } catch (error) {
     reportSaveError(error)
+    return
   } finally {
     isSaving.value = false
   }
+
+  emit("saved")
 }
 </script>
 ```
@@ -1078,6 +1128,28 @@ async function submit() {
 Use the project's supported imports, ref inference, validation result, save/error handling, and completion payload. Preserve existing action-slot placement, authorization, Cancel isolation, pending-update policy, and save lifetime; the parent may navigate on successful completion, not on an attempted or failed save. This example assumes saving resolves only after persistence succeeds and rejects on failure. It does not replace a deliberately different submission contract.
 
 Use past-tense notifications such as `saved`, `created`, or `deleted` only after the action completes successfully. A `save` or `submit` event may instead be a command asking another owner to perform work; do not rename that command to `saved` before persistence occurs. Keep existing completion payloads and update affected emitters and listeners together when changing an event contract.
+
+For ordinary post-save notification, reuse that completion event rather than exposing an optional `afterSave` prop and calling `await props.afterSave?.()` inside submission. Awaiting parent refresh or navigation in the child's persistence `try` block can misreport a parent follow-up failure as a failed save. The example emits after the save error boundary and loading cleanup; the parent owns its separate follow-up and error feedback:
+
+```vue
+<template>
+  <WorkflowForm @saved="onSaved" />
+</template>
+
+<script setup lang="ts">
+async function onSaved() {
+  try {
+    await refreshWorkflow()
+  } catch (error) {
+    reportFollowUpError(error)
+  }
+}
+</script>
+```
+
+These parent bindings represent an existing refresh and its feedback owner. Vue component `emit` does not await async listeners; neither `emit("saved")` nor `await emit("saved")` makes parent work part of the save promise or the child's saving state. The record remains saved if refresh or navigation fails; report and retry that follow-up with its parent owner, not by resubmitting persistence. During authoring and review, check that validation and persistence failures cannot emit completion and that parent follow-up failures cannot enter save-failure feedback.
+
+This is not a ban on function-valued props. Preserve genuinely required function inputs, such as an established value resolver, and explicit asynchronous operation contracts whose result or ordering the child must await. An independently required awaited operation is not a completion notification; do not replace it with a fire-and-forget event or discard its rejection/ordering contract.
 
 Decide whether a public API is needed separately from its placement. Preserve legitimate component APIs, such as an input's imperative focus operation. Place a necessary `defineExpose` last in `<script setup>`, after the definitions it exposes, except that existing page [breadcrumb setup](#setup-priority-and-breadcrumbs) follows it when dependencies and lifecycle permit. For an existing native input with `ref="input"`:
 

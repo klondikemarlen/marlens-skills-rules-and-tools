@@ -14,6 +14,8 @@ Use this reference to place a quality improvement without duplicating policy, ex
 
 The boundary separates **what should be checked**, **how a check runs**, and **what durable lesson merits retention or a proposal**. A package-owned `.mjs` verification is policy implementation, not a second verifier runtime. The target project's local guidance wins over shared advice.
 
+Specific verification rules, code/test standards, and their rule definitions belong in MSSRT (or the target project for genuinely project-only policy). Generic enforcement architecture and runtime mechanisms belong in omp-verifier. Asking to verify a particular standard is not, by itself, a Verifier architecture request: for example, default subject-import placement belongs in MSSRT's existing test standard and semantic contract, while a proven discovery/execution defect belongs in Verifier. Apply this boundary when authoring, reviewing, contributing, or routing a learning proposal; do not send a missing rule to the runtime owner merely because verification was requested.
+
 Standalone application and test libraries belong in focused packages with their own implementation and release boundaries. Shared examples and authoring guidance may reference those packages, but must not require installing a doctrine or plugin bundle wholesale to obtain one helper.
 
 ## Integration Handoffs

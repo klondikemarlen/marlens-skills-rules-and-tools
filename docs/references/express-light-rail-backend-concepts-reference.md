@@ -123,6 +123,35 @@ declare name: string
 
 Here `TagsNameUniqueIndex` is the TypeScript declaration identity; `tags_name_unique` is the migration's database index name on `tags(name)` with the same uniqueness and `deleted_at IS NULL` predicate. Use the installed decorator API and actual column/predicate mapping. When replacing an inline declaration, preserve all indexed fields, ordering, uniqueness, and predicate; do not invent a new constraint. Follow [Self-Contained Migrations](code-organization-reference.md#self-contained-migrations) for routine soft-delete naming. Simple indexes need no mandatory extraction, and another project's directory names are not universal.
 
+## Knex PostgreSQL Partial Unique Indexes
+
+Use the installed schema builder when it preserves the required semantics. A PostgreSQL partial unique index is an index, not a unique constraint: create it with supported `table.unique(..., { predicate })` and remove that named index with `table.dropIndex(...)`, not `dropUnique(...)`. For an existing `bookings` table whose accepted rule allows only one active row per reference:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  const activeBookings = knex.queryBuilder().whereRaw(/* sql */ `"is_active" = true`)
+
+  await knex.schema.alterTable("bookings", (table) => {
+    table.unique(["reference"], {
+      indexName: "bookings_active_reference_unique",
+      predicate: activeBookings,
+    })
+  })
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.alterTable("bookings", (table) => {
+    table.dropIndex(["reference"], "bookings_active_reference_unique")
+  })
+}
+```
+
+In [Knex 3.0.1's PostgreSQL compiler](https://github.com/knex/knex/blob/3.0.1/lib/dialects/postgres/schema/pg-tablecompiler.js), predicate SQL is embedded without carrying its value bindings into the DDL. Do not use value placeholders in this partial-index predicate: `.where("is_active", true)` produces a bound boolean; the fixed SQL boolean above does not. Inspect the installed version/dialect before generalizing. Keep normal parameter binding for application data; never replace it with interpolated input.
+
+Mark embedded SQL template literals with `/* sql */` immediately before the literal, including literals passed to `knex.raw`, for editor highlighting without changing SQL or bindings. Shared guidance owns these reusable mechanics; project documentation retains its table, destination, predicate, and migration-order decisions. Preserve applied history and verify the production-shaped index's uniqueness, predicate, and rollback on the supported database before claiming migration behavior.
+
 ## Migration Field Groups
 
 For new or actively reviewed unreleased Knex migrations, use three blank-line-separated groups inside each table definition:
@@ -449,6 +478,19 @@ perform() {
 Accept this complete conversion inside that serializer: source-only `id` and timestamps are deliberately excluded under this illustrative target contract, and the service persists its output directly. Reject leaving the identifier rename or source-field exclusion as a second service mapping after the dedicated serializer. Conversely, an ordinary local-event response retaining `externalTravelPortIdentifier` is correct; renaming it merely to mimic the remote model is not the same conversion requirement. Intentional presentation aliases remain valid. Review the actual complete accepted fields and constructor/context contract, not these illustrative field names.
 
 Prefer dedicated associated-model serializers for their field mappings instead of embedding those mappings in private parent methods. Compose using the project's existing single/collection interface; do not introduce another base. The parent owns its response's preload requirements and any parent-specific ordering or composition, while each associated serializer owns its model's representation.
+
+### Explicit Scalar Response Types
+
+Keep unchanged response projections based on the local model with `Pick`. For explicitly declared scalar wire fields, prefer their actual primitive type over indexed model-property indirection when the indexed type adds no meaningful relationship:
+
+```typescript
+type BookingEventResponse = Pick<BookingEvent, "id" | "eventType"> & {
+  travelOrderIdentifier: number
+  note: string | null
+}
+```
+
+Here the accepted wire contract has a numeric identifier and nullable text; do not copy these illustrative types into a different contract. Preserve optionality, nullability, branded identifiers, literal unions, generics, and other meaningful domain relationships. [Known Application Types](code-organization-reference.md#known-application-types) remains applicable when an indexed access preserves such a relationship. This is not a blanket indexed-access ban or permission to rename fields.
 
 ### Required Preloads and Composition
 
