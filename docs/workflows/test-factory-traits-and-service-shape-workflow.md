@@ -3,6 +3,7 @@
 Use when TypeScript tests need reusable persisted relationships, non-persisted API entities, or composable HTTP response mocks, including frontend component fixtures.
 
 1. Read the project’s factory API, installed library/version, and test TypeScript command. Apply [Native Fixture Setup and Semantic Review](#native-fixture-setup-and-semantic-review) when arranging or reviewing associations and preloads.
+   Inspect ordinary defaults and existing special-role traits under [Factory Defaults and Role Traits](#factory-defaults-and-role-traits) before writing user setup.
 2. Arrange persisted scenario records explicitly inside each test, even when multiple tests use identical attributes. Keep each scenario self-contained; do not move persisted scenario creation into shared `beforeEach` hooks. Environment setup and teardown, such as fake timers, may still use hooks.
    Use the project's factories, not unrelated production services, to arrange data. Service calls remain valid when the service is the subject under test or when writing a feature test. Apply accepted corrections throughout the requested test scope, preserving identities, deletion states, ordering coverage, and explicit preloads.
 3. Keep one-off scenario inputs in the test; for homogeneous local generation rather than individually numbered declarations, follow [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification). For recurring persisted relationship setup, add a named opt-in builder trait to the owning Fishery-style factory; the trait must not change ordinary factory creation.
@@ -19,6 +20,12 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
    For integration-model fixtures and their helpers, follow [Integration Factory Ownership](#integration-factory-ownership).
 8. Run the focused test and test TypeScript check.
 
+## Factory Defaults and Role Traits
+
+Read the owning factory's actual default roles and available named traits first. If `USER` is already the ordinary default, use `userFactory.create()`, not `create({ roles: [User.Roles.USER] })` or a newly invented ordinary-user trait. For a special role already represented by `asTravelDeskUser()`, use `userFactory.asTravelDeskUser().create()` rather than repeating its role array.
+
+Keep explicit overrides for scenarios genuinely requiring another role combination, including combinations not represented by an existing trait. Preserve authorization coverage, exact role membership, factory hooks, persistence, and setup timing; a trait name alone does not prove equivalent behavior. Do not add a new factory library, force a default-role trait, or require a separate prerequisite PR. See [role setup examples and semantic scenarios](../../examples/factory-traits-and-service-shape.md#ordinary-users-and-special-role-traits).
+
 ## Native Fixture Setup and Semantic Review
 
 Inspect complete changed tests and their invoked setup helpers, not only changed lines. Resolve the actual installed factory package/version and its supported API from the target project's dependency resolution and matching documentation, types, or implementation; do not infer capabilities from a library name or a newer online release. Read applicable local fixture guidance and relevant model associations before proposing a graph/include replacement.
@@ -28,6 +35,8 @@ Prefer supported native child-graph and include/loading APIs when they express t
 Compare the original and proposed scenario contracts: exact values and overrides, existing record identities and foreign keys, explicit nulls and deletion states, build versus create persistence, lifecycle timing, insertion order versus loaded/query order, every required preload and nested association, and unchanged actions and assertions. A reload may return fresh model instances: preserve the identity guarantee actually required by the test rather than claiming object-reference equality without API evidence. Do not sort insertion data merely to make loading simpler or drop deterministic secondary ordering.
 
 Legitimate opt-in owning-factory traits and reusable infrastructure remain valid. A reload required after a mutation is not a redundant initial preload; retain it at the point where fresh state is needed. When the installed library lacks an equivalent graph/include capability, retain explicit creation/loading or justified support rather than requiring a different library or inventing an opaque scenario builder. There is no universal factory, helper, or reload ban.
+
+Apply [Factory Defaults and Role Traits](#factory-defaults-and-role-traits) to role setup as part of this same review. Cite the actual factory defaults/trait implementation and scenario role needs before flagging redundant default arrays or repeated special-role arrays; explicit nondefault combinations remain valid.
 
 The supplied agentic contract [`test-fixture-api-alignment.json`](../../verifications/test-fixture-api-alignment.json) owns this focused semantic assessment; Verifier owns selection, final-review execution, and reassessment. Each finding must cite the affected test/helper location, governing guidance, installed API evidence, and the behavior-preserving correction. Missing complete tests, invoked helper code, applicable guidance, installed API/version, or necessary association/lifecycle context yields `BLOCKED` with the exact missing prerequisite, not a speculative `PASS` or `FAIL`. Structural test alignment, assertion counts, typechecking, and behavioral test success remain useful but do not prove fixture semantics. See [contrasting fixture examples](../../examples/factory-traits-and-service-shape.md#native-graph-setup-and-preloads).
 

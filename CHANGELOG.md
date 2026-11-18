@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1460) - 2026-11-18
+
+### Changed
+
+- Define cohesive controller-test contracts for exact action/verb/route scopes, factory-default and named-role setup, supported default subject imports, and nested query transport with native-client equivalence and existing-serializer exceptions. Extend existing semantic review contracts and contrasting consumer scenarios rather than adding a runtime mechanism.
+- Clarify that specific verification standards belong in MSSRT while generic enforcement architecture belongs in OMP Verifier.
+
 ## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
 
 ### Changed
