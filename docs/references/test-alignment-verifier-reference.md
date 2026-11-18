@@ -60,12 +60,28 @@ expect(result).toEqual({
 })
 ```
 
-Likewise, `expect(records).toEqual([{ id: 7 }])` compares an actual collection contract. An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
+Likewise, this compares an actual collection contract:
+
+```typescript
+expect(records).toEqual([
+  {
+    id: 7,
+  },
+])
+```
+
+An ORM assertion should compare the actual persisted record using its project-native representation; keep separate persistence effects independently visible.
 
 When the full expected collection is known, compare the complete returned collection directly rather than wrapping its expected members in `expect.arrayContaining`. Adding `toHaveLength(...)` to the subset assertion is not the preferred replacement: express the complete-result contract in the collection expectation itself. Partial object matchers may still appear inside that complete expected array when incidental record fields are outside the contract:
 
 ```typescript
-expect(hits).toEqual([expect.objectContaining({ id: 7 }), expect.objectContaining({ id: 9 })])
+const firstHit = expect.objectContaining({
+  id: 7,
+})
+const secondHit = expect.objectContaining({
+  id: 9,
+})
+expect(hits).toEqual([firstHit, secondHit])
 ```
 
 For an established `7`-then-`9` result order, this accepts additional fields on those two records but rejects an unexpected third element, a missing record, or a different member without a separate count assertion. Use the actual result path and supported project matchers. If order is not guaranteed, preserve the real unordered contract with a supported exact unordered collection matcher; do not add sorting solely to normalize assertions. See [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification).

@@ -253,7 +253,10 @@ test("when a widget is created, returns its HTTP response", async () => {
   const response = await requestCreateWidget(attributes)
 
   // Assert
-  expect(response).toHaveHttpResponse(201, { id: 7, name: "Widget" })
+  expect(response).toHaveHttpResponse(201, {
+    id: 7,
+    name: "Widget",
+  })
 })
 ```
 
