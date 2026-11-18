@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1476) - 2026-11-18
+
+### Changed
+
+- Prefer existing inherited callable services for single-operation Ruby code before grouped singleton methods, preserve behavioral and visibility contracts, and place attribute readers before initialization.
+
 ## [5.14.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1473) - 2026-11-18
 
 ### Fixed

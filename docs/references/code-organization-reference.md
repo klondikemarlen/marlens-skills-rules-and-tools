@@ -2532,21 +2532,36 @@ Use patterns only when they earn their keep:
 
 Invoke Ruby action services through class-level `SomeAction.call(...)` and implement their instance action entrypoint as `#call`. Compose returned results through named locals under [Explicit Ruby Workflow Results](#explicit-ruby-workflow-results), rather than retaining an action instance solely to invoke `#perform` or `#call`. Integration clients, value objects, and objects that genuinely own a lifecycle retain their useful instance APIs; this is not a ban on ordinary instance methods.
 
+For authored or reviewed single-operation Ruby code, prefer the existing inherited callable service pattern: inputs in `initialize`, one public instance `#call`, and private implementation helpers. Existing named static methods are not, by themselves, a reason to retain a class-method design or choose `class << self`. Before proposing repetitive lint-local fixes, compare coherent alternatives at the enclosing class or module level: the existing callable service, a genuine class-level API, or an ordinary lifecycle object/client. Choose by responsibility, state ownership, readability, repetition, local conventions, intended visibility, and public compatibility—not merely the first lint-clean spelling.
+
 In projects supporting Ruby 3.1 or newer, prefer omitted keyword values when the keyword matches an existing local or intended method: `project_root:` instead of `project_root: project_root`. Keep explicit values when names differ, such as `env: environment_variables`. Preserve evaluation and the project's supported Ruby version; apply this only to in-scope calls.
 
 Before adding a class-level constructor-to-instance forwarder, inspect the local callable service/operation base and sibling consumers. Reuse an existing base when its forwarding, initialization, instance entrypoint, return values, and failure behavior match. Keep constructor argument declarations in the initializer rather than repeating every keyword in a trivial subclass `.call` wrapper. Preserve supported positional arguments, keywords, and blocks where the actual local contract requires them.
+
+Where the project's supported Ruby version permits argument forwarding, an existing base may express that forwarding as `def self.call(...); new(...).call; end`. Reuse its actual contract rather than adding a parallel base or changing forwarding syntax mechanically. Ruby `...` is available from 2.7; preserve the supported positional, keyword, and block behavior of the actual calls on the project's supported versions.
+
+Place `attr_reader` declarations near the beginning of the class, before `initialize` and action methods, rather than among implementation helpers. Declaration order does not decide visibility: preserve an established private reader with an explicit declaration such as `private :repository, :version`. Apply this layout preference throughout the requested authoring/review scope, not as an unrelated repository-wide reorder.
 
 For example, given an existing local `DeployService.call(**arguments)` that invokes `new(**arguments).call`, inherit that contract instead of redeclaring the same forwarder:
 
 ```ruby
 class PrepareRelease < DeployService
+  attr_reader :repository, :version
+  private :repository, :version
+
   def initialize(repository:, version:)
     @repository = repository
     @version = version
   end
 
   def call
-    @repository.prepare_release(@version)
+    prepare_release
+  end
+
+  private
+
+  def prepare_release
+    repository.prepare_release(version)
   end
 end
 
@@ -2555,6 +2570,32 @@ publication = PublishRelease.call(prepared_release:, client:)
 ```
 
 `DeployService` and `PublishRelease` illustrate existing local owners, not new universal classes to introduce. A class-level method that validates, authorizes, normalizes, selects an implementation, or otherwise adds real behavior is not a trivial forwarder: preserve that behavior at its established boundary. Do not collapse a framework-required `perform` callback or another language's action protocol into `call`. Apply this convention to requested Ruby authoring/review scope, not a repository-wide migration or a new client framework.
+
+When a class-level API genuinely fits, group its public entrypoints and private implementation helpers together in one `class << self` block, using ordinary `def` methods, public entrypoints first, and one `private` declaration before the helpers:
+
+```ruby
+class ReleaseReference
+  PREFIX = "refs/tags/"
+
+  class << self
+    def for_tag(tag)
+      "#{PREFIX}#{normalize_tag(tag)}"
+    end
+
+    private
+
+    def normalize_tag(tag)
+      tag.strip
+    end
+  end
+end
+
+reference = ReleaseReference.for_tag(" v1.2.3 ")
+```
+
+Keep both entrypoints and helpers in that singleton block; do not leave public `def self...` methods outside while grouping only their helpers inside. A plain class-body `private` changes instance-method visibility, not singleton-method visibility. An isolated `private_class_method` or a stronger established local convention remains appropriate; grouped singleton syntax is not a universal service model.
+
+Migrate all affected callers cleanly when changing the object model or entrypoint, without compatibility aliases or duplicate forwarding wrappers. Preserve meaningful validation, authorization, normalization, return values, argument/block handling, side effects, and failure behavior at their owning boundary. A lint diagnostic or declaration move does not authorize restricting public constants, readers, or methods; `PREFIX` above remains public. Verify representative public workflows and intended helper/reader visibility, including relevant failure paths; lint success alone does not establish behavioral compatibility.
 
 ### Pattern Fit and Non-Fit
 
