@@ -343,6 +343,31 @@ Preserve the body, internal exits, and execution behavior; ordinary counted and 
 
 When environment configurations repeat common settings, express the shared defaults once and keep environment-specific overrides explicit in the project's existing format. A simplified Rails-style defaults-and-overrides structure does not require YAML, a new parser, or a configuration framework. Reuse a common override when environments intentionally share the same differences rather than copying complete configurations.
 
+Resolve environment-string parsing and fallback defaults in the existing configuration layer, exporting appropriately typed values for consumers to use directly. Preserve distinct consumer-specific defaults, accepted invalid/absent-value behavior, and configuration loading/reload timing rather than imposing a new framework or one universal default.
+
+For example, when the existing `parseIntWithFallback` contract and the established request-timeout default are already accepted:
+
+```typescript
+// config.ts
+export const DB_REQUEST_TIMEOUT_MS = parseIntWithFallback(
+  process.env.DB_REQUEST_TIMEOUT_MS,
+  15 * 60 * 1000
+)
+```
+
+```typescript
+// db-client.ts
+import { DB_REQUEST_TIMEOUT_MS } from "@/config"
+
+const options = {
+  requestTimeout: DB_REQUEST_TIMEOUT_MS,
+}
+```
+
+The parser keeps its existing owner/import; the configuration layer chooses its fallback, and the database client does not parse or default again. The illustrative 15-minute default is not a recommendation for another client. Check absent, valid, and invalid environment inputs and the actual consumer units. Ordinary domain-input parsing still belongs at its domain boundary.
+
+For duration constants, show the human scale with clear conversion arithmetic or a useful human-unit comment: `15 * 60 * 1000` or `900_000 // 15 minutes` when the API accepts milliseconds. Either is sufficient; do not require both, annotate ordinary numbers, or add a duration utility. Preserve the numeric value and timeout scope—a per-query timeout is not an entire-job deadline.
+
 For example, suppose existing flat queue options retain 100 completed and failed jobs, with one attempt in tests and three in development/production:
 
 ```typescript
@@ -738,6 +763,31 @@ The function body reads `currencyFormatter` only when called after module initia
 
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
 
+### Owner-Defined Constant Projections
+
+When multiple consumers need the same projection of stable module constants, compute it once beside the source in its owning implementation module and export it. Do not make consumers repeatedly convert the same catalogue or put executable initialization in a barrel. For a string-valued report-header enum owned by `report-serializer.ts`:
+
+```typescript
+export enum ReportHeaders {
+  Reference = "Reference",
+  Amount = "Amount",
+}
+
+export const REPORT_HEADERS = Object.values(ReportHeaders)
+```
+
+```typescript
+import { REPORT_HEADERS } from "@/serializers/report-serializer"
+
+csvWriter.writeHeaders(REPORT_HEADERS)
+```
+
+This consumer excerpt uses the application's existing writer contract; retain its real method and supported mutable/readonly input type.
+
+Both CSV services import `REPORT_HEADERS` from the supported report-serializer module and pass it to their existing writer instead of repeating `Object.values(ReportHeaders)`. Preserve the exact values and enumeration order; numeric enums have reverse mappings and need their actual projection contract, not a blind copy of this example. Consumers must not mutate the shared projection; use a compatible readonly API or copy at a genuinely mutating boundary.
+
+Replace equivalent in-scope consumer conversions together. Keep request-dependent, reactive, mutable, or lazily required computations with their actual lifetime; this is not a blanket cache rule. Tests that protect header values/order keep independent literal expectations rather than deriving their expected outcome from this production export.
+
 ### Default-Safe Lifecycle APIs
 
 When failure isolation or lifecycle cleanup is required for ordinary callers, make it part of the normal operation rather than a parallel safe/unsafe or `WithErrorHandler` entry point. Optional callbacks express genuinely optional policy responses, not enabling baseline safety. Migrate all in-scope callers and remove the superseded unsafe path. Preserve domain recovery policy and error propagation; required safety does not mean swallowing errors, adding retries, or mandating a subscription API.
@@ -771,6 +821,8 @@ When authoring or reviewing a new or unreleased data-conversion migration, name 
 Preserve the runner's required timestamp/sequence prefix, casing, separators, and extension. Do not rename already-recorded historical migrations solely for style. Creation-only and cleanup-only migrations need no invented destination, and directional naming does not require splitting a cohesive migration.
 
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
+
+For version-qualified Knex/PostgreSQL partial-index creation, rollback, and embedded SQL highlighting, use [Knex PostgreSQL Partial Unique Indexes](express-light-rail-backend-concepts-reference.md#knex-postgresql-partial-unique-indexes). Keep reusable builder mechanics there and project-specific schema decisions with the project.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
@@ -830,6 +882,20 @@ Use structure as evidence, not a numeric proxy. Do not impose line-count, functi
 Verification code should expose each independently observable contract through a named scenario. Keep literal fixture data beside the scenario it explains. Share only repeated mechanics, such as writing a file or invoking a command, when their names clarify the setup; do not create a generic fixture builder.
 
 Name test files and `describe` scopes for the actual subject whose result is asserted: a test of `SummaryHeaderPanel` belongs in `SummaryHeaderPanel.test.ts`, not a file named for a child it happens to render. Estimated and actual travel workflows may look alike today but have independent reasons to change; keep their scenarios independently owned. Share infrastructure, established factories, and genuinely shared invariant tests, not helpers or component-family parameterization justified only by coincidentally similar setup. This is not a requirement to create a test file for every source file.
+
+For controller suites, preserve any outer source-path scopes, use the bare controller class (`SyncController`, not `TravelDeskTravelRequests.TravelDeskBookingEvents.SyncController`), and name endpoint scopes exactly `#action - METHOD - /url-pattern`, with both separators. For example:
+
+```typescript
+describe("api/controllers/travel-desk-travel-requests/sync-controller.ts", () => {
+  describe("SyncController", () => {
+    describe("#create - POST - /api/travel-desk-travel-requests/:id/sync", () => {
+      // Keep each scenario's setup, request, and response assertions local.
+    })
+  })
+})
+```
+
+Resolve the action against the actual controller method and routing declaration; retain the real verb, URL pattern, and outer scopes. Apply an accepted naming correction across equivalent added/changed controller suites in the authorized review scope, not just the selected example. Do not rename production classes or impose endpoint naming on unrelated subjects. For query transport, use [Structured Controller Query Inputs](#structured-controller-query-inputs).
 
 Prefer separate explicit tests with concrete setup and literal expectations for distinct behavioral scenarios, even when their Act and assertion shapes match. Three missing-association scenarios should each name and omit their concrete relationship, not assign `travelOrderEvent[association]` and interpolate an error message. Different control flow, such as commit versus rollback, also needs self-contained tests. Intentional duplicate setup is clearer than scenario flags, conditional Acts, or computed expected-data bundles.
 
@@ -1162,6 +1228,8 @@ const airportBooking = bookingFactory.build({
 
 Use the actual factory's types, merge semantics, allowed locations, and generation facilities. Here the absent drop-off remains an all-null group, and the explicit airport scenario does not depend on the random choice. Fishery merges supplied params over generated attributes: overrides of dependent fields must also form a valid group; generation does not repair a contradictory explicit override. Preserve the project's seed/reproduction facilities without making assertions depend on generated defaults.
 
+For ordinary-user defaults versus opt-in special-role traits, follow [Factory Defaults and Role Traits](../workflows/test-factory-traits-and-service-shape-workflow.md#factory-defaults-and-role-traits); scenario-defining nondefault role combinations remain explicit.
+
 ### Scenario Inputs and Assertions
 
 Name raw fixture/input attribute collections with an `Attributes` suffix, such as `stepsAttributes`, and reserve entity collection names for the resulting persisted records. Carry the distinction through table-driven fixture fields and consumers so a reader can tell which values are creation inputs and which are model instances.
@@ -1197,6 +1265,16 @@ expect(records).toEqual([
 Here ownership and draft status are relevant unchanged state. For multiple unordered records, use the project's supported exact unordered collection/model matcher; do not normalize SQL order or use a subset matcher that misses extra rows.
 
 Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
+
+### Structured Controller Query Inputs
+
+Author structured scenario inputs as nested objects and arrays, such as `where: { id: [record.id] }` and `order: [["invoiceNumber", "ASC"]]`, not hand-indexed keys like `"order[0][0]"`. Let the existing compatible serializer produce wire syntax. Prefer the installed request client's native `.query(query)` when its actual serialization preserves the server's accepted nested filters, arrays, and ordering; do not infer compatibility from the method name.
+
+Inspect the resolved client/version, serialization implementation or matching documentation, and existing server parser/options before migrating. Prove equivalence through real request assertions that distinguish filtering and sort direction, not status alone or a serializer round-trip without the server. Preserve values, array nesting, order clauses, escaping, and existing parser contracts.
+
+Some Superagent versions serialize arrays with `indices: false`, flattening nested ordering arrays. Where that installed limitation applies, retain the project's existing `qs.stringify(query)` handoff to `.query(...)`; see the [controller query example and semantic scenarios](../../examples/test-assertion-focus.md#controller-query-transport-and-import-review). Do not add `qs` when native serialization is equivalent, add another dependency for style, or change server parsing solely for test convenience. Intentional raw/malformed-wire and encoding-contract tests retain their explicit keys or serialized strings.
+
+The existing [assertion-focus semantic contract](../../verifications/test-assertion-focus.json) assesses controller scope names, query transport, and subject imports with their necessary source/client context; the [fixture contract](../../verifications/test-fixture-api-alignment.json) assesses default/trait role setup. Passing focused application tests alone does not establish those semantic review results.
 
 ## Input-Heavy Utility Tests
 
@@ -1340,12 +1418,14 @@ Reuse the project's actual export shape and module resolution. This preference c
 
 In tests, prefer owning bundle/barrel imports for dependencies and a direct default import for the primary subject under test when its concrete module supports that export. Preserve supported resolution, public package/export boundaries, named-only or third-party export contracts, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production service-collaborator preference does not override those explicit test conventions.
 
-Give the primary subject-under-test import its own group, separated from dependency imports by one blank line. Preserve the project's section order, supported paths, and explicit exceptions; apply an accepted grouping correction across the requested test scope without unrelated cleanup.
+Give the actual primary subject-under-test import its own group after factory/test-support imports, separated by one blank line. When its supported module has a default export, use that default import rather than a named subject import from a bundle. Preserve explicit project-local ordering overrides, supported paths, and initialization-sensitive order. Apply an accepted correction across the authorized changed-test scope without unrelated cleanup.
 
-For example, keep dependencies in their existing style and isolate the supported default-exported subject:
+Identify the subject from its Act and assertions, not just a filename or import spelling. Inspect the actual export and applicable local conventions before reporting an exact import/location and concrete correction. Supporting named imports, named-only subjects, and mixed-subject tests without evidence of one primary subject are not violations. Missing necessary source/export or local-guidance context is a review limitation, not permission to invent a default export. For example:
 
 ```typescript
 import { FundingCategory } from "@/models"
+
+import { fundingCategoryFactory } from "@/tests/factories"
 
 import DestroyService from "@/services/children-with-diverse-needs-funding-categories/destroy-service"
 ```
@@ -1704,6 +1784,26 @@ The values illustrate two different cadences, not a required interval, framework
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
 Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.
+
+Keep service/use-case constructors assignment-only: store supplied inputs without parsing, normalization, validation, queries, or mutations. Execute the action in `perform()` (or the established entry point). When the accepted contract requires canonical caller input, reject noncanonical input at action entry before locks, queries, or writes; preserve producer-owned normalization under [Text Validation Ownership](#text-validation-ownership). Do not invent a grammar or replace an intentionally normalizing contract with rejection. Framework constructors and other class lifecycles retain their required behavior.
+
+For example, where the existing `isCanonicalBookingReference` predicate and `ValidationError` own the accepted contract:
+
+```typescript
+class ImportBookingService {
+  constructor(private bookingReference: string) {}
+
+  perform() {
+    if (!isCanonicalBookingReference(this.bookingReference)) {
+      throw new ValidationError("Booking reference must be canonical.")
+    }
+
+    return importBooking(this.bookingReference)
+  }
+}
+```
+
+Construction stores even noncanonical input unchanged; the first action step rejects it. Here `importBooking` represents the existing domain operation, not a new wrapper to introduce. Check the real producer sends the canonical value, invalid input fails before effects, and valid input reaches the action unchanged, preserving error/async semantics.
 
 When a helper implements an existing service's own responsibility, prefer a private method of that service rather than a standalone function beside the class. For example, a `workflowIdsQuery(sourceIds, sourceType)` that implements only `ResolveWorkflowIdsService`'s source-to-workflow lookup belongs below its calling action as a private method with those explicit inputs and unchanged query behavior. Keep a genuinely shared query definition, schema, domain rule, or independently owned pure function with its actual owner, even with one current caller. Do not invent a schema abstraction solely to relocate a service implementation detail, mandate classes for standalone functions, or move unrelated helpers based on caller count. Apply the [primary-operation distinction](#primary-operations-and-local-implementation) within the requested authoring or review scope.
 

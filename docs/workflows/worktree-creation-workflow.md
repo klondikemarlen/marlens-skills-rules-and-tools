@@ -19,6 +19,8 @@ Before creating or resuming an implementation worktree for a ticket, apply [Tick
 
 Before implementation on an existing PR, resolve its live head repository, branch, and commit through the tracker. Match that repository to a verified Git remote; do not assume the base repository's `origin` owns a fork's head. A fork does not expand repository-write authority.
 
+For a stacked target, apply the [Stack Target Advisory](pull-request-management-workflow.md#stack-target-advisory) before edits: resolve the bottom open PR, warn if targeting above it, and preserve deliberate upper-layer scope.
+
 1. Inspect `git worktree list`, local branches, upstreams, and working changes. Reuse the registered worktree checking out the actual PR head branch. Do not create a parallel `review/...` branch unless the user explicitly requests one; matching ancestry alone does not satisfy branch identity.
 2. If no worktree checks out that branch, reuse the existing local branch in a new project-convention worktree. If the local branch is absent, create it from the fetched PR head branch with that head remote as its upstream—not from the default branch or current `HEAD`. Preserve unrelated worktrees and prepare the selected checkout's environment normally.
 3. Before edits and again before committing or pushing, verify the selected local branch, upstream repository/branch, and that the freshly resolved PR head commit is an ancestor of local `HEAD`. Refresh the remote head before pushing. A mismatch, divergence, or conflicting local work needs reconciliation; do not reset, overwrite, rename, or rewrite existing work to make the checks pass. Keep any push explicitly targeted to the verified PR head remote and branch.

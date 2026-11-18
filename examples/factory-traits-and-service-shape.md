@@ -314,3 +314,33 @@ Exercise the actual support with the project's test runner and test TypeScript c
 6. Run a following test under the configured reset; an earlier scenario route must no longer answer, while freshly arranged shared defaults still work.
 
 Keep business fixtures and assertions in their scenarios. These checks prove the support contract; component coverage must still exercise real application behavior rather than mock echoes.
+
+## Ordinary Users and Special-Role Traits
+
+Inspect the project's factory first. If its ordinary default is `[User.Roles.USER]` and its existing special-role trait owns the travel-desk setup:
+
+```typescript
+const ordinaryUser = await userFactory.create()
+const travelDeskUser = await userFactory.asTravelDeskUser().create()
+```
+
+Do not repeat `userFactory.create({ roles: [User.Roles.USER] })` or invent an ordinary-role trait merely to restate that default. Likewise, replace an equivalent repeated travel-desk role array with the existing named trait, after checking its roles and hooks.
+
+A scenario explicitly exercising a nondefault combination remains valid:
+
+```typescript
+const combinedRoleUser = await userFactory.create({
+  roles: [User.Roles.USER, User.Roles.TRAVEL_DESK],
+})
+```
+
+These enum members and factory APIs are illustrative existing project contracts, not a requirement to introduce them. If the trait has additional effects or a different role combination, do not claim equivalence from its name.
+
+For disposable QA, provide the complete changed tests, factory defaults/traits, role semantics, and applicable guidance to the existing `marlens-rules:test-fixture-api-alignment` final-review contract:
+
+1. With confirmed ordinary `USER` default, expect a finding for redundant explicit default roles; plain `create()` is the correction. A newly invented ordinary-role trait is not the preferred correction.
+2. With a confirmed equivalent existing `asTravelDeskUser()` trait, expect a finding for its repeated special-role array and acceptance of the named trait.
+3. Retain the explicit combined-role scenario above when no equivalent trait exists; expect no forced default/trait replacement. If trait hooks or exact membership differ, preserve the actual scenario contract.
+4. Omit required factory implementation or role evidence; expect `BLOCKED`, not guessed equivalence. Supply it and request fresh assessment.
+
+Run existing authorization-focused consumer tests and the test TypeScript check to prove role membership, hooks, persistence and setup timing survive actual migrations. No new factory library or prerequisite PR is required. These are QA expectations, not observed verification results.
