@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process"
 import { existsSync, lstatSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 
+import ts from "typescript"
+
 import { isMainModule } from "../lib/is-main-module.mjs"
 
 const CONFIGURATION_FILE = ".marlens-verifications.json"
@@ -31,49 +33,12 @@ function projectRoot(projectDirectory) {
 }
 
 function parseJsonWithComments(source, sourceName) {
-  let output = ""
-  let quote = null
-  let escaped = false
-  for (let index = 0; index < source.length; index += 1) {
-    const character = source[index]
-    const next = source[index + 1]
-    if (quote) {
-      output += character
-      if (escaped) {
-        escaped = false
-      } else if (character === "\\") {
-        escaped = true
-      } else if (character === quote) {
-        quote = null
-      }
-      continue
-    }
-    if (character === '"' || character === "'") {
-      quote = character
-      output += character
-      continue
-    }
-    if (character === "/" && next === "/") {
-      while (index < source.length && source[index] !== "\n") index += 1
-      output += "\n"
-      continue
-    }
-    if (character === "/" && next === "*") {
-      index += 2
-      while (index < source.length && !(source[index] === "*" && source[index + 1] === "/")) {
-        index += 1
-      }
-      index += 1
-      continue
-    }
-    output += character
-  }
-
-  try {
-    return JSON.parse(output.replace(/,(\s*[}\]])/gu, "$1"))
-  } catch {
+  const parsed = ts.parseConfigFileTextToJson(sourceName, source)
+  if (parsed.error) {
     throw new Error(`${sourceName} must contain valid JSON or JSON with comments.`)
   }
+
+  return parsed.config
 }
 
 function readConfiguration(repositoryRoot) {

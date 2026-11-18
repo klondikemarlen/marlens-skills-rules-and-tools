@@ -212,6 +212,66 @@ try {
   assert.equal(unsafeCommand.status, "BLOCKED")
   assert.match(unsafeCommand.evidence, /tracked executable project wrapper/u)
 
+  const literalArgument = 'commas ,] and ,}, quotes ", backslash \\, comments // and /* */'
+  const literalWrapper = writeWrapper(
+    projectDirectory,
+    "literal-argument",
+    `require('node:assert/strict').equal(process.argv[2], ${JSON.stringify(literalArgument)})`
+  )
+  const punctuationDeclaration = "types/punctuation,]}/runtime-request/index.d.ts"
+  write(
+    projectDirectory,
+    punctuationDeclaration,
+    "interface RuntimeRequest { signal: AbortSignal }\n"
+  )
+  const commentedConfiguration = `{
+    // Strings must remain unchanged when comments and trailing commas are accepted.
+    "typescriptRuntimeEntrypoints": ${JSON.stringify(
+      configuration([...literalWrapper, literalArgument], undefined, {
+        declarations: [{ path: punctuationDeclaration, kind: "global" }],
+      }).typescriptRuntimeEntrypoints
+    )},
+  } /* complete block comment */`
+  const commentedTsconfig = `{
+    /* Package roots may contain JSON punctuation inside strings. */
+    "compilerOptions": {
+      "typeRoots": ["./types/punctuation,]}",],
+    },
+    "include": ["src/**/*.ts",],
+  }`
+  write(projectDirectory, ".marlens-verifications.json", commentedConfiguration)
+  write(projectDirectory, "tsconfig.json", commentedTsconfig)
+  const commentedPassing = runVerification(projectDirectory)
+  assert.equal(commentedPassing.status, "PASS")
+  assert.ok(commentedPassing.evidence.includes(punctuationDeclaration))
+
+  for (const malformedConfiguration of [
+    `${commentedConfiguration}\n/* unterminated comment`,
+    '{"typescriptRuntimeEntrypoints": false "unexpected": true}',
+  ]) {
+    write(projectDirectory, ".marlens-verifications.json", malformedConfiguration)
+    const invalidConfiguration = runVerification(projectDirectory)
+    assert.equal(invalidConfiguration.status, "BLOCKED")
+    assert.equal(
+      invalidConfiguration.evidence,
+      ".marlens-verifications.json must contain valid JSON or JSON with comments."
+    )
+  }
+
+  write(projectDirectory, ".marlens-verifications.json", commentedConfiguration)
+  for (const malformedTsconfig of [
+    `${commentedTsconfig}\n/* unterminated comment`,
+    '{"compilerOptions": {"typeRoots": ["./types"]} "include": []}',
+  ]) {
+    write(projectDirectory, "tsconfig.json", malformedTsconfig)
+    const invalidTsconfig = runVerification(projectDirectory)
+    assert.equal(invalidTsconfig.status, "BLOCKED")
+    assert.equal(
+      invalidTsconfig.evidence,
+      "tsconfig.json must contain valid JSON or JSON with comments."
+    )
+  }
+
   write(
     projectDirectory,
     ".marlens-verifications.json",
