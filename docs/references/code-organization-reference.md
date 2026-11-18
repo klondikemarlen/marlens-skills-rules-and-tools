@@ -343,6 +343,31 @@ Preserve the body, internal exits, and execution behavior; ordinary counted and 
 
 When environment configurations repeat common settings, express the shared defaults once and keep environment-specific overrides explicit in the project's existing format. A simplified Rails-style defaults-and-overrides structure does not require YAML, a new parser, or a configuration framework. Reuse a common override when environments intentionally share the same differences rather than copying complete configurations.
 
+Resolve environment-string parsing and fallback defaults in the existing configuration layer, exporting appropriately typed values for consumers to use directly. Preserve distinct consumer-specific defaults, accepted invalid/absent-value behavior, and configuration loading/reload timing rather than imposing a new framework or one universal default.
+
+For example, when the existing `parseIntWithFallback` contract and the established request-timeout default are already accepted:
+
+```typescript
+// config.ts
+export const DB_REQUEST_TIMEOUT_MS = parseIntWithFallback(
+  process.env.DB_REQUEST_TIMEOUT_MS,
+  15 * 60 * 1000
+)
+```
+
+```typescript
+// db-client.ts
+import { DB_REQUEST_TIMEOUT_MS } from "@/config"
+
+const options = {
+  requestTimeout: DB_REQUEST_TIMEOUT_MS,
+}
+```
+
+The parser keeps its existing owner/import; the configuration layer chooses its fallback, and the database client does not parse or default again. The illustrative 15-minute default is not a recommendation for another client. Check absent, valid, and invalid environment inputs and the actual consumer units. Ordinary domain-input parsing still belongs at its domain boundary.
+
+For duration constants, show the human scale with clear conversion arithmetic or a useful human-unit comment: `15 * 60 * 1000` or `900_000 // 15 minutes` when the API accepts milliseconds. Either is sufficient; do not require both, annotate ordinary numbers, or add a duration utility. Preserve the numeric value and timeout scope—a per-query timeout is not an entire-job deadline.
+
 For example, suppose existing flat queue options retain 100 completed and failed jobs, with one attempt in tests and three in development/production:
 
 ```typescript
@@ -737,6 +762,31 @@ export default formatCurrency
 The function body reads `currencyFormatter` only when called after module initialization; the declaration order does not allocate a formatter per call. Do not move a constant below a top-level call or initializer that invokes the function before that constant initializes. Preserve declarations needed by top-level evaluation, initialization cycles, and other early accesses; a hoisted function declaration does not make a later `const` safe to read before initialization.
 
 An actual runtime or package initialization entrypoint can legitimately contain implementation; being named `index` or listed in package exports alone does not establish that exception. Preserve documented project-specific entrypoint responsibilities. The deterministic `marlens-rules:barrel-only-indexes` check covers explicit library scope and supported syntax with reasoned entrypoint exclusions; see [Library Index Verification](rules-and-verifications-reference.md#library-index-verification). Semantic ownership and cohesion remain review responsibilities.
+
+### Owner-Defined Constant Projections
+
+When multiple consumers need the same projection of stable module constants, compute it once beside the source in its owning implementation module and export it. Do not make consumers repeatedly convert the same catalogue or put executable initialization in a barrel. For a string-valued report-header enum owned by `report-serializer.ts`:
+
+```typescript
+export enum ReportHeaders {
+  Reference = "Reference",
+  Amount = "Amount",
+}
+
+export const REPORT_HEADERS = Object.values(ReportHeaders)
+```
+
+```typescript
+import { REPORT_HEADERS } from "@/serializers/report-serializer"
+
+csvWriter.writeHeaders(REPORT_HEADERS)
+```
+
+This consumer excerpt uses the application's existing writer contract; retain its real method and supported mutable/readonly input type.
+
+Both CSV services import `REPORT_HEADERS` from the supported report-serializer module and pass it to their existing writer instead of repeating `Object.values(ReportHeaders)`. Preserve the exact values and enumeration order; numeric enums have reverse mappings and need their actual projection contract, not a blind copy of this example. Consumers must not mutate the shared projection; use a compatible readonly API or copy at a genuinely mutating boundary.
+
+Replace equivalent in-scope consumer conversions together. Keep request-dependent, reactive, mutable, or lazily required computations with their actual lifetime; this is not a blanket cache rule. Tests that protect header values/order keep independent literal expectations rather than deriving their expected outcome from this production export.
 
 ### Default-Safe Lifecycle APIs
 
