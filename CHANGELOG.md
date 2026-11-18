@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1452) - 2026-11-18
+
+### Changed
+
+- Upgrade installed tools through their existing distribution by default rather than adding a second installation.
+
 ## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
 
 ### Changed
