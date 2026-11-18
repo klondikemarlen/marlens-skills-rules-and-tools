@@ -144,3 +144,75 @@ The two fields stay independently readable even within formatter width. `expect.
 Start a fresh OMP process in an owned temporary directory, preserving configured routes, providers and credentials. Ask it to read the current canonical references and assess each contrasting case above without writing files, executing fictional tests, or delegating. Capture the process version, exact source revision, prompt, observed decisions and missing evidence. Require distinct explanations for rejection-only, corrected, utility-table, independent-workflow and matcher-layout cases; a repeated policy slogan is not contrast evidence.
 
 This read-only exercise demonstrates guidance consumption only. It is not coordinator-validated semantic-check PASS, native blocker publication, installed-release proof, or application behavior evidence; use the earlier native Verifier procedure for those claims.
+
+## Controller Query Transport and Import Review
+
+### Structured Query Handoff
+
+This excerpt assumes the target project's existing authenticated `request()` support, invoice factories, installed `qs`, and an endpoint returning exactly the shown invoice projection. Adapt those existing contracts, not the server parser, to the actual project:
+
+```typescript
+// Arrange: insertion order deliberately differs from requested order.
+const invoiceB = await invoiceFactory.create({ invoiceNumber: "B" })
+await invoiceFactory.create({ invoiceNumber: "AA" })
+const invoiceA = await invoiceFactory.create({ invoiceNumber: "A" })
+const query = {
+  where: { id: [invoiceB.id, invoiceA.id] },
+  order: [["invoiceNumber", "ASC"]],
+}
+
+// Act: retain this handoff when the installed client flattens nested arrays.
+const response = await request().get("/api/invoices").query(qs.stringify(query))
+
+// Assert: this real HTTP result proves both ordering and distractor exclusion.
+expect(response.status).toBe(200)
+expect(response.body).toEqual({
+  invoices: [
+    {
+      id: invoiceA.id,
+      invoiceNumber: "A",
+    },
+    {
+      id: invoiceB.id,
+      invoiceNumber: "B",
+    },
+  ],
+  totalCount: 2,
+})
+```
+
+The excluded invoice sorts between the selected records; omitting the filter adds an unwanted row. Reversing or dropping ordering changes the literal response. The example is a consumer shape, not an observed run or universal response schema.
+
+When the installed client preserves this same nested query, prefer `.query(query)` directly and remove unused serialization imports/temporaries. A direct object such as `.query({ format: "csv", where: { id: [record.id] }, order: [["id", "DESC"]] })` is preferred only after proving its transport equivalence. Some Superagent versions use `indices: false`; do not replace the existing `qs.stringify` form when that flattens nested arrays.
+
+### Default-Exported Subject
+
+For a test actually exercising the default-exported `CreateCsvService`, this is incorrect:
+
+```typescript
+import { CreateCsvService } from "@/services/downloads/travel-authorization-pre-approvals"
+import { travelAuthorizationFactory } from "@/tests/factories"
+```
+
+The supported correction keeps support first and isolates the actual subject:
+
+```typescript
+import { travelAuthorizationFactory } from "@/tests/factories"
+
+import CreateCsvService from "@/services/downloads/travel-authorization-pre-approvals/create-csv-service"
+```
+
+Confirm that module's default export and supported path. Supporting named dependencies stay named; named-only subjects do not acquire a default export for style. Explicit local import conventions win, and mixed-subject tests need actual evidence before identifying one primary subject.
+
+### Disposable Semantic and Transport Scenarios
+
+Use the existing `marlens-rules:test-assertion-focus` final-review contract with complete changed tests, applicable shared/local guidance, subject exports, routing, and resolved client/parser evidence. These are expected QA outcomes, not claimed results:
+
+1. Supply a namespaced controller class scope and route-only scope; expect `FAIL` naming the bare-class and exact `#create - POST - /api/...` corrections. Correct all equivalent suites in the authorized scope, retaining outer paths, and expect a fresh assessment to accept them. Independently omit the second separator or mismatch the real action/verb/route; each remains a finding. Functional-handler and service subjects must not acquire fabricated controller names.
+2. In a disposable consumer using the actual installed client, existing server parser/options, and real endpoint, send the same nested filters and two-column ordering through native `.query(query)` and existing `qs.stringify(query)`. Assert exact HTTP bodies with selected rows, a filter distractor, reversed insertion order, and tied primary-sort values requiring the secondary clause. Compare observed results, preserving escaping and array element types under the API's actual parser contract.
+3. Where native serialization flattens nested arrays, expect semantic `FAIL` for a blind native migration and acceptance of existing `qs` handoff with nested scenario data. Where equivalent, expect native-object preference and a finding for unnecessary manual serialization. Keep raw malformed-wire and intentional encoding-contract tests as valid contrasts; neither requires migration or a new dependency.
+4. Supply the named subject import above with confirmed default export and no local override; expect a finding citing that exact import and default/group correction. Separate probes isolate default-versus-named spelling from wrong placement. The corrected default after factories must pass this rubric.
+5. Independently supply supporting named imports, a named-only actual subject, an explicit local grouping override, and a genuinely mixed-subject test without primary-subject evidence; expect no invented import findings. Include an unrelated unchanged test outside authorized scope; it must not become a finding.
+6. Omit necessary export, routing, local guidance, or serialization evidence in separate assessments; expect `BLOCKED` naming the missing prerequisite. Restore it and reassess current code; a prior result, structural pass, or status-only HTTP test cannot establish semantic clearance.
+
+Run the disposable consumer's documented focused test and test TypeScript command separately, then discard it. Record resolved versions, native-versus-serialized request evidence, final-review selection, and actual decisions. Do not claim proposed scenario outcomes as observed PASS.
