@@ -247,3 +247,4 @@ export type {ResourceName}AsReference = Pick<{ResourceName}, "id" | "{searchFiel
 - [ ] Where managed transaction context is used, project configuration supports propagation and nested reuse; multi-write failures roll back both standalone and inside an outer transaction.
 - [ ] Serializers expose only fields used by list/detail/reference clients.
 - [ ] Tests cover allowed, forbidden, missing, invalid, and successful mutation paths.
+- [ ] Controller suites follow the [controller test shape](../express-light-rail/controller-template.md#controller-test-shape), preserving outer scopes and actual action/verb/route. Structured queries follow the [native-versus-existing-serializer contract](../../../references/code-organization-reference.md#structured-controller-query-inputs) with real filtering/ordering assertions.
