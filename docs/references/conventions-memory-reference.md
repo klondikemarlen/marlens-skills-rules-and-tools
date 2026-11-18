@@ -69,6 +69,8 @@ Start a **new** process with `omp --config /absolute/path/to/overlay.yml`. This 
 
 Use `/memory stats` and native `recall` to verify the database and retrieve a known convention. Recall previews can be clipped: read the complete `memory://<id>` or the cited Markdown source before applying detailed guidance. A resumed session may retain an old recall block; a fresh process and session avoid mistaking that cached context for a new import.
 
+Synchronization updates the searchable library; it does not prove that an active conversation retrieved the sections needed for its current task. Automatic recall is relevance-ranked and may remain cached across resumes. Apply [Task-Relevant Standards Retrieval](guidance-precedence-reference.md#task-relevant-standards-retrieval) before authoring or review, independently of that memory block. Explicit recall can help discover sources; neither restarting nor importing guarantees complete retrieval or adherence.
+
 Records have global visibility **within the explicitly selected database**. OMP's `global` mode recalls that shared bank. Its `per-project-tagged` mode recalls both the shared and project-local banks; `per-project` normally selects a separate project bank. Do not infer a project-bank filename from the working directory: use OMP's reported bank/database identity. Importing one database does not silently populate every bank. See [OMP's versioned scoping contract](https://github.com/can1357/oh-my-pi/blob/v18.16.0/docs/mnemosyne-memory-backend.md#scoping).
 
 ## Source Identity and Refresh

@@ -21,6 +21,14 @@ Before applying a workflow from this package, read the target project’s local 
 - project-local `docs/` workflows, templates, references, or plans
 - project-local skill files or agent shortcuts
 
+## Task-Relevant Standards Retrieval
+
+Before authoring or reviewing code, load the applicable conventions without waiting for the user to say “apply global standards.” Here, **global standards** means `klondikemarlen/marlens-skills-rules-and-tools` (MSSRT), not generic best practices or the agent's preferred style. Resolve the installed or explicitly selected package source; do not assume a clone's unpublished changes or the remote default branch describes the active release. Apply the target project's overlays under [Precedence](#precedence).
+
+Use the task's language, framework, changed responsibility, and accepted corrections to select the relevant skill/workflow and reference sections. Read those sections before the first affected edit or review judgment; follow a link when its detail is needed to decide the change. For example, a controller-test edit needs the controller-test convention, while an import correction needs the project's import convention—not every backend or testing standard. Use package discovery or a bounded source search; explicit memory recall is an optional discovery aid, not the required transport. Read the cited source when a memory preview is incomplete or its version/applicability is uncertain. An absent recall hit does not establish that no standard exists.
+
+Reuse guidance already loaded for the same scope and source version. Refresh only the affected sections when the task changes, a new responsibility enters scope, the selected source changes, or a correction reveals a gap. Do not reread the library each turn, create a recurring checklist/report, or widen a quick tweak into an audit. If a required source is unreachable, name the missing source and affected decision rather than inventing a convention or claiming standards compliance; continue independent work. This retrieval step neither changes memory settings nor adds model calls, advisor cycles, or verification beyond the task's existing work level and delivery gates.
+
 ## Contextual Defaults
 
 Resolve authority under [Precedence](#precedence) first, then applicability. A more specific convention refines an applicable default within that authority; specificity alone does not let lower-priority guidance override a binding instruction. Distinguish correctness, security, authorization, and required delivery contracts from style defaults. A readability preference does not waive those contracts.

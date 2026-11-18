@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1454) - 2026-11-18
+
+### Changed
+
+- Require bounded, task-relevant MSSRT standards retrieval before authoring or review, independently of automatic memory injection. Reuse valid guidance and preserve project overrides without recurring library scans.
+
 ## [5.14.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1441) - 2026-11-17
 
 ### Changed
