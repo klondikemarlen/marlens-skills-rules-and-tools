@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## 5.15.2 - 2026-11-19
+
+### Changed
+
+- Name counterpart cases and sibling groups by the same membership criterion and reference point.
+- Pair acceptance and rejection tests around the promised behavior, not an incidental return value.
+
 ## 5.15.1 - 2026-11-19
 
 ### Changed

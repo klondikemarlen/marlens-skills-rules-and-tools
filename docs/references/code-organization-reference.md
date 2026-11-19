@@ -1057,7 +1057,9 @@ Control the clock explicitly in time-dependent tests rather than relying on wall
 
 For daylight-saving gap/fold regressions, use established historical transitions rather than assuming a future date will still observe daylight saving time. Verify the chosen zone/date against the supported runtime's timezone data and retain the parser's nonexistent-time, ambiguous-time, and explicit-offset contracts. Keep future-date scheduling tests separate from historical transition tests; neither a frozen clock nor an expected calendar rule guarantees future timezone policy.
 
-Every authored or modified test file must contain at least one meaningful successful scenario and one meaningful negative scenario for its subject. The success must assert a relevant observable result that establishes fixture/setup validity; the negative must prove a relevant rejection, absence, exclusion, or contrasting outcome. A rejection-only file can pass with universally broken setup. A bare not-to-throw check, a test named “positive,” an unrelated token success, or positive coverage only in another file does not establish this control.
+Every authored or modified test file must contain at least one meaningful successful scenario and one meaningful negative scenario for its subject. When two tests are counterparts, exercise the same operation and assert contrasting outcomes of the same contract. For a validator whose entire promise is acceptance or rejection, explicitly check that a meaningful valid input completes successfully and that an invalid input fails with the relevant error. Do not pin an incidental return value or object identity. If the operation promises a result, identity, or side effect, assert that observable on success; merely checking that nothing threw is insufficient. Paired tests need not use identical fixtures or matchers, and this does not require a one-to-one matrix.
+
+A rejection-only file can pass with universally broken setup. A test named “positive,” an unrelated token success, or positive coverage only in another file does not establish that the subject can succeed.
 
 Inspect the complete file and needed subject/setup/helpers, not test names or positive/negative counts. Reuse qualifying scenarios already in that file; do not add redundant tests or an exhaustive matrix. Preserve native assertion frameworks, including `node:assert`. If source or setup needed to establish relevance is missing, report the exact review limitation rather than claim compliance. Authoring and review use this same rule; the [semantic assertion-focus check](test-alignment-verifier-reference.md#semantic-assertion-focus-check) assesses it, not a syntax counter.
 
@@ -1622,6 +1624,12 @@ Record material uncertainty in the existing issue, PR, or evidence notes: identi
 Preserve production-schema names at direct external integration mappings when they identify the actual source column or payload field. An internal `externalCreatedAt` may map from the provider's existing `created_at`; the internal name does not authorize renaming that external field, changing timestamp parsing or time-zone semantics, or claiming the provider confirmed its meaning. Retain stronger project conventions and public contracts outside the requested scope.
 
 An accepted naming interpretation is not permission to invent security, financial, or destructive behavior. Unresolved assumptions that control authorization, money movement, or irreversible effects still require their own evidence and scoped decision before those effects are implemented.
+
+### Names for Counterparts and Sibling Groups
+
+Read the names together at a call site: can you tell what puts an item in each group? Use the same criterion and reference point for true counterparts. `prior` / `later` leave the reader asking “relative to what?”; `beforeCurrentSteps` / `afterCurrentSteps` describe position relative to the current steps, not completion status. If the immediate contract already supplies the reference, the names need not repeat it.
+
+Name the middle by its actual membership too. If step 8 is selected and the focus range contains steps 6–10, `beforeCurrentStep`, `alwaysVisible`, `afterCurrentStep` mix position with visibility and use the wrong boundary. `beforeFocusRange`, `focusRange`, `afterFocusRange` describe all three groups; `currentStep` names only step 8. These are examples, not required spellings. Keep genuinely different roles distinct; do not invent a counterpart, rename persisted or external values, or sweep unrelated code for symmetry.
 
 ### Externally Owned Identifiers
 
