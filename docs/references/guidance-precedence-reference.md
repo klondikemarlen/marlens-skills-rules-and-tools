@@ -60,6 +60,17 @@ When learning from a correction, update the existing owner with its applicabilit
 
 For a single public skill or command whose purpose remains clear, prefer the shorter name, such as `triage` rather than `ticket-triage` or `triage-tickets`. Add qualifiers only to distinguish actual alternatives. Keep internal filenames descriptive; this preference does not mandate abbreviations, aliases, or unrelated renames.
 
+### Readable Agent Instructions
+
+**Goal:** Give an agent one authoritative procedure it can follow and a maintainer one place to change each decision. Lead a rule with its intended outcome, then a bounded caveat explaining when it does not apply. Organize long instructions by the decisions the consumer makes: authority and trigger, ordinary execution, conditional recovery, and result/termination. Use descriptive headings, short paragraphs, and one actionable decision per bullet rather than compressing several branches into a dense paragraph.
+
+**Caveat:** Shorter is not safer if authority, failure semantics, or required steps disappear. Preserve exact protocol identifiers and executable commands; distinguish always-required safeguards from conditionally applicable detail. Do not turn each sentence into a separate file or impose a word/token quota.
+
+Keep the core path and the condition selecting each recovery path visible in the loaded entrypoint. Move conditional detail to an existing owning reference only when the actual consumer can retrieve it before acting; verify that path through the supported loader/tools in a fresh consumer. If retrieval is unavailable, retain the required instructions in loaded content. A working Markdown link alone does not prove runtime access. Explicitly report a missing required source rather than inventing its instructions.
+
+Remove repeated explanations by linking one authoritative owner, not by maintaining abbreviated competing policies. When a runtime requires a self-contained generated prompt, retain one maintained source and its existing generation mechanism; prove the resulting loaded instructions preserve authority, trigger scope, safety, recovery, and completion behavior. Do not add a prompt compiler or change model routing, advisor cadence, or enforcement merely to reorganize prose. Use the [contrasting instruction and dependency cases](../../examples/organization-decisions.md) to exercise these decisions.
+
+
 ## Workflow Outputs and Publication
 
 A workflow's output contract describes the knowledge, decisions, and evidence needed to complete the work. It is not a mandatory public document shape or permission to post. Keep execution records in the session or the existing designated check, artifact, or work record unless the user or project explicitly selects another destination. Required verification, review, ownership, and honest limitations still apply.

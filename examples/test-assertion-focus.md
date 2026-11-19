@@ -221,6 +221,111 @@ expect(result).toEqual(
 
 The two fields stay independently readable even within formatter width. Expand single-property expected objects such as `expect.objectContaining({ id: record.id })` too; assertion data is not covered by the small ordinary-call-argument exception.
 
+### CLI Scenario Ownership and Shared Mechanics
+
+Apply the [CLI goal and bounded caveat](../docs/references/test-alignment-verifier-reference.md#cli-scenario-ownership-and-shared-mechanics). These are evaluation fixtures, not executed evidence or a request to introduce another permanent harness.
+
+The [pinned Verifier preparation suite](https://github.com/klondikemarlen/omp-verifier/blob/a7ea28814094d0a5178be6946c292e961614f56f/test/semantic-preparation-cli.test.js) provides the concrete contrast: `preparationFixture` accepts `checkIds`, `includeBlockedCheck`, `pagedReview`, `policySource`, `changedPolicySource`, and `deletedSource`; it also commits the baseline, edits paging inputs, and deletes `obsolete.js`. Even its default invocation creates a deletion. This is a scenario-ownership concern, not a finding based on file length or multiple native assertions. Its temporary-root cleanup, isolated agent directory, subprocess runners, page parser, and assessment transport are useful mechanics. Retain the skipped-page recovery, renewal/old-receipt rejection, retained-selector error/recovery, and exact-retry observations rather than treating their sequential commands as unrelated tests.
+
+**Negative fixture:** A fictional caller using the real builder's controls, `await preparationFixture(t, { pagedReview: true, includeBlockedCheck: true })`, silently chooses both a large-context Git transition and a final blocked provider. Moving that same dispatch into `withScenario("paged-and-blocked")` does not fix it. A reviewer needs the actual builder and commands before deciding which scenario choices to expose.
+
+**Corrected ownership fixture:** This standalone native-test example makes a historical deletion's baseline and change visible. Its local `git` function only executes the named command; the real CLI, not a copied preparation algorithm, produces the review. Run it only in the compatible consumer checkout with its dependencies available; adapt the CLI path if its public entry changes.
+
+```javascript
+import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+const CLI = join(process.cwd(), "bin", "omp-verifier.js");
+
+test("when tracked source is deleted, preparation retains its historical content", async t => {
+  // Arrange
+  const root = await mkdtemp(join(tmpdir(), "verifier-deletion-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const packageDirectory = join(root, "plugins", "node_modules");
+  const provider = join(packageDirectory, "publisher");
+  await mkdir(provider, { recursive: true });
+  await mkdir(join(root, "src"));
+  await writeFile(join(root, "src", "obsolete.js"), "export const obsolete = true;\n");
+  await writeFile(join(provider, "standard.md"), "Review the changed source, including deletions.\n");
+  await writeFile(join(provider, "alignment.json"), JSON.stringify({
+    version: 1,
+    standardId: "publisher:alignment",
+    source: "./standard.md",
+    gold: "Changed source remains available for review.",
+    requiredContext: ["changed-code"],
+    rubric: [
+      {
+        id: "source",
+        question: "Is the changed source available for review?",
+      },
+    ],
+  }));
+  await writeFile(join(provider, "package.json"), JSON.stringify({
+    name: "publisher",
+    version: "1.0.0",
+    omp: {
+      extensions: ["./index.js"],
+      verifications: [
+        {
+          id: "publisher:alignment",
+          label: "Source Review",
+          description: "Reviews changed source.",
+          mode: "agentic",
+          contract: "./alignment.json",
+          pathTriggers: ["src/*.js"],
+        },
+      ],
+    },
+  }));
+  const git = args => execFileSync("git", args, { cwd: root });
+  git(["init", "--quiet"]);
+  git(["add", "."]);
+  git(["-c", "user.name=Verifier Tests", "-c", "user.email=test@example.com",
+    "commit", "--quiet", "-m", "baseline"]);
+  await rm(join(root, "src", "obsolete.js"));
+
+  // Act
+  const prepared = spawnSync(process.execPath, [CLI, "automatic", "src/obsolete.js"], {
+    cwd: root,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      PI_CODING_AGENT_DIR: join(root, "agent"),
+      OMP_VERIFIER_PACKAGE_DIRECTORY: packageDirectory,
+    },
+  });
+
+  // Assert
+  assert.equal(prepared.status, 0, prepared.stderr);
+  const results = JSON.parse(prepared.stdout);
+  assert.equal(results.length, 1);
+  assert.equal(results[0].id, "publisher:alignment");
+  assert.equal(results[0].status, "PENDING");
+  assert.deepEqual(results[0].reviewRequest.scope.changedPaths, ["src/obsolete.js"]);
+  const deletion = results[0].reviewRequest.context.changedCode.find(
+    record => record.path === "src/obsolete.js",
+  );
+  assert.ok(deletion, "The review must contain the deleted source.");
+  assert.equal(deletion.state, "deleted");
+  assert.equal(deletion.content, "export const obsolete = true;\n");
+});
+```
+
+These assertions would establish a plausible preparation-consumer outcome: the only selected review contains the actual deleted file's historical source, rather than merely exiting successfully. This unexecuted example does not prove semantic acceptance or constitute a complete suite; retain relevant rejection/recovery scenarios in the complete changed file. The explicit package-directory override prevents inherited provider-discovery configuration from selecting an unrelated installation. Shared support may own these mechanical operations without choosing source, provider contract, commit timing, deletion, or expectations for the caller.
+
+Proposed contrasting review cases:
+
+1. **FAIL ownership:** Supply the complete multi-mode builder and tests above; require a finding naming hidden baseline/changes/provider choices and a correction exposing them. Do not cite the number of `assert` calls as a violation.
+2. **Accept ownership:** Supply the corrected fixture and the consumer boundaries; accept its visible baseline/deletion and direct native observations. Assess full-file successful/negative coverage separately, not by pretending this excerpt alone is a complete suite.
+3. **Accept bounded reuse:** Replace repeated directory/runner/cleanup mechanics with inspected support retaining per-test paths and environment; keep source, provider declarations, commit/deletion timing and assertions local. Accept a literal malformed-cap table such as `["15999", "32768.5"]` under the real CLI parser contract.
+4. **Preserve lifecycle evidence:** Keep preparation, skipped/final page reads, pending evaluation, delivery of missing pages, completion and exact retry in the scenario that protects that sequence. Keep an invalid retained-selector observation before correction and the subsequent usable-request observation. Reject “cleanup” that removes the failure, collapses observations into `{ pending, completed }`, or moves assertions into helpers.
+5. **Reject fragmentation or discovery loss:** Moving files under `test/semantic-preparation/` is not automatically valid: the pinned consumer's [test script](https://github.com/klondikemarlen/omp-verifier/blob/a7ea28814094d0a5178be6946c292e961614f56f/package.json) is `node --test test/*.test.js`, not recursive discovery. Prefer cohesive independently owned CLI suites discoverable by the existing command; do not mandate a new runner, file-per-assert layout, or arbitrary size threshold.
+6. **BLOCKED evidence:** Omit the invoked builder, applicable local guidance, or necessary CLI/provider contract; report the specific missing prerequisite. A native-framework exception, structural PASS, or invented successful output cannot establish scenario quality.
+
 ### Fresh Read-Only Guidance Consumption
 
 Start a fresh OMP process in an owned temporary directory, preserving configured routes, providers and credentials. Ask it to read the current canonical references and assess each contrasting case above without writing files, executing fictional tests, or delegating. Capture the process version, exact source revision, prompt, observed decisions and missing evidence. Require distinct explanations for rejection-only, corrected, utility-table, independent-workflow and matcher-layout cases; a repeated policy slogan is not contrast evidence.
