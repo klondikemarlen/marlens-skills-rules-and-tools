@@ -295,6 +295,55 @@ Accepted task: author the not-found controller assertion under the shared multil
 
 Expected `FAIL` for the compact input and `PASS` for the expanded input under `existing-object-layout-application`. Cite the assertion location; preserve the exact message and matcher. Partial matchers, including a single `id` property, follow the same expected-data rule. `logger.error(message, { error })` remains a valid small ordinary call argument: that exception does not cover assertion objects. Stronger project overrides remain authoritative, and an untouched assertion outside the task is excluded rather than a reason for a formatting sweep.
 
+## Linear Actual Queries and Expected Matchers
+
+Accepted task: preserve the persisted-segment assertion while applying the maintainer's inline, linear correction. Supply the complete query/options, baseline and expected values from [Linear Test Expectations](../docs/references/code-organization-reference.md#linear-test-expectations).
+
+- **Rejected:** assign the query to one-use `savedTravelSegments`, assign each `expect.objectContaining` to one-use expected aliases, then assemble the assertion. Expected `FAIL` when these names add no domain/timing meaning.
+- **Corrected:** the canonical expanded `expect(await TravelSegment.findAll(...)).toEqual([expect.objectContaining(...), ...])` form is `PASS`; this is an explicit construction exception, not hidden effect permission.
+- **Meaningful actual snapshot or reused value:** `PASS` retaining its local. Do not weaken equality, remove properties, hide assertions in helpers, change row ordering, or compact expected objects.
+- **Behavioral proof:** run the consumer's focused assertion scenario against the existing persisted fixture; it must query once with the same options and assert the same literal fields/matchers. Semantic review must separately reject the alias-only input and accept the inline correction.
+
+## Machine Values, Collections, Mirrors and Snapshots
+
+Use the complete paired examples in [Machine Enum Values](../docs/references/code-organization-reference.md#machine-enum-values-and-ui-labels), [Optional Collections](../docs/references/code-organization-reference.md#optional-collections-before-transformations), [Mirrored Comments](../docs/references/code-organization-reference.md#mirrored-contract-comments), and [Serialized Transport Types](../docs/references/code-organization-reference.md#serialized-transport-type-names), with applicable producer/consumer and input contracts.
+
+- **Enum correction:** `PASS` `sale`/`refund`/`void` application values, UI-owned Sale/Refund/Void labels, and explicit provider mapping preserving upstream text/raw snapshots. `FAIL` storing presentation labels as newly authored machine values or renaming the provider's raw contract. Exercise each supported provider value through mapping, persistence/API and label rendering; retain unknown-value handling. Numeric enums and member identifiers are outside this preference.
+- **Collection correction:** `FAIL` combined optional access/projection/set construction when undefined already means empty. `PASS` defaulted `positions`/`teams`, separately named projections and sets. Exercise omitted, undefined, empty and populated arrays. Include null only if the real contract permits it: a destructuring default alone does not handle null. `FAIL` silently accepting previously rejected null or changing getter evaluation order. Simple optional output access and ordinary arbitrary input names remain valid.
+- **Mirrored encoders:** `FAIL` a one-ended synchronization note or exported test-only encoder. `PASS` reciprocal file/function references and a module-private helper using each boundary's existing options. Run both encoders on supported nested/filter inputs and compare exact output to the existing transport contract; this does not mandate consolidation or a serializer choice. Coincidental similar functions need no synchronization comment.
+- **Exact snapshot:** `FAIL` the field-picked `InvoiceBookingSnapshot` described as exact, or a second type duplicating the response owner. `PASS` `BookingEventResponse` with all serialized fields, nested values and omission/null distinctions. Deliberately transformed `InvoiceBookingRecord` is also `PASS` when not misrepresented as exact. Use an actual response with extra/nested/nullable fields to compare captured data and the established mutation-isolation behavior; do not add snapshotting just to exercise this case.
+
+## Ruby Bootstrap Ownership
+
+Accepted task: apply [Entrypoint-Owned Ruby Root Bootstrap](../docs/references/code-organization-reference.md#entrypoint-owned-ruby-root-bootstrap) to affected tooling using its established root. Supply the executable, package loaders, root owner and internal imports.
+
+- **Rejected:** every helper requires `../../root`, discovers its own root, or derives it from `Dir.pwd`. Expected `FAIL`, even if invocation from repository root succeeds.
+- **Corrected:** an executable/package loader requires the canonical source-anchored root; internal imports use `File.join(ROOT_DIR, ...)`. Expected `PASS` with unchanged behavior and load order. Direct internal loading explicitly requires the owner first; no per-file fallback.
+- **Runnable proof:** from a fresh unrelated temporary directory, invoke each affected executable by absolute path and require each package loader by absolute path in fresh Ruby processes. Exercise the relevant public operation, not only require success. In another fresh `ruby -w` process require the relevant loaders together and reject constant-redefinition warnings. Use the actual repository's development wrapper when required. Missing Ruby/runtime prerequisites or public-operation setup is `BLOCKED`, not a claimed smoke PASS.
+
+## Service Effects, Fixed Errors and Endpoints
+
+Supply the complete before/after [Effect-Oriented Method Slices](../docs/references/code-organization-reference.md#effect-oriented-method-slices) example as a multi-effect consumer task, plus its small `sessions.expire` counterexample.
+
+- **Useful slices:** `PASS` a short effect narrative with cohesive private load/rank/publish methods, explicit meaningful results and direct `this.session` references. `FAIL` generic step wrappers, redundant field aliases, arbitrary seven-line enforcement, or new services merely to shorten the entry method.
+- **Preserved lifecycle:** `FAIL` moving budget precharge into the publication transaction, releasing the lease before reads complete, changing cancellation checkpoints, error translation, query/rank order or lazy/concurrent work. Keep the already-readable one-effect method unchanged.
+- **Runnable behavioral proof:** run before/after implementations with deterministic recording fakes for budget, lease, query, matcher, progress, transaction and publisher. Compare event traces and returned identity; record lease ownership during query/consumer callbacks. Exercise both cancellation checkpoints and a rejected match/publication, checking identical translation and release/rollback. Source layout and event equivalence protect different contracts; obtain fresh semantic decisions for the rejected/corrected pair too.
+- **Fixed errors:** use the full five-class [error example](../docs/references/code-organization-reference.md#explicit-fixed-family-error-types). `PASS` explicit expired, mismatch, capacity, unavailable and deadline errors retaining the old tuples and shared-base catch behavior; `FAIL` changing any message/code/status during extraction. Instantiate each old/new error and compare `code`, `message`, `status`, serialization and the real catch/HTTP translation outcome. Dynamic provider translation, useful bases and ordinary tables remain valid.
+- **Endpoints:** with Lodash already installed, `PASS` `first`/`last` and existing import style; `FAIL` manual endpoint arithmetic left after an accepted in-scope correction. Compare empty, singleton and multiple-item behavior, including explicit absence guards; preserve arbitrary positional indexing and add no dependency. An unrelated standalone artifact without Lodash is not a violation.
+
+## Multiline Braced Guards
+
+Accepted task: apply the changed JS/TS guard layout without new validation:
+
+```diff
+-if (isNil(value)) throw new Error("value is required")
++if (isNil(value)) {
++  throw new Error("value is required")
++}
+```
+
+Expected `FAIL` for the single-line input, `PASS` for the braced correction. Exercise null/undefined and accepted falsy/nonempty values under the existing predicate; compare condition evaluation count and exact thrown error. Do not infer a new truthiness rule, rewrite untouched snippets, or treat one-line examples about unrelated concepts as authorization for a global formatting sweep.
+
 ## Existing Inline Policy Allowlists
 
 Accepted task: add `actualPrimaryDestinationId` to an established allowlist while retaining its required bulk-replace permission contract. The baseline already contains the inherited spread and nested permission call shown in the [canonical example](../docs/references/code-organization-reference.md#existing-policy-allowlists); the only intended addition is the scalar string.

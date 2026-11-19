@@ -78,9 +78,29 @@ In Bash configuration, prefer the readable `source path` keyword over `. path` f
 
 Before explaining an initialization or import-order workaround with a comment, check whether a simpler supported arrangement can remove the workaround itself. For example, prefer a directly imported mock module over asynchronous hoisted helper initialization when it preserves the required registration order and isolation. Rebuild the arrangement and verify affected consumers rather than merely deleting its explanation. Retain rationale for genuine framework constraints and non-obvious invariants when no simpler correct arrangement exists; this is not a universal mocking pattern or permission to refactor unrelated tests.
 
+### Mirrored Contract Comments
+
+When separately owned implementations intentionally mirror a contract, document synchronization reciprocally at both locations, identifying the counterpart file and function. For query encoders, name the operation when it provides a useful boundary and keep a test-only helper module-private:
+
+```typescript
+// frontend/api/query.ts
+// Keep encodeQuery in sync with tests/support/request.ts#encodeTestQuery.
+export function encodeQuery(query: Query): string {
+  return stringify(query, queryEncodingOptions)
+}
+
+// tests/support/request.ts
+// Keep encodeTestQuery in sync with frontend/api/query.ts#encodeQuery.
+function encodeTestQuery(query: Query): string {
+  return stringify(query, queryEncodingOptions)
+}
+```
+
+These excerpts assume each boundary's existing serializer/options and caller; preserve exact encoding behavior rather than adopting new options. The test helper is not exported. Reciprocal references expose intentional synchronization without forcing a runtime dependency across boundaries. Extract only a meaningful operation, not every callback, and do not annotate coincidental duplication.
+
 ### Function Calls Before Construction
 
-By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [simple serializer projection](#simple-serializer-projections) and [existing policy allowlist](#existing-policy-allowlists) exceptions below permit contextual inline construction when extraction adds no meaning.
+By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [linear test expectations](#linear-test-expectations), [simple serializer projection](#simple-serializer-projections), and [existing policy allowlist](#existing-policy-allowlists) exceptions permit contextual inline construction when extraction adds no meaning.
 
 Keep each evaluation within its original execution scope: a branch, loop iteration, callback invocation, lazy getter, or transaction must still own its work. Preserve evaluation count and left-to-right order, conditional/short-circuit execution, receiver binding, async/concurrent starts and awaits, rejection ownership, spread precedence, and returned identity. Capture intervening effectful property/index reads at their original evaluation points when needed; do not hoist a later call ahead of an earlier getter or turn concurrent starts into sequential awaits.
 
@@ -113,6 +133,32 @@ return {
 ```
 
 This replaces `passengerName: item.passengerName ?? null`, not a direct property read that had no fallback. Null and undefined still yield null; an empty string remains an empty string. Preserve the original operator (`??` versus `||`), fallback laziness, execution scope, property-read order, and evaluation count. Capture earlier effectful reads before preparing a later fallback; never hoist it across a guard or callback. This does not authorize adding/removing fallback behavior, redundant aliases for direct reads, or extracting simple literal options.
+
+#### Linear Test Expectations
+
+Prefer linear top-to-bottom code wherever it reduces reconstruction, not only in assertions. Retain meaningful domain boundaries, necessary branches, lazy work, and reusable abstractions. In tests, keep a simple actual-value query and its expected shape together; inline one-use asymmetric matchers rather than aliases without domain meaning. This is an explicit exception to the construction default, including matcher calls inside expected arrays and objects:
+
+```typescript
+expect(
+  await TravelSegment.findAll({
+    where: {
+      travelAuthorizationId,
+    },
+    order: [["position", "ASC"]],
+  })
+).toEqual([
+  expect.objectContaining({
+    position: 1,
+    departureLocationId,
+  }),
+  expect.objectContaining({
+    position: 2,
+    arrivalLocationId,
+  }),
+])
+```
+
+Do not require `savedTravelSegments` or one-use `expectedTravelSegment` matcher aliases solely for construction guidance. Preserve expanded expected objects, exact values, ordering, matcher strength, query options, and execution count. Keep meaningful setup, reused actual results, complex computations, timing/snapshot locals, and behavior-specific assertions. Do not hide assertions in helpers or synthetic bundles, weaken coverage, or inline arbitrary factories/effects under this exception.
 
 #### Existing Policy Allowlists
 
@@ -422,6 +468,27 @@ await Itinerary.create({
 
 The source `id` is absent, while legitimate association identifiers remain. Use the actual primary key, including composite identity where applicable, and inspect subsequent assignments/spreads for reintroduced identity. Do not strip every field ending in `Id`. Identity-preserving editor snapshots and ordinary deep copies are not new-record creation; preserve their identity and independent-copy contracts.
 
+### Optional Collections Before Transformations
+
+When absence already means an empty collection, bind optional properties with defaults before transforming them. Replace:
+
+```typescript
+const positionIds = new Set(user.positions?.map(({ id }) => id))
+const teamIds = new Set(user.teams?.map(({ id }) => id))
+```
+
+With:
+
+```typescript
+const { positions = [], teams = [] } = user
+const positionIdValues = positions.map(({ id }) => id)
+const teamIdValues = teams.map(({ id }) => id)
+const positionIds = new Set(positionIdValues)
+const teamIds = new Set(teamIdValues)
+```
+
+Destructuring defaults handle `undefined`, not `null`. This example assumes optional non-null collections and stable plain properties; if null is accepted as empty, retain explicit null handling such as `const positions = user.positions ?? []`. Do not change a null rejection into acceptance. Preserve evaluation scope, property-read effects/order, and lazy work; effectful getters may require preparing each collection immediately before its original transformation rather than grouped destructuring. Keep simple optional output access; do not add wrappers or sweep unrelated code. Domain projections deserve meaningful names; this is not a shorthand ban on arbitrary input fields.
+
 ### Named Helper Results
 
 When a helper returns a small set of independent computed values, prefer destructuring its named object result into explanatory locals at the use site when that makes subsequent steps clearer. Pass the values each functional helper needs rather than forwarding a wrapper solely as a packet. Keep named object returns; do not require positional tuples or flatten a meaningful domain object whose identity, invariants, or lifecycle belong together. Preserve evaluation order, property-access behavior, and the requested scope rather than mechanically destructuring every result.
@@ -594,6 +661,34 @@ For a public concrete function contract, export a meaningful named input/result 
 
 For flat immutable metadata with primitive values, prefer `Object.freeze({ ... })` when it supplies the required readonly literal inference and runtime immutability. Freezing is shallow: it does not protect nested mutable objects. Use an existing meaningful enum or explicit type when that is the actual contract, verify exact literal inference where required, and retain legitimate const assertions rather than treating this as a blanket ban.
 
+### Machine Enum Values and UI Labels
+
+Prefer snake_case string enum values for application storage and API identifiers; enum member identifiers and numeric enums are separate concerns. Presentation belongs to the existing UI translation/formatting owner:
+
+```typescript
+enum InvoiceSaleType {
+  Sale = "sale",
+  Refund = "refund",
+  Void = "void",
+}
+
+// UI-owned labels; use the project's established translation pattern.
+const invoiceSaleTypeLabels = {
+  [InvoiceSaleType.Sale]: "Sale",
+  [InvoiceSaleType.Refund]: "Refund",
+  [InvoiceSaleType.Void]: "Void",
+}
+
+// Integration boundary: preserve the upstream representation at its source.
+const invoiceSaleTypeFromProvider = {
+  Sale: InvoiceSaleType.Sale,
+  Refund: InvoiceSaleType.Refund,
+  Void: InvoiceSaleType.Void,
+}
+```
+
+Multiword machine values follow snake_case too. Inspect affected producers, stored data/migrations, validators, API consumers, UI labels, and integration conversion together. Preserve unknown-value handling and map only supported provider values at the application boundary. Do not rename upstream contracts or raw snapshots, silently change persisted/public values without migration, or initiate a repository-wide enum rewrite.
+
 ### Serialized Transport Type Names
 
 For a frontend type representing the same serialized transport payload as a backend serializer, inspect that serializer's exported type and actual fields first, then retain its type name in the frontend. Reuse a compatible shared transport declaration when available; otherwise define the corresponding frontend type in the resource API module or a cohesive nearby type file. Channel and UI consumers import that named contract rather than maintaining independently named local copies.
@@ -613,6 +708,23 @@ import type { WorkflowStepAsChannel } from "@/api/workflow-steps-api"
 ```
 
 Use the project's actual serializer fields, supported paths, and type-sharing boundary; the minimal example does not prescribe a new payload or module. Do not force imports across incompatible frontend/backend builds, introduce a shared package solely for naming, or rename deliberately transformed projections and local view models as if they were the transport contract. Preserve serialization, validation, and behavior. Apply an accepted correction to affected transport declarations and consumers within the requested scope, not unrelated types.
+
+When an accepted requirement calls for an exact API-response snapshot, preserve the response's data shape and reuse its owning response type. Snapshot necessity is a separate decision; this does not require introducing snapshots. Given the existing API-owned `BookingEventResponse` contract:
+
+```typescript
+// Before: a projected duplicate is not an exact response snapshot.
+type InvoiceBookingSnapshot = Pick<BookingEventResponse, "id" | "startsAt">
+type ProjectedInvoice = {
+  bookingContext: InvoiceBookingSnapshot
+}
+
+// After: retain all response fields and the existing contract owner.
+type Invoice = {
+  bookingContext: BookingEventResponse
+}
+```
+
+Capture the actual serialized response using the project's established isolation/copy mechanism when mutable data needs isolation, not an ORM instance or a field-picked substitute. Preserve nested fields, omission/null distinctions, and capture timing. A deliberately transformed `InvoiceBookingRecord` may have its own type/projection, but name it as an application record rather than an exact response snapshot. Reuse the application API owner; do not force integration-owned types or incompatible cross-build imports.
 
 When the application owns a producer, inspect its serializer and the actual transport representation before choosing consumer parsing. A source `Date` type alone does not establish the wire format: follow serialization through JSON or the relevant transport. Parse the verified representation directly instead of detecting hypothetical formats or testing inputs that producer cannot emit. Keep required invalid-input handling and independently evidenced external or multiple-format contracts.
 
@@ -1459,6 +1571,27 @@ Use the package name—not a project-root alias—for public package/library imp
 
 For runtime file paths, define one application/source root and derive paths from it instead of traversing from each caller. In Ruby/Rails, use framework-managed autoloaded constants instead of relative `require` traversal, and use `Rails.root.join` for application-root file paths. Do not treat a runtime path constant as module-resolution configuration: each environment still needs its own supported import resolver.
 
+### Entrypoint-Owned Ruby Root Bootstrap
+
+First reuse the project's established root convention. In non-autoloaded Ruby tooling, an executable or package loader owns the relative bootstrap once; internal helpers consume the initialized root with root-joined imports. Anchor root discovery to a known source file, never `Dir.pwd`. For a project already using `ROOT_DIR` and `File.join`:
+
+```ruby
+# bin/root.rb — existing root owner, loaded via require's once-only semantics
+ROOT_DIR = File.expand_path("..", __dir__)
+
+# bin/release/all.rb — package loader boundary
+require_relative "../root"
+require File.join(ROOT_DIR, "bin/lib/callable_service")
+require File.join(ROOT_DIR, "bin/release/publish_service")
+
+# bin/release/publish_service.rb — internal implementation
+require File.join(ROOT_DIR, "bin/lib/release_manifest")
+```
+
+An executable can likewise bootstrap its root then require the package loader. Multiple loaders require the same canonical root file; do not use `load`, duplicate definitions, per-helper `require_relative "../../root"`, or implicit fallback discovery in internals. Direct consumers of internal files first require the bootstrap or owning loader. Names above illustrate an existing convention, not constants or a Rails-like abstraction to introduce universally.
+
+Verify affected package/executable behavior in fresh processes from an unrelated working directory, and require relevant loaders together without constant-redefinition warnings. Preserve load order and callable behavior; apply only within requested Ruby authoring/review scope.
+
 Before converting imports, confirm the existing module-resolution configuration and exercise the affected build and test path. Treat a deep relative path as a review signal, not an automatic rewrite: preserve a relative path when moving the dependency would be clearer than widening module visibility. Do not bulk-rewrite imports solely for style.
 When the project adopts this convention, record it in project-local guidance. Configure an already-installed import-style lint rule only when it can enforce the same resolved root; do not add a dependency merely to police import spelling.
 
@@ -1606,6 +1739,85 @@ Use these terms as review vocabulary, not as mandatory layers:
 Protected work should expose its ownership through an intention-revealing `With...` service boundary when that service coordinates the protected action. Do not extract a utility that merely acquires a lock while leaving the domain operation, persistence, and invariant ownership elsewhere. Keep the existing transaction and locking semantics; this is not a mandate for a new layer or ORM.
 
 ## Error Ownership and Local Recovery
+
+### Explicit Fixed-Family Error Types
+
+For a small fixed domain failure family, prefer named errors with identity, message, and HTTP status visible together over one code-selected constructor. A useful shared base preserves existing classification. Before, for an illustrative established contract:
+
+```typescript
+const searchErrorMessages = {
+  expired: "Search expired.",
+  mismatch: "Search does not match.",
+  capacity: "Search capacity reached.",
+  unavailable: "Search unavailable.",
+  deadline: "Search deadline exceeded.",
+}
+const searchErrorStatuses = {
+  expired: 410,
+  mismatch: 409,
+  capacity: 429,
+  unavailable: 503,
+  deadline: 504,
+}
+type SearchErrorCode = keyof typeof searchErrorMessages
+
+class SearchSessionError extends Error {
+  readonly status: number
+
+  constructor(readonly code: SearchErrorCode) {
+    super(searchErrorMessages[code])
+    this.status = searchErrorStatuses[code]
+  }
+}
+```
+
+After, retaining the closed code type, base classification and all five code/message/status combinations:
+
+```typescript
+type SearchErrorCode = "expired" | "mismatch" | "capacity" | "unavailable" | "deadline"
+
+class SearchSessionError extends Error {
+  constructor(
+    readonly code: SearchErrorCode,
+    message: string,
+    readonly status: number
+  ) {
+    super(message)
+  }
+}
+
+class SearchExpiredError extends SearchSessionError {
+  constructor() {
+    super("expired", "Search expired.", 410)
+  }
+}
+
+class SearchMismatchError extends SearchSessionError {
+  constructor() {
+    super("mismatch", "Search does not match.", 409)
+  }
+}
+
+class SearchCapacityError extends SearchSessionError {
+  constructor() {
+    super("capacity", "Search capacity reached.", 429)
+  }
+}
+
+class SearchUnavailableError extends SearchSessionError {
+  constructor() {
+    super("unavailable", "Search unavailable.", 503)
+  }
+}
+
+class SearchDeadlineError extends SearchSessionError {
+  constructor() {
+    super("deadline", "Search deadline exceeded.", 504)
+  }
+}
+```
+
+Replace `new SearchSessionError("expired")` with `new SearchExpiredError()` and migrate in-scope throw sites together. Preserve the actual project's exact strings, statuses, names/serialization, causes, and catch/translation contract; these literals are not defaults to adopt. Do not require one file per error, ban ordinary lookup tables, or remove genuinely dynamic provider-error translation.
 
 Validate required integration connection configuration at the integration client or its existing initialization boundary, not repeatedly in consuming business services. Inspect that boundary before adding a caller guard; remove redundant checks only when the client already guarantees the prerequisite for the relevant call path. Preserve the accepted initialization timing and failure contract, including legitimately optional integrations; do not introduce eager connection attempts or a new configuration framework.
 
@@ -1780,6 +1992,79 @@ For example, the scheduling declaration should make this distinction inspectable
 The values illustrate two different cadences, not a required interval, framework, or callback signature. Extract discovery and due-time mechanics behind a small explicit interface while retaining the business action and schedule at the declaration, rather than relocating all schedules into an opaque background dispatcher. Preserve existing time-zone, timing, and delivery contracts; apply this within the requested authoring or review scope.
 
 ## Service Orchestration Readability
+
+### Effect-Oriented Method Slices
+
+Describe a multi-effect workflow in a short sequence of human-readable effects, then extract cohesive private methods before proliferating services. Roughly seven narrative lines is a comprehension heuristic, never a line-count limit. Query construction, validation, ranking, persistence and lifecycle mechanics should not obscure the narrative. Use effect names, not `step1`, `process`, or same-value aliases of `this.session`.
+
+Before, an entry method can remain a wall of mechanics after splitting files:
+
+```typescript
+async perform() {
+  await this.budget.reserve(this.session.id, this.batchSize)
+  return this.lease.withLock(this.session.id, async () => {
+    this.signal.throwIfAborted()
+    const workflows = await this.workflows.findAll({
+      where: {
+        sessionId: this.session.id,
+        isEligible: true,
+      },
+    })
+    const matches = await this.matcher.match(workflows, this.signal)
+    const retainedMatches = matches.filter((match) => match.isRetained)
+    retainedMatches.sort(compareRank)
+    const progress = await this.progress.determine(this.session, retainedMatches)
+    this.signal.throwIfAborted()
+    return this.database.transaction(async (transaction) => {
+      await this.results.replace(this.session.id, retainedMatches, { transaction })
+      return this.sessions.publish(this.session.id, progress, { transaction })
+    })
+  })
+}
+```
+
+After, cohesive private slices preserve the same operations:
+
+```typescript
+async perform() {
+  await this.budget.reserve(this.session.id, this.batchSize)
+  return this.lease.withLock(this.session.id, async () => {
+    this.signal.throwIfAborted()
+    const workflows = await this.loadEligibleWorkflows()
+    const matches = await this.matcher.match(workflows, this.signal)
+    const retainedMatches = this.rankRetainedMatches(matches)
+    const progress = await this.progress.determine(this.session, retainedMatches)
+    this.signal.throwIfAborted()
+    return this.publishAtomically(retainedMatches, progress)
+  })
+}
+
+private loadEligibleWorkflows() {
+  return this.workflows.findAll({
+    where: {
+      sessionId: this.session.id,
+      isEligible: true,
+    },
+  })
+}
+
+private rankRetainedMatches(matches: Match[]) {
+  const retainedMatches = matches.filter((match) => match.isRetained)
+  retainedMatches.sort(compareRank)
+  return retainedMatches
+}
+
+private publishAtomically(retainedMatches: Match[], progress: Progress) {
+  return this.database.transaction(async (transaction) => {
+    await this.results.replace(this.session.id, retainedMatches, { transaction })
+    return this.sessions.publish(this.session.id, progress, { transaction })
+  })
+}
+```
+
+Precharged work remains outside both lock and publication transaction; the awaited lock callback retains its lease through consumer reads, matching, progress and publication. Preserve cancellation checkpoints, comparator behavior, error propagation/translation, evaluation order, lazy work, concurrency, and returned promise/result. Do not move precharging into a transaction, release the lease before consumers finish, or add error wrapping merely to extract methods. Use actual local types/APIs and retain existing error translation where present.
+
+Counterexample: `perform() { return this.sessions.expire(this.session.id) }` already expresses one effect. Leave it intact; an `expireSession()` forwarding wrapper adds navigation without meaning. Review whether readers can explain the workflow without mentally executing its mechanics, not method length.
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
@@ -2148,11 +2433,16 @@ A concise scalar ternary may remain when it is genuinely clearer than branching,
 
 ## Guard Clauses and Exceptional Responses
 
-In generated or touched JavaScript and TypeScript, short clear guard clauses may be single-line. Follow a standalone guard with one blank line; consecutive short guards may remain adjacent, with the blank line only after the last guard. Use a multiline braced block for guards that are not short or when branching reads more clearly; do not compress every guard. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end.
+In generated or touched JavaScript and TypeScript, prefer multiline braced `if` guards, including short required-field returns and throws. Keep early exits, conditions, errors, and evaluation semantics unchanged; this is layout, not new validation. Separate guards and subsequent logical steps with a blank line. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end. Apply in the requested scope, not a repository-wide snippet sweep.
 
 ```ts
-if (oldValue === newValue) return
-if (isNil(value)) return
+if (oldValue === newValue) {
+  return
+}
+
+if (isNil(value)) {
+  throw new Error("value is required")
+}
 
 applyChange(value)
 ```
@@ -2163,7 +2453,9 @@ For an existing date projection that falls back to `stopDate` for a missing segm
 
 ```typescript
 const departingAt = firstTravelSegment?.departureAt
-if (isNil(departingAt)) return stopDate
+if (isNil(departingAt)) {
+  return stopDate
+}
 
 return departingAt
 ```
@@ -2171,10 +2463,14 @@ return departingAt
 With an explicit object guard while retaining the property fallback:
 
 ```typescript
-if (isNil(firstTravelSegment)) return stopDate
+if (isNil(firstTravelSegment)) {
+  return stopDate
+}
 
 const departingAt = firstTravelSegment.departureAt
-if (isNil(departingAt)) return stopDate
+if (isNil(departingAt)) {
+  return stopDate
+}
 
 return departingAt
 ```
@@ -2209,6 +2505,21 @@ For controller query-value guards, prefer the established named Lodash type pred
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
 
+When Lodash is already installed, prefer named `first(workflowSteps)` and `last(workflowSteps)` for endpoints over `workflowSteps[0]` and `workflowSteps[workflowSteps.length - 1]`. Follow existing import conventions and retain explicit missing-item guards:
+
+```typescript
+const firstWorkflowStep = first(workflowSteps)
+const lastWorkflowStep = last(workflowSteps)
+
+if (isNil(firstWorkflowStep) || isNil(lastWorkflowStep)) {
+  return
+}
+
+connectEndpoints(firstWorkflowStep, lastWorkflowStep)
+```
+
+Both return undefined for an empty array; preserve the original missing-item result/error and do not silently add a guard where absence meant something different. Apply accepted corrections to equivalent endpoint reads, including relevant tests, within review scope. Keep indexing for genuine positional contracts and arbitrary indexes; add no dependency solely for this spelling and rewrite no unrelated code.
+
 Express derived completeness or availability with a meaningful predicate and explicit value checks, not a truthiness cast of field values. For string form inputs whose missing value is `""`, replace `Boolean(pickUpDate.value && pickUpTime.value && dropOffDate.value && dropOffTime.value)` with:
 
 ```typescript
@@ -2227,10 +2538,14 @@ Use checks matching the actual types: nullable inputs need nil checks; `!isNil("
 When Luxon already owns date parsing, use its `isValid` result in shallow guards instead of a parallel regex date-validity authority. For an existing ISO timestamp contract that preserves the supplied offset:
 
 ```typescript
-if (typeof value !== "string") throw new Error("Expected an ISO timestamp.")
+if (typeof value !== "string") {
+  throw new Error("Expected an ISO timestamp.")
+}
 
 const timestamp = DateTime.fromISO(value, { setZone: true })
-if (!timestamp.isValid) throw new Error("Invalid ISO timestamp.")
+if (!timestamp.isValid) {
+  throw new Error("Invalid ISO timestamp.")
+}
 
 return timestamp
 ```
@@ -2247,7 +2562,9 @@ For that contract, preserving the supplied wall-clock offset:
 
 ```typescript
 const startDateTime = DateTime.fromISO(startValue, { setZone: true })
-if (!startDateTime.isValid) throw new Error("Invalid start date.")
+if (!startDateTime.isValid) {
+  throw new Error("Invalid start date.")
+}
 
 const isCalendarDate = ["yyyy-MM-dd", "yyyyMMdd"].some((format) => {
   const explanation = DateTime.fromFormatExplain(startValue, format)

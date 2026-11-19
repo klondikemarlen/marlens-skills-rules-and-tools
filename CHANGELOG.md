@@ -6,6 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Clarify scoped authoring and review contracts for guards, collection defaults/endpoints, machine values, API snapshots, explicit errors, Ruby bootstrapping, service steps, and intentionally mirrored implementations.
+- Keep distinct business workflows explicit in tests while allowing readable inline matcher trees and direct actual-result queries.
+- Preserve reactive Vue presentation defaults and caller-owned export predicates; order equivalent query bindings consistently.
+- Assign create-only request editability to action-specific policy allowlists without weakening model-owned invariants.
+
 ## [5.14.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1476) - 2026-11-18
 
 ### Changed
