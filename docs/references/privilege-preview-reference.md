@@ -85,12 +85,12 @@ For source signing, identify the actual prepared package/version, signing key fi
     { "label": "Package", "value": "example-package 1.2.3" },
     { "label": "Signing key", "value": "SIGNING_KEY_FINGERPRINT" }
   ],
-  "reason": "GPG may ask to unlock this user's signing key to create the detached signature. Administrator access is not needed.",
+  "reason": "Continue signs the prepared source archive. It does not upload or install the package. GPG may ask you to unlock your signing key; administrator access is not needed.",
   "context": {
     "agent": "Release assistant",
     "task": "Sign the reviewed example-package 1.2.3 source artifact",
     "whatHappened": "This example-package update lets users export their reports as CSV. Its source archive is ready to sign.",
-    "completionEffect": "Create the named detached signature as the invoking user. Do not upload or install anything."
+    "completionEffect": "Create the named detached signature as the invoking user."
   },
   "command": {
     "executable": "/usr/bin/gpg",
