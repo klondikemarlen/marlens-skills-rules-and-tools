@@ -74,6 +74,8 @@ Save the request privately and invoke `privilege-preview < request.json` from an
 
 Set `"execution": "current-user"` when the operation needs the invoking user's application credentials, not root. This applies to GPG signing, keyring access, and other explicitly selected native commands that use their normal credential UI; it is not a GPG-specific adapter.
 
+For a release preview, put the feature or fix in `context.whatHappened` so the person can recognize it **before Continue**, without opening Details. Verify it against the PR or release record; a package version, PR number, or successful build alone does not say what changed. Include the canonical PR URL when available, as plain text rather than markup. For example: “This release groups live OMP sessions by project directory and shows their titles so you can tell peers apart. PR: https://github.com/klondikemarlen/omp-instance-control/pull/95”. In `reason`, say what Continue permits now: signing the prepared source package, not uploading or installing it. Callers supply the facts for their release; they need not redefine this guidance.
+
 For source signing, identify the actual prepared package/version, signing key fingerprint, exact file paths, and intended effect before constructing the request. This illustrative request signs one file; replace the sample artifact paths and `SIGNING_KEY_FINGERPRINT` with verified values. It does not authorize signing by itself:
 
 ```json
@@ -83,12 +85,12 @@ For source signing, identify the actual prepared package/version, signing key fi
     { "label": "Package", "value": "example-package 1.2.3" },
     { "label": "Signing key", "value": "SIGNING_KEY_FINGERPRINT" }
   ],
-  "reason": "GPG may ask to unlock this user's signing key to create the detached signature. Administrator access is not needed.",
+  "reason": "Continue signs the prepared source archive. It does not upload or install the package. GPG may ask you to unlock your signing key; administrator access is not needed.",
   "context": {
     "agent": "Release assistant",
     "task": "Sign the reviewed example-package 1.2.3 source artifact",
-    "whatHappened": "The artifact is prepared for the separately authorized signing step.",
-    "completionEffect": "Create the named detached signature as the invoking user. Do not upload or install anything."
+    "whatHappened": "This example-package update lets users export their reports as CSV. Its source archive is ready to sign.",
+    "completionEffect": "Create the named detached signature as the invoking user."
   },
   "command": {
     "executable": "/usr/bin/gpg",
