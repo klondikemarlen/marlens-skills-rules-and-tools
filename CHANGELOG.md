@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## 5.15.3 - 2026-11-19
+
+### Changed
+
+- Check unchanged serializer fields and required association guards together in scoped readability review.
+
 ## 5.15.2 - 2026-11-19
 
 ### Changed
