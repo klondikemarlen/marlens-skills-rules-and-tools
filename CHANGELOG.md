@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.14.22](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1489) - 2026-11-19
+
 ### Changed
 
 - Connect feature and wrap-up cleanup to exact resource declarations and independent final disposition verification, preserving protected resources and separate source-review handoffs.
