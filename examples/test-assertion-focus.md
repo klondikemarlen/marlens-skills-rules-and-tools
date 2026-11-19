@@ -52,6 +52,25 @@ For a final-destination service that resolves the final arrival from an ordered 
 
 Native assertions remain valid. For the corrected success, a project's existing Node test can use `assert.deepEqual(result, toronto)` on the actual returned location, retaining its relevant `assert.rejects` regressions. Do not migrate it to `expect`, replace the exact location with not-to-throw, or borrow a success from another file.
 
+### Acceptance Is Sometimes the Whole Contract
+
+Suppose `validateQuantity` accepts a positive quantity or rejects with a `RangeError`, and promises no return value. These tests protect the same decision:
+
+```javascript
+test("accepts a positive quantity", async () => {
+  await assert.doesNotReject(() => validateQuantity(1))
+})
+
+test("rejects zero", async () => {
+  await assert.rejects(() => validateQuantity(0), {
+    name: "RangeError",
+    message: "Quantity must be positive",
+  })
+})
+```
+
+Returning the input instead of `undefined` should not break the acceptance test; silently accepting zero should break the rejection test. By contrast, an operation that *saves* the quantity does promise an effect: completion without persistence is a failure, not a passing positive case.
+
 ### Concrete Missing-Association Scenarios
 
 Avoid hiding distinct omissions behind computed setup and generated expectations:
