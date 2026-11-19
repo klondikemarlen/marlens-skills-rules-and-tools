@@ -504,6 +504,48 @@ Expected `PASS`, retaining names, companion `Overview` type and operation order.
 
 Both mixed and grouped static inputs may pass the executable structural barrel check; that does not clear the negative semantic case. Keep that existing check enabled and separate. Missing the necessary local source/role evidence or unavailable tooling is `BLOCKED`, not a grouping violation, and cannot clear a partial scope.
 
+## Serializer Projection and Required Preloads
+
+Task: add a receipt response. The serializer's record **is** the receipt. `id` and `reference` are always present strings, `issuedAt` is a `Date`, and `lines?: ReceiptLine[]` is undefined until loaded. A loaded receipt can have zero lines. The project already uses Lodash `pick` and `isUndefined`. `ReceiptLineSerializer.perform` accepts the loaded collection. Both candidates must return the same keys, an ISO timestamp, and serialized lines.
+
+```typescript
+const { lines } = this.record
+if (!lines) {
+  throw new Error("Receipt lines must be preloaded")
+}
+
+const issuedAt = this.record.issuedAt.toISOString()
+const serializedLines = ReceiptLineSerializer.perform(lines)
+return {
+  id: this.record.id,
+  reference: this.record.reference,
+  issuedAt,
+  lines: serializedLines,
+}
+```
+
+Expected `FAIL`: report **both** the repeated unchanged assignments and the truthiness guard for an undefined-only preload. The guard is imprecise; it does **not** reject `[]`. Do not attribute this finding to a lost empty collection.
+
+```typescript
+const { lines } = this.record
+if (isUndefined(lines)) {
+  throw new Error("Receipt lines must be preloaded")
+}
+
+const issuedAt = this.record.issuedAt.toISOString()
+const serializedLines = ReceiptLineSerializer.perform(lines)
+return {
+  ...pick(this.record, [
+    "id",
+    "reference",
+  ]),
+  issuedAt,
+  lines: serializedLines,
+}
+```
+
+Expected `PASS` with an unchanged-field response type based on `Pick<Receipt, "id" | "reference">` and explicit wire types for `issuedAt` and `lines`. Do not introduce `this.record.receipt`, a query, or a `pick` of the raw date or lines. If a source key can be absent and the response requires an own property, establish equivalence before recommending `pick`.
+
 ## Evidence Boundary
 
 For each case obtain a cited, current-scope `PASS`, `FAIL`, or `BLOCKED` through the supported semantic review path. Preserve concrete findings even when another criterion lacks context. Formatter/typecheck success and the disposable behavioral exercises protect different contracts; none substitutes for semantic review. Supplied policy and installation do not establish automatic selection, native advisor delivery, or a hard completion gate. Fresh-process discovery and corrective re-review remain release QA responsibilities owned by Verifier.
