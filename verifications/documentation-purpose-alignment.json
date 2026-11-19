@@ -18,6 +18,10 @@
       "question": "Flag implementation inventories that do not serve the reader task, accumulated review feedback, and copied cross-layer instructions that create competing owners under the applicable project rule. Cite the affected passage and governing rule, identify the existing owner, and give the smallest correction: explain the authoring decision, link the owner, or keep implementation-local rationale beside code. Preserve legitimate source-local patterns and examples; do not ban READMEs, force every detail into docs, or invent documentation when an existing owner already answers the question."
     },
     {
+      "id": "readable-agent-instructions",
+      "question": "For changed agent instructions, apply Readable Agent Instructions in docs/references/guidance-precedence-reference.md. Assess goal, bounded caveat, authoritative owner, ordinary decision path, and conditional recovery. Reject compression or extraction that obscures authority, trigger scope, safety, failure or termination semantics. For required instructions moved behind links, inspect the actual supported consumer loading/retrieval evidence; link existence alone is not proof. Preserve required self-contained prompts and exact protocol identifiers; no word/token quota, universal split, new compiler, or model/advisor change is required. Missing material consumer evidence is BLOCKED, not inferred access or failure."
+    },
+    {
       "id": "material-code-alignment",
       "question": "Compare material behavior claims with captured current implementation and supported configuration, not the documentation's own assertions. Where relevant, inspect actual ordering and parallel prerequisites, retry versus rerun behavior, partial failure, and what success means. Cite the source and document discrepancy and a concrete correction for unsupported or contradictory claims. If required implementation evidence cannot be recovered, return BLOCKED rather than assuming the claim is accurate or treating a speculative risk as a proven defect."
     },
