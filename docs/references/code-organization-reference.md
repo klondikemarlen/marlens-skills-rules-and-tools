@@ -19,6 +19,12 @@ Use the smallest structure that makes ownership, change axes, data handoffs, and
 
 Human readability is an ordinary engineering standard, not an optional cleanup phase. Optimize for the next maintainer's effort to understand, change, and trust the code while preserving correctness and the project's conventions.
 
+**Goal:** Make each meaningful operation readable in execution order. Prefer one statement per line, descriptive names, and visible logical steps over semicolon-packed statements, compressed callbacks, or expressions that hide effects. Human comprehension takes precedence over token savings.
+
+**Caveat:** This is not one function call per line or a ban on an idiomatic expression, fluent query, or simple projection. Preserve meaningful expressions and the specific exceptions below; do not manufacture one-use variables, trivial helpers, or unrelated formatting to satisfy a visual quota.
+
+The [Zen of Python](https://peps.python.org/pep-0020/) informs explicit, simple, readable choices; the [Rails Doctrine](https://rubyonrails.org/doctrine/) informs useful conventions and cohesive integrated systems. Apply their intent pragmatically, not as permission to impose Python syntax, Rails architecture, or abstraction for its own sake on another project.
+
 - Choose explanatory function and variable names that reveal domain purpose and effects, not vague mechanisms or unnecessary abbreviations.
 - Keep responsibilities cohesive and related steps together. Make dependencies, state ownership, side effects, and failure paths visible.
 - Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction. For optional inputs whose absence selects a return or fallback, follow [input-object guards](#guard-clauses-and-exceptional-responses) before deriving property locals.
@@ -566,9 +572,11 @@ Same-named memoized getters remain useful for appropriately cached derived value
 
 ## Libraries for Generic Mechanism
 
-Keep application code focused on product-specific policies and behavior. When a change needs generic parsing, traversal, tokenization, serialization, or equivalent plumbing, compare the standard library, installed dependencies, a well-maintained library, and bespoke code.
+**Goal:** Keep application code focused on product-specific policies and behavior. For generic parsing, traversal, tokenization, serialization, or equivalent plumbing, compare the standard library, existing framework facilities, installed dependencies, an established maintained library, and bespoke code. Prefer the option that lowers net owned complexity, including compatibility, security, maintenance, and the adapter code the project still owns. Keep project-specific policy and result models explicit at the boundary.
 
-Prefer the option that lowers net owned complexity: the codebase should not recreate generic implementation details merely to avoid a dependency. Include compatibility, maintenance, security, and the adapter code the project must still own in that comparison. Keep the project-specific policy and result model explicit at the library boundary.
+**Caveat:** Neither avoiding all dependencies nor adding a package for every small operation reduces ownership. A small clear local implementation can be preferable when its contract is simple and the alternatives add more risk or integration work. Do not replace a working dependency or impose a new framework without an evidenced need.
+
+For a new third-party candidate, verify package identity and provenance, established adoption, maintenance and release history, relevant security advisories and response, transitive dependencies, license, and runtime/API fit. Prefer mature, widely used projects; low stars or sparse adoption are reasons to avoid a candidate by default unless concrete suitability and review evidence justify an exception. Stars and downloads are screening signals, not security guarantees or numeric admission quotas. A stable, mature library need not release frequently. Record the consequential tradeoff and a representative integration check in the existing task evidence; unavailable material evidence is uncertainty, not a clean security assessment.
 
 Before selecting an overlapping dependency, inspect the application's existing libraries across frontend and backend. Prefer the existing library when it supports the target runtime and required safety contract; verify concrete compatibility risks rather than assuming a server-used library cannot run in a browser. A demonstrated runtime or security incompatibility justifies a different library. Keep runtime-specific configuration and security policy separate: shared library choice does not imply permissive shared defaults or require a cross-layer wrapper. Use [Scenario-Oriented Verification](#scenario-oriented-verification) for the actual integration risk.
 
@@ -758,6 +766,16 @@ For module ownership, public surfaces, and semantic verification, use the [Modul
 ### Primary Operations and Local Implementation
 
 Prefer one primary operation or independently named builder per implementation file, using a descriptive filename and the existing import/barrel/export conventions. Keep distinct operations separate rather than consolidating them merely because they are related. This is an ownership preference, not a one-function quota: retain a primary operation's local implementation steps, cohesive supporting types, and constants, as well as documented framework requirements and genuinely cohesive multi-function modules.
+
+**Goal:** A reader can name the file's primary responsibility and find its inputs, result, state lifetime, and failure behavior without reconstructing several unrelated workflows. Before expanding it, sketch the responsibilities, supported public API, mutable-state owner, and dependency direction in the existing task record. Separate independently changing responsibilities at named semantic seams, not at a line boundary. After extraction, trace an ordinary caller and a failure/cleanup path: fewer lines in the original file are not an improvement if understanding now requires more indirection or duplicated state.
+
+**Caveat:** One responsibility may need several cooperating functions or lifecycle operations. Keep helpers that share its invariant local; preserve framework entrypoints, initialization order, locking, transactions, cancellation, and error ownership. A mechanical edit does not require an architecture document. See [Module Decomposition](module-boundary-reference.md#module-decomposition) for the boundary review.
+
+### Feature-Level Public APIs
+
+**Goal:** Group a feature's cooperating implementation modules behind its smallest useful public operation or class. Consumers use that supported surface; internal modules use explicit inward dependencies without importing their own public barrel. Name files for their actual responsibilities, such as `request-store` or `validate-assessment`, not `helpers-2` or `misc`. Export what real consumers need, not every internal function merely to test it.
+
+**Caveat:** A folder or facade must reduce ownership and navigation cost, not add a forwarding layer to one already-clear function. Several intentional lifecycle operations can form one public API; cohesive small modules can stay flat. Follow language/package visibility and local conventions, preserve legitimate shared domain APIs, and avoid cycles or new registries. A re-export list alone does not establish encapsulation: inspect actual consumer imports and mutable-state access.
 
 For an operation-specific response, prefer a flat operation-named serializer beside the owning resource's other serializers when a new folder would only wrap that representation. For example, use `workflow-templates/clone-serializer.ts` exporting `CloneSerializer`, with `WorkflowTemplateAsClone` and the established `AsClone` barrel alias, rather than `clone/create-serializer.ts` and a generic creation name. Keep ordinary `IndexSerializer` and `ShowSerializer` contracts distinct and unchanged. Reuse an existing serializer when the representation and its contract are identical. Retain meaningful multi-module operation namespaces and stronger local/framework conventions. Update every affected in-scope caller and supported barrel/type export without changing response fields, loading, or error behavior; naming does not authorize a response redesign or unrelated flattening.
 

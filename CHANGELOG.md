@@ -6,6 +6,11 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Make cohesive file responsibilities, feature public APIs, state ownership, and mature-library selection actionable before authoring and during review.
+- Clarify readable CLI scenario setup and goal/caveat instruction organization without file-count quotas, token compression, or weakened safety contracts.
+
 ## [5.14.22](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1489) - 2026-11-19
 
 ### Changed

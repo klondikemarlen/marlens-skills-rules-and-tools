@@ -107,6 +107,16 @@ Here `refresh` is the promise returned by the operation under test. Both matcher
 
 Preserve transition, race, and rollback setup and scenario identities when reorganizing tests. A coupled invariant is not a general multi-expect exception for non-controller tests. Keep the complete causal sequence in each focused scenario that needs it; assert a real returned or persisted object/collection when it naturally represents the invariant, or use separate tests for distinct observations. Never discard an intervening failure, stale completion, or rollback operation merely to reach one expectation.
 
+### CLI Scenario Ownership and Shared Mechanics
+
+**Goal:** Let a reader explain the CLI scenario's starting state, commands, and observable outcome from the test itself. Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification): keep material provider/check declarations, baseline source, post-baseline edits/deletions, paging inputs, and recovery transitions visible in Arrange and the command sequence. A multi-mode fixture that selects those scenarios through flags or hidden defaults obscures ownership even when its options have names.
+
+**Bounded caveat:** Reuse mechanical temporary-directory creation, isolated agent/environment configuration, file writing, Git command execution, subprocess runners, output parsing, and cleanup when their contracts remain clear. A helper may commit the files explicitly arranged by the test; it must not silently choose the baseline or apply later changes. Homogeneous parser/argument-validation cases may share a readable literal table. Neither multiple commands in one causal lifecycle nor multiple native `node:assert` calls is a violation by itself.
+
+Keep direct observations of actual stdout, stderr, exit status, retained errors, and request/state transitions where they establish the scenario. In native assertion suites, preserve meaningful multiple assertions; do not manufacture a summary object to imitate exactly-one-`expect`, hide checks in runner helpers, or fragment one lifecycle into a file per assertion. Preserve per-test storage, environment and cleanup isolation, and shell invocation only where the shell/printed-command contract is being tested. Any file split must follow independently owned CLI behavior and remain discoverable by the project's actual test script, not a line quota.
+
+See the [contrasting CLI fixtures](../../examples/test-assertion-focus.md#cli-scenario-ownership-and-shared-mechanics). They are review inputs, not executed behavior evidence.
+
 ### Independent Saves With Concrete Payloads
 
 Before: two independently meaningful saves share one test, and wildcard payloads do not prove either request:
