@@ -6,6 +6,8 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1491) - 2026-11-19
+
 ### Changed
 
 - Make cohesive file responsibilities, feature public APIs, state ownership, and mature-library selection actionable before authoring and during review.
