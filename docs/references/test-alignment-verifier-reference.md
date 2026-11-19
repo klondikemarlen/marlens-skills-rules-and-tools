@@ -36,6 +36,8 @@ Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-o
 
 Apply [Human Readability](code-organization-reference.md#human-readability) to all non-empty expected object literals, including single-property assertion objects and partial-matcher arguments: one property per line even within formatter width, preserving values, order, and matcher semantics. Ordinary small single-field call arguments may remain compact; assertion data is not that exception.
 
+Keep readable expected matcher trees inline, including partial matchers inside complete arrays, instead of extracting one-use matcher aliases solely for the construction default. A simple awaited model query may remain directly in `expect(...)` when it observes the actual result once with the required scope/options. Keep meaningful reused values and required sequencing explicit. This is the [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) exception, not permission to hide transformations, effects, or independent assertions.
+
 Controller tests are the exception: direct meaningful status and body assertions may remain together to prove the response contract. Prefer a native or meaningful matcher such as [`toHaveHttpResponse`](http-response-matcher-reference.md) when it naturally expresses that contract, but do not force its adoption or replace clear direct controller assertions with a synthetic wrapper. The exception does not justify bundling independent persistence effects.
 
 Controller classification uses an explicit path convention: a `controller/` or `controllers/` directory segment (case-insensitive), or a filename ending `.controller.test.<extension>`, `.controller.spec.<extension>`, `-controller.test.<extension>`, `-controller.spec.<extension>`, `_controller.test.<extension>`, `_controller.spec.<extension>`, `Controller.test.<extension>`, or `Controller.spec.<extension>` with the PascalCase `Controller` suffix. Extensions are the check's supported JavaScript/TypeScript extensions. HTTP usage or a variable named `response` does not classify a test as a controller.
@@ -75,13 +77,14 @@ An ORM assertion should compare the actual persisted record using its project-na
 When the full expected collection is known, compare the complete returned collection directly rather than wrapping its expected members in `expect.arrayContaining`. Adding `toHaveLength(...)` to the subset assertion is not the preferred replacement: express the complete-result contract in the collection expectation itself. Partial object matchers may still appear inside that complete expected array when incidental record fields are outside the contract:
 
 ```typescript
-const firstHit = expect.objectContaining({
-  id: 7,
-})
-const secondHit = expect.objectContaining({
-  id: 9,
-})
-expect(hits).toEqual([firstHit, secondHit])
+expect(hits).toEqual([
+  expect.objectContaining({
+    id: 7,
+  }),
+  expect.objectContaining({
+    id: 9,
+  }),
+])
 ```
 
 For an established `7`-then-`9` result order, this accepts additional fields on those two records but rejects an unexpected third element, a missing record, or a different member without a separate count assertion. Use the actual result path and supported project matchers. If order is not guaranteed, preserve the real unordered contract with a supported exact unordered collection matcher; do not add sorting solely to normalize assertions. See [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification).

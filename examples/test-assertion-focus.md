@@ -122,6 +122,88 @@ test.each([
 
 Here the utility contract is trim-and-uppercase, with an empty-input outcome. The table makes its literal cases visible without association mutation, generated diagnostics, or workflow dispatch.
 
+### Flag-Selected Business Workflows
+
+Reject this matrix: the flag changes the business state and accepted payload, not merely an input to one homogeneous transformation.
+
+```typescript
+test.each([false, true])("updates travel when isActual=%s", async (isActual) => {
+  // Arrange
+  const travelAuthorization = await travelAuthorizationFactory.create({
+    status: isActual ? "APPROVED" : "DRAFT",
+  })
+  const attributes = isActual
+    ? { travelSegmentActualsAttributes: [{ arrivalLocationId: 9 }] }
+    : { travelSegmentEstimatesAttributes: [{ arrivalLocationId: 9 }] }
+
+  // Act
+  const result = await updateTravel(travelAuthorization, attributes)
+
+  // Assert
+  expect(isActual ? result.travelSegmentActuals : result.travelSegmentEstimates).toEqual([
+    expect.objectContaining({
+      arrivalLocationId: 9,
+    }),
+  ])
+})
+```
+
+Prefer two explicit scenarios with the same observations:
+
+```typescript
+test("when a draft itinerary is edited, updates its estimated destination", async () => {
+  // Arrange
+  const travelAuthorization = await travelAuthorizationFactory.create({
+    status: "DRAFT",
+  })
+  const attributes = {
+    travelSegmentEstimatesAttributes: [
+      {
+        arrivalLocationId: 9,
+      },
+    ],
+  }
+
+  // Act
+  const result = await updateTravel(travelAuthorization, attributes)
+
+  // Assert
+  expect(result.travelSegmentEstimates).toEqual([
+    expect.objectContaining({
+      arrivalLocationId: 9,
+    }),
+  ])
+})
+
+test("when an approved itinerary is edited, updates its actual destination", async () => {
+  // Arrange
+  const travelAuthorization = await travelAuthorizationFactory.create({
+    status: "APPROVED",
+  })
+  const attributes = {
+    travelSegmentActualsAttributes: [
+      {
+        arrivalLocationId: 9,
+      },
+    ],
+  }
+
+  // Act
+  const result = await updateTravel(travelAuthorization, attributes)
+
+  // Assert
+  expect(result.travelSegmentActuals).toEqual([
+    expect.objectContaining({
+      arrivalLocationId: 9,
+    }),
+  ])
+})
+```
+
+These fictional excerpts assume an existing authorized factory, a valid location `9`, and an `updateTravel` operation returning preloaded segments. A real suite must arrange those prerequisites locally using its supported factories and retain its invalid-state/authorization regressions; do not claim these excerpts form a complete executable suite. Intentional repetition exposes workflow ownership. An equivalent helper receiving `isActual` would preserve the original problem. The homogeneous normalization table above remains accepted.
+
+Expected semantic decisions: FAIL the flag-selected workflow matrix, PASS the two explicit scenarios for workflow ownership and assertion shape, and PASS the homogeneous transformation table. Assess complete-file success/negative coverage separately. Inline partial matchers in the expected arrays are permitted; do not introduce one-use matcher aliases solely to satisfy the construction default.
+
 ### Actual Subjects, Workflow Ownership, and Matcher Layout
 
 - A file asserting `SummaryHeaderPanel`'s rendered result is named `SummaryHeaderPanel.test.ts`, with `describe("SummaryHeaderPanel", ...)`, not `TripDetailsDestination.test.ts` after a rendered child.

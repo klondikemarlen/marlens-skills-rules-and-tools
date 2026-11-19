@@ -16,6 +16,7 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 - Where the controller architecture uses single-record loaders, prefer an awaited named controller-local helper such as `const workflow = await this.loadWorkflow()`. Preserve lookup predicates and required association preloads inside the loader, returning the record or null; keep 404/403 decisions explicit in the public action. This does not require a service/repository/base-controller abstraction or move ordinary collection reads. See the [controller-local loader example](../../docs/templates/backend/express-light-rail/controller-template.md#controller-local-record-loading).
 - Keep HTTP failure handling visible in the public action or established error boundary under [Error Ownership and Local Recovery](../../docs/references/code-organization-reference.md#error-ownership-and-local-recovery). Required-result service failures propagate by throwing; format-specific helpers prepare successful content, not separate HTTP errors from failure-only sentinels. Normally finish fallible preparation before success headers; the explicit [quick-start download contract](../../docs/templates/backend/express-light-rail/controller-template.md#quick-start-download-responses) instead interrupts failed transfers after headers. Preserve valid empty/optional results and existing error/status contracts.
 - Pass policy-filtered request attributes directly to services without controller-side `as` assertions to force compatibility. Fix mismatches in the owning policy/service attribute contracts while preserving filtering, authorization, and the established controller shape; this is not a ban on unrelated TypeScript assertions or a mandate for a particular ORM generic.
+- For create-only request fields, use [Action-Specific Permitted Attributes](#action-specific-permitted-attributes): inspect the existing create/update policy allowlists before adding a model validator, while retaining independently required direct-write invariants.
 - For matching controllers, import their own services directly from the supported domain barrel, for example `import { IndexService } from "@/services/child-care-spaces"` and `IndexService.perform(...)`. Cross-domain calls and real name collisions retain meaningful namespaces under [Project-Root Imports and Paths](../../docs/references/code-organization-reference.md#project-root-imports-and-paths); do not forbid namespace imports universally.
 - Put reusable or multi-step domain work in a service/use-case. A policy-scoped ordinary collection query may stay in the controller: standard filtering, distinct joined counts, ordering, pagination, and serializers do not force an `IndexService`. Keep meaningful business logic and nontrivial orchestration in services; choose that boundary before applying established service naming. Follow [Service Orchestration Readability](../../docs/references/code-organization-reference.md#service-orchestration-readability), preserving query/transaction semantics and explicit local architecture.
 - Under that service lifecycle, keep construction assignment-only and validate required canonical input at action entry before effects. Trace producer-owned normalization rather than silently repairing rejected input in the constructor.
@@ -62,6 +63,29 @@ Use when adding or changing a backend feature in a Node.js + Express + TypeScrip
 - When a derived collection needs distinct values from potentially many persisted parent rows, prefer database-side projection, splitting/aggregation, deduplication, and ordering over loading every parent's values and hydrating ORM instances for application-side aggregation. Selecting fewer columns does not bound row count. Apply authorization and supported filters in the source query; use a raw query or supported read projection following local conventions. Do not mandate normalization, a new table, or a view solely for this optimization; schema normalization is a separate evidence-backed modeling decision.
 - For boolean guards over persisted state, use [Database-Side Existence Guards](../../docs/references/express-light-rail-backend-concepts-reference.md#database-side-existence-guards): express the complete predicate in one parameterized existence query instead of loading candidate rows solely for application-side filtering. Preserve scope and transaction contracts; retain legitimate record loading and supported ORM queries.
 - Before adding a resource picker or collection service, inspect neighboring domain inputs and collection endpoints. Compose an owning-domain input when existing resource-input components own fetching, loading/error state, and autocomplete rendering; keep model bindings and contextual hints in the parent. Follow the established collection-service bundle and naming, including nested `IndexService` conventions where present, rather than introducing a flat `List<Resource>Service`. Preserve selection, visibility-triggered loading, errors, and authorization. Do not add wrappers for trivial controls or impose a universal layout.
+
+## Action-Specific Permitted Attributes
+
+Inspect the existing policy before adding a model validator for request editability. A create-only request field belongs in the create allowlist and not the update allowlist. For example, under an existing `pick`-based policy:
+
+```typescript
+permittedAttributesForCreate() {
+  return pick(this.attributes, [
+    "fundingPeriodId",
+    "name",
+  ])
+}
+
+permittedAttributesForUpdate() {
+  return pick(this.attributes, [
+    "name",
+  ])
+}
+```
+
+Use the project's actual policy API and authorization checks; the names above illustrate the action boundary, not a new policy base. Both controller actions pass only their action-filtered attributes to the service. Do not merge the raw request back into that payload or replace its type with an assertion.
+
+Regression scenario: create an authorized record in funding period A; submit an update containing funding period B and a changed name; reload the record and prove that its funding period remains A while the permitted name changes. Also retain a successful create proving the field is accepted there. Use the application's actual rejection contract instead if disallowed fields are rejected rather than stripped. Independently required model-owned invariants still protect direct writes: request editability alone does not justify introducing or deleting domain validation.
 
 ## Download Filenames
 

@@ -1047,6 +1047,39 @@ One suffix identifies all three keys (TravelAuth: `pageMeals`, `perPageMeals`, `
 
 Smaller pagination-only helpers and non-route helpers remain valid when they fit. This contract does not authorize a pagination/sorting retrofit or a generic table framework. During authoring and review, compare query prop types to the API exports, then trace a changed `where`/`filters` prop to the outgoing request and a route namespace to its actual URL keys. Reject disconnected props, handwritten restricted API shapes, or a namespace that silently changes another table's state. ELCC's `CentresDataTableServer` and WRAP's `UsersDataTableServer` are adoption suggestions, not migrated consumers. Adoption requires each project's delivery and runnable checks for bookmarks, independent tables, absent/cleared sorting, All, history/reload and loading/page-reset guards. Published guidance, native project tests, fresh OMP consumption, verifier enforcement and adoption are separate evidence claims.
 
+### Query Bindings and Caller-Owned Export Selection
+
+For equivalent component query bindings, prefer the visual order `where`, `filters`, then `order`, retaining expanded multiline attributes. Apply the order to equivalent in-scope call sites without adding absent props merely to complete the sequence. This is a reading convention, not a change to query semantics, predicate precedence, or multi-column sort priority. Preserve binding values and effectful evaluation order/count; do not reorder behavior-sensitive expressions to satisfy visual order.
+
+When an export control's existing API-owned `where.id` contract already expresses selected IDs, compose that restriction in the caller alongside its existing predicates. Remove the redundant selected-ID export prop and the child's internal selection/`where` merge together; the export control forwards its established query props unchanged to its existing export request owner. Keep the caller's interactive selection model, and retain separate inputs for operations whose selection is not a query predicate.
+
+This caller excerpt assumes existing `where`, `filters`, `order`, and `selectedMealIds` refs, Vue's `computed`, and the resource API's `MealWhereOptions` type. In this particular established contract, nonempty selection overrides only `where.id`; clearing selection restores the original `where`, including any original ID restriction. Every other predicate, filter, and order remains unchanged:
+
+```vue
+<template>
+  <MealExportButton
+    :where="exportWhere"
+    :filters="filters"
+    :order="order"
+  />
+</template>
+
+<script setup lang="ts">
+const exportWhere = computed<MealWhereOptions>(() => {
+  if (selectedMealIds.value.length === 0) {
+    return where.value
+  }
+
+  return {
+    ...where.value,
+    id: selectedMealIds.value,
+  }
+})
+</script>
+```
+
+Use the actual API's ID predicate representation; the array here assumes that representation is already supported. Do not copy this overwrite precedence into a contract that intersects selections with an existing ID restriction or gives that restriction priority. Before migrating, trace the original merge and empty-selection behavior through the outgoing export request; retain that exact composition in the caller. Empty selection may mean the current filtered scope, no records, or an unavailable export action—not necessarily export-all. Preserve that accepted scope and any disabling/guard behavior rather than dropping `where.id`, other predicates, or filters to make the new interface simpler. During authoring and review, compare nonempty selection, conflicting existing IDs, and cleared selection against the original query contract.
+
 ## Model-Mirror Composables and Editor Ownership
 
 Inspect established sibling composables and any user-designated architecture before extending a `use` module. When singular/plural data-access composables mirror the model layer, retain those mirrors while the underlying model exists, even with zero current callers. An editor-specific wrapper does not replace the model mirror. Remove obsolete mirrors when their model is deleted; do not use this exception to preserve arbitrary dead code or invent speculative wrappers.
@@ -1374,6 +1407,39 @@ const travelAuthorizationIdAsNumber = computed(() => parseInt(props.travelAuthor
 The getter tracks prop updates, so a change from `"5"` to `"9"` updates the derived value from `5` to `9`; do not move the prop read or conversion outside the getter into a one-time snapshot. Name numeric derivations of string route props `<propName>AsNumber` and update their numeric consumers together, including relevant sibling edit/detail pages in the PR. Keep the external prop name and route parameter keys unchanged; callers needing the original string continue to use that representation. Preserve the accepted conversion function, radix, invalid-input behavior, and prop contract rather than introducing a new parser or fallback. This distinguishes the parsed representation; it does not require an `AsNumber` suffix on every numeric value or an unchanged numeric prop ref.
 
 During authoring and review, distinguish derivation-only refs from refs with independent consumers. Remove the intermediate binding and an unused `toRefs` import only when no other use remains. Preserve `toRefs(props)` for unchanged reactive inputs, such as a composable accepting the original string ref, and retain refs needed by other consumers. This is a scoped removal of redundant indirection, not a ban on combining legitimate refs and derived values in one component.
+
+### Reactive Presentation Defaults
+
+When a supported optional presentation override falls back to another reactive input, prefer a named computed default over an inline template fallback such as `:block="block ?? smAndDown"`. This is an actual derivation, unlike an unchanged prop pass-through under [Direct Prop Refs](#direct-prop-refs). For a component that already supports an optional boolean `block` override:
+
+```vue
+<template>
+  <v-btn :block="isBlock">
+    <slot />
+  </v-btn>
+</template>
+
+<script setup lang="ts">
+import { computed } from "vue"
+import { useDisplay } from "vuetify"
+
+const props = withDefaults(
+  defineProps<{
+    block?: boolean
+  }>(),
+  {
+    block: undefined,
+  }
+)
+
+const { smAndDown } = useDisplay()
+const isBlock = computed(() => props.block ?? smAndDown.value)
+</script>
+```
+
+The explicit `undefined` default preserves absence for this optional Boolean prop instead of Vue casting an omitted Boolean to `false`. Use the project's supported prop declaration/default mechanism to retain that distinction. `??`, unlike `||`, honors an explicit `false`: with no override, responsive changes update `isBlock`; either `true` or `false` overrides the responsive value; clearing the override to `undefined` resumes the current responsive default. Read both inputs inside the getter rather than capturing setup-time snapshots, so override changes and applicable responsive changes remain reactive.
+
+During authoring and review, verify omitted/`undefined`, explicit `false`, and explicit `true` overrides across responsive changes and after clearing the override. Preserve the component's actual supported defaults, nullability, and consumers; this preference neither requires adding an optional prop nor decides whether an existing presentation prop is needed. For a direct reactive binding with no fallback or transformation, keep the unchanged prop rather than adding a computed wrapper.
 
 ## Established Watcher Guards
 
