@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## 5.15.1 - 2026-11-19
+
+### Changed
+
+- Explain the feature or fix and identify its PR before asking someone to sign a release.
+
 ## [5.15.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1491) - 2026-11-19
 
 ### Changed
