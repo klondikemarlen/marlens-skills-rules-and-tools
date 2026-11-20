@@ -1,6 +1,6 @@
 ---
 name: prototype
-description: Use for app-aligned UI wireframes and interactive design previews, with authorized artifact saving and reproducible browser handoff; not application implementation.
+description: Use for app-aligned UI wireframes, interactive design previews, and side-by-side HTML comparisons, with authorized artifact saving and reproducible browser handoff; not application implementation.
 ---
 
 # Prototype

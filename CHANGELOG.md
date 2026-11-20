@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Default interactive design comparisons to side-by-side HTML with independently operable examples and a readable horizontal rail on narrow screens.
+
 ## [5.15.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1509) - 2026-11-20
 
 ### Changed

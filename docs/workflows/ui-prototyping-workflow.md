@@ -14,7 +14,7 @@ Use for a UI wireframe or interactive design preview, not ordinary application i
 - Use [Shape](../../skills/shape/SKILL.md) for unclear product behavior and [Outcome-First Planning](../../skills/plan/SKILL.md) for a material design choice. Reuse established requirements; do not repeat their interviews or invent domain policy.
 - Use [Worktree Creation](../../skills/worktree/SKILL.md) only for authorized checkout preparation. Its implementation-ticket lifecycle does not turn a design-only request into application delivery.
 - Use [Browser QA](../../skills/browser-qa/SKILL.md) for browser selection, control discovery, visual evidence, and owned-resource cleanup. Use [Project Knowledge Base](../../skills/project-docs/SKILL.md) for the saved artifact's existing documentation owner. Compose these procedures rather than recreating them.
-- Prefer an inline SVG for a quick chat sketch; a browsable preview can be standalone HTML, native controls, small local JavaScript, and scoped CSS. Reuse installed tools and design conventions. Do not impose a framework, single-file format, or new browser/server runtime.
+- Use browsable HTML for an interactive design comparison; a chat SVG can illustrate a static sketch but cannot substitute for the comparison. Reuse installed tools and design conventions. Native controls, small local JavaScript, and scoped CSS can suffice; do not impose a framework, single-file format, or new browser/server runtime.
 
 ## Ground the Design
 
@@ -30,6 +30,12 @@ Use for a UI wireframe or interactive design preview, not ordinary application i
 3. Make the requested interactions observable. Cancellation must preserve or stop the appropriate local state; reset/correction must return the demonstrated state to its stated baseline. Keep unsupported behavior explicitly inert rather than giving a misleading success message.
 4. Replace obsolete drafts and links only within authorized ownership/removal scope; do not retain a competing archive by default. Never remove unrelated or user-owned designs merely to simplify the page.
 
+### Compare Alternatives Side by Side
+
+When comparing interactive alternatives, default to labeled columns (for example, A | B | C) on the same HTML page. When those columns no longer fit at readable widths, keep them in a visibly scrollable horizontal rail confined to the comparison. Keep every alternative reachable by keyboard and touch. Do not hide alternatives behind a dropdown, tabs, or another one-at-a-time switcher.
+
+Use the same scenario, example data, and comparable starting states in each column so the design differences are what reviewers compare. Give each example its own controls and state; interacting with or resetting one must leave its neighbors unchanged. Label a current favorite as provisional, not accepted.
+
 ## Verify the Real Preview
 
 For a chat-only sketch, inspect the rendered sketch and state its static limits; do not create files or start a browser/server just to complete this workflow.
@@ -39,6 +45,7 @@ For a browsable artifact:
 1. Reuse a documented loopback-only static server, or direct file opening when the page supports it. Serve only the intended artifact directory; do not expose the repository or bind all interfaces. An independent preview should not require the application's database or services. Do not silently install tooling.
 2. Follow Browser QA's distinction between ordinary user-led Firefox opening and owned isolated automation. Honor the requested browser and visibility. Opening a URL alone is not interaction or authentication proof.
 3. Exercise the actual native controls and same-page navigation. Observe action, cancellation, reset, and independent example state where applicable. Inspect desktop and narrow layouts for readable content, accessible controls, and overflow; inspect screenshots and browser console/page errors. Report an unavailable interaction or engine as unverified.
+   For a side-by-side comparison, verify that the alternatives appear together at a suitable wide viewport, then use the narrow rail to reach and operate every column without page-wide horizontal overflow. Exercise a state-changing action and any supplied reset in one column and observe that a neighboring column stays unchanged.
 4. Run applicable existing formatter, whitespace, and lint checks. Browser QA does not establish HTML/CSS lint coverage; report absent or unrun coverage separately. Do not add a runtime or permanent test suite solely to validate a disposable design.
 
 ## Save and Reopen
