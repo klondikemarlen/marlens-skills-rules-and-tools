@@ -42,7 +42,7 @@ For a chat-only sketch, inspect the rendered sketch and state its static limits;
 
 For a browsable artifact:
 
-1. Reuse a documented loopback-only static server, or direct file opening when the page supports it. Serve only the intended artifact directory; do not expose the repository or bind all interfaces. An independent preview should not require the application's database or services. Do not silently install tooling.
+1. Prefer direct browser opening of the local HTML when that entrypoint supports the required interactions. Keep the needed assets available to the reviewer and verify without a running server; this does not require a single file. If browser restrictions or a real dependency prevent direct opening, reuse a documented loopback-only static server. Serve only the intended artifact directory; do not expose the repository or bind all interfaces. An independent preview should not require the application's database or services. Do not silently install tooling.
 2. Follow Browser QA's distinction between ordinary user-led Firefox opening and owned isolated automation. Honor the requested browser and visibility. Opening a URL alone is not interaction or authentication proof.
 3. Exercise the actual native controls and same-page navigation. Observe action, cancellation, reset, and independent example state where applicable. Inspect desktop and narrow layouts for readable content, accessible controls, and overflow; inspect screenshots and browser console/page errors. Report an unavailable interaction or engine as unverified.
    For a side-by-side comparison, verify that the alternatives appear together at a suitable wide viewport, then use the narrow rail to reach and operate every column without page-wide horizontal overflow. Exercise a state-changing action and any supplied reset in one column and observe that a neighboring column stays unchanged.
@@ -55,13 +55,16 @@ Saving and publication are separate decisions. Keep a chat-only request in chat;
 For an authorized saved preview, link from the project's existing discoverable documentation entrypoint to the artifact and its short startup instructions. Record actual, worktree-relative values for:
 
 - Artifact path, saved branch/revision when applicable, and the intended baseline/source references.
-- Prerequisites and the exact launch command, working directory, loopback URL, and port.
-- How to refresh after edits; what to do if that port is occupied without killing an unrelated server.
-- How to stop the owned server and the requested retention/disposal boundary.
+- For direct opening, the exact HTML entrypoint and any sibling assets that must stay with it. For a server-backed preview, the prerequisites, working directory, exact launch command, loopback URL and port, refresh instructions, and a safe alternative if the port is occupied.
+- How to stop an owned server, if used, and the requested retention/disposal boundary.
 - Fictional/local-only behavior, unresolved decisions, and remaining verification limits.
 
 Keep project-specific paths and ports in that project's instructions, not this generic workflow. Reopen the saved artifact from those instructions in a fresh process or a separate agent context without relying on conversation memory. Confirm that no application stack is required. Verify a published branch from the authorized remote when publication was requested; a local commit is not publication proof.
 
 ## Completion and Handoff
 
-Give the preview or its authorized link, what can be reviewed, remaining product questions, and the browser/checks actually exercised. For saved work, include the reproducible startup entrypoint and retention disposition. Clearly separate prototype acceptance from implementation authorization; transition to [Feature](../../skills/feature/SKILL.md) only when application delivery is explicitly requested.
+Give the intended reviewer the preview and, for a browsable artifact, its verified entrypoint and the concrete controls and states to exercise. Explain the recommended option and why it fits the task when a recommendation was requested or a material choice is open. Distinguish the recommendation from an accepted decision. Include the browser/checks actually exercised, open questions, and verification limits.
+
+For a browsable artifact, verify the handoff using the same entrypoint the reviewer will use, not just an agent-only preview URL. A workstation path works only for reviewers with access to that file; `localhost` on the agent's machine does not reach another reviewer. When the reviewer is elsewhere, use an authorized transfer or shared location they can access and provide local opening instructions. If access cannot be established, state the missing access and do not report the preview delivered. Preserve the authorized artifact through review and record its retention disposition.
+
+Clearly separate prototype acceptance from implementation authorization; transition to [Feature](../../skills/feature/SKILL.md) only when application delivery is explicitly requested. Carry the chosen behavior and the states that establish it into that delivery; prototype observations do not prove application behavior.
