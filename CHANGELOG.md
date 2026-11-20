@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1540) - 2026-11-20
+
+### Changed
+
+- Keep schema-backed foreign keys together in model declarations without classifying fields by their suffix.
+
 ## [5.16.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1535) - 2026-11-20
 
 ### Changed
