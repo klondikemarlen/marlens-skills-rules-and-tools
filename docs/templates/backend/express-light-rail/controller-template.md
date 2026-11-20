@@ -131,43 +131,144 @@ For Sequelize response preloads, apply [Contextual Association Loading](../../..
 
 ### Nested Record Loading
 
-When the action already loads a parent model, pass that model explicitly to the nested child loader and scope the lookup with its identifier. Keep the child identifier, other visibility predicates, and required preloads. Do not load a parent solely to replace a valid ID-taking API.
+When a parent is required context for a child write, keep create and update under the same parent route: `POST /parents/:parentId/children` and `PATCH /parents/:parentId/children/:childId`. Take parent identity from the route, not the writable body. For a member write, match both the child ID and route parent ID; shared access scope does not prove that the child belongs to that parent. This does not require nesting independent reads or unrelated actions.
 
-This class-controller excerpt assumes the project's existing `loadWorkflow`, `Workflow`, `WorkflowStep`, `workflowStepPlayers` association, resource policy, and serializer. The resource policy retains its existing parent-access checks:
+When the action already loads the parent model for a policy or service, pass it explicitly to the child loader and use its ID in the lookup. Keep existing visibility predicates and required preloads. If the lookup and policy can use the route ID, do not load a parent model just to pass that model around.
+
+In a class controller that already builds policies for distinct records, keep construction in private builders named for the record each authorizes. Keep the permission checks visible in the actions, with the same policy classes, user, and records. An unambiguous `buildPolicy` is fine for a single-policy controller; functional handlers do not need this abstraction. Do not add a separate parent check when the resource policy already owns it.
+
+For example, bind `POST /projects/:projectId/members` to `create` and `PATCH /projects/:projectId/members/:projectMemberId` to `update`. This excerpt assumes an existing authenticated controller base whose route adapter forwards thrown errors to middleware. `ProjectMembershipPolicy` governs membership operations on a `Project`; `ProjectMemberPolicy` governs an individual member. The existing action-specific allowlists accept `role`, not `projectId`.
 
 ```typescript
-async show() {
-  const workflow = await this.loadWorkflow()
-  if (workflow === null) {
-    return this.response.status(404).json({ message: "Workflow not found" })
+class ProjectMembersController extends BaseController<ProjectMember> {
+  async create() {
+    const project = await this.loadProject()
+    if (project === null) {
+      return this.response.status(404).json({
+        message: "Project not found",
+      })
+    }
+
+    const projectPolicy = this.buildProjectPolicy(project)
+    if (!projectPolicy.create()) {
+      return this.response.status(403).json({
+        message: "You are not authorized to create project members",
+      })
+    }
+
+    const permittedAttributes = projectPolicy.permitAttributesForCreate(this.request.body)
+    const projectMember = await CreateService.perform(project, permittedAttributes)
+    const serializedProjectMember = ShowSerializer.perform(projectMember)
+
+    return this.response.status(201).json({
+      projectMember: serializedProjectMember,
+    })
   }
 
-  const workflowStep = await this.loadWorkflowStep(workflow)
-  if (workflowStep === null) {
-    return this.response.status(404).json({ message: "Workflow step not found" })
+  async update() {
+    const project = await this.loadProject()
+    if (project === null) {
+      return this.response.status(404).json({
+        message: "Project not found",
+      })
+    }
+
+    const projectPolicy = this.buildProjectPolicy(project)
+    if (!projectPolicy.update()) {
+      return this.response.status(403).json({
+        message: "You are not authorized to update this project member",
+      })
+    }
+
+    const projectMember = await this.loadProjectMember(project)
+    if (projectMember === null) {
+      return this.response.status(404).json({
+        message: "Project member not found",
+      })
+    }
+
+    const projectMemberPolicy = this.buildProjectMemberPolicy(projectMember)
+    if (!projectMemberPolicy.update()) {
+      return this.response.status(403).json({
+        message: "You are not authorized to update this project member",
+      })
+    }
+
+    const permittedAttributes = projectMemberPolicy.permitAttributesForUpdate(this.request.body)
+    const updatedProjectMember = await UpdateService.perform(projectMember, permittedAttributes)
+    const serializedProjectMember = ShowSerializer.perform(updatedProjectMember)
+
+    return this.response.status(200).json({
+      projectMember: serializedProjectMember,
+    })
   }
 
-  if (!this.policy.canRead(workflowStep)) {
-    return this.response.status(403).json({ message: "You are not authorized to view this workflow step in this workflow" })
+  private loadProject(): Promise<Project | null> {
+    return Project.findByPk(this.request.params.projectId)
   }
 
-  const serializedWorkflowStep = serializeWorkflowStep(workflowStep)
+  private loadProjectMember(project: Project): Promise<ProjectMember | null> {
+    return ProjectMember.findOne({
+      where: {
+        id: this.request.params.projectMemberId,
+        projectId: project.id,
+      },
+      include: ["project"],
+    })
+  }
 
-  return this.response.json({ workflowStep: serializedWorkflowStep })
-}
+  private buildProjectPolicy(project: Project): ProjectMembershipPolicy {
+    return new ProjectMembershipPolicy(this.currentUser, project)
+  }
 
-private async loadWorkflowStep(workflow: Workflow): Promise<WorkflowStep | null> {
-  return WorkflowStep.findOne({
-    where: {
-      id: this.request.params.workflowStepId,
-      workflowId: workflow.id,
-    },
-    include: ["workflowStepPlayers"],
-  })
+  private buildProjectMemberPolicy(projectMember: ProjectMember): ProjectMemberPolicy {
+    return new ProjectMemberPolicy(this.currentUser, projectMember)
+  }
 }
 ```
 
-Keep missing-record and authorization responses in the action. Verify successful access, missing/forbidden responses, and rejection of a child belonging to another parent. Required preloads must still support the actual policy and serializer.
+Test the nested PATCH through the actual router. In this example, department membership grants permission to update roles in that department. Arrange the caller, both projects, and the member in the same department so neither policy would independently deny the update. A member of the other project must produce the same response as an absent member under the route project:
+
+```typescript
+describe("api/src/controllers/project-members-controller.ts", () => {
+  describe("ProjectMembersController", () => {
+    describe("#update - PATCH - /projects/:projectId/members/:projectMemberId", () => {
+      test("when the member belongs to another project in the same department, it returns not found", async () => {
+        // Arrange
+        const user = await userFactory.create({
+          department: "Finance",
+        })
+        const projectInRoute = await projectFactory.create({
+          department: "Finance",
+        })
+        const otherProject = await projectFactory.create({
+          department: "Finance",
+        })
+        const memberOfOtherProject = await projectMemberFactory.create({
+          projectId: otherProject.id,
+          department: "Finance",
+          role: "viewer",
+        })
+
+        // Act
+        const response = await requestAs(user)
+          .patch(`/projects/${projectInRoute.id}/members/${memberOfOtherProject.id}`)
+          .send({
+            role: "editor",
+          })
+
+        // Assert
+        expect(response.status).toEqual(404)
+        expect(response.body).toEqual({
+          message: "Project member not found",
+        })
+      })
+    })
+  })
+})
+```
+
+Use the project's existing authenticated HTTP helper and factories. Also verify that authorized POST and PATCH succeed under the correct parent and that a body-supplied parent cannot override route context, using the existing strip-or-reject contract. Retain independent missing-record and forbidden cases, including a child-policy denial after the parent check succeeds. Keep required preloads for the actual policy and serializer.
 
 ## Resource Imports and Query Guards
 

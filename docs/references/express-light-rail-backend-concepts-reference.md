@@ -54,6 +54,8 @@ The builder is inherently bound to the calling policy's user and record; preserv
 
 ### Database Transaction Entry Point
 
+Keep straightforward service-owned guards on supplied inputs before the transaction. Keep checks that need its queries, locks, or snapshot inside it; see [Create-Service Input Boundaries](code-organization-reference.md#create-service-input-boundaries).
+
 Start required transactions through the project's established database owner, not a scoped model's `.sequelize` property. Where `@/models` exports the database as its default, use `import db from "@/models"` and `db.transaction(...)`. This applies to required read-only snapshots as well as multi-write transactions:
 
 ```typescript
@@ -403,6 +405,20 @@ return {
 ```
 
 This represents an existing response with those four fields and a required `Date` timestamp. Use the typed private helper under [Serializer Timestamp Conversion](code-organization-reference.md#serializer-timestamp-conversion) when Luxon is available, retaining the actual date contract. Retain the actual field list, nullability, timestamp conversion, and relation serializers; never spread the whole model or replace the allowlist with an exclusion list. Use this preference only where the installed utility preserves the existing response shape, including optional/missing-property behavior. Do not add a dependency solely for this syntax, rewrite unrelated serializers, or infer an identifier-naming convention from the example.
+
+## Consumer-Driven Field Selection
+
+Before adding or retaining a second representation, trace what in-scope consumers do with each field. Check the query projection, supported sort keys and cursors, and any serialized response, UI, or export that uses it. When the existing value serves the same contract, use it directly and drop the redundant calculation or projection. Keep separately meaningful values and representations required by an accepted consumer contract. A field can be necessary for ordering without belonging in the response.
+
+For example, a workflow search already has a numeric relevance `score`. Its computed `searchRank` only sorts the results; no consumer displays a rank or requires that field independently. Order the authorized, filtered results directly by `score` descending, then by unique workflow `id` ascending before pagination:
+
+```sql
+ORDER BY score DESC, id ASC
+```
+
+If the results are workflow `21` with score `90`, workflow `12` with score `90`, and workflow `30` with score `100`, a page size of two yields IDs `[30, 12]` on page one and `[21]` on page two. The score, not the ID, decides relevance; the ID only resolves equal scores. Use the same inputs to verify ordered pages before and after removing the projection. Preserve any other established sort precedence, null handling, pagination semantics, and equivalent list/export ordering. Update affected consumers together where the contract permits; do not remove an accepted wire field or sort key merely because a new caller can use `score`.
+
+By contrast, if a results screen requires a server-provided display position across pages, keep `rank` as the position in the authorized, filtered ordering before pagination. In the same example, workflow `21` has score `90` and display rank `3`; the score alone cannot supply that position. Verify that page two starts at rank `3`, rather than restarting at `1`. This is a separate consumer contract, not another way to sort.
 
 ## Human-Facing Report Formatting
 

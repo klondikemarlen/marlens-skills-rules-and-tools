@@ -2,6 +2,8 @@
 
 Use for Express router wiring.
 
+For child writes that require a parent, follow the paired create/update routes in [Nested Record Loading](controller-template.md#nested-record-loading).
+
 ## Template
 
 ```ts

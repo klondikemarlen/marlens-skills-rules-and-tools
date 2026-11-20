@@ -439,6 +439,14 @@ const queueOptions = {
 
 The example preserves those assumed values; it does not prescribe retention or retry policy for another project. Preserve actual override precedence, connection behavior, nested merge semantics, and mutable-object ownership; a shallow spread is not a deep merge and must not silently drop nested settings or introduce shared mutable state. Retain distinct configurations when their settings genuinely differ, follow stronger local conventions, and do not use this preference to change runtime values or migrate unrelated configuration.
 
+### Optional Integration Configuration
+
+Keep the ordinary base usable without the optional integration. Put settings used only when it is enabled—such as external routing, connection requirements, or integration-specific startup—in an existing opt-in overlay, adapter, or equivalent extension point. Select it at the composition boundary, where the application or command assembles its dependencies. This keeps standalone users from needing to configure or understand an integration they do not use. Prefer the smallest change at that boundary over scattering integration conditions through base definitions.
+
+Separate independent concerns: lifecycle coordination need not activate routing. Keep a setting in the base when it belongs to ordinary behavior or is small shared metadata needed by existing base-only consumers on an enabled path and inert when disabled. Do not introduce a second file, a generic selector, or an extension framework merely to move such metadata. Follow the existing [integration initialization boundary](#error-ownership-and-local-recovery) for validating required connection inputs on the path that uses them.
+
+Exercise the base with the integration unavailable and each enabled path through its real entrypoint. Verify what is required, what remains private or unchanged, and what becomes active; a configuration merge alone does not prove that the application works. See the [standalone, lifecycle-only, and routed examples](../../examples/organization-decisions.md#optional-integration-configuration).
+
 ### Independently Mutable Nested Copies
 
 When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.
@@ -1027,6 +1035,41 @@ Preserve the runner's required timestamp/sequence prefix, casing, separators, an
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
 For version-qualified Knex/PostgreSQL partial-index creation, rollback, and embedded SQL highlighting, use [Knex PostgreSQL Partial Unique Indexes](express-light-rail-backend-concepts-reference.md#knex-postgresql-partial-unique-indexes). Keep reusable builder mechanics there and project-specific schema decisions with the project.
+
+Keep simple, one-off cleanup writes in the migration entry point. Show the affected tables, row predicates, and dependency order together so a reviewer can tell what will be deleted without following a helper. Use the project's query builder or inline SQL, whichever makes the write clear. Keep cohesive helpers for genuinely complex work; use the same responsibility and rollback boundaries above to decide whether cleanup belongs in a separate migration at all.
+
+For example, suppose an unreleased migration already owns deletion of retired search sessions and their results. Before, the dependent write is hidden behind a helper:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await deleteRetiredSessionResults(knex)
+  await knex("search_sessions").where("status", "retired").delete()
+}
+
+async function deleteRetiredSessionResults(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+}
+```
+
+After, both writes and their unchanged predicates are visible:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+
+  await knex("search_sessions").where("status", "retired").delete()
+}
+```
+
+The first write deletes only results linked to retired sessions, while the parent rows needed by the subquery still exist. The second deletes only retired sessions, not all sessions. An unfiltered parent delete would delete every parent row; do not add or remove a predicate just to make the statements look alike. Only `up` is illustrated: preserve the existing transaction, approved data-loss and recovery contract, and any required `down` behavior.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
@@ -1772,6 +1815,12 @@ Reserve relationship-style `Id`/`id` field names for record references and forei
 
 For model declarations, follow sibling models' meaningful groups, section-comment headings, and order. Keep persisted fields together, associations together, and lifecycle hooks distinct from unrelated static helpers where those categories exist. Preserve initialization dependencies and behavior, and do not move unrelated imports, invent empty sections, or impose one framework-specific layout everywhere.
 
+### Model Key Declaration Order
+
+Within the persisted field group of a model being authored or reviewed, declare its primary key field or fields first, then its remaining foreign-key fields, then ordinary fields. Identify foreign keys from the actual schema or ORM relationships, not from an `Id` suffix. An ID-valued cursor or ceiling is ordinary persisted state if it does not define a relationship. Keep association declarations in their existing section.
+
+Apply this layout without changing constraints, field names, decorators, initialization dependencies, or runtime behavior. Preserve binding framework and project-local conventions, and do not rearrange unrelated models. See the [model template](../templates/backend/express-light-rail/model-template.md#template) for a relationship key and an ID-valued cursor in the same record.
+
 ### Sequelize Model Decorators
 
 In Sequelize models, omit an argument-free `@Table` when existing registration and defaults already provide the same behavior and the decorator is not required for runtime metadata. Remove its now-unused `Table` import with it. Retain option-bearing declarations, such as `@Table({ tableName: "workflow_templates", timestamps: false })`, and decorators required by the installed registration/discovery path. Establish equivalence from the actual model initialization and registration conventions; uncertainty is not proof that metadata is redundant. Preserve initialization, defaults, and runtime behavior within the requested authoring/review scope.
@@ -2168,6 +2217,84 @@ Precharged work remains outside both lock and publication transaction; the await
 
 Counterexample: `perform() { return this.sessions.expire(this.session.id) }` already expresses one effect. Leave it intact; an `expireSession()` forwarding wrapper adds navigation without meaning. Review whether readers can explain the workflow without mentally executing its mechanics, not method length.
 
+When effects already have distinct failure boundaries, supply the diagnostic label at the boundary of the operation that failed. A mutable label used only by an outer catch duplicates the execution order and can become stale when an effect moves. Keep shared log formatting in one place if useful, but preserve the existing failure propagation, including the original error object when the contract is to rethrow it. Keep real workflow state that drives behavior or is intentionally reported as progress; do not add wrappers just to label an operation that can already supply its identity.
+
+For example, creating an upload session and transferring its content have separate rejection boundaries. Their labels stay with the corresponding operations, and content transfer cannot run if session creation fails. This example uses async methods that always return promises; when an existing operation can throw synchronously, retain the boundary that catches those throws too.
+
+Save this block as `upload-diagnostics.test.mjs` and run `node --test upload-diagnostics.test.mjs`:
+
+```javascript
+import assert from "node:assert/strict"
+import { mock, test } from "node:test"
+
+async function upload(uploads, content, logFailure) {
+  const session = await uploads.createSession().catch((error) => {
+    logFailure("create upload session", error)
+    throw error
+  })
+
+  return uploads.transferContent(session, content).catch((error) => {
+    logFailure("transfer upload content", error)
+    throw error
+  })
+}
+
+test("session creation failure is reported without starting a transfer", async () => {
+  const failure = new Error("session unavailable")
+  const uploads = {
+    createSession: async () => {
+      throw failure
+    },
+    transferContent: mock.fn(async () => {}),
+  }
+  const logFailure = mock.fn()
+
+  await assert.rejects(upload(uploads, "file content", logFailure), (error) => error === failure)
+  assert.equal(uploads.transferContent.mock.callCount(), 0)
+  assert.equal(logFailure.mock.callCount(), 1)
+  assert.equal(logFailure.mock.calls[0].arguments[0], "create upload session")
+  assert.equal(logFailure.mock.calls[0].arguments[1], failure)
+})
+
+test("content transfer failure is reported after creating the session", async () => {
+  const failure = new Error("transfer unavailable")
+  const session = {
+    id: "upload-1",
+  }
+  const uploads = {
+    createSession: async () => session,
+    transferContent: mock.fn(async () => {
+      throw failure
+    }),
+  }
+  const logFailure = mock.fn()
+
+  await assert.rejects(upload(uploads, "file content", logFailure), (error) => error === failure)
+  assert.equal(uploads.transferContent.mock.callCount(), 1)
+  assert.equal(uploads.transferContent.mock.calls[0].arguments[0], session)
+  assert.equal(uploads.transferContent.mock.calls[0].arguments[1], "file content")
+  assert.equal(logFailure.mock.callCount(), 1)
+  assert.equal(logFailure.mock.calls[0].arguments[0], "transfer upload content")
+  assert.equal(logFailure.mock.calls[0].arguments[1], failure)
+})
+
+test("successful upload returns the transfer result without a diagnostic", async () => {
+  const receipt = {
+    id: "receipt-1",
+  }
+  const uploads = {
+    createSession: async () => ({
+      id: "upload-1",
+    }),
+    transferContent: async () => receipt,
+  }
+  const logFailure = mock.fn()
+
+  assert.equal(await upload(uploads, "file content", logFailure), receipt)
+  assert.equal(logFailure.mock.callCount(), 0)
+})
+```
+
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
 Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.
@@ -2193,26 +2320,6 @@ class ImportBookingService {
 Construction stores even noncanonical input unchanged; the first action step rejects it. Here `importBooking` represents the existing domain operation, not a new wrapper to introduce. Check the real producer sends the canonical value, invalid input fails before effects, and valid input reaches the action unchanged, preserving error/async semantics.
 
 When a helper implements an existing service's own responsibility, prefer a private method of that service rather than a standalone function beside the class. For example, a `workflowIdsQuery(sourceIds, sourceType)` that implements only `ResolveWorkflowIdsService`'s source-to-workflow lookup belongs below its calling action as a private method with those explicit inputs and unchanged query behavior. Keep a genuinely shared query definition, schema, domain rule, or independently owned pure function with its actual owner, even with one current caller. Do not invent a schema abstraction solely to relocate a service implementation detail, mandate classes for standalone functions, or move unrelated helpers based on caller count. Apply the [primary-operation distinction](#primary-operations-and-local-implementation) within the requested authoring or review scope.
-
-When a create service follows a partial creation-attributes contract, accept the general `Partial<CreationAttributes<Model>>` payload and explicitly guard required field presence inside `perform()` before persistence. Destructure required fields, then pass the narrowed values alongside supported optional creation attributes; do not discard policy-filtered optional fields or use a type assertion to bypass missing required values. Reuse the project's validation error and presence semantics, preserving legitimate falsy values. Keep blank-text handling, normalization, format validation, and persisted constraints with their existing [validation owners](#text-validation-ownership).
-
-Pass optional nullable creation fields directly when the actual model and database already persist omitted or undefined inputs as the accepted NULL value. In that case, `notes: notes ?? null` adds no business decision. Establish equivalence from the installed ORM, model defaults/setters/hooks, schema defaults, and production-dialect evidence before removing a fallback; a nullable column declaration alone is not enough. Keep explicit null mapping when it expresses an intentional transformation, such as a constructed annual snapshot, or when omission and null have different semantics. This creation preference does not change PATCH absence/clearing contracts.
-
-For example, inside an existing `perform()` whose policy-filtered creation payload supports these fields and whose required-name contract rejects only null/undefined:
-
-```typescript
-const { name, ...optionalAttributes } = this.attributes
-
-if (name === undefined || name === null) {
-  throw new ValidationError("name is required")
-}
-
-return Category.create({ name, ...optionalAttributes })
-```
-
-Use the project's existing validation error and persistence/transaction options; the example omits those options only for clarity. Compare persisted nullable fields for omitted, explicitly undefined, explicit null, and defined inputs on the supported dialect, preserving legitimate falsy values and other accepted optional fields. Check that a missing required name still fails before persistence. Preserve model validation and any meaningful default, hook effect, or output mapping rather than treating every `?? null` as removable; do not sweep unrelated services.
-
-Apply the same partial-input contract to an existing dependent ensure service where it reuses creation attributes. Guard required lookup identity before querying and delegate missing-record creation to the create service, which retains its required-field checks. This does not mandate an ensure service, broaden accepted attributes, or require unrelated service refactors.
 
 When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, delegate field mapping to the associated model's dedicated serializer using its supported collection entrypoint, store the result in a named local, then sort or transform on a separate line rather than nesting the calls. Check required preloads at the parent entrypoint before output preparation, and pass narrowed inputs to composition helpers under [Serializer Model Ownership](express-light-rail-backend-concepts-reference.md#serializer-model-ownership). Preserve response values, ordering, errors, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
 
@@ -2374,6 +2481,56 @@ export { ReorderService, type ReorderRequest } from "./reorder-service"
 // Bundled Exports
 export * as Attachments from "./attachments"
 ```
+
+### Create-Service Input Boundaries
+
+Put required parent context first in a positional service signature and at its call sites, before the child attributes or IDs it scopes. Keep the existing representation: pass the parent ID when the operation only needs that ID. An ordinary ID-valued selection in the payload is not parent context. This is not an ordering rule for named attributes, a reason to load a parent record, or a reason to redesign unrelated APIs.
+
+Take one authoritative input per fact. If a selected record determines a persisted value, take the selection's identifier, resolve the record in the authorized scope, and derive that value before downstream validation or persistence. Keep independent selections, intentional caller preconditions, and deliberate snapshots where the domain calls for them. Still enforce authorization, missing-record handling, and independent domain checks. The [scoped invoice example](../templates/backend/express-light-rail/service-template.md#scoped-creation-in-a-transaction) uses the same booking ID from the event to validate a separately selected fee and to persist the invoice.
+
+When the whole creation payload is intentionally partial, derive its persisted inputs from the model's creation type, intersect with any service-specific fields, and apply `Partial` once to the combined type. For example, where the service already accepts `CreationAttributes<WorkflowStep>` and owns creating the nested players:
+
+```typescript
+export type WorkflowStepCreationAttributes = Partial<
+  CreationAttributes<WorkflowStep> & {
+    playersAttributes: WorkflowStepPlayerCreationAttributes[]
+  }
+>
+```
+
+Persisted properties and `playersAttributes` are optional at the top level; supplied array elements still have their original type, including any required properties. Use the actual supported subset of model attributes when the service accepts less than the full creation type, and keep service-only fields out of the model write.
+
+When the caller must supply a field, keep that requirement outside the `Partial`. For example, if `eventId` is required in the invoice creation type and in the caller contract:
+
+```typescript
+type CreateInvoiceWithRequiredEventAttributes = Pick<CreationAttributes<Invoice>, "eventId"> &
+  Partial<Pick<CreationAttributes<Invoice>, "notes">>
+```
+
+Neither type shape changes the [request field allowlist](../workflows/express-light-rail-backend-workflow.md#action-specific-permitted-attributes) or replaces runtime checks. To check the distinction, omit `playersAttributes` from a partial workflow-step payload, then supply a player missing one of its required fields: the first should type-check, but the second should not. In the required-event variant, omitting `eventId` should also fail type-checking.
+
+Keep simple, one-use service-owned input guards directly at the top of `perform()` (or the established action), before opening its transaction when they depend only on supplied inputs. Keep database-dependent validation inside the transaction when it needs the transaction's reads, locks, or snapshot. Retain meaningful or shared validation helpers and preserve validation ownership, error behavior, and consistency; do not duplicate caller-owned checks solely to show a guard. Destructure and narrow required values instead of asserting them present. Reuse the project's error and presence semantics, preserving valid falsy values and passing supported optional attributes through to persistence. Keep blank-text handling, normalization, format validation, and constraints with their existing [validation owners](#text-validation-ownership).
+
+Pass optional nullable creation fields directly when the actual model and database already persist omitted or undefined inputs as the accepted NULL value. In that case, `notes: notes ?? null` adds no business decision. Establish equivalence from the installed ORM, model defaults/setters/hooks, schema defaults, and production-dialect evidence before removing a fallback; a nullable column declaration alone is not enough. Keep explicit null mapping when it expresses an intentional transformation, such as a constructed annual snapshot, or when omission and null have different semantics. This creation preference does not change PATCH absence/clearing contracts.
+
+For example, inside an existing `perform()` whose policy-filtered creation payload supports these fields and whose required-name contract rejects only null/undefined:
+
+```typescript
+const { name, ...optionalAttributes } = this.attributes
+
+if (name === undefined || name === null) {
+  throw new ValidationError("name is required")
+}
+
+return Category.create({
+  name,
+  ...optionalAttributes,
+})
+```
+
+Use the project's existing validation error and persistence/transaction options; the example omits those options only for clarity. Compare persisted nullable fields for omitted, explicitly undefined, explicit null, and defined inputs on the supported dialect, preserving legitimate falsy values and other accepted optional fields. Check that a missing required name still fails before persistence. Preserve model validation and any meaningful default, hook effect, or output mapping rather than treating every `?? null` as removable; do not sweep unrelated services.
+
+Apply the same partial-input contract to an existing dependent ensure service where it reuses creation attributes. Guard required lookup identity before querying and delegate missing-record creation to the create service, which retains its required-field checks. This does not mandate an ensure service, broaden accepted attributes, or require unrelated service refactors.
 
 ### Producer-Owned ID Collections
 
