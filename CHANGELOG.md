@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1508) - 2026-11-20
+
+### Changed
+
+- Give every stacked PR the shared customer goal and acceptance boundaries, then distinguish its own contribution from later slices.
+
 ## [5.15.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1510) - 2026-11-20
 
 ### Changed
