@@ -43,6 +43,10 @@ For example, moving a pure local function declaration or renaming a local bindin
 
 ### Follow-Ups and Delivery
 
+During active implementation or PR feedback, investigate a specific concern even when the user phrases it as a question. If the evidence confirms an in-scope defect, fix it in the same turn at the applicable work level; don't stop at a recommendation or expand into adjacent cleanup. If the implementation is correct, explain why and leave it alone. An explicit review-only or no-edit request takes precedence.
+
+For example, a maintainer asks, “Does this input type duplicate the model fields?” Inspect the declaration and its callers. If the input repeats fields that must track the model, derive those fields from the model and update the affected caller. If the input instead represents unvalidated wire data, explain why the separate type is correct. If asked to “check, but don’t edit,” report the finding without changing either type.
+
 Reuse the existing ticket, actual PR head, registered worktree, accepted decisions, and valid evidence. A narrow follow-up does not create another issue, branch, worktree, design exercise, or release cycle merely because it edits code. A request to tweak code alone does not authorize merging or publishing it.
 
 Normal fixups review the changed portion and affected contracts, rerunning only evidence invalidated by that change. Expand review to the whole affected design when the fix invalidates earlier architectural assumptions or a broader review is explicitly requested. Complete initial PR self-review remains part of delivery; do not repeat it from scratch after each mechanical correction.

@@ -6,6 +6,8 @@ Use when creating or verifying a GitHub pull-request stack for dependent slices.
 
 Create dependent slices as a bottom-to-top chain. For the bottom slice, create its branch from the intended trunk; for each child slice, create its branch from the immediate predecessor's head branch so its diff contains only its own work. Push each branch and open each PR as a draft targeting its predecessor's head branch (the bottom targets trunk). Do not mark the whole ticket ready while any slice remains unmerged; each PR must carry its own callers, tests, and verification.
 
+Follow [Customer Contract in Stacked PRs](../pr/workflow.md#customer-contract-in-stacked-prs) when drafting each PR body and when refreshing affected open bodies after the agreed contract changes. This applies whether or not the chain is registered natively.
+
 Before native registration, preflight the chain with the installed `github-pr-stack` helper, which confirms every PR is in the same repository, reports each base/head branch, exact SHAs, draft state, and current stack membership, and prints the `gh stack link` command without running it:
 
 ```bash
