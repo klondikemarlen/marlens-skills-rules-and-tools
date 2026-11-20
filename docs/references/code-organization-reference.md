@@ -439,6 +439,14 @@ const queueOptions = {
 
 The example preserves those assumed values; it does not prescribe retention or retry policy for another project. Preserve actual override precedence, connection behavior, nested merge semantics, and mutable-object ownership; a shallow spread is not a deep merge and must not silently drop nested settings or introduce shared mutable state. Retain distinct configurations when their settings genuinely differ, follow stronger local conventions, and do not use this preference to change runtime values or migrate unrelated configuration.
 
+### Optional Integration Configuration
+
+Keep the ordinary base usable without the optional integration. Put settings used only when it is enabled—such as external routing, connection requirements, or integration-specific startup—in an existing opt-in overlay, adapter, or equivalent extension point. Select it at the composition boundary, where the application or command assembles its dependencies. This keeps standalone users from needing to configure or understand an integration they do not use. Prefer the smallest change at that boundary over scattering integration conditions through base definitions.
+
+Separate independent concerns: lifecycle coordination need not activate routing. Keep a setting in the base when it belongs to ordinary behavior or is small shared metadata needed by existing base-only consumers on an enabled path and inert when disabled. Do not introduce a second file, a generic selector, or an extension framework merely to move such metadata. Follow the existing [integration initialization boundary](#error-ownership-and-local-recovery) for validating required connection inputs on the path that uses them.
+
+Exercise the base with the integration unavailable and each enabled path through its real entrypoint. Verify what is required, what remains private or unchanged, and what becomes active; a configuration merge alone does not prove that the application works. See the [standalone, lifecycle-only, and routed examples](../../examples/organization-decisions.md#optional-integration-configuration).
+
 ### Independently Mutable Nested Copies
 
 When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.
@@ -1027,6 +1035,41 @@ Preserve the runner's required timestamp/sequence prefix, casing, separators, an
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
 For version-qualified Knex/PostgreSQL partial-index creation, rollback, and embedded SQL highlighting, use [Knex PostgreSQL Partial Unique Indexes](express-light-rail-backend-concepts-reference.md#knex-postgresql-partial-unique-indexes). Keep reusable builder mechanics there and project-specific schema decisions with the project.
+
+Keep simple, one-off cleanup writes in the migration entry point. Show the affected tables, row predicates, and dependency order together so a reviewer can tell what will be deleted without following a helper. Use the project's query builder or inline SQL, whichever makes the write clear. Keep cohesive helpers for genuinely complex work; use the same responsibility and rollback boundaries above to decide whether cleanup belongs in a separate migration at all.
+
+For example, suppose an unreleased migration already owns deletion of retired search sessions and their results. Before, the dependent write is hidden behind a helper:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await deleteRetiredSessionResults(knex)
+  await knex("search_sessions").where("status", "retired").delete()
+}
+
+async function deleteRetiredSessionResults(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+}
+```
+
+After, both writes and their unchanged predicates are visible:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+
+  await knex("search_sessions").where("status", "retired").delete()
+}
+```
+
+The first write deletes only results linked to retired sessions, while the parent rows needed by the subquery still exist. The second deletes only retired sessions, not all sessions. An unfiltered parent delete would delete every parent row; do not add or remove a predicate just to make the statements look alike. Only `up` is illustrated: preserve the existing transaction, approved data-loss and recovery contract, and any required `down` behavior.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
