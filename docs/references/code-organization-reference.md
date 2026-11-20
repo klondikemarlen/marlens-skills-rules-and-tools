@@ -1028,6 +1028,41 @@ Prefer the project's existing schema builder for ordinary changes when it suppli
 
 For version-qualified Knex/PostgreSQL partial-index creation, rollback, and embedded SQL highlighting, use [Knex PostgreSQL Partial Unique Indexes](express-light-rail-backend-concepts-reference.md#knex-postgresql-partial-unique-indexes). Keep reusable builder mechanics there and project-specific schema decisions with the project.
 
+Keep simple, one-off cleanup writes in the migration entry point. Show the affected tables, row predicates, and dependency order together so a reviewer can tell what will be deleted without following a helper. Use the project's query builder or inline SQL, whichever makes the write clear. Keep cohesive helpers for genuinely complex work; use the same responsibility and rollback boundaries above to decide whether cleanup belongs in a separate migration at all.
+
+For example, suppose an unreleased migration already owns deletion of retired search sessions and their results. Before, the dependent write is hidden behind a helper:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await deleteRetiredSessionResults(knex)
+  await knex("search_sessions").where("status", "retired").delete()
+}
+
+async function deleteRetiredSessionResults(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+}
+```
+
+After, both writes and their unchanged predicates are visible:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+
+  await knex("search_sessions").where("status", "retired").delete()
+}
+```
+
+The first write deletes only results linked to retired sessions, while the parent rows needed by the subquery still exist. The second deletes only retired sessions, not all sessions. An unfiltered parent delete would delete every parent row; do not add or remove a predicate just to make the statements look alike. Only `up` is illustrated: preserve the existing transaction, approved data-loss and recovery contract, and any required `down` behavior.
+
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
 For TypeScript migrations whose runner supports named module exports, prefer a type-only `Knex` import and named async entry-point declarations:

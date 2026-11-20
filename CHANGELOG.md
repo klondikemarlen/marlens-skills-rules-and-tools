@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1537) - 2026-11-20
+
+### Changed
+
+- Keep simple dependent and parent cleanup predicates and write order visible in a new migration.
+
 ## [5.15.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1523) - 2026-11-20
 
 ### Changed
