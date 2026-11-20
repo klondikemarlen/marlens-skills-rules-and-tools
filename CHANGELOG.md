@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1536) - 2026-11-20
+
+### Changed
+
+- Hand reviewers a usable preview, then verify the selected design in the authorized application.
+
 ## [5.15.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1537) - 2026-11-20
 
 ### Changed
