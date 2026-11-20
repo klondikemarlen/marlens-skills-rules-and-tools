@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1541) - 2026-11-20
+
+### Changed
+
+- Keep nested writes scoped to the route parent and name each policy builder for its record.
+
 ## [5.16.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1540) - 2026-11-20
 
 ### Changed
