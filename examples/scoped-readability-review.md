@@ -331,9 +331,25 @@ Supply the complete before/after [Effect-Oriented Method Slices](../docs/referen
 - **Fixed errors:** use the full five-class [error example](../docs/references/code-organization-reference.md#explicit-fixed-family-error-types). `PASS` explicit expired, mismatch, capacity, unavailable and deadline errors retaining the old tuples and shared-base catch behavior; `FAIL` changing any message/code/status during extraction. Instantiate each old/new error and compare `code`, `message`, `status`, serialization and the real catch/HTTP translation outcome. Dynamic provider translation, useful bases and ordinary tables remain valid.
 - **Endpoints:** with Lodash already installed, `PASS` `first`/`last` and existing import style; `FAIL` manual endpoint arithmetic left after an accepted in-scope correction. Compare empty, singleton and multiple-item behavior, including explicit absence guards; preserve arbitrary positional indexing and add no dependency. An unrelated standalone artifact without Lodash is not a violation.
 
-## Multiline Braced Guards
+## Guard Layout and Short Bare Returns
 
-Accepted task: apply the changed JS/TS guard layout without new validation:
+Accepted task: apply [JavaScript and TypeScript guard layout](../docs/references/code-organization-reference.md#guard-clauses-and-exceptional-responses) in changed code without changing behavior. With no contrary project policy, both layouts below are `PASS`; do not demand either one:
+
+```ts
+if (isEmpty(travelDeskFlightSegmentIds)) return
+
+loadSegments(travelDeskFlightSegmentIds)
+```
+
+```ts
+if (isEmpty(travelDeskFlightSegmentIds)) {
+  return
+}
+
+loadSegments(travelDeskFlightSegmentIds)
+```
+
+If a project linter requires braces, the one-line unbraced form is `FAIL` under that local policy. Under the shared default, a complex condition, a return with a value (including `return undefined`), a throw, or any other body still uses the multiline braced form. For example:
 
 ```diff
 -if (isNil(value)) throw new Error("value is required")
@@ -342,7 +358,7 @@ Accepted task: apply the changed JS/TS guard layout without new validation:
 +}
 ```
 
-Expected `FAIL` for the single-line input, `PASS` for the braced correction. Exercise null/undefined and accepted falsy/nonempty values under the existing predicate; compare condition evaluation count and exact thrown error. Do not infer a new truthiness rule, rewrite untouched snippets, or treat one-line examples about unrelated concepts as authorization for a global formatting sweep.
+Expected `FAIL` for the single-line throw, `PASS` for the braced correction. For the bare-return pair, compare empty and nonempty inputs: the existing predicate runs once, and `loadSegments` only runs for the nonempty input. For the throwing pair, exercise null/undefined and accepted falsy/nonempty values under the existing predicate; compare evaluation count and the exact thrown error. Do not infer a new truthiness rule or rewrite untouched snippets.
 
 ## Existing Inline Policy Allowlists
 

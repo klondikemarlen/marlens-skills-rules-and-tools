@@ -2533,12 +2533,12 @@ A concise scalar ternary may remain when it is genuinely clearer than branching,
 
 ## Guard Clauses and Exceptional Responses
 
-In generated or touched JavaScript and TypeScript, prefer multiline braced `if` guards, including short required-field returns and throws. Keep early exits, conditions, errors, and evaluation semantics unchanged; this is layout, not new validation. Separate guards and subsequent logical steps with a blank line. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end. Apply in the requested scope, not a repository-wide snippet sweep.
+In generated or touched JavaScript and TypeScript, a guard with a short, easy-to-read condition and only a bare `return` may be written on one line; the multiline braced form is also acceptable. Prefer multiline braced guards for complex conditions, returns with a value, throws, and other bodies. Follow the project's formatter, linter, and explicit style rules.
+
+Keep early exits, conditions, errors, and evaluation semantics unchanged; this is layout, not new validation. Leave a blank line between the guard and the next logical step. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end. Apply in the requested scope, not a repository-wide snippet sweep.
 
 ```ts
-if (oldValue === newValue) {
-  return
-}
+if (oldValue === newValue) return
 
 if (isNil(value)) {
   throw new Error("value is required")
