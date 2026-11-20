@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1544) - 2026-11-20
+
+### Changed
+
+- Use an existing score for ordering unless consumers independently need a rank.
+
 ## [5.16.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1538) - 2026-11-20
 
 ### Changed
