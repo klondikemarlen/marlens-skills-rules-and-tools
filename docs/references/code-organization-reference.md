@@ -439,6 +439,14 @@ const queueOptions = {
 
 The example preserves those assumed values; it does not prescribe retention or retry policy for another project. Preserve actual override precedence, connection behavior, nested merge semantics, and mutable-object ownership; a shallow spread is not a deep merge and must not silently drop nested settings or introduce shared mutable state. Retain distinct configurations when their settings genuinely differ, follow stronger local conventions, and do not use this preference to change runtime values or migrate unrelated configuration.
 
+### Optional Integration Configuration
+
+Keep the ordinary base usable without the optional integration. Put settings used only when it is enabled—such as external routing, connection requirements, or integration-specific startup—in an existing opt-in overlay, adapter, or equivalent extension point. Select it at the composition boundary, where the application or command assembles its dependencies. This keeps standalone users from needing to configure or understand an integration they do not use. Prefer the smallest change at that boundary over scattering integration conditions through base definitions.
+
+Separate independent concerns: lifecycle coordination need not activate routing. Keep a setting in the base when it belongs to ordinary behavior or is small shared metadata needed by existing base-only consumers on an enabled path and inert when disabled. Do not introduce a second file, a generic selector, or an extension framework merely to move such metadata. Follow the existing [integration initialization boundary](#error-ownership-and-local-recovery) for validating required connection inputs on the path that uses them.
+
+Exercise the base with the integration unavailable and each enabled path through its real entrypoint. Verify what is required, what remains private or unchanged, and what becomes active; a configuration merge alone does not prove that the application works. See the [standalone, lifecycle-only, and routed examples](../../examples/organization-decisions.md#optional-integration-configuration).
+
 ### Independently Mutable Nested Copies
 
 When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.

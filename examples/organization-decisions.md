@@ -1,6 +1,6 @@
 # Organization Decisions
 
-Use these fictional cases to exercise [Human Readability](../docs/references/code-organization-reference.md#human-readability), [Libraries for Generic Mechanism](../docs/references/code-organization-reference.md#libraries-for-generic-mechanism), and [Readable Agent Instructions](../docs/references/guidance-precedence-reference.md#readable-agent-instructions). Expected decisions are evaluation inputs, not claims of executed review or security certification. Supply the task, current source, local conventions, and material consumer evidence when evaluating a real change.
+Use these cases to exercise [Human Readability](../docs/references/code-organization-reference.md#human-readability), [Libraries for Generic Mechanism](../docs/references/code-organization-reference.md#libraries-for-generic-mechanism), and [Readable Agent Instructions](../docs/references/guidance-precedence-reference.md#readable-agent-instructions). Expected decisions are evaluation inputs, not claims of executed review or security certification. Supply the task, current source, local conventions, and material consumer evidence when evaluating a real change.
 
 ## Readable Statements
 
@@ -30,6 +30,18 @@ Use these fictional cases to exercise [Human Readability](../docs/references/cod
 **Self-contained exception:** A runtime loads one generated prompt and cannot retrieve references. Its existing generator includes the mandatory procedure from one maintained source, with readable sections and preserved semantics. Expected decision: accept; a large loaded prompt is not inherently a defect and does not require a new compiler.
 
 **Unknown consumer:** Only a valid Markdown link is supplied; consumer loading behavior is absent and cannot be recovered. Expected decision: `BLOCKED` for the retrieval claim, not assumed access. Keep any independently evidenced source findings visible.
+
+## Optional Integration Configuration
+
+In [WRAP's local gateway change](https://github.com/icefoganalytics/wrap/pull/874), ordinary Docker Compose does not need the gateway. The base development file keeps five inline `local-gateway.lifecycle: consumer` labels for `api`, `jobs`, `web`, `test_api`, and `test_web`. The test helpers use that base file and do not select an overlay. Moving the labels to the routing overlay would either omit them from those paths or add routing to private containers. A dedicated labels overlay would require new generic selection plumbing without adding required behavior. Keep the labels inline and select only the routing overlay at stack composition.
+
+Use these three paths as distinct review cases under [Optional Integration Configuration](../docs/references/code-organization-reference.md#optional-integration-configuration):
+
+- **Standalone base:** Run the base development configuration in an isolated environment without the gateway; do not stop a shared gateway to simulate this. The service should start and remain usable on its ordinary network without gateway configuration. The lifecycle labels may be present but have no effect without a consumer for them.
+- **Lifecycle-only one-off:** Run a development one-off and a test helper via their usual `bin/dev run` and `bin/dev test` paths. Check that coordination sees the applicable lifecycle labels without the containers joining the routing network or exposing a route. Verify successful and failing child exit statuses at the one-off command boundary.
+- **Routed development stack:** Use the stack command that selects the routing overlay. Check that the checkout routes reach this stack and that lifecycle participation still works. Inspect effective configuration as a setup check, not a substitute for observing the paths.
+
+Expected review decision: accept the inline metadata and opt-in routing split with evidence from those paths. Reject moving all settings to the base or assigning every one-off to the routing overlay. Docker is the worked example, not the pattern: for an optional application adapter, use the same ownership test at the application's existing assembly entrypoint.
 
 ## Evidence Boundary
 
