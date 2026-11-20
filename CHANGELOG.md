@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1509) - 2026-11-20
+
+### Changed
+
+- Allow a one-line JavaScript or TypeScript guard for a short condition followed only by a bare return.
+
 ## [5.15.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1507) - 2026-11-20
 
 ### Changed
