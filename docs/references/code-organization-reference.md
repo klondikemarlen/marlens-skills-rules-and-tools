@@ -2192,26 +2192,6 @@ Construction stores even noncanonical input unchanged; the first action step rej
 
 When a helper implements an existing service's own responsibility, prefer a private method of that service rather than a standalone function beside the class. For example, a `workflowIdsQuery(sourceIds, sourceType)` that implements only `ResolveWorkflowIdsService`'s source-to-workflow lookup belongs below its calling action as a private method with those explicit inputs and unchanged query behavior. Keep a genuinely shared query definition, schema, domain rule, or independently owned pure function with its actual owner, even with one current caller. Do not invent a schema abstraction solely to relocate a service implementation detail, mandate classes for standalone functions, or move unrelated helpers based on caller count. Apply the [primary-operation distinction](#primary-operations-and-local-implementation) within the requested authoring or review scope.
 
-When a create service follows a partial creation-attributes contract, accept the general `Partial<CreationAttributes<Model>>` payload and explicitly guard required field presence inside `perform()` before persistence. Destructure required fields, then pass the narrowed values alongside supported optional creation attributes; do not discard policy-filtered optional fields or use a type assertion to bypass missing required values. Reuse the project's validation error and presence semantics, preserving legitimate falsy values. Keep blank-text handling, normalization, format validation, and persisted constraints with their existing [validation owners](#text-validation-ownership).
-
-Pass optional nullable creation fields directly when the actual model and database already persist omitted or undefined inputs as the accepted NULL value. In that case, `notes: notes ?? null` adds no business decision. Establish equivalence from the installed ORM, model defaults/setters/hooks, schema defaults, and production-dialect evidence before removing a fallback; a nullable column declaration alone is not enough. Keep explicit null mapping when it expresses an intentional transformation, such as a constructed annual snapshot, or when omission and null have different semantics. This creation preference does not change PATCH absence/clearing contracts.
-
-For example, inside an existing `perform()` whose policy-filtered creation payload supports these fields and whose required-name contract rejects only null/undefined:
-
-```typescript
-const { name, ...optionalAttributes } = this.attributes
-
-if (name === undefined || name === null) {
-  throw new ValidationError("name is required")
-}
-
-return Category.create({ name, ...optionalAttributes })
-```
-
-Use the project's existing validation error and persistence/transaction options; the example omits those options only for clarity. Compare persisted nullable fields for omitted, explicitly undefined, explicit null, and defined inputs on the supported dialect, preserving legitimate falsy values and other accepted optional fields. Check that a missing required name still fails before persistence. Preserve model validation and any meaningful default, hook effect, or output mapping rather than treating every `?? null` as removable; do not sweep unrelated services.
-
-Apply the same partial-input contract to an existing dependent ensure service where it reuses creation attributes. Guard required lookup identity before querying and delegate missing-record creation to the create service, which retains its required-field checks. This does not mandate an ensure service, broaden accepted attributes, or require unrelated service refactors.
-
 When an association projection composes serialization with sorting or another transformation, put that multi-step work in a descriptively named local private serializer method. Inside it, delegate field mapping to the associated model's dedicated serializer using its supported collection entrypoint, store the result in a named local, then sort or transform on a separate line rather than nesting the calls. Check required preloads at the parent entrypoint before output preparation, and pass narrowed inputs to composition helpers under [Serializer Model Ownership](express-light-rail-backend-concepts-reference.md#serializer-model-ownership). Preserve response values, ordering, errors, and explicit helper inputs. Do not extract every one-step field or introduce a shared abstraction merely to move the expression.
 
 Prefer this shape:
@@ -2372,6 +2352,56 @@ export { ReorderService, type ReorderRequest } from "./reorder-service"
 // Bundled Exports
 export * as Attachments from "./attachments"
 ```
+
+### Create-Service Input Boundaries
+
+Put required parent context first in a positional service signature and at its call sites, before the child attributes or IDs it scopes. Keep the existing representation: pass the parent ID when the operation only needs that ID. An ordinary ID-valued selection in the payload is not parent context. This is not an ordering rule for named attributes, a reason to load a parent record, or a reason to redesign unrelated APIs.
+
+Take one authoritative input per fact. If a selected record determines a persisted value, take the selection's identifier, resolve the record in the authorized scope, and derive that value before downstream validation or persistence. Keep independent selections, intentional caller preconditions, and deliberate snapshots where the domain calls for them. Still enforce authorization, missing-record handling, and independent domain checks. The [scoped invoice example](../templates/backend/express-light-rail/service-template.md#scoped-creation-in-a-transaction) uses the same booking ID from the event to validate a separately selected fee and to persist the invoice.
+
+When the whole creation payload is intentionally partial, derive its persisted inputs from the model's creation type, intersect with any service-specific fields, and apply `Partial` once to the combined type. For example, where the service already accepts `CreationAttributes<WorkflowStep>` and owns creating the nested players:
+
+```typescript
+export type WorkflowStepCreationAttributes = Partial<
+  CreationAttributes<WorkflowStep> & {
+    playersAttributes: WorkflowStepPlayerCreationAttributes[]
+  }
+>
+```
+
+Persisted properties and `playersAttributes` are optional at the top level; supplied array elements still have their original type, including any required properties. Use the actual supported subset of model attributes when the service accepts less than the full creation type, and keep service-only fields out of the model write.
+
+When the caller must supply a field, keep that requirement outside the `Partial`. For example, if `eventId` is required in the invoice creation type and in the caller contract:
+
+```typescript
+type CreateInvoiceWithRequiredEventAttributes = Pick<CreationAttributes<Invoice>, "eventId"> &
+  Partial<Pick<CreationAttributes<Invoice>, "notes">>
+```
+
+Neither type shape changes the [request field allowlist](../workflows/express-light-rail-backend-workflow.md#action-specific-permitted-attributes) or replaces runtime checks. To check the distinction, omit `playersAttributes` from a partial workflow-step payload, then supply a player missing one of its required fields: the first should type-check, but the second should not. In the required-event variant, omitting `eventId` should also fail type-checking.
+
+Keep simple, one-use service-owned input guards directly at the top of `perform()` (or the established action), before opening its transaction when they depend only on supplied inputs. Keep database-dependent validation inside the transaction when it needs the transaction's reads, locks, or snapshot. Retain meaningful or shared validation helpers and preserve validation ownership, error behavior, and consistency; do not duplicate caller-owned checks solely to show a guard. Destructure and narrow required values instead of asserting them present. Reuse the project's error and presence semantics, preserving valid falsy values and passing supported optional attributes through to persistence. Keep blank-text handling, normalization, format validation, and constraints with their existing [validation owners](#text-validation-ownership).
+
+Pass optional nullable creation fields directly when the actual model and database already persist omitted or undefined inputs as the accepted NULL value. In that case, `notes: notes ?? null` adds no business decision. Establish equivalence from the installed ORM, model defaults/setters/hooks, schema defaults, and production-dialect evidence before removing a fallback; a nullable column declaration alone is not enough. Keep explicit null mapping when it expresses an intentional transformation, such as a constructed annual snapshot, or when omission and null have different semantics. This creation preference does not change PATCH absence/clearing contracts.
+
+For example, inside an existing `perform()` whose policy-filtered creation payload supports these fields and whose required-name contract rejects only null/undefined:
+
+```typescript
+const { name, ...optionalAttributes } = this.attributes
+
+if (name === undefined || name === null) {
+  throw new ValidationError("name is required")
+}
+
+return Category.create({
+  name,
+  ...optionalAttributes,
+})
+```
+
+Use the project's existing validation error and persistence/transaction options; the example omits those options only for clarity. Compare persisted nullable fields for omitted, explicitly undefined, explicit null, and defined inputs on the supported dialect, preserving legitimate falsy values and other accepted optional fields. Check that a missing required name still fails before persistence. Preserve model validation and any meaningful default, hook effect, or output mapping rather than treating every `?? null` as removable; do not sweep unrelated services.
+
+Apply the same partial-input contract to an existing dependent ensure service where it reuses creation attributes. Guard required lookup identity before querying and delegate missing-record creation to the create service, which retains its required-field checks. This does not mandate an ensure service, broaden accepted attributes, or require unrelated service refactors.
 
 ### Producer-Owned ID Collections
 
