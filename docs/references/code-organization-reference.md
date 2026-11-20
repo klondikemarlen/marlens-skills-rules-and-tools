@@ -1770,6 +1770,12 @@ Reserve relationship-style `Id`/`id` field names for record references and forei
 
 For model declarations, follow sibling models' meaningful groups, section-comment headings, and order. Keep persisted fields together, associations together, and lifecycle hooks distinct from unrelated static helpers where those categories exist. Preserve initialization dependencies and behavior, and do not move unrelated imports, invent empty sections, or impose one framework-specific layout everywhere.
 
+### Model Key Declaration Order
+
+Within the persisted field group of a model being authored or reviewed, declare its primary key field or fields first, then its remaining foreign-key fields, then ordinary fields. Identify foreign keys from the actual schema or ORM relationships, not from an `Id` suffix. An ID-valued cursor or ceiling is ordinary persisted state if it does not define a relationship. Keep association declarations in their existing section.
+
+Apply this layout without changing constraints, field names, decorators, initialization dependencies, or runtime behavior. Preserve binding framework and project-local conventions, and do not rearrange unrelated models. See the [model template](../templates/backend/express-light-rail/model-template.md#template) for a relationship key and an ID-valued cursor in the same record.
+
 ### Sequelize Model Decorators
 
 In Sequelize models, omit an argument-free `@Table` when existing registration and defaults already provide the same behavior and the decorator is not required for runtime metadata. Remove its now-unused `Table` import with it. Retain option-bearing declarations, such as `@Table({ tableName: "workflow_templates", timestamps: false })`, and decorators required by the installed registration/discovery path. Establish equivalence from the actual model initialization and registration conventions; uncertainty is not proof that metadata is redundant. Preserve initialization, defaults, and runtime behavior within the requested authoring/review scope.
