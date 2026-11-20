@@ -44,7 +44,7 @@ Top-level [`examples/`](../examples/) demonstrates the smallest observable diffe
 
 - One ordered project-improvement cycle: [Evolve](workflows/evolve-workflow.md) composes advance → improve → simplify → wrap-up once, reusing evidence and preserving each stage's delivery boundaries.
 - Memorable outcome skills: [Advance](workflows/advance-workflow.md), [Simplify](workflows/simplify-workflow.md), [Improve](workflows/improve-workflow.md), and [Wrap-Up](workflows/wrap-up-workflow.md); see [invocation examples](../README.md#four-verbs-to-remember).
-- Review an existing PR with Codex and merge only if no changes are required: [Review and Merge](workflows/review-and-merge-workflow.md). Required fixes remain open for explicit merge approval; administrative override is separate.
+- [Review and Merge](workflows/review-and-merge-workflow.md): merge an existing PR when review and verification require no corrections and all gates pass; otherwise hand back the verified, updated PR for manual re-review. See [decision examples](../examples/outcome-skills.md#review-and-merge).
 - Shape a rough idea into a feature spec through guided conversation: [Shape](workflows/shape-workflow.md); use it before implementation planning when the desired behavior or scope is still unclear.
 - Build and hand off an app-aligned design preview: [UI Prototyping](workflows/ui-prototyping-workflow.md), separate from application implementation.
 - Readability during the current task: [Readable Code](workflows/readable-code-workflow.md) and the [Human Readability](references/code-organization-reference.md#human-readability) standard.
