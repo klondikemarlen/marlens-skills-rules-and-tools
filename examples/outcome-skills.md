@@ -24,6 +24,15 @@ The user names an outcome; a thin skill selects maintained workflows. Readabilit
 | “Use wrap-up.” Delivery is verified; unrelated uncommitted files and an upstream insight remain.                                              | Preserve unrelated files. Deduplicate and route the insight, filing externally only where authorized. Bare wrap-up does not authorize exit.                                                                     |
 | “Use wrap-up; then exit.” Delivery is verified, an owned clean disposable worktree remains, and one upstream filing is explicitly authorized. | Safely remove only verified owned resources, file the deduplicated finding with its evidenced owner, schedule supported exit after the final response, then give that response. Do not implement upstream work. |
 
+## Review and Merge
+
+Replay these cases using the [skill entry](../skills/review-and-merge/SKILL.md), the [canonical workflow](../docs/workflows/review-and-merge-workflow.md), and the [packaged fallback](../skills/review-and-merge/workflow.md). These examples authorize no GitHub writes.
+
+- **No corrections:** The maintainer invokes the skill for a PR that changes a CSV download filename. The diff matches the request, Codex completes on the current head with no required changes, and applicable verification and CI pass. Merge using the ordinary supported path, pinned to that head, and confirm the remote merge. A pending verifier result does not qualify as clean.
+- **Corrections required:** [Issue #1499](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/issues/1499) records the agent asking for immediate merge approval after required corrections on [Travel Authorization PR #474](https://github.com/icefoganalytics/travel-authorization/pull/474). Once the corrected head has been verified, pushed, and received the applicable review and check results, hand it back instead: “The CSV filename fixes are pushed and verified. [PR #474](https://github.com/icefoganalytics/travel-authorization/pull/474) is open for your re-review.” Point to the corrected revision and relevant evidence. Apply the same decision if only Verifier found a required correction and Codex originally found none.
+- **Resume after a fix:** The corrected PR is rebased, new checks and Codex review are clean, and the maintainer runs the skill again `with override`. Keep the PR open for manual re-review. The new evidence verifies the new head; it does not make the earlier correction disappear or give permission to merge it.
+- **Explicit post-fix merge:** The maintainer says, “Fix the CSV filename findings and merge this PR after fixes.” If the fixes stay within that authority and all gates pass on the corrected head, merge the verified head. If an administrative restriction remains, this instruction does not itself authorize overriding it.
+
 ## Worktree and Branch Closeout
 
 Use these read-only scenarios against the feature cleanup procedure and both wrap-up routes. Evaluate the disposition and safe order, not whether every resource disappears.
@@ -173,6 +182,6 @@ These are task intentions, not a new orchestration runtime. Existing workflows r
 
 ## Check
 
-In a fresh OMP process, discover `/skill:evolve`, `/skill:advance`, `/skill:simplify`, `/skill:improve`, `/skill:wrap-up`, `/skill:readable-code`, and `/skill:data-mine`. Use these scenarios as bounded read-only consumer evaluations against both the authoritative workflows and packaged fallbacks. Check concrete stage order, transitions, proof validity, delivery boundaries, history provenance, and exit decisions, not phrase matches. Do not execute the fictional cleanup, issue filings, rewrites, or exit during evaluation.
+In a fresh OMP process, discover `/skill:evolve`, `/skill:advance`, `/skill:simplify`, `/skill:improve`, `/skill:wrap-up`, `/skill:readable-code`, `/skill:data-mine`, and `/skill:review-and-merge`. Use these scenarios as bounded read-only consumer evaluations against both the authoritative workflows and packaged fallbacks. Check concrete stage order, transitions, proof validity, delivery boundaries, history provenance, and exit decisions, not phrase matches. Do not execute the fictional merges, cleanup, issue filings, rewrites, or exit during evaluation.
 
 Sources: [Evolve](../docs/workflows/evolve-workflow.md), [Advance](../docs/workflows/advance-workflow.md), [Simplify](../docs/workflows/simplify-workflow.md), [Improve](../docs/workflows/improve-workflow.md), [Wrap-Up](../docs/workflows/wrap-up-workflow.md), [Readable Code](../docs/workflows/readable-code-workflow.md), and [Session Insight Mining](../docs/workflows/session-insight-mining-workflow.md#commit-history-mining).

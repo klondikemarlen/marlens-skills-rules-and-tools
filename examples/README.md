@@ -11,7 +11,7 @@ These outcome cases show the smallest useful difference made by one packaged ski
 - [`dependency-test-ownership.md`](./dependency-test-ownership.md) — replayable decisions separating upstream API behavior, application-owned integration coverage, and version-scoped cutover proof.
 - [`shared-standards-adoption.md`](./shared-standards-adoption.md) — direct shared-base inheritance with local deltas, missing-source/conflict boundaries, and replayable consumer proof.
 - [`reader-focused-publication.md`](./reader-focused-publication.md) — separate required execution evidence from useful public communication, with replayable publication decisions.
-- [`outcome-skills.md`](./outcome-skills.md) — memorable task intentions with bounded progress, evidence-backed simplification, and safe session closure.
+- [`outcome-skills.md`](./outcome-skills.md) — memorable task intentions with bounded progress, evidence-backed simplification, [manual PR re-review after corrections](./outcome-skills.md#review-and-merge), and safe session closure.
 - [`ui-prototyping.md`](./ui-prototyping.md) — app-aligned, explicitly provisional design previews with authorized saving and reproducible browser handoff.
 - [`github-bug-reporting.md`](./github-bug-reporting.md) — current upstream defects, older released fixes, and integration/agent errors.
 - [`keep-a-changelog.md`](./keep-a-changelog.md) — dedicated release history, registry publishing, and a deliberate local format exception.
