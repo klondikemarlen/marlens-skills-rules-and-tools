@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1534) - 2026-11-20
+
+### Changed
+
+- Distinguish a discovery synopsis from a subject contract, and require evidence for claimed owner links.
+
 ## [5.16.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1543) - 2026-11-20
 
 ### Changed
