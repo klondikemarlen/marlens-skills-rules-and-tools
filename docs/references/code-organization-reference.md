@@ -2209,6 +2209,84 @@ Precharged work remains outside both lock and publication transaction; the await
 
 Counterexample: `perform() { return this.sessions.expire(this.session.id) }` already expresses one effect. Leave it intact; an `expireSession()` forwarding wrapper adds navigation without meaning. Review whether readers can explain the workflow without mentally executing its mechanics, not method length.
 
+When effects already have distinct failure boundaries, supply the diagnostic label at the boundary of the operation that failed. A mutable label used only by an outer catch duplicates the execution order and can become stale when an effect moves. Keep shared log formatting in one place if useful, but preserve the existing failure propagation, including the original error object when the contract is to rethrow it. Keep real workflow state that drives behavior or is intentionally reported as progress; do not add wrappers just to label an operation that can already supply its identity.
+
+For example, creating an upload session and transferring its content have separate rejection boundaries. Their labels stay with the corresponding operations, and content transfer cannot run if session creation fails. This example uses async methods that always return promises; when an existing operation can throw synchronously, retain the boundary that catches those throws too.
+
+Save this block as `upload-diagnostics.test.mjs` and run `node --test upload-diagnostics.test.mjs`:
+
+```javascript
+import assert from "node:assert/strict"
+import { mock, test } from "node:test"
+
+async function upload(uploads, content, logFailure) {
+  const session = await uploads.createSession().catch((error) => {
+    logFailure("create upload session", error)
+    throw error
+  })
+
+  return uploads.transferContent(session, content).catch((error) => {
+    logFailure("transfer upload content", error)
+    throw error
+  })
+}
+
+test("session creation failure is reported without starting a transfer", async () => {
+  const failure = new Error("session unavailable")
+  const uploads = {
+    createSession: async () => {
+      throw failure
+    },
+    transferContent: mock.fn(async () => {}),
+  }
+  const logFailure = mock.fn()
+
+  await assert.rejects(upload(uploads, "file content", logFailure), (error) => error === failure)
+  assert.equal(uploads.transferContent.mock.callCount(), 0)
+  assert.equal(logFailure.mock.callCount(), 1)
+  assert.equal(logFailure.mock.calls[0].arguments[0], "create upload session")
+  assert.equal(logFailure.mock.calls[0].arguments[1], failure)
+})
+
+test("content transfer failure is reported after creating the session", async () => {
+  const failure = new Error("transfer unavailable")
+  const session = {
+    id: "upload-1",
+  }
+  const uploads = {
+    createSession: async () => session,
+    transferContent: mock.fn(async () => {
+      throw failure
+    }),
+  }
+  const logFailure = mock.fn()
+
+  await assert.rejects(upload(uploads, "file content", logFailure), (error) => error === failure)
+  assert.equal(uploads.transferContent.mock.callCount(), 1)
+  assert.equal(uploads.transferContent.mock.calls[0].arguments[0], session)
+  assert.equal(uploads.transferContent.mock.calls[0].arguments[1], "file content")
+  assert.equal(logFailure.mock.callCount(), 1)
+  assert.equal(logFailure.mock.calls[0].arguments[0], "transfer upload content")
+  assert.equal(logFailure.mock.calls[0].arguments[1], failure)
+})
+
+test("successful upload returns the transfer result without a diagnostic", async () => {
+  const receipt = {
+    id: "receipt-1",
+  }
+  const uploads = {
+    createSession: async () => ({
+      id: "upload-1",
+    }),
+    transferContent: async () => receipt,
+  }
+  const logFailure = mock.fn()
+
+  assert.equal(await upload(uploads, "file content", logFailure), receipt)
+  assert.equal(logFailure.mock.callCount(), 0)
+})
+```
+
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
 Place the action entry point, such as `perform`, before its private implementation helpers. Order helpers by first use, with a helper's cohesive subhelpers immediately beneath their caller, so the reader can follow the action down the file rather than jump through alphabetical or append-only declarations. Preserve constructor/framework requirements, initialization-sensitive declaration order, and stronger local conventions. Apply accepted corrections across the in-scope review diff without changing method behavior or reorganizing unrelated files.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1535) - 2026-11-20
+
+### Changed
+
+- Report failures at their operation boundary without duplicating control flow in a mutable label.
+
 ## [5.16.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1544) - 2026-11-20
 
 ### Changed
