@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1538) - 2026-11-20
+
+### Changed
+
+- Keep optional routing out of standalone configuration without adding wrapper plumbing for shared lifecycle labels.
+
 ## [5.16.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1536) - 2026-11-20
 
 ### Changed
