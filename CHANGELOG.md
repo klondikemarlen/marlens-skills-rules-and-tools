@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1507) - 2026-11-20
+
+### Changed
+
+- Choose class-level operations or per-call instances when no shared lifetime is needed; keep shared instances for real lifecycle requirements.
+
 ## [5.15.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1508) - 2026-11-20
 
 ### Changed
