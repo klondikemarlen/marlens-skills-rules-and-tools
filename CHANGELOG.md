@@ -6,6 +6,14 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1523) - 2026-11-20
+
+### Changed
+
+- Declare TypeScript as the only package needed by MSSRT checks so Verifier 1.18 and later can freeze them without copying unrelated plugin dependencies.
+
+## [5.15.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1514) - 2026-11-20
+
 ### Changed
 
 - Default interactive design comparisons to side-by-side HTML with independently operable examples and a readable horizontal rail on narrow screens.
