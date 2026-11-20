@@ -6,6 +6,30 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.15.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1507) - 2026-11-20
+
+### Changed
+
+- Choose class-level operations or per-call instances when no shared lifetime is needed; keep shared instances for real lifecycle requirements.
+
+## [5.15.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1508) - 2026-11-20
+
+### Changed
+
+- Give every stacked PR the shared customer goal and acceptance boundaries, then distinguish its own contribution from later slices.
+
+## [5.15.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1510) - 2026-11-20
+
+### Changed
+
+- Hand corrected pull requests back for manual re-review without asking the maintainer to merge immediately.
+
+## [5.15.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1506) - 2026-11-20
+
+### Changed
+
+- Fix confirmed, in-scope problems when a maintainer flags them during coding or PR feedback, without waiting for a second request.
+
 ## 5.15.3 - 2026-11-19
 
 ### Changed

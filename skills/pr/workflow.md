@@ -76,6 +76,8 @@ See [GitHub's stacked pull request APIs](https://docs.github.com/en/pull-request
 
 Create dependent slices as a bottom-to-top chain. For the bottom slice, create its branch from the intended trunk; for each child slice, create its branch from the immediate predecessor's head branch so its diff contains only its own work. Push each branch and open each PR as a draft targeting its predecessor's head branch (the bottom targets trunk), following [Initial Draft Publication](#initial-draft-publication). Do not mark the whole ticket ready while any slice remains unmerged; each PR must carry its own callers, tests, and verification.
 
+For each PR in the chain, apply [Customer Contract in Stacked PRs](#customer-contract-in-stacked-prs) when drafting or updating its description.
+
 Before native registration, preflight the chain with the installed `github-pr-stack` helper, which confirms every PR is in the same repository, reports each base/head branch, exact SHAs, draft state, and current stack membership, and prints the `gh stack link` command without running it:
 
 ```bash
@@ -201,6 +203,18 @@ Keep this scoped to authoring-file safety; it does not change the PR publication
 Before drafting or refreshing a PR description, read the target repository's template/workflow and apply explicit current or already-established maintainer instructions. Retrieve a relevant known preference when needed; an already-current preference needs application, not another memory entry. These inputs define the description contract. The project template wins: follow its structure and do not add competing headings. Local workflows should link to the canonical template instead of copying its full generic skeleton; keep focused examples and a no-template fallback where useful.
 
 Apply [Workflow Outputs and Publication](../../docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication): an output contract specifies knowledge and evidence to produce, not mandatory public text/headings or permission to post it. Keep required self-review, QA, limitations, learner triage, and truthful `PASS`/`FAIL`/`BLOCKED` evidence in the existing designated check, artifact, work record, or session. Choose the reader, useful new information, and appropriate existing destination independently; if there is no useful reader-needed information, do not post. The PR body is for concise, reviewer-relevant change, risk, action, and evidence links, subject to its contract. Preserve actual reviewer findings, blockers/material prerequisites, requested detailed audits in their designated destination, and genuine discussion/review responses. Do not expand the body or add comments with routine execution reports, duplicate CI evidence, or housekeeping.
+
+### Customer Contract in Stacked PRs
+
+Every PR in a stack, including drafts, should make sense to a reviewer opening it first. This applies to both native GitHub stacks and PRs with chained bases. In each canonical PR body:
+
+- Link the authoritative ticket and summarize the same end-to-end customer goal and material acceptance boundaries: what the delivered stack promises and what it leaves out. Keep the full specification in the ticket, not in every PR.
+- Separately state what this PR delivers toward that goal and what still depends on later slices, if any. Do not present the stack's promise as behavior available in this slice.
+- Fit these details into the repository template's existing sections. For example, use Related Links for the ticket, Context for the shared goal and boundaries, and Implementation for the slice's contribution and remaining work.
+
+When the agreed customer contract changes, refresh every affected open PR body, including drafts. Keep each slice's description accurate and preserve other still-valid content. Read back the updated bodies through GitHub. If an affected body cannot be updated within the authorized scope, identify it as stale rather than reporting the stack as synchronized.
+
+**Example:** The shared goal is for managers to download the last 30 days of active records as CSV, excluding archived records. The middle API PR adds the CSV endpoint and enforces that limit; the download button arrives in a later PR. If the agreed window increases to 90 days, refresh the shared summary across the affected open PRs without claiming the API supports 90 days until it does.
 
 ## Public GitHub Records
 
