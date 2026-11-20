@@ -798,6 +798,80 @@ For example, `synchronize-bookings-service.ts` can keep its orchestration helper
 
 This runtime boundary does not prohibit a service's cohesive input/result types, change companion public-type or barrel conventions, or require extracting private helpers merely to give them a file.
 
+### Class Operation Lifetimes
+
+When a class owns an operation that does not need state shared across calls, prefer exporting the class with a class-level entrypoint rather than exporting an instance constructed at module load. Create a fresh instance inside that entrypoint if the implementation needs instance methods or per-operation instance state. If the operation needs no instance, implement it directly as a class method; do not allocate a receiver just to forward a call.
+
+**Before:** Importing the report reader constructs a shared wrapper even though each read already creates its own operation object and decoder.
+
+```typescript
+class ReportTextRead {
+  private readonly decoder = new TextDecoder()
+
+  readChunks(chunks: Iterable<Uint8Array>): string {
+    let reportText = ""
+
+    for (const chunk of chunks) {
+      reportText += this.decoder.decode(chunk, {
+        stream: true,
+      })
+    }
+
+    return reportText + this.decoder.decode()
+  }
+}
+
+class ReportTextReader {
+  read(chunks: Iterable<Uint8Array>): string {
+    return new ReportTextRead().readChunks(chunks)
+  }
+}
+
+export const reportTextReader = new ReportTextReader()
+
+// Caller: reportTextReader.read(chunks)
+```
+
+**After:** `ReportTextReader.read(chunks)` takes the same chunks and returns the same text. Its instance owns the decoder for that read, including any partial UTF-8 sequence carried between chunks. Importing the class does not create a reader.
+
+```typescript
+export class ReportTextReader {
+  private readonly decoder = new TextDecoder()
+
+  private constructor() {}
+
+  static read(chunks: Iterable<Uint8Array>): string {
+    return new ReportTextReader().readChunks(chunks)
+  }
+
+  private readChunks(chunks: Iterable<Uint8Array>): string {
+    let reportText = ""
+
+    for (const chunk of chunks) {
+      reportText += this.decoder.decode(chunk, {
+        stream: true,
+      })
+    }
+
+    return reportText + this.decoder.decode()
+  }
+}
+```
+
+By contrast, if the implementation can keep all its state local, put the work directly in the class method. For example, an existing `ReportLabel` class can format a report number without constructing a `ReportLabel`:
+
+```typescript
+export class ReportLabel {
+  static format(reportNumber: number): string {
+    return `Report ${reportNumber}`
+  }
+}
+```
+
+Do not move locals into fields merely to justify an instance or turn an ordinary standalone function into a class to follow this default.
+
+**Caveat:** Keep eager initialization when startup must establish readiness or surface failures before requests run. Keep a shared instance when callers genuinely depend on its identity or lifecycle, such as a process-owned connection pool with coordinated shutdown. Follow [Boot-Owned Process Resources](#boot-owned-process-resources) for resources acquired at startup. Preserve required initialization order, failure timing, and cleanup ownership; do not make an existing shared resource lazy or recreate it per call merely to match this example. Apply the default to in-scope code, not as a blanket no-singletons policy or a reason to refactor unrelated consumers.
+
 ### Integration Model Contracts
 
 Keep external-system data contracts with the owning integration's models, following established sibling integration layout. This includes normalized nested records and saved snapshots that still describe that integration's data. Application persistence models and serializers import those contracts rather than declaring duplicates. Application-owned records and genuinely transformed response/view types retain their own owners; using external data does not make every consumer type an integration model.
