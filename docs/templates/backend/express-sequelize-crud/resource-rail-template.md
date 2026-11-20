@@ -19,6 +19,8 @@ Use this when a downstream API already follows an Express controller, Sequelize 
 
 ## Model Slice
 
+For resources with persisted foreign keys, follow [Model Key Declaration Order](../../../references/code-organization-reference.md#model-key-declaration-order): declare them after the primary key and before ordinary fields, without moving association declarations.
+
 ```ts
 export class {ResourceName} extends BaseModel<
   InferAttributes<{ResourceName}>,
