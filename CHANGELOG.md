@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1542) - 2026-11-20
+
+### Changed
+
+- Use one input for each fact, place required parent context first, and check input-only prerequisites before opening a transaction.
+
 ## [5.16.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1541) - 2026-11-20
 
 ### Changed
