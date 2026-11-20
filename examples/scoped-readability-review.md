@@ -282,6 +282,14 @@ Accepted task: author or organize an actively reviewed unreleased Knex migration
 - **Released migration or another DSL:** do not demand a grouping rewrite. Respect accepted scope and history; apply only genuinely relevant criteria.
 - **Missing release/API/dialect context needed to establish equivalence:** expected `BLOCKED` with the exact prerequisite, while retaining independently evidenced layout findings. Typechecking and SQL-generation checks do not replace native named-verifier assessment.
 
+## One-Off Migration Cleanup
+
+Review the before/after cleanup in [Self-Contained Migrations](../docs/references/code-organization-reference.md#self-contained-migrations) as an unreleased migration that already owns the deletion.
+
+- **Hidden writes:** request the direct form when the helper only hides the dependent delete. The helper name alone does not show the row predicate.
+- **Visible writes:** accept either a query builder or inline SQL that deletes results linked to retired sessions before deleting only retired sessions. Reject a parent-first reorder or an unfiltered parent delete in this example. Retain a cohesive helper when it owns genuinely complex work; do not demand a redesign of a released migration.
+- **Focused proof:** run both forms on separate copies of an isolated fixture with one retired session and one active session, each with a result, and an enforced non-cascading foreign key. Only the active session and its result should survive. Reversing the order should fail on the retired result's foreign key; dropping the parent predicate should also fail, this time because the delete targets the active session with a surviving result.
+
 ## Single-Property Assertion Objects
 
 Accepted task: author the not-found controller assertion under the shared multiline convention, with no stronger project override. Baseline/new assertion comparison:
