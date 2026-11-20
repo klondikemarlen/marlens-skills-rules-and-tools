@@ -439,6 +439,14 @@ const queueOptions = {
 
 The example preserves those assumed values; it does not prescribe retention or retry policy for another project. Preserve actual override precedence, connection behavior, nested merge semantics, and mutable-object ownership; a shallow spread is not a deep merge and must not silently drop nested settings or introduce shared mutable state. Retain distinct configurations when their settings genuinely differ, follow stronger local conventions, and do not use this preference to change runtime values or migrate unrelated configuration.
 
+### Optional Integration Configuration
+
+Keep the ordinary base usable without the optional integration. Put settings used only when it is enabled—such as external routing, connection requirements, or integration-specific startup—in an existing opt-in overlay, adapter, or equivalent extension point. Select it at the composition boundary, where the application or command assembles its dependencies. This keeps standalone users from needing to configure or understand an integration they do not use. Prefer the smallest change at that boundary over scattering integration conditions through base definitions.
+
+Separate independent concerns: lifecycle coordination need not activate routing. Keep a setting in the base when it belongs to ordinary behavior or is small shared metadata needed by existing base-only consumers on an enabled path and inert when disabled. Do not introduce a second file, a generic selector, or an extension framework merely to move such metadata. Follow the existing [integration initialization boundary](#error-ownership-and-local-recovery) for validating required connection inputs on the path that uses them.
+
+Exercise the base with the integration unavailable and each enabled path through its real entrypoint. Verify what is required, what remains private or unchanged, and what becomes active; a configuration merge alone does not prove that the application works. See the [standalone, lifecycle-only, and routed examples](../../examples/organization-decisions.md#optional-integration-configuration).
+
 ### Independently Mutable Nested Copies
 
 When nested mutable data must be editable independently of its input, prefer Lodash `cloneDeep` over array spread or shallow row/property copies. Clone once at that ownership boundary, then edit the owned copy instead of rebuilding the same rows with redundant shallow spreads. Follow the project's existing Lodash variant and import conventions; this guidance does not add a dependency to every project.
@@ -1027,6 +1035,41 @@ Preserve the runner's required timestamp/sequence prefix, casing, separators, an
 Prefer the project's existing schema builder for ordinary changes when it supplies the required database semantics. Inspect the installed dialect implementation or exercise the production-shaped case before duplicating constraint discovery/removal in custom SQL. Retain narrowly scoped raw SQL for dependencies or identifier semantics the builder demonstrably cannot preserve.
 
 For version-qualified Knex/PostgreSQL partial-index creation, rollback, and embedded SQL highlighting, use [Knex PostgreSQL Partial Unique Indexes](express-light-rail-backend-concepts-reference.md#knex-postgresql-partial-unique-indexes). Keep reusable builder mechanics there and project-specific schema decisions with the project.
+
+Keep simple, one-off cleanup writes in the migration entry point. Show the affected tables, row predicates, and dependency order together so a reviewer can tell what will be deleted without following a helper. Use the project's query builder or inline SQL, whichever makes the write clear. Keep cohesive helpers for genuinely complex work; use the same responsibility and rollback boundaries above to decide whether cleanup belongs in a separate migration at all.
+
+For example, suppose an unreleased migration already owns deletion of retired search sessions and their results. Before, the dependent write is hidden behind a helper:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await deleteRetiredSessionResults(knex)
+  await knex("search_sessions").where("status", "retired").delete()
+}
+
+async function deleteRetiredSessionResults(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+}
+```
+
+After, both writes and their unchanged predicates are visible:
+
+```typescript
+import type { Knex } from "knex"
+
+export async function up(knex: Knex): Promise<void> {
+  await knex("search_results")
+    .whereIn("session_id", knex("search_sessions").select("id").where("status", "retired"))
+    .delete()
+
+  await knex("search_sessions").where("status", "retired").delete()
+}
+```
+
+The first write deletes only results linked to retired sessions, while the parent rows needed by the subquery still exist. The second deletes only retired sessions, not all sessions. An unfiltered parent delete would delete every parent row; do not add or remove a predicate just to make the statements look alike. Only `up` is illustrated: preserve the existing transaction, approved data-loss and recovery contract, and any required `down` behavior.
 
 Put exported `up`/`down` entry points before local implementation helper functions; keep those helpers at the bottom of the migration. Preserve behavior, initialization dependencies, and migration-local definitions rather than extracting helpers into another migration or rewriting unrelated released history.
 
@@ -1770,6 +1813,12 @@ Reserve relationship-style `Id`/`id` field names for record references and forei
 
 For model declarations, follow sibling models' meaningful groups, section-comment headings, and order. Keep persisted fields together, associations together, and lifecycle hooks distinct from unrelated static helpers where those categories exist. Preserve initialization dependencies and behavior, and do not move unrelated imports, invent empty sections, or impose one framework-specific layout everywhere.
 
+### Model Key Declaration Order
+
+Within the persisted field group of a model being authored or reviewed, declare its primary key field or fields first, then its remaining foreign-key fields, then ordinary fields. Identify foreign keys from the actual schema or ORM relationships, not from an `Id` suffix. An ID-valued cursor or ceiling is ordinary persisted state if it does not define a relationship. Keep association declarations in their existing section.
+
+Apply this layout without changing constraints, field names, decorators, initialization dependencies, or runtime behavior. Preserve binding framework and project-local conventions, and do not rearrange unrelated models. See the [model template](../templates/backend/express-light-rail/model-template.md#template) for a relationship key and an ID-valued cursor in the same record.
+
 ### Sequelize Model Decorators
 
 In Sequelize models, omit an argument-free `@Table` when existing registration and defaults already provide the same behavior and the decorator is not required for runtime metadata. Remove its now-unused `Table` import with it. Retain option-bearing declarations, such as `@Table({ tableName: "workflow_templates", timestamps: false })`, and decorators required by the installed registration/discovery path. Establish equivalence from the actual model initialization and registration conventions; uncertainty is not proof that metadata is redundant. Preserve initialization, defaults, and runtime behavior within the requested authoring/review scope.
@@ -2165,6 +2214,84 @@ private publishAtomically(retainedMatches: Match[], progress: Progress) {
 Precharged work remains outside both lock and publication transaction; the awaited lock callback retains its lease through consumer reads, matching, progress and publication. Preserve cancellation checkpoints, comparator behavior, error propagation/translation, evaluation order, lazy work, concurrency, and returned promise/result. Do not move precharging into a transaction, release the lease before consumers finish, or add error wrapping merely to extract methods. Use actual local types/APIs and retain existing error translation where present.
 
 Counterexample: `perform() { return this.sessions.expire(this.session.id) }` already expresses one effect. Leave it intact; an `expireSession()` forwarding wrapper adds navigation without meaning. Review whether readers can explain the workflow without mentally executing its mechanics, not method length.
+
+When effects already have distinct failure boundaries, supply the diagnostic label at the boundary of the operation that failed. A mutable label used only by an outer catch duplicates the execution order and can become stale when an effect moves. Keep shared log formatting in one place if useful, but preserve the existing failure propagation, including the original error object when the contract is to rethrow it. Keep real workflow state that drives behavior or is intentionally reported as progress; do not add wrappers just to label an operation that can already supply its identity.
+
+For example, creating an upload session and transferring its content have separate rejection boundaries. Their labels stay with the corresponding operations, and content transfer cannot run if session creation fails. This example uses async methods that always return promises; when an existing operation can throw synchronously, retain the boundary that catches those throws too.
+
+Save this block as `upload-diagnostics.test.mjs` and run `node --test upload-diagnostics.test.mjs`:
+
+```javascript
+import assert from "node:assert/strict"
+import { mock, test } from "node:test"
+
+async function upload(uploads, content, logFailure) {
+  const session = await uploads.createSession().catch((error) => {
+    logFailure("create upload session", error)
+    throw error
+  })
+
+  return uploads.transferContent(session, content).catch((error) => {
+    logFailure("transfer upload content", error)
+    throw error
+  })
+}
+
+test("session creation failure is reported without starting a transfer", async () => {
+  const failure = new Error("session unavailable")
+  const uploads = {
+    createSession: async () => {
+      throw failure
+    },
+    transferContent: mock.fn(async () => {}),
+  }
+  const logFailure = mock.fn()
+
+  await assert.rejects(upload(uploads, "file content", logFailure), (error) => error === failure)
+  assert.equal(uploads.transferContent.mock.callCount(), 0)
+  assert.equal(logFailure.mock.callCount(), 1)
+  assert.equal(logFailure.mock.calls[0].arguments[0], "create upload session")
+  assert.equal(logFailure.mock.calls[0].arguments[1], failure)
+})
+
+test("content transfer failure is reported after creating the session", async () => {
+  const failure = new Error("transfer unavailable")
+  const session = {
+    id: "upload-1",
+  }
+  const uploads = {
+    createSession: async () => session,
+    transferContent: mock.fn(async () => {
+      throw failure
+    }),
+  }
+  const logFailure = mock.fn()
+
+  await assert.rejects(upload(uploads, "file content", logFailure), (error) => error === failure)
+  assert.equal(uploads.transferContent.mock.callCount(), 1)
+  assert.equal(uploads.transferContent.mock.calls[0].arguments[0], session)
+  assert.equal(uploads.transferContent.mock.calls[0].arguments[1], "file content")
+  assert.equal(logFailure.mock.callCount(), 1)
+  assert.equal(logFailure.mock.calls[0].arguments[0], "transfer upload content")
+  assert.equal(logFailure.mock.calls[0].arguments[1], failure)
+})
+
+test("successful upload returns the transfer result without a diagnostic", async () => {
+  const receipt = {
+    id: "receipt-1",
+  }
+  const uploads = {
+    createSession: async () => ({
+      id: "upload-1",
+    }),
+    transferContent: async () => receipt,
+  }
+  const logFailure = mock.fn()
+
+  assert.equal(await upload(uploads, "file content", logFailure), receipt)
+  assert.equal(logFailure.mock.callCount(), 0)
+})
+```
 
 A service or use-case top-level method should read like orchestration: guard, derive domain-relevant values, perform side effects, and return the result. Extraction helps only when a named helper makes one step more visible. For Ruby action entrypoints and existing callable-base reuse, use [Ruby Callable Actions](#ruby-callable-actions); other languages and framework-required callbacks retain their own conventions.
 
