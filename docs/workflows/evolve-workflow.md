@@ -38,6 +38,12 @@ Within this composition, Advance selects and progresses the outcome; Improve and
 
 Prototype acceptance does not authorize implementation, and a design-only or assessment-only request stops at its authorized handoff. Do not add an interview, prototype, or approval ceremony when requirements are already clear. A required project-local gate or separately authorized action cannot be deferred merely to fit this flow.
 
+### UI Design Review and Implementation
+
+When an interaction or layout choice materially affects the outcome, recommend a design grounded in the current app's relevant screen, controls, and states. Explain why it fits the user task and which tradeoff or question needs review. When a preview helps answer that question, use [Prototype's reviewer handoff](ui-prototyping-workflow.md#completion-and-handoff): share the verified artifact through an entrypoint the intended reviewer can actually open, preferably without starting a server. A prose recommendation or a screenshot alone does not let someone exercise an interaction.
+
+Record the chosen behavior, relevant states, and any remaining limits in the existing issue or plan. In authorized implementation, use that decision as the acceptance target, not the prototype's visual resemblance alone. Exercise the relevant user actions and states in the running application using [Browser QA](browser-qa-workflow.md) and record observed outcomes against that decision. Keep preview evidence separate from in-app evidence; if the app path cannot be exercised, report the blocked prerequisite and unverified behavior rather than substituting the preview. A clear UI change can go straight to implementation and applicable QA.
+
 ### Feedback and Respecification
 
 The working flow allows bounded iteration, not a rigid one-pass staircase. When a runnable result, user feedback, review, or QA contradicts the current approach, return to the smallest affected step: tweak the implementation for a local defect, simplify a confusing responsibility, or revisit the relevant specification/design when the behavior or model is wrong. Ask only for consequential unresolved product decisions; use existing evidence for ordinary implementation choices. Do not wait until after merge to reconcile a known design problem.
