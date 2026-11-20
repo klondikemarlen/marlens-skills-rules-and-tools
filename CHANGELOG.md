@@ -6,6 +6,66 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.16.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1534) - 2026-11-20
+
+### Changed
+
+- Distinguish a discovery synopsis from a subject contract, and require evidence for claimed owner links.
+
+## [5.16.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1543) - 2026-11-20
+
+### Changed
+
+- Check project-defined dependency groups even when an HTTP test reaches its subject through the router.
+
+## [5.16.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1542) - 2026-11-20
+
+### Changed
+
+- Use one input for each fact, place required parent context first, and check input-only prerequisites before opening a transaction.
+
+## [5.16.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1541) - 2026-11-20
+
+### Changed
+
+- Keep nested writes scoped to the route parent and name each policy builder for its record.
+
+## [5.16.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1540) - 2026-11-20
+
+### Changed
+
+- Keep schema-backed foreign keys together in model declarations without classifying fields by their suffix.
+
+## [5.16.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1535) - 2026-11-20
+
+### Changed
+
+- Report failures at their operation boundary without duplicating control flow in a mutable label.
+
+## [5.16.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1544) - 2026-11-20
+
+### Changed
+
+- Use an existing score for ordering unless consumers independently need a rank.
+
+## [5.16.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1538) - 2026-11-20
+
+### Changed
+
+- Keep optional routing out of standalone configuration without adding wrapper plumbing for shared lifecycle labels.
+
+## [5.16.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1536) - 2026-11-20
+
+### Changed
+
+- Hand reviewers a usable preview, then verify the selected design in the authorized application.
+
+## [5.15.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1537) - 2026-11-20
+
+### Changed
+
+- Keep simple dependent and parent cleanup predicates and write order visible in a new migration.
+
 ## [5.15.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1523) - 2026-11-20
 
 ### Changed

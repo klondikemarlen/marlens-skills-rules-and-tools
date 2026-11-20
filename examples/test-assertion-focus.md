@@ -422,3 +422,162 @@ Use the existing `marlens-rules:test-assertion-focus` final-review contract with
 6. Omit necessary export, routing, local guidance, or serialization evidence in separate assessments; expect `BLOCKED` naming the missing prerequisite. Restore it and reassess current code; a prior result, structural pass, or status-only HTTP test cannot establish semantic clearance.
 
 Run the disposable consumer's documented focused test and test TypeScript command separately, then discard it. Record resolved versions, native-versus-serialized request evidence, final-review selection, and actual decisions. Do not claim proposed scenario outcomes as observed PASS.
+
+## Local Dependency Groups Without a Subject Import
+
+The [TravelAuth correction](https://github.com/icefoganalytics/travel-authorization/commit/6f64b921c1db24b7a7703e24bcc6e16883f04012) separated models from factories and put factories next to request support. This runnable fixture reproduces that grouping change without the application or its database. The request helper dispatches a real `Request` through the router; the test never imports the controller.
+
+Create an owned temporary Git project with Node.js 22 or later. Commit the supporting files as the baseline so the only changed test is the file added below. Run these commands in Bash; keep the shell open to reuse `fixture` and `test_path`.
+
+```bash
+fixture=$(mktemp -d)
+git -C "$fixture" init -q
+mkdir -p "$fixture/src/controllers" "$fixture/tests/controllers"
+test_path=tests/controllers/travel-requests-controller.test.mjs
+
+cat > "$fixture/package.json" <<'JSON'
+{
+  "name": "travel-request-review-fixture",
+  "private": true,
+  "imports": {
+    "#models": "./src/models.mjs",
+    "#factories": "./tests/factories.mjs",
+    "#support": "./tests/support.mjs"
+  }
+}
+JSON
+
+cat > "$fixture/tests/README.md" <<'MARKDOWN'
+# Test Conventions
+
+Keep Node.js built-in imports in their own group. Keep domain model imports in a
+separate group above test dependencies. Group factories and request support
+together without a blank line.
+MARKDOWN
+
+cat > "$fixture/src/models.mjs" <<'JS'
+export class TravelRequest {
+  static statuses = {
+    pending: "pending",
+  }
+
+  constructor(status) {
+    this.status = status
+  }
+}
+JS
+
+cat > "$fixture/src/controllers/travel-requests-controller.mjs" <<'JS'
+export default class TravelRequestsController {
+  static show(travelRequest) {
+    if (!travelRequest) {
+      return Response.json({ error: "Request not found" }, { status: 404 })
+    }
+
+    return Response.json({ status: travelRequest.status })
+  }
+}
+JS
+
+cat > "$fixture/src/router.mjs" <<'JS'
+import TravelRequestsController from "./controllers/travel-requests-controller.mjs"
+
+export function dispatch(request, travelRequests) {
+  const { pathname } = new URL(request.url)
+  const match = /^\/api\/travel-requests\/([^/]+)$/.exec(pathname)
+  if (request.method !== "GET" || !match) {
+    return new Response(null, { status: 404 })
+  }
+
+  return TravelRequestsController.show(travelRequests.get(match[1]))
+}
+JS
+
+cat > "$fixture/tests/factories.mjs" <<'JS'
+import { TravelRequest } from "#models"
+
+export function buildTravelRequest(status) {
+  return new TravelRequest(status)
+}
+JS
+
+cat > "$fixture/tests/support.mjs" <<'JS'
+import { dispatch } from "../src/router.mjs"
+
+export function request(travelRequests) {
+  return {
+    get(path) {
+      return dispatch(new Request(new URL(path, "http://fixture.test")), travelRequests)
+    },
+  }
+}
+JS
+
+git -C "$fixture" add package.json src tests
+git -C "$fixture" -c user.name=Fixture -c user.email=fixture@example.test \
+  -c commit.gpgsign=false commit -qm "Add fixture context"
+
+cat > "$fixture/$test_path" <<'JS'
+import assert from "node:assert/strict"
+import { describe, test } from "node:test"
+
+import { TravelRequest } from "#models"
+import { buildTravelRequest } from "#factories"
+
+import { request } from "#support"
+
+describe("src/controllers/travel-requests-controller.mjs", () => {
+  describe("TravelRequestsController", () => {
+    describe("#show - GET - /api/travel-requests/:id", () => {
+      test("when the request exists, it returns the pending status", async () => {
+        // Arrange
+        const travelRequest = buildTravelRequest(TravelRequest.statuses.pending)
+        const travelRequests = new Map([["7", travelRequest]])
+
+        // Act
+        const response = request(travelRequests).get("/api/travel-requests/7")
+
+        // Assert
+        assert.equal(response.status, 200)
+        assert.deepEqual(await response.json(), {
+          status: "pending",
+        })
+      })
+
+      test("when the request does not exist, it returns not found", async () => {
+        // Arrange
+        const travelRequest = buildTravelRequest(TravelRequest.statuses.pending)
+        const travelRequests = new Map([["7", travelRequest]])
+
+        // Act
+        const response = request(travelRequests).get("/api/travel-requests/8")
+
+        // Assert
+        assert.equal(response.status, 404)
+        assert.deepEqual(await response.json(), {
+          error: "Request not found",
+        })
+      })
+    })
+  })
+})
+JS
+
+git -C "$fixture" add "$test_path"
+node --test "$fixture/$test_path"
+```
+
+Review the complete fixture with `/verifier verify marlens-rules:test-assertion-focus` in a fresh OMP process rooted at `$fixture`. Use the [evidence procedure](#check), supplying `tests/README.md`, `package.json`, the router/controller, and the invoked factory/support modules as real source context if request preparation does not include them. Keep the following expected results out of the assessment input:
+
+1. **Negative:** With the files as written, require a validated `FAIL` citing the model/factory grouping and the separation between factories and request support, with `tests/README.md` as authority. No controller import should be requested.
+2. **Positive:** Replace only the three application imports with the header below. Require a fresh `PASS`. To check the two failure modes independently, restore each offending blank-line arrangement on its own under the same policy.
+3. **Neutral:** Restore the original failing header and replace the local README's grouping guidance with `Keep Node.js built-in imports in their own group. Use the native assertion framework.` Keep the package name, aliases, router, and test cases unchanged. Require a fresh `PASS`: the project still supplied guidance, but it did not require the model/factory separation or the factory/support pairing. For an explicit alternative local policy, require that the factory stay beside the model and that request support be separate; the original header must likewise pass under that policy.
+
+```js
+import { TravelRequest } from "#models"
+
+import { buildTravelRequest } from "#factories"
+import { request } from "#support"
+```
+
+The Node.js tests should pass in every case; only semantic review should distinguish the headers. Record a fresh result for each case and keep the [direct-subject scenarios](#disposable-semantic-and-transport-scenarios) as separate regression coverage.

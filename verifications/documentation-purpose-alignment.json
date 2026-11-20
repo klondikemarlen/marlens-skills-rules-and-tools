@@ -14,6 +14,10 @@
       "question": "Identify each passage's intended reader question, document role, governing ordinary-language project rule, and existing authoritative owner. Honor explicit project conventions rather than inferring policy from a pathname. Distinguish source-local when/why/how/boundary guidance, operator procedures, discovery links, durable domain knowledge, and implementation-local detail; a valid source README or procedural command sequence is not inherently misplaced."
     },
     {
+      "id": "discovery-summary-or-subject-contract",
+      "question": "When project guidance assigns a passage a discovery role, ask whether it tells readers where to learn about a subject or tells them how to implement, validate, migrate, or serialize it. A brief synopsis and navigation belong in the index. A nullable foreign key, phase-specific validation rule, migration guarantee, or API restriction still defines a subject contract even in one sentence or beside a link. For a placement finding, cite the changed passage, governing rule and appropriate subject owner; for a claimed owner link, cite the actual link destination in the captured index. An available owner elsewhere is not evidence that the index links to it. Honor an evidenced local exception; if a material owner or rule is unavailable, name it and return BLOCKED."
+    },
+    {
       "id": "placement-and-duplicate-ownership",
       "question": "Flag implementation inventories that do not serve the reader task, accumulated review feedback, and copied cross-layer instructions that create competing owners under the applicable project rule. Cite the affected passage and governing rule, identify the existing owner, and give the smallest correction: explain the authoring decision, link the owner, or keep implementation-local rationale beside code. Preserve legitimate source-local patterns and examples; do not ban READMEs, force every detail into docs, or invent documentation when an existing owner already answers the question."
     },
