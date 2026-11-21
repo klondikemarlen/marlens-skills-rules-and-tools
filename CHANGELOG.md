@@ -6,19 +6,19 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
-## [5.16.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1534) - 2026-11-20
+## [5.16.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1534) - 2026-11-21
 
 ### Changed
 
 - Distinguish a discovery synopsis from a subject contract, and require evidence for claimed owner links.
 
-## [5.16.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1543) - 2026-11-20
+## [5.16.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1543) - 2026-11-21
 
 ### Changed
 
 - Check project-defined dependency groups even when an HTTP test reaches its subject through the router.
 
-## [5.16.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1542) - 2026-11-20
+## [5.16.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1542) - 2026-11-21
 
 ### Changed
 
