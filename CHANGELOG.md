@@ -6,13 +6,13 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
-## [5.16.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1545) - 2026-11-20
+## [5.16.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1545) - 2026-11-21
 
 ### Changed
 
 - Use the exact project wrapper to release unused containers and networks while retaining protected volumes and the shared gateway.
 
-## [5.16.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1534) - 2026-11-20
+## [5.16.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1534) - 2026-11-21
 
 ### Changed
 
