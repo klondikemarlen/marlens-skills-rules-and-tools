@@ -1669,6 +1669,8 @@ In tests, prefer owning bundle/barrel imports for dependencies and a direct defa
 
 Give the actual primary subject-under-test import its own group after factory/test-support imports, separated by one blank line. When its supported module has a default export, use that default import rather than a named subject import from a bundle. Preserve explicit project-local ordering overrides, supported paths, and initialization-sensitive order. Apply an accepted correction across the authorized changed-test scope without unrelated cleanup.
 
+Assess dependency groups even when a test exercises the subject through a router or public entrypoint and never imports it directly. Apply the explicit local grouping for the file. For example, when the local test guide puts domain dependencies first and factories and request support together, separate model imports from that test-support group and do not split factories from request helpers. Cite the governing guide and the specific imports that should move. Do not infer this grouping from a project name or alias, apply it elsewhere without applicable guidance, or add an unused subject import.
+
 Identify the subject from its Act and assertions, not just a filename or import spelling. Inspect the actual export and applicable local conventions before reporting an exact import/location and concrete correction. Supporting named imports, named-only subjects, and mixed-subject tests without evidence of one primary subject are not violations. Missing necessary source/export or local-guidance context is a review limitation, not permission to invent a default export. For example:
 
 ```typescript
