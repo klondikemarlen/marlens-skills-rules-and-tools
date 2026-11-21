@@ -54,6 +54,8 @@ The builder is inherently bound to the calling policy's user and record; preserv
 
 ### Database Transaction Entry Point
 
+Keep straightforward service-owned guards on supplied inputs before the transaction. Keep checks that need its queries, locks, or snapshot inside it; see [Create-Service Input Boundaries](code-organization-reference.md#create-service-input-boundaries).
+
 Start required transactions through the project's established database owner, not a scoped model's `.sequelize` property. Where `@/models` exports the database as its default, use `import db from "@/models"` and `db.transaction(...)`. This applies to required read-only snapshots as well as multi-write transactions:
 
 ```typescript
