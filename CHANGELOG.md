@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1571) - 2026-11-23
+
+### Changed
+
+- Give distinct test scenarios literal behavioral titles; keep value-derived titles for interchangeable inputs.
+
 ## [5.17.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1570) - 2026-11-23
 
 ### Changed
