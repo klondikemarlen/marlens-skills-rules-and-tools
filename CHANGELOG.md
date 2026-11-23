@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1565) - 2026-11-23
+
+### Changed
+
+- Name domain-record component boundaries, show public class methods before their helpers, separate distinct test scenarios, and distinguish pending review from active work.
+
 ## [5.17.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1562) - 2026-11-23
 
 ### Changed
