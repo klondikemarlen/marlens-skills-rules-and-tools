@@ -54,6 +54,16 @@ The quick-tweak exemption concerns agent-initiated code verification, not author
 
 These levels are guidance, not model selectors, reasoning-effort settings, or advisor scheduling controls. Keep configured providers, models, fallback routes, and final-yield advisor cadence unchanged. An independently scheduled advisor may require support in its owning runtime to consume request-level scope; do not claim this document disables it.
 
+## Communication During Implementation
+
+- **Actionable work:** Proceed with permitted implementation. Do not start or repeat policy discussion the user did not ask for.
+- **Material blocker:** If a boundary prevents or materially narrows requested work, briefly name the affected action and the specific limit or missing prerequisite. Continue any independent permitted work and report what was completed separately from what remains blocked.
+- **Direct question:** If the user asks about the boundary, answer directly within applicable limits. An explanation is not authorization to cross it.
+
+This is a communication preference, not a change to permissions, approval requirements, or safety safeguards. Do not hide material blockers or risks, or imply that blocked work was completed.
+
+For example, if an export fix and staging deployment are requested but deployment requires release-owner approval, say so briefly, then fix and test the export locally without repeating the rationale. Report: “Fixed and tested the export locally. Staging deployment is still awaiting release-owner approval.” If the user asks why approval is needed, explain that the project gates changes to the shared staging environment.
+
 ## Relative Capability Roles
 
 Choose delegation by task requirements and observed results, using provider-neutral roles rather than permanent model-family ranks:
