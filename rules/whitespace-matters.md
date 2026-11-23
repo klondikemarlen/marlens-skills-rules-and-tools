@@ -25,16 +25,16 @@ For a verbatim snapshot, distinguish repository normalization from live-state pa
 
 ## Frontend Import Groups
 
-For new or intentionally corrected frontend application imports, prefer utilities before API clients, API clients before composables, and composables before stores. Keep each group contiguous with exactly one blank line between groups, within the existing broad standard-library, third-party, and project-local ordering. Follow documented project overrides and preserve imported bindings and initialization-sensitive order; this preference does not authorize unrelated import churn.
+For new or intentionally corrected frontend application imports, group plugin dependencies first, then utilities, API clients, composables, and stores. Skip absent groups. Keep each group contiguous, with exactly one blank line between groups. Apply this order within the existing standard-library, third-party, and project-local sections. Project overrides and initialization-sensitive import order take precedence; preserve the imported bindings.
 
-When this grouping correction is requested during review, inspect every PR-modified file containing store imports within the requested scope, not only the highlighted example. Keep a test's primary subject under test in its own final group, separate from dependency-store imports; follow [Project-Root Imports and Paths](../docs/references/code-organization-reference.md#project-root-imports-and-paths). Do not sweep unrelated files or change state libraries or dependencies.
+When a grouping correction is requested during review, check the full requested diff for the same pattern, not just the highlighted import. In tests, a plugin used as a dependency belongs in the plugin group; a plugin being tested belongs in the separate final subject group under [Project-Root Imports and Paths](../docs/references/code-organization-reference.md#project-root-imports-and-paths). The same subject distinction applies to stores. Leave unrelated imports in place.
 
-With these existing supported project-local imports:
+For example, a component that uses a plugin, a utility, a composable, and a store but no API client needs only these groups:
 
 ```typescript
-import { formatDate } from "@/utils/format-date"
+import { forwardUnawaitedOperationErrorToVue } from "@/plugins/unawaited-operation-error-plugin"
 
-import { api } from "@/api"
+import { formatDate } from "@/utils/format-date"
 
 import { useWorkflow } from "@/composables/use-workflow"
 
