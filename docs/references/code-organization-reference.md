@@ -314,6 +314,8 @@ expect(wrapper.vm.isSaving).toBe(false)
 
 These excerpts assume the existing test setup supplies the controlled operation and error boundary. Preserve intentional concurrency, pending observations, deferred callbacks, and established rejection handling; neither removing `void` nor adding it handles a rejected promise. Awaiting a pending operation can hang the test or erase the state being tested. Where a caller owns rejection, preserve its meaningful returned/awaited promise or existing explicit handler rather than silently dropping it.
 
+For an intentionally concurrent operation that already owns the whole error decision, see [Detached Operation Failure Forwarding](#detached-operation-failure-forwarding) before removing a launch-site wrapper.
+
 ### Mutually Exclusive Alternatives
 
 Use one `if`/`else if`/`else` chain or `switch` when selecting among mutually exclusive alternatives. Keep independent conditions independent and useful precondition guards separate. A clear loop is appropriate; no reduction or `sumBy` rewrite is required.
@@ -2055,9 +2057,66 @@ When protocol inspection is genuinely shared by subclasses, put the helper on th
 
 When an owning layer has a family of custom error types, group its shared local base and concrete modules in that owner's `errors/` directory, such as `api/errors/`, rather than scattering them among endpoint clients or placing them in an unrelated global bucket. Keep a cross-owner core base with its actual owner. Preserve behavior and migrate all affected imports and applicable documentation; do not require a folder for every isolated error or introduce a new barrel.
 
-In a local catch, consume only positively recognized categories the operation actually handles, then rethrow everything else through existing framework propagation. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on handled and rethrown paths. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
+In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
+
+### Detached Operation Failure Forwarding
+
+If an intentionally detached operation already decides which failures to handle locally, prefer forwarding the rest to the existing application or framework boundary from that same catch. Use a direct invocation so the operation and its inputs stay visible; do not add `await` at the launch site if the follow-up should start without waiting. Forward the original error once, without logging it again or wrapping it. Preserve when cleanup runs relative to delivery, including `finally` work that originally completed before a caller's rejection handler saw the error.
+
+This illustrative polling excerpt is based on [WRAP #836](https://github.com/icefoganalytics/wrap/pull/836). It assumes classification, transient-failure reporting, timer operations, and the error boundary do not throw or return rejected promises. Before, the catch handles transient failures but the launch site forwards other rejections:
+
+```typescript
+setTimeout(() => {
+  pollFolderStatus().catch(forwardToApplicationErrorBoundary)
+}, pollingDelay)
+
+async function pollFolderStatus() {
+  try {
+    await refreshFolderStatus()
+  } catch (error) {
+    if (!isTransientPollFailure(error)) {
+      stopPolling()
+      throw error
+    }
+
+    reportTransientPollFailure(error)
+  }
+
+  scheduleNextPoll()
+}
+```
+
+After, the same catch decides whether to keep polling or stop and forward. The timer still invokes the poll without waiting for it, transient failures still schedule the next poll, and the terminal path stops polling before delivering the original error:
+
+```typescript
+setTimeout(pollFolderStatus, pollingDelay)
+
+async function pollFolderStatus() {
+  try {
+    await refreshFolderStatus()
+  } catch (error) {
+    if (!isTransientPollFailure(error)) {
+      stopPolling()
+      forwardToApplicationErrorBoundary(error)
+      return
+    }
+
+    reportTransientPollFailure(error)
+  }
+
+  scheduleNextPoll()
+}
+```
+
+Use the actual operation's classifications, cleanup, and boundary API; do not add a new handler to match the names here. If a caller needs the rejection for recovery, sequencing, or a public promise contract, keep it rejecting to that owner. A direct call, unary `void`, or an unobserved promise is not a rejection handler. Keep the outer boundary if it covers possible throws or rejections outside the operation's catch, including failing cleanup, follow-up work, or argument construction that was inside the guard. Do not move forwarding into a catch ahead of cleanup that callers or the boundary depend on.
+
+A dispatcher invoking callbacks it does not own has a different responsibility. For example, WRAP's channel listener registration keeps Vue's `callWithAsyncErrorHandling` around each subscriber callback: the dispatcher cannot assume a subscriber handles its own synchronous throws or promise rejections. Keep that broader guard, callback timing, and teardown; one callback's internal catch does not establish the contract for all callbacks.
+
+Check that a pending operation does not delay the launcher, a handled failure stays local, and a forwarded failure reaches the boundary once with the original error after any required prior cleanup. Exercise dispatcher callbacks that throw synchronously and reject asynchronously, and keep the caller's rejection observable wherever that is the accepted contract.
+
+These checks establish who receives each failure; they do not require a new error class, timer helper, or error boundary.
 
 ### Typed Provider Failures
 

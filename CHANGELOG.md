@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1555) - 2026-11-23
+
+### Changed
+
+- Keep forwarding beside local recovery in detached operations while preserving caller-owned rejections and callback dispatcher safeguards.
+
 ## [5.17.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1554) - 2026-11-23
 
 ### Changed
