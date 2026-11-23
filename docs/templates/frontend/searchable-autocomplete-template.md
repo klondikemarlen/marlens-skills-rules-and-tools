@@ -83,9 +83,11 @@ function handleSelection(value: {ResourceNameAsReference} | null) {
   emit("selection", value)
 }
 
-watch(() => props.modelValue, (value) => {
+function syncSelectedValue(value: {ResourceNameAsReference} | null | undefined) {
   selectedValue.value = value ?? null
-})
+}
+
+watch(() => props.modelValue, syncSelectedValue)
 </script>
 ```
 

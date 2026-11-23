@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1562) - 2026-11-23
+
+### Changed
+
+- Separate Vue watcher handlers from registration and keep defensive checks tied to supported behavior.
+
 ## [5.17.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1557) - 2026-11-23
 
 ### Changed

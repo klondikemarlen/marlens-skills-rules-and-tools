@@ -584,10 +584,16 @@ Background notifications are a separate path. Before applying or refreshing a no
 For example, with an existing page route input and store contract:
 
 ```ts
+function initializeWorkflow(newWorkflowSlug: typeof props.workflowSlug) {
+  return workflowStore.initialize(newWorkflowSlug)
+}
+
 watch(
   () => props.workflowSlug,
-  (newWorkflowSlug) => workflowStore.initialize(newWorkflowSlug),
-  { immediate: true }
+  initializeWorkflow,
+  {
+    immediate: true,
+  }
 )
 ```
 
@@ -1341,20 +1347,32 @@ function useWorkflow(workflowId: MaybeRefOrGetter<number | null>) {
 }
 ```
 
-Normalization is not user selection; genuine selection projections retain meaningful selected-state names. In `watch` callbacks prefer `new<DomainName>` for newly observed values, including tuples, and accurate previous-value names:
+Normalization is not user selection; genuine selection projections retain meaningful selected-state names. In [watch handlers](#watch-handler-definition-and-registration) prefer `new<DomainName>` for newly observed values, including tuples, and accurate previous-value names:
 
 ```typescript
+type WorkflowSelection = [
+  typeof normalizedWorkflowId.value,
+  typeof normalizedWorkflowStepId.value,
+]
+
+function handleObservedSelectionChange(
+  [newWorkflowId, newWorkflowStepId]: WorkflowSelection,
+  [previousWorkflowId, previousWorkflowStepId]: WorkflowSelection
+) {
+  handleSelectionChange(
+    newWorkflowId,
+    newWorkflowStepId,
+    previousWorkflowId,
+    previousWorkflowStepId
+  )
+}
+
 watch(
   [normalizedWorkflowId, normalizedWorkflowStepId],
-  ([newWorkflowId, newWorkflowStepId], [previousWorkflowId, previousWorkflowStepId]) => {
-    handleSelectionChange(
-      newWorkflowId,
-      newWorkflowStepId,
-      previousWorkflowId,
-      previousWorkflowStepId
-    )
-  },
-  { flush: "post" }
+  handleObservedSelectionChange,
+  {
+    flush: "post",
+  }
 )
 ```
 
@@ -1371,9 +1389,15 @@ await categoriesApi.update(staticCategoryId, attributes)
 
 This is an operation-start snapshot for narrowing, not a class static member or live input. Match the captured domain: `state.workflowId` becomes `staticWorkflowId`, not `staticWorkflowStepId`. Preserve the capture point, nil guard, and operation behavior; do not add unnecessary snapshots, replace live inputs, rename meaningful request objects, or introduce coordination mechanisms solely for naming.
 
+## Watch Handler Definition and Registration
+
+Define each Vue `watch` handler outside the call, in the scope that owns the reaction, and pass it by reference. Keep the observed sources, handler reference, and options visible in the registration. A handler used by only one watcher still belongs in that owning scope, not in a new module.
+
+Keep the registration at its existing lifecycle point and preserve source order, callback inputs, cleanup and return behavior, and watch options. This rule applies to the handler argument, not inline source getters or callbacks for unrelated APIs.
+
 ### Watcher-Local Hydration
 
-Prefer an inline callback for hydration owned only by that watcher, using its observed `new<DomainName>` value rather than rereading the outer ref. Keep meaningful shared or independently owned operations named, as in the selection-handler example above.
+Keep hydration local to its owning component or composable. Define the handler beside its registration and use the observed `new<DomainName>` values rather than rereading the outer ref.
 
 For example, replace a watcher-local function that rereads the resource:
 
@@ -1396,18 +1420,27 @@ watch(
 )
 ```
 
-With hydration beside only the saved-field sources it consumes:
+With a handler that uses the saved-field values delivered by the watcher:
 
 ```typescript
-watch(
-  [() => travelDeskRentalCar.value?.startDate, () => travelDeskRentalCar.value?.endDate],
-  ([newStartDate, newEndDate]) => {
-    if (newStartDate === undefined || newEndDate === undefined) return
+function populateScheduleFromRentalCar(
+  [newStartDate, newEndDate]: [string | null | undefined, string | null | undefined]
+) {
+  if (newStartDate === undefined || newEndDate === undefined) return
 
-    schedule.startDate = newStartDate
-    schedule.endDate = newEndDate
-  },
-  { immediate: true }
+  schedule.startDate = newStartDate
+  schedule.endDate = newEndDate
+}
+
+watch(
+  [
+    () => travelDeskRentalCar.value?.startDate,
+    () => travelDeskRentalCar.value?.endDate,
+  ],
+  populateScheduleFromRentalCar,
+  {
+    immediate: true,
+  }
 )
 ```
 
