@@ -919,6 +919,16 @@ passengerNameRecordCreatedAt: Date | null
 
 Inspect the actual source mapping before writing the reference; do not guess provenance. Apply this to comparable normalized attributes in scope, not every unchanged field or mechanical casing conversion. Keep descriptive local names rather than restoring source acronyms or copying the external schema.
 
+### Provider Addressing for Files and Folders
+
+- **Known item ID:** Prefer the provider's supported ID endpoint for an existing file or folder. Keep the ID in its provider scope (such as its drive), and do not rebuild a path from the item's display name.
+- **Known parent ID, unknown item ID:** List children by parent ID and compare returned names as data only if the listing preserves the lookup contract. Keep the same caller and visibility rules without broadening permissions. Preserve name comparison rules (including case and normalization), the expected item type, and how ambiguous matches are handled. Follow the provider's pagination until the result is established: a no-match result requires a complete listing, and a unique match requires enough evidence to rule out other candidates. Do not turn a denied or failed page into absence or pick an arbitrary first match. Keep the supported lookup if listing cannot preserve these semantics.
+- **Name required by the provider:** Pass the name in the field the provider requires. If that field is a URL path segment, encode the name once at request construction using the provider's path rules, not by encoding the whole URL or storing the escaped name as data.
+
+For example, Microsoft Graph v1.0 [gets a file or folder by ID](https://learn.microsoft.com/en-us/graph/api/driveitem-get?view=graph-rest-1.0) at `GET /drives/{drive-id}/items/{item-id}`. For an exact-name file lookup in a OneDrive Personal folder when only the drive and folder IDs are known, [list the folder's children](https://learn.microsoft.com/en-us/graph/api/driveitem-list-children?view=graph-rest-1.0) at `GET /drives/{drive-id}/items/{folder-id}/children`. Compare each returned `name` to the literal `Report #1%.docx` and follow each returned `@odata.nextLink` as supplied. A match on page two with a non-null `file` facet (even `{}`) is a file candidate; a same-name item with only a `folder` facet cannot satisfy the lookup. Once the lookup confirms a unique file, use its returned `id` for subsequent operations.
+
+By contrast, [starting a Graph upload session for a new file](https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession?view=graph-rest-1.0) requires both the parent ID and the new name in the path. For `New Report #1%.docx`, the request is `POST /drives/{drive-id}/items/{folder-id}:/New%20Report%20%231%25.docx:/createUploadSession`; if the JSON includes `item.name`, keep the literal name there. Apply [Graph's path encoding and filename rules](https://learn.microsoft.com/en-us/graph/onedrive-addressing-driveitems) for the target drive. An existing file's upload session can use `POST /drives/{drive-id}/items/{item-id}/createUploadSession` instead.
+
 ### Workflow-Owned Executables
 
 For an extracted executable owned by one GitHub Actions workflow, prefer `.github/workflows/<workflow-name>/` beside that workflow's YAML. For example, a `test` workflow's disk-reclamation program belongs at `.github/workflows/test/reclaim-runner-disk.sh`, with an explicit descriptive invocation:
@@ -1757,6 +1767,8 @@ Distinguish a local record's identifier from the identifier assigned by another 
 Within an authorized naming change, update affected application-owned database columns, model/API attributes, and consumers together using the project's migration and compatibility rules. Preserve identifier values and actual provider field mappings; an external payload's `source_booking_event_id` can map to the application's `externalBookingEventIdentifier` without renaming the provider field. This preference does not authorize changing upstream schemas, unrelated public contracts, or repository-wide migrations.
 
 Keep legitimate `source` names for other meanings, such as a source file, copy source, or a local source record's foreign key. Establish who owns the identified record before applying the convention; do not mechanically rename every `source` prefix or use a provider name that does not match the integration.
+
+For choosing provider IDs or names in file and folder requests, see [Provider Addressing for Files and Folders](#provider-addressing-for-files-and-folders).
 
 ## State Names and Dependency-Local Ordering
 
