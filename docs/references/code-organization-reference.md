@@ -2885,11 +2885,19 @@ The strict `>` guard preserves the inclusive `<= 8` boundary. The helper returns
 
 A concise scalar ternary may remain when it is genuinely clearer than branching, but explicit branching is the preferred default when control flow reads more clearly. Flag repeated-field or multi-line gated shapes only when a branch or helper reduces duplicate gating or nesting; do not introduce a wrapper merely to remove ternary syntax.
 
+## Defensive Checks and Supported Context
+
+Before adding, retaining, or removing a defensive branch, identify what it protects and where that protection belongs: a supported lifecycle or concurrency contract, an external-input boundary, an invariant, or an evidenced failure. Use project guidance, actual callers and lifecycle ownership, relevant tests, or a concrete risk to establish that context. Prefer the simpler path when a fallback only handles a hypothetical state outside the application contract; do not add support for that state just to justify the guard. Preserve required authorization and other security checks, validation of untrusted input at its owning boundary, and safeguards for supported concurrency and lifecycle behavior. A credible security risk does not need a prior incident to justify protection.
+
+In the [WRAP API-response error plugin review](https://github.com/icefoganalytics/wrap/pull/836/changes#diff-539a87de5d096b2e126ac762cf2da9d598db427354097d6de740f3eb3e36c2b4R17), the unmount callback cleared a module-level application reference. The guard `if (registeredApplication !== application) return` handled a second application registering before the first unmounted, an overlap not supported by that WRAP integration. Clearing the reference on unmount was sufficient; forwarding without a registered error handler still had to throw the original error. In a host that supports overlapping registrations, by contrast, unmounting the older application must not clear the newer application's registration. Preserve the ownership check or use application-scoped state there. The distinction is the host's lifecycle contract, not a Vue-wide single-application rule.
+
+Review and verify the behavior the contract requires, not the number of guards. For the WRAP example, check registration and teardown and the error behavior without a handler; do not demand a test that makes overlapping applications a new requirement. Where overlap is supported, check that the newer registration survives the older application's teardown.
+
 ## Guard Clauses and Exceptional Responses
 
 In generated or touched JavaScript and TypeScript, a guard with a short, easy-to-read condition and only a bare `return` may be written on one line; the multiline braced form is also acceptable. Prefer multiline braced guards for complex conditions, returns with a value, throws, and other bodies. Follow the project's formatter, linter, and explicit style rules.
 
-Keep early exits, conditions, errors, and evaluation semantics unchanged; this is layout, not new validation. Leave a blank line between the guard and the next logical step. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end. Apply in the requested scope, not a repository-wide snippet sweep.
+When only changing guard layout, keep early exits, conditions, errors, and evaluation semantics unchanged; this is layout, not new validation. Leave a blank line between the guard and the next logical step. Keep `else` attached to its closing brace, and do not add a blank line before an enclosing block's end. Apply in the requested scope, not a repository-wide snippet sweep.
 
 ```ts
 if (oldValue === newValue) return
