@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1554) - 2026-11-23
+
+### Changed
+
+- Use a named conversion for nontrivial provider parsing; construct errors directly from prepared values and preserve the original cause.
+
 ## [5.17.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1551) - 2026-11-23
 
 ### Changed
