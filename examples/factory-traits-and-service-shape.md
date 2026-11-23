@@ -43,6 +43,20 @@ Run the project’s factory TypeScript check and the focused endpoint test that 
 
 Source: [`agent-test-fixtures`](../skills/agent-test-fixtures/SKILL.md).
 
+## API Representation Traits
+
+A mention menu needs users as returned by the index endpoint, not full user records. Build the response through the user factory and keep the scenario override at the call site:
+
+```ts
+const mentionedUser = userFactory.asIndex().build({
+  id: 2,
+})
+```
+
+The [WRAP user factory](https://github.com/icefoganalytics/wrap/blob/a8a504511f7943f61b800649a196ea4118d78a11/web/tests/factories/user-factory.ts) delegates to the owning Fishery build and picks the fields defined by [`UserAsIndex`](https://github.com/icefoganalytics/wrap/blob/a8a504511f7943f61b800649a196ea4118d78a11/web/src/api/users-api.ts). Both the full and index user share defaults, but the index result omits full-user fields such as `authSubject` and `createdAt`. A return annotation alone would leave those keys on the object.
+
+A separate `userAsIndexFactory` would duplicate the same user owner, even if both factories initially produced correct data. By contrast, a team listed beside a user is a different entity: keep its `teamFactory`, not a user trait. Verify two index builds return fresh objects, explicit overrides survive projection, and an ordinary build after the trait still returns the full user.
+
 ## Native Graph Setup and Preloads
 
 ### Task

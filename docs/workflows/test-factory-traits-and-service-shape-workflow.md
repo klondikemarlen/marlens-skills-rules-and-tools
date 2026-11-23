@@ -11,6 +11,7 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
    Inline single-use literal tables at `describe.each` or `test.each`, with explicit names and callback references, following the same reference's typed registration example. Preserve order, titles, and runtime timing; shared or independently meaningful fixture tables may remain named.
    Use realistic randomized ordinary defaults through existing generators under [Varied Factory Defaults](../references/code-organization-reference.md#varied-factory-defaults); preserve dependent-field invariants and explicit scenario overrides.
 4. When component tests repeat complete API response entities, reuse or add a factory in the project's established frontend factory location and library, typed to the frontend API contract. Keep scenario-specific overrides inline at each build call; keep one-off inputs literal when no reusable entity shape is needed. Do not import backend model dependencies or mandate a factory library.
+   Before adding a response factory, distinguish a new entity from an existing entity’s [API representations](#api-representations-on-the-owning-factory).
    For shared API-response infrastructure support versus scenario-local response data and mount setup, follow [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification) before repeating API/configuration/authentication mocks.
    When default plugin installation repeats, use [Typed Default-Plugin Mount Support](../references/code-organization-reference.md#typed-default-plugin-mount-support); share typed infrastructure, not scenario props, routers, stubs, or assertions. Preserve fresh stateful defaults, appended caller plugin identities, and other options; direct `mount` remains valid.
    For several mocked HTTP endpoints, use composable single-route or map registration with the same direct-payload contract; preserve existing shared handlers and the configured mock lifecycle. Use separate matcher/response definitions for distinct same-URL queries, keeping deferred responses, failures, and assertions local. See [Composable HTTP GET Routes](../../examples/factory-traits-and-service-shape.md#composable-http-get-routes) for query-aware native registrations and the URL-only helper's limits before inventing a dispatcher or adding a mocking dependency.
@@ -20,6 +21,12 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
 7. For dependency-bundle versus direct-subject imports, including the model-owned constant/enum exception, follow [Project-Root Imports and Paths](../references/code-organization-reference.md#project-root-imports-and-paths).
    For integration-model fixtures and their helpers, follow [Integration Factory Ownership](#integration-factory-ownership).
 8. Run the focused test and test TypeScript check.
+
+## API Representations on the Owning Factory
+
+Within one test layer, give each domain entity one owning factory. When the API represents the same entity differently for an index, show, or reference response, select that shape through a named, opt-in trait on the owner, such as `userFactory.asIndex().build(...)`. A different entity or integration owner still gets its own factory. Frontend response fixtures do not share a runtime with backend persistence factories.
+
+Use the project's installed factory API to build a fresh value from the owner's defaults and the caller's explicit overrides, then return exactly the fields of the selected API representation. Check both the declared result type and the runtime keys: annotating a full entity with a narrower type does not remove its extra fields. Do not hide a second factory behind the trait, cast away a type mismatch, or change ordinary builds. Preserve the operations the consumer actually uses: a build-only frontend projection needs no persistence method; where creation is supported, preserve its hooks, timing, and persistence. See [API representation examples](../../examples/factory-traits-and-service-shape.md#api-representation-traits).
 
 ## Factory Defaults and Role Traits
 
