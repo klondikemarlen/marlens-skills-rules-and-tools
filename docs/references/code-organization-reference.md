@@ -1194,34 +1194,85 @@ Resolve the action against the actual controller method and routing declaration;
 
 Prefer separate explicit tests with concrete setup and literal expectations for distinct behavioral scenarios, even when their Act and assertion shapes match. Three missing-association scenarios should each name and omit their concrete relationship, not assign `travelOrderEvent[association]` and interpolate an error message. Different control flow, such as commit versus rollback, also needs self-contained tests. Intentional duplicate setup is clearer than scenario flags, conditional Acts, or computed expected-data bundles.
 
-Parameterize interchangeable inputs that illustrate one behavioral rule when the table makes that rule easier to read. Similar setup or assertion syntax is not enough: keep separate named tests for distinct domain causes, expected outcomes, or reasons to change. For example, two workflow-sharing failures may use the same mount, action, and snackbar assertion shape:
+Parameterize interchangeable inputs that illustrate one behavioral rule when the table makes that rule easier to read. If a row needs handwritten prose solely to supply its test title, give the scenario a standalone test with a literal behavioral title instead. Interpolating actual inputs or expected values is different: those values already participate in the test. Even when a title can be derived from real values, keep distinct domain causes, outcomes, or reasons to change in separate tests.
 
-- **Sharing Is Forbidden:** Arrange an `ApiOperationError` with HTTP 403 and a server refusal explanation. Attempt to share the workflow. Assert that the snackbar preserves the server's explanation.
-- **The Sharing Request Fails on the Network:** Arrange an `AxiosError` with `ERR_NETWORK` and no usable server response. Attempt to share the workflow. Assert that the snackbar still gives local failure feedback.
-
-Keep each test's meaningful Arrange, Act, and Assert visible rather than hiding the rejection and expected feedback in a shared helper or case table. Share the harness and other repeated infrastructure where useful. By contrast, several input/output pairs demonstrating the same whitespace-normalization rule can make a readable utility table. Keep valid `test.each` and `test.for` uses; do not rewrite unrelated tests. See the [contrasting scenario examples](../../examples/test-assertion-focus.md#meaningful-scenarios-and-independent-ownership).
-
-Place a single-use literal case table directly at its `describe.each` or `test.each` call rather than declaring a detached `registrationForms` constant. Keep case names, callback references, types, and scenario data explicit:
+For example, these workflow-sharing failures have the same click and snackbar assertion shape, but `condition` is prose used only for the title. In these illustrative excerpts, the shared harness provides `user` and the request mock, and `ApiOperationError` takes an HTTP status and a server message:
 
 ```typescript
-type RegistrationCase = {
-  name: string
-  register: () => void
-}
+const forbiddenError = new ApiOperationError(403, "You cannot share this workflow.")
+const networkError = new AxiosError("Network Error", "ERR_NETWORK")
 
-describe.each<RegistrationCase>([
-  { name: "keyboard", register: registerWithKeyboard },
-  { name: "pointer", register: registerWithPointer },
-])("$name registration", ({ register }) => {
-  test("registers the selected account", () => {
-    register()
+test.each([
+  {
+    condition: "the server refuses permission",
+    rejection: forbiddenError,
+    expectedMessage: "You cannot share this workflow.",
+  },
+  {
+    condition: "the request fails on the network",
+    rejection: networkError,
+    expectedMessage: "Could not share the workflow. Try again.",
+  },
+])("shows a failure message when $condition", async ({ rejection, expectedMessage }) => {
+  mockShareRequest.mockRejectedValueOnce(rejection)
+  render(WorkflowSharing)
 
-    expect(account.isRegistered).toBe(true)
-  })
+  await user.click(screen.getByRole("button", { name: "Share" }))
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(expectedMessage)
 })
 ```
 
-Here the existing callbacks operate on the scenario's arranged account; the table holds references rather than invoking registration during suite definition. Apply the same placement to `test.each` when it owns the cases. Preserve the runner's supported typing, case order, titles, callback identity, and evaluation/registration timing. Genuinely reused tables and independently meaningful fixture data may stay named; do not inline shared setup or hide complex scenario behavior in the table.
+Write each behavior directly. Preserve both the server's refusal explanation and the local fallback for a network error with no usable response:
+
+```typescript
+test("shows the server's refusal explanation when sharing is forbidden", async () => {
+  mockShareRequest.mockRejectedValueOnce(
+    new ApiOperationError(403, "You cannot share this workflow.")
+  )
+  render(WorkflowSharing)
+
+  await user.click(screen.getByRole("button", { name: "Share" }))
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("You cannot share this workflow.")
+})
+
+test("shows local retry feedback when the sharing request fails on the network", async () => {
+  mockShareRequest.mockRejectedValueOnce(new AxiosError("Network Error", "ERR_NETWORK"))
+  render(WorkflowSharing)
+
+  await user.click(screen.getByRole("button", { name: "Share" }))
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Could not share the workflow. Try again."
+  )
+})
+```
+
+Keep each test's meaningful Arrange, Act, and Assert visible, rather than moving the same scenario choices behind a helper or flags. Share the harness and other repeated infrastructure where useful. See the [contrasting scenario examples](../../examples/test-assertion-focus.md#meaningful-scenarios-and-independent-ownership).
+
+By contrast, several inputs demonstrating the same whitespace-trimming rule make a readable utility table. The title interpolates the actual `input` passed to the subject, not a separate description. Place an appropriate single-use literal table directly at its runner call rather than declaring a detached constant:
+
+```typescript
+test.each([
+  {
+    input: " Whitehorse",
+    expected: "Whitehorse",
+  },
+  {
+    input: "Vancouver ",
+    expected: "Vancouver",
+  },
+  {
+    input: " Toronto ",
+    expected: "Toronto",
+  },
+])("trims surrounding whitespace from '$input'", ({ input, expected }) => {
+  expect(trimCityName(input)).toBe(expected)
+})
+```
+
+Apply the same placement to `describe.each` when it owns the cases. When moving a valid table, preserve supported typing, case order, titles, callback identity, and evaluation and registration timing. Genuinely reused tables and independently meaningful fixture data may stay named; do not inline shared setup or hide complex scenario behavior in the table. Keep valid `test.each` and `test.for` uses; do not rewrite unrelated tests.
 
 Control the clock explicitly in time-dependent tests rather than relying on wall time or fixed fixture dates alone. With Vitest, use `vi.useFakeTimers()` and `vi.setSystemTime(...)`; use `await vi.advanceTimersByTimeAsync(...)` when scheduled callbacks are the behavior. Restore real timers through the suite's cleanup owner. For integration tests needing only application-date control while network/database timers must progress, use `vi.useFakeTimers({ toFake: ["Date"] })`. This does not freeze the database server's clock; choose fixtures or a supported database-time mechanism for that separate boundary.
 
