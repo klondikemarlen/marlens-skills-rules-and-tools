@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1573) - 2026-11-23
+
+### Changed
+
+- Show elapsed time with explicit units so readers can distinguish a duration from a time of day.
+
 ## [5.17.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1571) - 2026-11-23
 
 ### Changed
