@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1569) - 2026-11-23
+
+### Changed
+
+- Build index, show, and reference fixtures through the owning entity factory and review the exact runtime projection, not its type or filename alone.
+
 ## [5.17.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1565) - 2026-11-23
 
 ### Changed
