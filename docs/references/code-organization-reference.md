@@ -2063,11 +2063,13 @@ For reducing duplicate background-job events while preserving useful permitted p
 
 Keep request orchestration and the choice to recover, translate, or rethrow at the integration boundary. Positively recognize the failure category before constructing the application error, preserving precedence for concrete types with distinct recovery behavior. Let unrecognized rejections pass through unchanged. Use the real provider contract: if the boundary also recognizes plain response bodies, preserve that recognition rather than assuming every rejection is an SDK error instance.
 
-Once the type is selected, prefer its normal constructor with the untouched rejection passed through the language or framework's cause convention. The error class or its family formats the application error and derives only permitted diagnostics from the cause. Do not unpack or mutate the cause at the catch site, copy raw provider text or bodies into the message, or serialize the cause into user-visible output. Preserving the cause does not authorize logging or exposing it. A factory can still be useful when it genuinely selects among types, but classification should be distinguishable from formatting; do not add a factory just to wrap an already-selected error.
+Once the type is selected, use ordinary construction when the inputs already express the local error: initialize its message and fields, and preserve the untouched rejection through the language or framework's cause convention. When the input needs nontrivial interpretation, such as reading provider-specific shapes, validating diagnostic fields, or deciding how they appear in the message, use a source-named conversion owned by the error type or family. The conversion prepares local values for a simple constructor. A named factory can both convert and construct; it need not choose the type. Do not add one just to forward prepared values. Language-supported constructor variants are also valid when the input representation is clear and initialization stays simple.
+
+Keep classification distinct from conversion. Read only permitted diagnostics into exposed fields or formatted messages. Do not unpack or mutate the cause at the catch site, copy raw provider text or bodies into the message, or serialize the cause into user-visible output. Preserving the cause does not authorize logging or exposing it.
 
 If the operation label only helps a reader understand what failed, supply it as a plain-language message at that operation's failure boundary. The message should make sense on its own, without a stage enum or string union. Keep structured values with actual consumers, such as a subtype used for recovery, a provider status used by monitoring, or a stage code required by an established machine-readable contract.
 
-For example, this upload adapter translates SDK `GraphError` instances, preserving a name conflict as a distinct type for caller recovery and retaining only the HTTP status used by monitoring. Other rejection shapes are not recognized by this example's contract:
+For example, this upload adapter translates SDK `GraphError` instances, preserving a name conflict as a distinct type for caller recovery and retaining only the HTTP status used by monitoring. Other rejection shapes are not recognized by this example's contract. Before, ordinary construction hides provider interpretation in the constructor:
 
 ```typescript
 import { GraphError } from "@microsoft/microsoft-graph-client"
@@ -2088,6 +2090,45 @@ class GraphUploadError extends Error {
       })
       this.providerStatus = undefined
     }
+  }
+}
+```
+
+After, the error family exposes `detailsFromGraphError` for the conversion. Its constructor initializes prepared inputs and retains the original cause. A caller with an already-prepared local message and cause can use `new GraphUploadError({ message, cause })` directly without going through the provider conversion.
+
+```typescript
+import { GraphError } from "@microsoft/microsoft-graph-client"
+
+interface GraphUploadErrorDetails extends ErrorOptions {
+  message: string
+  providerStatus?: number
+}
+
+class GraphUploadError extends Error {
+  static detailsFromGraphError(
+    operationMessage: string,
+    cause: GraphError
+  ): GraphUploadErrorDetails {
+    const providerStatus = cause.statusCode
+    if (Number.isInteger(providerStatus) && providerStatus >= 100 && providerStatus <= 599) {
+      return {
+        message: `${operationMessage} (Microsoft Graph HTTP ${providerStatus}).`,
+        providerStatus,
+        cause,
+      }
+    }
+
+    return {
+      message: `${operationMessage}.`,
+      cause,
+    }
+  }
+
+  readonly providerStatus: number | undefined
+
+  constructor(details: GraphUploadErrorDetails) {
+    super(details.message, details)
+    this.providerStatus = details.providerStatus
   }
 }
 
@@ -2112,15 +2153,13 @@ async function upload<Session>(uploads: UploadOperations<Session>, content: Uint
     }
 
     const message = "Failed to create the Microsoft Graph upload session"
+    let UploadErrorType = GraphUploadError
     if (GraphUploadNameConflictError.reportsNameConflict(cause)) {
-      throw new GraphUploadNameConflictError(message, {
-        cause,
-      })
+      UploadErrorType = GraphUploadNameConflictError
     }
 
-    throw new GraphUploadError(message, {
-      cause,
-    })
+    const details = UploadErrorType.detailsFromGraphError(message, cause)
+    throw new UploadErrorType(details)
   }
 
   try {
@@ -2131,15 +2170,13 @@ async function upload<Session>(uploads: UploadOperations<Session>, content: Uint
     }
 
     const message = "Failed to send file content to Microsoft Graph"
+    let UploadErrorType = GraphUploadError
     if (GraphUploadNameConflictError.reportsNameConflict(cause)) {
-      throw new GraphUploadNameConflictError(message, {
-        cause,
-      })
+      UploadErrorType = GraphUploadNameConflictError
     }
 
-    throw new GraphUploadError(message, {
-      cause,
-    })
+    const details = UploadErrorType.detailsFromGraphError(message, cause)
+    throw new UploadErrorType(details)
   }
 }
 ```
