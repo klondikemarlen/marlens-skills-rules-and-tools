@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1580) - 2026-11-23
+
+### Changed
+
+- Simplify now revisits the caller after each edit to catch newly redundant helpers without widening the cleanup.
+
 ## [5.17.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1573) - 2026-11-23
 
 ### Changed
