@@ -808,6 +808,42 @@ For example, `synchronize-bookings-service.ts` can keep its orchestration helper
 
 This runtime boundary does not prohibit a service's cohesive input/result types, change companion public-type or barrel conventions, or require extracting private helpers merely to give them a file.
 
+### Public Class Methods Before Private Helpers
+
+Put a class's public methods above its private implementation methods so readers see what callers can do before how it works. This applies to ordinary classes, including errors and integration clients, and to both static and instance methods. Keep methods on their existing receiver and preserve their visibility, signatures, and behavior.
+
+For example, put the public factory above the classifier it calls. This excerpt uses the existing `SharePointIntegrationError` base class and Lodash's `get`:
+
+```typescript
+class SharePointFileConflictError extends SharePointIntegrationError {
+  static fromGraphError(cause: unknown) {
+    if (cause instanceof SharePointFileConflictError) {
+      return cause
+    }
+
+    if (!this.isGraphConflict(cause)) {
+      return undefined
+    }
+
+    return new SharePointFileConflictError("SharePoint file conflict", cause)
+  }
+
+  private static isGraphConflict(cause: unknown): boolean {
+    const status = get(cause, "statusCode")
+    return (
+      status === 409 ||
+      status === 412 ||
+      get(cause, "code") === "nameAlreadyExists" ||
+      get(cause, "error.code") === "nameAlreadyExists"
+    )
+  }
+}
+```
+
+This is a method layout default, not a reason to move constructors or initialization-sensitive declarations such as fields and static blocks. Preserve framework-required layouts and stronger project-local ordering. Apply the default within the requested authoring or review scope, not by reordering unrelated classes.
+
+For service-specific helper ordering and Ruby callable layouts, see [Service Orchestration Readability](#service-orchestration-readability) and [Ruby Callable Actions](#ruby-callable-actions).
+
 ### Class Operation Lifetimes
 
 When a class owns an operation that does not need state shared across calls, prefer exporting the class with a class-level entrypoint rather than exporting an instance constructed at module load. Create a fresh instance inside that entrypoint if the implementation needs instance methods or per-operation instance state. If the operation needs no instance, implement it directly as a class method; do not allocate a receiver just to forward a call.
@@ -1158,7 +1194,12 @@ Resolve the action against the actual controller method and routing declaration;
 
 Prefer separate explicit tests with concrete setup and literal expectations for distinct behavioral scenarios, even when their Act and assertion shapes match. Three missing-association scenarios should each name and omit their concrete relationship, not assign `travelOrderEvent[association]` and interpolate an error message. Different control flow, such as commit versus rollback, also needs self-contained tests. Intentional duplicate setup is clearer than scenario flags, conditional Acts, or computed expected-data bundles.
 
-Parameterization needs a clear readability win and a genuinely shared invariant, not merely fewer lines or identical assertion syntax. Homogeneous transformation-utility input/output tables remain useful; this is not a ban on `test.each`. See the [contrasting scenario examples](../../examples/test-assertion-focus.md#meaningful-scenarios-and-independent-ownership).
+Parameterize interchangeable inputs that illustrate one behavioral rule when the table makes that rule easier to read. Similar setup or assertion syntax is not enough: keep separate named tests for distinct domain causes, expected outcomes, or reasons to change. For example, two workflow-sharing failures may use the same mount, action, and snackbar assertion shape:
+
+- **Sharing Is Forbidden:** Arrange an `ApiOperationError` with HTTP 403 and a server refusal explanation. Attempt to share the workflow. Assert that the snackbar preserves the server's explanation.
+- **The Sharing Request Fails on the Network:** Arrange an `AxiosError` with `ERR_NETWORK` and no usable server response. Attempt to share the workflow. Assert that the snackbar still gives local failure feedback.
+
+Keep each test's meaningful Arrange, Act, and Assert visible rather than hiding the rejection and expected feedback in a shared helper or case table. Share the harness and other repeated infrastructure where useful. By contrast, several input/output pairs demonstrating the same whitespace-normalization rule can make a readable utility table. Keep valid `test.each` and `test.for` uses; do not rewrite unrelated tests. See the [contrasting scenario examples](../../examples/test-assertion-focus.md#meaningful-scenarios-and-independent-ownership).
 
 Place a single-use literal case table directly at its `describe.each` or `test.each` call rather than declaring a detached `registrationForms` constant. Keep case names, callback references, types, and scenario data explicit:
 
