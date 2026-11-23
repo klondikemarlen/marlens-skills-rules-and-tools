@@ -41,6 +41,12 @@ When review findings arrive after a completion response or during another discus
 
 When investigating a lingering activity label, distinguish observed unnecessary tool orchestration from a stale UI status, scheduler delay, or advisor latency. A screenshot or unmeasured wait alone does not establish which caused the delay. Keep required advisor/review gates intact, and do not claim guidance changes fix runtime/UI behavior or improve latency without measured evidence.
 
+Before waiting for a review, confirm who or what has been dispatched to advance the exact request, which session or task owns that review, and how the terminal result will reach the session. A prepared request file or `PENDING` status describes the review, not an active producer. A confirmed reviewer can finish asynchronously; wait through its supported completion path. Waiting is not a verdict.
+
+Without a confirmed producer, report the review as outstanding, not running. Use the verifier's supported handoff or recovery path when applicable. If dispatch is unavailable, name the exact missing prerequisite and leave the verification gate outstanding. Do not launch an indefinite file watcher or blindly rerun verification; an observer cannot dispatch a reviewer or submit an assessment.
+
+After stopping an owned wait, report exactly what stopped and what verification remains outstanding. Stopping an observer does not cancel its review request or stop a separately dispatched reviewer. Do not silently start a replacement job.
+
 ## Reporting
 
 Prefer concise, reader-useful evidence and links already available in the owning issue/PR/release record. Distinguish merge from release/install and pass from unrun or blocked checks. Preserve material residual risks and the next action for incomplete work; do not publish internal bookkeeping or duplicate an existing record. An explicit requested report format takes precedence.

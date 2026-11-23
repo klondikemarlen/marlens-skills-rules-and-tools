@@ -166,6 +166,42 @@ Use the project's actual component path, resolver, and existing type shape. Veri
 
 Check actual type consumers before introducing or retaining an exported props type. If only the component's own `defineProps` consumes it, prefer the multiline inline declaration below. Remove a separate normal script block only if that leaves it empty; retain legitimate public exports and independently shared domain types. Preserve prop names, types, nullability, optionality, defaults, and compiled runtime props when inlining.
 
+## Simple Props and Domain Attributes
+
+Prefer separate, simple props when a child only needs a few values. For example, `WorkflowStepPlayerLabel.vue` takes a display name and a role, not a player record:
+
+```typescript
+const props = defineProps<{
+  displayName: string
+  role: string
+}>()
+```
+
+```vue
+<WorkflowStepPlayerLabel
+  :display-name="displayName"
+  :role="role"
+/>
+```
+
+When an application-owned prop accepts a domain record or a collection of domain records, name the prop for the full domain entity (`workflowStepPlayer` or `workflowStepPlayers`, not `player` or `players`) and include `Attributes` in the component name. Require only the fields the child reads. For example, `WorkflowStepPlayerAttributesChecklist.vue` uses each player's `userId` and `role`:
+
+```typescript
+const props = defineProps<{
+  workflowStepPlayers: readonly Pick<WorkflowStepPlayer, "userId" | "role">[]
+}>()
+```
+
+```vue
+<WorkflowStepPlayerAttributesChecklist
+  :workflow-step-players="workflowStepPlayers"
+/>
+```
+
+`WorkflowStepPlayer` is the existing domain type. Narrow the prop type without copying records just to drop fields; the caller can pass existing records or a [loaded-resource projection](#loaded-resource-projections) that already has the required fields.
+
+This guidance does not replace [identifier-based resource selection](#resource-bound-component-selection) or rename props owned by a framework or library. A domain-agnostic table's `items` contract does not become a domain-specific prop because one caller binds domain records to it.
+
 ## Multiline Prop Object Types
 
 Prefer multiline object types passed to `defineProps`, even for a single property. Put the opening brace, each property, and the closing brace on separate lines:
