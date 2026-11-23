@@ -184,17 +184,21 @@ const props = defineProps<{
 />
 ```
 
-When an application-owned prop accepts a domain record or a collection of domain records, name the prop for the full domain entity (`workflowStepPlayer` or `workflowStepPlayers`, not `player` or `players`) and include `Attributes` in the component name. Require only the fields the child reads. For example, `WorkflowStepPlayerAttributesChecklist.vue` uses each player's `userId` and `role`:
+When an application-owned prop accepts a domain record or a collection of domain records, name the prop for the full domain entity (`workflowStepPlayer` or `workflowStepPlayers`, not `player` or `players`) and include `Attributes` in the component name. Require only the fields the child reads. For example, the [player checklist](https://github.com/icefoganalytics/wrap/blob/14164d83ec100f3f019d57b6b520410d967d986f/web/src/components/workflow-steps/WorkflowStepPlayerAttributesChecklist.vue) reads the row ID, completion date, and assignee IDs from each record. Its time zone is a separate scalar prop:
 
 ```typescript
 const props = defineProps<{
-  workflowStepPlayers: readonly Pick<WorkflowStepPlayer, "userId" | "role">[]
+  workflowStepPlayers: ReadonlyArray<
+    Pick<WorkflowStepPlayer, "id" | "actualCompleteDate" | "userId" | "positionId" | "teamId">
+  >
+  timezone: string
 }>()
 ```
 
 ```vue
 <WorkflowStepPlayerAttributesChecklist
   :workflow-step-players="workflowStepPlayers"
+  :timezone="workflowTimezone"
 />
 ```
 
