@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1552) - 2026-11-23
+
+### Changed
+
+- Let the error type format permitted provider details from the original cause. Identify the failed operation in its message and construct faithful typed failures in tests.
+
 ## [5.16.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1549) - 2026-11-23
 
 ### Changed
