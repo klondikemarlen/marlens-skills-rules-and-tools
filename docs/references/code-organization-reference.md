@@ -919,6 +919,16 @@ passengerNameRecordCreatedAt: Date | null
 
 Inspect the actual source mapping before writing the reference; do not guess provenance. Apply this to comparable normalized attributes in scope, not every unchanged field or mechanical casing conversion. Keep descriptive local names rather than restoring source acronyms or copying the external schema.
 
+### Provider Addressing for Files and Folders
+
+- **Known item ID:** Prefer the provider's supported ID endpoint for an existing file or folder. Keep the ID in its provider scope (such as its drive), and do not rebuild a path from the item's display name.
+- **Known parent ID, unknown item ID:** List children by parent ID and compare returned names as data only if the listing preserves the lookup contract. Keep the same caller and visibility rules without broadening permissions. Preserve name comparison rules (including case and normalization), the expected item type, and how ambiguous matches are handled. Follow the provider's pagination until the result is established: a no-match result requires a complete listing, and a unique match requires enough evidence to rule out other candidates. Do not turn a denied or failed page into absence or pick an arbitrary first match. Keep the supported lookup if listing cannot preserve these semantics.
+- **Name required by the provider:** Pass the name in the field the provider requires. If that field is a URL path segment, encode the name once at request construction using the provider's path rules, not by encoding the whole URL or storing the escaped name as data.
+
+For example, Microsoft Graph v1.0 [gets a file or folder by ID](https://learn.microsoft.com/en-us/graph/api/driveitem-get?view=graph-rest-1.0) at `GET /drives/{drive-id}/items/{item-id}`. For an exact-name file lookup in a OneDrive Personal folder when only the drive and folder IDs are known, [list the folder's children](https://learn.microsoft.com/en-us/graph/api/driveitem-list-children?view=graph-rest-1.0) at `GET /drives/{drive-id}/items/{folder-id}/children`. Compare each returned `name` to the literal `Report #1%.docx` and follow each returned `@odata.nextLink` as supplied. A match on page two with a non-null `file` facet (even `{}`) is a file candidate; a same-name item with only a `folder` facet cannot satisfy the lookup. Once the lookup confirms a unique file, use its returned `id` for subsequent operations.
+
+By contrast, [starting a Graph upload session for a new file](https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession?view=graph-rest-1.0) requires both the parent ID and the new name in the path. For `New Report #1%.docx`, the request is `POST /drives/{drive-id}/items/{folder-id}:/New%20Report%20%231%25.docx:/createUploadSession`; if the JSON includes `item.name`, keep the literal name there. Apply [Graph's path encoding and filename rules](https://learn.microsoft.com/en-us/graph/onedrive-addressing-driveitems) for the target drive. An existing file's upload session can use `POST /drives/{drive-id}/items/{item-id}/createUploadSession` instead.
+
 ### Workflow-Owned Executables
 
 For an extracted executable owned by one GitHub Actions workflow, prefer `.github/workflows/<workflow-name>/` beside that workflow's YAML. For example, a `test` workflow's disk-reclamation program belongs at `.github/workflows/test/reclaim-runner-disk.sh`, with an explicit descriptive invocation:
@@ -1758,6 +1768,8 @@ Within an authorized naming change, update affected application-owned database c
 
 Keep legitimate `source` names for other meanings, such as a source file, copy source, or a local source record's foreign key. Establish who owns the identified record before applying the convention; do not mechanically rename every `source` prefix or use a provider name that does not match the integration.
 
+For choosing provider IDs or names in file and folder requests, see [Provider Addressing for Files and Folders](#provider-addressing-for-files-and-folders).
+
 ## State Names and Dependency-Local Ordering
 
 Name state for the domain fact or lifecycle it represents, not the consuming control or callsite. Prefer `isLoadingNotificationPreferences` over `isLoadingGlobalSwitches` when the state reflects the notification-preferences request.
@@ -2046,6 +2058,93 @@ When an owning layer has a family of custom error types, group its shared local 
 In a local catch, consume only positively recognized categories the operation actually handles, then rethrow everything else through existing framework propagation. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on handled and rethrown paths. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
+
+### Typed Provider Failures
+
+Keep request orchestration and the choice to recover, translate, or rethrow at the integration boundary. Positively recognize the failure category before constructing the application error, preserving precedence for concrete types with distinct recovery behavior. Let unrecognized rejections pass through unchanged. Use the real provider contract: if the boundary also recognizes plain response bodies, preserve that recognition rather than assuming every rejection is an SDK error instance.
+
+Once the type is selected, prefer its normal constructor with the untouched rejection passed through the language or framework's cause convention. The error class or its family formats the application error and derives only permitted diagnostics from the cause. Do not unpack or mutate the cause at the catch site, copy raw provider text or bodies into the message, or serialize the cause into user-visible output. Preserving the cause does not authorize logging or exposing it. A factory can still be useful when it genuinely selects among types, but classification should be distinguishable from formatting; do not add a factory just to wrap an already-selected error.
+
+If the operation label only helps a reader understand what failed, supply it as a plain-language message at that operation's failure boundary. The message should make sense on its own, without a stage enum or string union. Keep structured values with actual consumers, such as a subtype used for recovery, a provider status used by monitoring, or a stage code required by an established machine-readable contract.
+
+For example, this upload adapter translates SDK `GraphError` instances, preserving a name conflict as a distinct type for caller recovery and retaining only the HTTP status used by monitoring. Other rejection shapes are not recognized by this example's contract:
+
+```typescript
+import { GraphError } from "@microsoft/microsoft-graph-client"
+
+class GraphUploadError extends Error {
+  readonly providerStatus: number | undefined
+
+  constructor(operationMessage: string, { cause }: { cause: GraphError }) {
+    const status = cause.statusCode
+    if (Number.isInteger(status) && status >= 100 && status <= 599) {
+      super(`${operationMessage} (Microsoft Graph HTTP ${status}).`, {
+        cause,
+      })
+      this.providerStatus = status
+    } else {
+      super(`${operationMessage}.`, {
+        cause,
+      })
+      this.providerStatus = undefined
+    }
+  }
+}
+
+class GraphUploadNameConflictError extends GraphUploadError {
+  static reportsNameConflict(cause: GraphError): boolean {
+    return cause.code === "nameAlreadyExists"
+  }
+}
+
+interface UploadOperations<Session> {
+  createSession(): Promise<Session>
+  transferContent(session: Session, content: Uint8Array): Promise<void>
+}
+
+async function upload<Session>(uploads: UploadOperations<Session>, content: Uint8Array) {
+  let session: Session
+  try {
+    session = await uploads.createSession()
+  } catch (cause) {
+    if (!(cause instanceof GraphError)) {
+      throw cause
+    }
+
+    const message = "Failed to create the Microsoft Graph upload session"
+    if (GraphUploadNameConflictError.reportsNameConflict(cause)) {
+      throw new GraphUploadNameConflictError(message, {
+        cause,
+      })
+    }
+
+    throw new GraphUploadError(message, {
+      cause,
+    })
+  }
+
+  try {
+    await uploads.transferContent(session, content)
+  } catch (cause) {
+    if (!(cause instanceof GraphError)) {
+      throw cause
+    }
+
+    const message = "Failed to send file content to Microsoft Graph"
+    if (GraphUploadNameConflictError.reportsNameConflict(cause)) {
+      throw new GraphUploadNameConflictError(message, {
+        cause,
+      })
+    }
+
+    throw new GraphUploadError(message, {
+      cause,
+    })
+  }
+}
+```
+
+Use the existing application error base, diagnostics allowlist, and recovery and presentation boundaries in the actual integration. Check each operation's message by itself, preservation of conflict classification and cause identity, unchanged propagation of unrecognized rejections, and that a failed session creation prevents transfer. This example assumes an existing translation contract. If the contract instead logs and rethrows the original rejection, keep it as shown in [Effect-Oriented Method Slices](#effect-oriented-method-slices); operation-specific wording alone is not a reason to introduce wrapping.
 
 ## Text Validation Ownership
 

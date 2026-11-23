@@ -1,6 +1,6 @@
 ---
 name: agent-test-fixtures
-description: Internal implementation procedure for agents arranging TypeScript test fixtures with reusable persisted relationships, API entities, or composable HTTP response mocks, including frontend component tests.
+description: Internal implementation procedure for agents arranging TypeScript test fixtures with reusable persisted relationships, API entities, composable HTTP response mocks, or provider rejections, including frontend component tests.
 ---
 
 # Test Fixtures

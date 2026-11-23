@@ -6,6 +6,30 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1552) - 2026-11-23
+
+### Changed
+
+- Let the error type format permitted provider details from the original cause. Identify the failed operation in its message and construct faithful typed failures in tests.
+
+## [5.16.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1549) - 2026-11-23
+
+### Changed
+
+- Prefer provider IDs for existing items and treat names as data when a parent listing preserves the lookup contract.
+
+## [5.16.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1550) - 2026-11-23
+
+### Changed
+
+- Use a named factory trait for a standard special-role actor without changing ordinary users or one-off role combinations.
+
+## [5.16.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1548) - 2026-11-23
+
+### Changed
+
+- Keep update and destroy decisions independent unless their permission relationship is intentional.
+
 ## [5.16.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1545) - 2026-11-21
 
 ### Changed
