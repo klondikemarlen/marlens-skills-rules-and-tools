@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1557) - 2026-11-23
+
+### Changed
+
+- Group frontend plugin dependencies before utilities without moving unrelated imports or the subject of a test.
+
 ## [5.17.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1555) - 2026-11-23
 
 ### Changed
