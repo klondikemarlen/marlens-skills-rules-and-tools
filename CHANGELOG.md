@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1584) - 2026-11-23
+
+### Changed
+
+- GitHub triage now recommends common names for work types, missing information, external blockers, and recurring reviews while preserving local label conventions.
+
 ## [5.17.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1580) - 2026-11-23
 
 ### Changed

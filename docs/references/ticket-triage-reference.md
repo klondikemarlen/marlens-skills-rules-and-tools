@@ -2,6 +2,20 @@
 
 This reference defines the optional GitHub-only `triage` command-line interface, the shared snapshot and assessment data contract, and its safety limits. Use the [Ticket Triage Workflow](../workflows/ticket-triage-workflow.md) for supported ticket updates by default and explicit read-only assessment or dry-run. Jira and other trackers use authenticated native tools; the helper does not discover, create, or assume a mirror in GitHub.
 
+## GitHub Label Vocabulary
+
+For new GitHub label usage, prefer these names. Work type, triage condition, and recurrence answer different questions; combine them when useful rather than requiring one label from every row.
+
+| Question | Preferred labels | When to use them |
+| --- | --- | --- |
+| What work is proposed? | `bug`, `enhancement`, `documentation`, `refactor` | Distinguish incorrect behavior, new or improved capability, documentation work, and restructuring that preserves intended behavior. |
+| What prevents the next action? | `needs-info`, `blocked` | For `needs-info`, name the missing answer or reproducer. Reserve `blocked` for an external prerequisite; name it and the observable unblocking condition. Neither means low priority or awaiting an internal decision. |
+| Does the review obligation recur? | `periodic-review` | Record the cadence or trigger. Keep the reminder open between reviews and track delivery separately. This is not a generic review state or a scheduler. |
+
+Add optional labels only for a real routing decision or recurring query: `regression` for previously working behavior, `security` for security-related work suitable for the tracker, `dependencies` for dependency maintenance, and `awaiting-approval` for a documented approval gate. Use the project's private vulnerability-reporting channel for sensitive reports. Use scoped names such as `platform:linux` only where a maintainer acts on that distinction. Request a PR review through GitHub rather than inventing a generic `review` label.
+
+Map existing equivalents by meaning (`:recycle: refactor` to `refactor`, for example); do not rename them during triage. Check saved searches, boards, and automation before a separately authorized migration. This vocabulary is not a bootstrap list or permission to provision labels, relabel a backlog, or change other repositories.
+
 ## Command-Line Interface
 
 ```text
