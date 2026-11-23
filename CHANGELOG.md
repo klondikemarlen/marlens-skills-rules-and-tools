@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1551) - 2026-11-23
+
+### Changed
+
+- Scope independently filtered collections through their resource composable, and require a complete matching subset before replacing it.
+
 ## [5.17.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1552) - 2026-11-23
 
 ### Changed
