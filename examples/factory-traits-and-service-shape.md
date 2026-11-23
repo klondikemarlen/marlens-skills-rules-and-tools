@@ -330,6 +330,32 @@ const travelDeskUser = await userFactory.asTravelDeskUser().create()
 
 Do not repeat `userFactory.create({ roles: [User.Roles.USER] })` or invent an ordinary-role trait merely to restate that default. Likewise, replace an equivalent repeated travel-desk role array with the existing named trait, after checking its roles and hooks.
 
+A test for a System Administrator updating a centre can be the first consumer of a reusable actor trait. If no existing trait provides the exact setup below, name it in the user factory rather than leaving the actor as an inline override:
+
+```typescript
+const systemAdministrator = await userFactory.create({
+  roles: [User.Roles.SYSTEM_ADMINISTRATOR],
+})
+```
+
+In this example, the project already uses Factory Shark 1.1.0. Add this method to the owning factory class using its `params` builder:
+
+```typescript
+asSystemAdministrator() {
+  return this.params({
+    roles: [User.Roles.SYSTEM_ADMINISTRATOR],
+  })
+}
+```
+
+Then use it in the test's Arrange phase:
+
+```typescript
+const systemAdministrator = await userFactory.asSystemAdministrator().create()
+```
+
+The trait sets exactly `[User.Roles.SYSTEM_ADMINISTRATOR]`; it does not append `USER`. The same `create()` path persists the user before the centre update, with the existing factory hooks and defaults unchanged.
+
 A scenario explicitly exercising a nondefault combination remains valid:
 
 ```typescript
@@ -338,13 +364,14 @@ const combinedRoleUser = await userFactory.create({
 })
 ```
 
-These enum members and factory APIs are illustrative existing project contracts, not a requirement to introduce them. If the trait has additional effects or a different role combination, do not claim equivalence from its name.
+These enum members and factory APIs are illustrative project contracts, not requirements for other projects. Match the installed builder API and check its merge behavior. If an existing trait has additional effects or different membership, do not claim equivalence from its name.
 
 For disposable QA, provide the complete changed tests, factory defaults/traits, role semantics, and applicable guidance to the existing `marlens-rules:test-fixture-api-alignment` final-review contract:
 
 1. With confirmed ordinary `USER` default, expect a finding for redundant explicit default roles; plain `create()` is the correction. A newly invented ordinary-role trait is not the preferred correction.
 2. With a confirmed equivalent existing `asTravelDeskUser()` trait, expect a finding for its repeated special-role array and acceptance of the named trait.
-3. Retain the explicit combined-role scenario above when no equivalent trait exists; expect no forced default/trait replacement. If trait hooks or exact membership differ, preserve the actual scenario contract.
-4. Omit required factory implementation or role evidence; expect `BLOCKED`, not guessed equivalence. Supply it and request fresh assessment.
+3. With an established System Administrator actor and no equivalent trait, expect a finding recommending a native `asSystemAdministrator()` trait even when there is only one consumer. Reassess the same test after switching to the trait and expect acceptance.
+4. Retain the explicit combined-role scenario above when the combination is the point of the test; expect no forced trait replacement. If trait hooks or exact membership differ, preserve the actual scenario contract.
+5. Omit required factory implementation or role evidence; expect `BLOCKED`, not guessed equivalence. Supply it and request fresh assessment.
 
-Run existing authorization-focused consumer tests and the test TypeScript check to prove role membership, hooks, persistence and setup timing survive actual migrations. No new factory library or prerequisite PR is required. These are QA expectations, not observed verification results.
+In a disposable consumer check, reload a user created with the inline override and one created with the trait; both must have exactly the System Administrator role. A plain `create()` after a trait call must still persist the ordinary user role. Run the existing authorization-focused tests and the test TypeScript check for an actual migration. These are QA expectations, not observed verification results.
