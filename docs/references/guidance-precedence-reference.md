@@ -98,6 +98,8 @@ Apply reader-first information selection to product command output as well as ag
 
 For example, instead of repeating token categories, coverage fractions, latency, and zero-warning counters in three analytics blocks, summarize: “12 requests across 3 sessions. Typical response time: 4 seconds. Cost unavailable for 2 requests; the reported total is incomplete.” Link the existing detailed records if available. Choose comparisons only when they answer the user's question; this is not a fixed line limit or permission to hide missing data.
 
+Show elapsed time with explicit units: write “Restart took 9m 53s” rather than “Restart took 00:09:53,” which can read as a time of day. Prefer a standard-library duration formatter when it produces suitable units and precision. Keep absolute timestamps, machine-readable duration fields, and intentionally clock-based displays (such as a media timecode) in their established formats.
+
 ### Actionable Operational Handoffs
 
 Describe the receiving role's actions in its target environment, using artifacts it already has or explicit steps to obtain or generate them. Do not assume developer-local files or prior setup exist for the recipient. Keep necessary filenames, prerequisites, and supplied-file instructions; omit unrelated developer actions.
