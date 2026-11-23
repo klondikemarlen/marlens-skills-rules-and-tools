@@ -608,6 +608,36 @@ Internal selection does not by itself authorize duplicate fetches, subscriptions
 
 During review, inspect equivalent resource-bound callers and children within the affected change, migrating the identifier interface and internal selection together. Do not rewrite unrelated components or change accepted edit/Cancel/save contracts merely to apply the boundary.
 
+## Scoped Related Collections
+
+Keep the parent's established detail composable for the selected record and use bounded fields already in its [accepted detail response](express-light-rail-backend-concepts-reference.md#detail-responses-and-association-visibility). For an independently filtered or paginated related collection, prefer the related resource's existing data composable. Send both the parent identifier and the screen's subset filters with the request rather than using an embedded collection or fetching a broader list and filtering it in the browser. This is about what the request loads, not how a component [selects records already in a store](#resource-bound-component-selection). It does not call for a separate request for every association. Use the project's existing request-skip behavior when the parent ID or required scope is unavailable.
+
+### Worked Example: Editing Estimated Travel Segments
+
+In the [Trip Details correction](https://github.com/icefoganalytics/travel-authorization/pull/464), the estimates editor keeps `useTravelAuthorization` for the parent. This setup excerpt uses the project's existing props and imports:
+
+```typescript
+const { travelAuthorizationId } = toRefs(props)
+const { travelAuthorization, save } = useTravelAuthorization(travelAuthorizationId)
+
+const {
+  travelSegments: estimatedTravelSegments,
+  isInitialized: segmentsLoaded,
+  isErrored: segmentsErrored,
+  retry: retryLoadingSegments,
+} = useTripDetailsTravelSegments(travelAuthorizationId, {
+  isActual: false,
+})
+```
+
+The Trip Details composable uses `useTravelSegments` to request `where.travelAuthorizationId` and `where.isActual: false` together. The estimate draft starts from those segments, not an array on `travelAuthorization`. The actuals editor requests `isActual: true`; its separate estimate-seeding rule applies only after a successful empty actuals lookup, never after a failed or incomplete lookup.
+
+Saving `travelSegmentEstimatesAttributes` replaces the estimates for that authorization. If the list returns only the first page, an unchanged save could omit and remove every later segment. Use the collection API's supported pagination contract with the same scope and stable order on every page. In this example, `perPage: -1` requests all matches, but the composable still follows additional pages if the response contains fewer rows than its matching `totalCount`. That option is project-specific, not a general guarantee. Normal paginated displays and writes that update individual rows do not need to fetch all pages.
+
+Initialize the editable draft and allow a replacement save only after the complete matching result succeeds for the current parent and subset. Use completion for that scope, not an idle spinner, as the save gate, including when a parent calls the editor's save action. Distinguish an empty success from a failed or partial load: if a later page fails or pagination cannot establish completeness, offer Retry and keep replacement disabled. When the scope changes or a request is superseded, follow [Record-Scoped Async Ownership](#record-scoped-async-ownership): late rows and errors must not affect the new context, and a draft loaded for the old scope must not be submitted for the new one.
+
+Review the actual request and replacement payload. Check a subset larger than one page (unchanged later rows survive), a later-page failure (no write; Retry can recover), an empty success, and a scope switch with an older response still pending. Check that rows outside the replacement scope are unaffected.
+
 ## Optional Live-Update Composition
 
 Compose optional live-update behavior between the routed page and the existing base component: the page renders the feature wrapper, and the wrapper renders the base component. Reserve the `Page` suffix for route-level components; feature components sit below pages rather than wrapping an existing page.

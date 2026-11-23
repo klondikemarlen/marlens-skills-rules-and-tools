@@ -621,7 +621,9 @@ These are focused adoption checks, not a new runtime helper or automatic migrati
 
 ## Detail Responses and Association Visibility
 
-Keep an established show/detail loader for a selected record. If its consumer needs an additional association or field, extend the owning response-loading contract and show serializer, then carry the typed result through the existing frontend detail composable. For example, keep `useWorkflowTemplate(workflowTemplateId)` and add the permitted category reference to the show response instead of replacing it with `useWorkflowTemplates({ where: { id: workflowTemplateId }, perPage: 1 })` solely to obtain category data. Reuse existing serializers and loading conventions; serializers still do not query. Genuine collection search, filtering, and pickers remain collection operations.
+Keep an established show/detail loader for a selected record. When the accepted detail contract needs a bounded association or field, load it through the owning show query and carry it through the show serializer and existing frontend detail composable. For example, keep `useWorkflowTemplate(workflowTemplateId)` and include the permitted category reference in the show response instead of replacing the detail loader with `useWorkflowTemplates({ where: { id: workflowTemplateId }, perPage: 1 })` solely to obtain category data. Reuse existing serializers and loading conventions; serializers still do not query.
+
+An independently filtered or paginated related collection is a collection operation, just like a search or picker. Use the existing related-resource query to apply the parent scope and subset filters before pagination rather than expanding the detail payload for a screen that only needs some of its rows. Keep the normal collection policy and visibility rules; a caller's parent filter is not authorization. See [Scoped Related Collections](vue-component-authoring-reference.md#scoped-related-collections) for the frontend boundary and the completeness requirement when an editor replaces a whole subset.
 
 Required response associations do not authorize broader visibility. Preserve normal policy and soft-delete filtering in show queries, association includes, and any necessary post-mutation reload. In a Sequelize project whose category model uses paranoid deletion, these options contrast ordinary loading with an unjustified bypass:
 
@@ -637,7 +639,7 @@ Apply the same normal include graph when a mutation response genuinely requires 
 
 Inactive is not deleted. Preserve the domain's existing inactive-record rules rather than treating inactivity as permission to bypass deletion filtering or as an automatic reason to hide an otherwise visible association. Explicitly requested recovery or administrative deleted-record views may deliberately include deleted data under their own authorization and response contract; this exception does not widen ordinary user-facing reads.
 
-Review the distinction with a selected record missing category data, a legitimate collection search, and a post-mutation response requiring the same association. Check live/inactive/deleted visibility against the actual model and policy, separately from the response type. These are authoring decisions, not authorization to migrate a consuming application or add a new endpoint abstraction.
+Review the distinction between a bounded category reference on the selected record, an independently scoped collection, and a post-mutation response requiring the same bounded association. Check live/inactive/deleted visibility against the actual model and policy, separately from the response type. These are authoring decisions, not authorization to migrate a consuming application or add a new endpoint abstraction.
 
 ## Database-Side Existence Guards
 
