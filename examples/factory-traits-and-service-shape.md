@@ -319,6 +319,29 @@ Exercise the actual support with the project's test runner and test TypeScript c
 
 Keep business fixtures and assertions in their scenarios. These checks prove the support contract; component coverage must still exercise real application behavior rather than mock echoes.
 
+## Typed Provider Error Fixtures
+
+In a Microsoft Graph download test, the SDK rejects with a `GraphError` for an ETag mismatch. Patching a generic error in Arrange supplies status `412` but does not represent an SDK error instance:
+
+```typescript
+const etagMismatch = Object.assign(new Error("etag mismatch"), {
+  statusCode: 412,
+})
+downloadMock.mockRejectedValue(etagMismatch)
+```
+
+Use the installed SDK's supported constructor instead. The same status and message reach the mocked boundary, now on the type that owns them:
+
+```typescript
+import { GraphError } from "@microsoft/microsoft-graph-client"
+
+// Arrange
+const etagMismatch = new GraphError(412, "etag mismatch")
+downloadMock.mockRejectedValue(etagMismatch)
+```
+
+Use an ordinary `Error` when the scenario is a generic failure. Use a literal payload when the actual provider rejects with plain data. A deliberately malformed or unusual rejection should retain that shape so the test covers the recognition or pass-through path it names. Do not construct a typed error for those scenarios or add a dependency or custom class merely to avoid assignment. Assert the scenario's observable result, not just the constructor used in Arrange.
+
 ## Ordinary Users and Special-Role Traits
 
 Inspect the project's factory first. If its ordinary default is `[User.Roles.USER]` and its existing special-role trait owns the travel-desk setup:

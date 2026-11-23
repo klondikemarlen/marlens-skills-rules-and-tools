@@ -1,6 +1,6 @@
 # Test Factory Traits and Service Shape Workflow
 
-Use when TypeScript tests need reusable persisted relationships, non-persisted API entities, or composable HTTP response mocks, including frontend component fixtures.
+Use when TypeScript tests need reusable persisted relationships, non-persisted API entities, composable HTTP response mocks, or fixtures for provider rejections, including frontend component fixtures.
 
 1. Read the project’s factory API, installed library/version, and test TypeScript command. Apply [Native Fixture Setup and Semantic Review](#native-fixture-setup-and-semantic-review) when arranging or reviewing associations and preloads.
    Inspect ordinary defaults and existing special-role traits under [Factory Defaults and Role Traits](#factory-defaults-and-role-traits) before writing user setup.
@@ -14,6 +14,7 @@ Use when TypeScript tests need reusable persisted relationships, non-persisted A
    For shared API-response infrastructure support versus scenario-local response data and mount setup, follow [Scenario-Oriented Verification](../references/code-organization-reference.md#scenario-oriented-verification) before repeating API/configuration/authentication mocks.
    When default plugin installation repeats, use [Typed Default-Plugin Mount Support](../references/code-organization-reference.md#typed-default-plugin-mount-support); share typed infrastructure, not scenario props, routers, stubs, or assertions. Preserve fresh stateful defaults, appended caller plugin identities, and other options; direct `mount` remains valid.
    For several mocked HTTP endpoints, use composable single-route or map registration with the same direct-payload contract; preserve existing shared handlers and the configured mock lifecycle. Use separate matcher/response definitions for distinct same-URL queries, keeping deferred responses, failures, and assertions local. See [Composable HTTP GET Routes](../../examples/factory-traits-and-service-shape.md#composable-http-get-routes) for query-aware native registrations and the URL-only helper's limits before inventing a dispatcher or adding a mocking dependency.
+   For a typed provider rejection, use the owning error's supported constructor with the scenario's details in Arrange. Preserve the actual rejection shape for generic, plain-data, and deliberately malformed cases. See [Typed Provider Error Fixtures](../../examples/factory-traits-and-service-shape.md#typed-provider-error-fixtures).
 5. Keep relationship creation inside the trait; do not use per-test transient flags or `.afterCreate(...)` mutations to simulate a trait.
 6. Use fixture-backed tests under their descriptive exported names; do not alias them to generic `test` or `it`. Inspect the active runner configuration before adding mock cleanup, rely on configured cleanup, and add local cleanup only for resources or state it does not cover. Preserve intentional mid-test restoration.
 7. For dependency-bundle versus direct-subject imports, including the model-owned constant/enum exception, follow [Project-Root Imports and Paths](../references/code-organization-reference.md#project-root-imports-and-paths).

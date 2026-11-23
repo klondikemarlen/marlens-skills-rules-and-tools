@@ -2047,6 +2047,93 @@ In a local catch, consume only positively recognized categories the operation ac
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
 
+### Typed Provider Failures
+
+Keep request orchestration and the choice to recover, translate, or rethrow at the integration boundary. Positively recognize the failure category before constructing the application error, preserving precedence for concrete types with distinct recovery behavior. Let unrecognized rejections pass through unchanged. Use the real provider contract: if the boundary also recognizes plain response bodies, preserve that recognition rather than assuming every rejection is an SDK error instance.
+
+Once the type is selected, prefer its normal constructor with the untouched rejection passed through the language or framework's cause convention. The error class or its family formats the application error and derives only permitted diagnostics from the cause. Do not unpack or mutate the cause at the catch site, copy raw provider text or bodies into the message, or serialize the cause into user-visible output. Preserving the cause does not authorize logging or exposing it. A factory can still be useful when it genuinely selects among types, but classification should be distinguishable from formatting; do not add a factory just to wrap an already-selected error.
+
+If the operation label only helps a reader understand what failed, supply it as a plain-language message at that operation's failure boundary. The message should make sense on its own, without a stage enum or string union. Keep structured values with actual consumers, such as a subtype used for recovery, a provider status used by monitoring, or a stage code required by an established machine-readable contract.
+
+For example, this upload adapter translates SDK `GraphError` instances, preserving a name conflict as a distinct type for caller recovery and retaining only the HTTP status used by monitoring. Other rejection shapes are not recognized by this example's contract:
+
+```typescript
+import { GraphError } from "@microsoft/microsoft-graph-client"
+
+class GraphUploadError extends Error {
+  readonly providerStatus: number | undefined
+
+  constructor(operationMessage: string, { cause }: { cause: GraphError }) {
+    const status = cause.statusCode
+    if (Number.isInteger(status) && status >= 100 && status <= 599) {
+      super(`${operationMessage} (Microsoft Graph HTTP ${status}).`, {
+        cause,
+      })
+      this.providerStatus = status
+    } else {
+      super(`${operationMessage}.`, {
+        cause,
+      })
+      this.providerStatus = undefined
+    }
+  }
+}
+
+class GraphUploadNameConflictError extends GraphUploadError {
+  static reportsNameConflict(cause: GraphError): boolean {
+    return cause.code === "nameAlreadyExists"
+  }
+}
+
+interface UploadOperations<Session> {
+  createSession(): Promise<Session>
+  transferContent(session: Session, content: Uint8Array): Promise<void>
+}
+
+async function upload<Session>(uploads: UploadOperations<Session>, content: Uint8Array) {
+  let session: Session
+  try {
+    session = await uploads.createSession()
+  } catch (cause) {
+    if (!(cause instanceof GraphError)) {
+      throw cause
+    }
+
+    const message = "Failed to create the Microsoft Graph upload session"
+    if (GraphUploadNameConflictError.reportsNameConflict(cause)) {
+      throw new GraphUploadNameConflictError(message, {
+        cause,
+      })
+    }
+
+    throw new GraphUploadError(message, {
+      cause,
+    })
+  }
+
+  try {
+    await uploads.transferContent(session, content)
+  } catch (cause) {
+    if (!(cause instanceof GraphError)) {
+      throw cause
+    }
+
+    const message = "Failed to send file content to Microsoft Graph"
+    if (GraphUploadNameConflictError.reportsNameConflict(cause)) {
+      throw new GraphUploadNameConflictError(message, {
+        cause,
+      })
+    }
+
+    throw new GraphUploadError(message, {
+      cause,
+    })
+  }
+}
+```
+
+Use the existing application error base, diagnostics allowlist, and recovery and presentation boundaries in the actual integration. Check each operation's message by itself, preservation of conflict classification and cause identity, unchanged propagation of unrecognized rejections, and that a failed session creation prevents transfer. This example assumes an existing translation contract. If the contract instead logs and rethrows the original rejection, keep it as shown in [Effect-Oriented Method Slices](#effect-oriented-method-slices); operation-specific wording alone is not a reason to introduce wrapping.
+
 ## Text Validation Ownership
 
 In ORM-backed application code, keep ordinary trimming, blank-value handling, accepted character grammar, and canonical-name validation in the existing service/model validation layer; prefer model-level validators for persisted text invariants rather than reproducing that policy in elaborate SQL checks. Follow the accepted normalization-versus-rejection contract; do not invent a universal alphabet or silently normalize rejected input.
