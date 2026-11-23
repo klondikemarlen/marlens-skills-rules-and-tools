@@ -67,6 +67,14 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
     }
   }
 
+  const implementationGuidance = (path) =>
+    read(path).split("\n## Communication During Implementation\n")[1]?.split("\n## ")[0].trim()
+  const authoritativeGuidance = implementationGuidance("docs/workflows/hands-off-agentic-coding-workflow.md")
+  const packagedGuidance = implementationGuidance("skills/autopilot/workflow.md")
+  if (!authoritativeGuidance || packagedGuidance !== authoritativeGuidance) {
+    fail("Autopilot must preserve the implementation communication procedure in its packaged workflow")
+  }
+
   for (const [name, workflow] of [
     ["AGENTS.md", alwaysLoadedGuidance],
     ["authoritative feature workflow", featureWorkflow],
