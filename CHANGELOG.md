@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.18.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1598) - 2026-11-24
+
+### Changed
+
+- Express collection examples now pass computed query bounds without forwarding HTTP page metadata to the ORM.
+
 ## [5.18.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1597) - 2026-11-24
 
 ### Changed
