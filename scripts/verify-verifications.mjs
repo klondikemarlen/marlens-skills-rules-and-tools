@@ -41,6 +41,30 @@ assert.ok(
 )
 assert.ok(testAlignmentVerification.pathTriggers.every((trigger) => /test|spec/u.test(trigger)))
 
+const assertionVerification = verifications.find(
+  (verification) => verification.id === "marlens-rules:test-assertion-focus"
+)
+const assertionContract = JSON.parse(
+  readFileSync(path.join(root, assertionVerification.contract), "utf8")
+)
+const [assertionSourcePath] = assertionContract.source.split("#")
+const assertionSource = readFileSync(path.join(root, assertionSourcePath), "utf8")
+const authoringGuide = readFileSync(
+  path.join(root, "docs/references/code-organization-reference.md"),
+  "utf8"
+)
+const scenarioPassage = authoringGuide.match(
+  /^Every authored or modified test file must contain .*?^For example, a final-destination service [^\n]+/msu
+)?.[0]
+assert.ok(
+  scenarioPassage,
+  "Locate the scenario controls and itinerary example in the authoring guide"
+)
+assert.ok(
+  assertionSource.includes(scenarioPassage),
+  "Ship the complete authoring passage with assertion reviews"
+)
+
 const defaultFunctionExportsVerification = verifications.find(
   (verification) => verification.id === "marlens-rules:default-function-exports"
 )
