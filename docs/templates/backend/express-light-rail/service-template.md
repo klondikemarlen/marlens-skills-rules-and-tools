@@ -8,15 +8,24 @@ For required transactions, follow [Database Transaction Entry Point](../../../re
 
 When controller helpers already resolve request sorting, consume their supplied order unchanged under [Controller-Owned Request Ordering](../../../references/express-light-rail-backend-concepts-reference.md#controller-owned-request-ordering). Domain operations that independently own ordering retain it.
 
+The list example assumes owner-only visibility, ID ordering, and no other filters. In the paired controller, use the project's existing pagination resolver with its normal validation, defaults, and caps. Preserve the actual application's policy scope, ordering, and filters.
+
 ## Template
 
 ```ts
+import { Project } from "./models"
+
 type CreateProjectAttributes = {
   name: string
 }
 
-export async function listProjectsForUser(userId: string, query: unknown) {
-  // Use the project’s repository/ORM/query-builder and pagination/filter helpers.
+export async function listProjectsForUser(userId: string, limit: number, offset: number) {
+  return Project.findAll({
+    where: { ownerId: userId },
+    order: [["id", "ASC"]],
+    limit,
+    offset,
+  })
 }
 
 export async function findProjectForUser(userId: string, projectId: string) {
