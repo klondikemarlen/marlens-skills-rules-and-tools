@@ -16,6 +16,12 @@ Use for one existing PR when asked to review, get Codex review, and merge if no 
 - “With override when ready” permits bypassing an administrative merge restriction, not treating missing or failing verification as success. Requested Codex review, actionable findings, security gates, and required CI remain gates unless separately and explicitly waived by an authorized maintainer under the existing delivery policy.
 - Project-local procedures and authorization boundaries remain authoritative. Do not change protection rules, App access, credentials, models, or advisor cadence to make a PR mergeable.
 
+## Read-Only Readiness Questions
+
+“Is this PR ready to merge?” asks for a status assessment, not approval, fixes, a merge, or an administrative override. Inspect the actual base and current head, required review and checks, unresolved findings, and any post-fix re-review hold. Do not change PR state.
+
+When the maintainer uses “ready” to mean that only administrative approval remains, answer **“Yes—pending admin approval.”** Use that answer only when every other applicable gate is satisfied. For example, if the required review covers the previous head, answer **“No—the latest commit still needs review,”** even if CI is green. Report the actual remaining gate; do not assume this wording is every maintainer's convention.
+
 ## Inputs and Discovery
 
 Accept a PR URL/number or the uniquely established current PR. Resolve its repository, base, head repository/branch/SHA, draft state, issue, accepted scope, and current review/check evidence from GitHub. If target or fix scope is ambiguous, ask only for that missing decision; never choose another PR or drain a backlog.
