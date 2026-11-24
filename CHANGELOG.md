@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1593) - 2026-11-24
+
+### Changed
+
+- Document when Ruby and JavaScript/TypeScript readers should cache a value and how to distinguish a cache miss from a completed result.
+
 ## [5.17.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1592) - 2026-11-24
 
 ### Changed
