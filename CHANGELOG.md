@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Fixed
+
+- Assertion reviewers receive the scenario standard with the check. They can judge a successful control and relevant negative outcome from the changed tests without fetching the provider's full authoring guide.
+
 ## [5.18.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1599) - 2026-11-24
 
 ### Changed

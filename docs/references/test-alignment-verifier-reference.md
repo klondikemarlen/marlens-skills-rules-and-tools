@@ -32,7 +32,7 @@ The naming, Arrange/Act/Assert, and `one-direct-expect` directives remain accept
 
 The shared default is **exactly one `expect` per non-controller test**, proving one observable contract. It is not merely an at-most-one rule or a local opt-in. Independent persistence effects, saves, and other independently meaningful outcomes belong in separate focused tests. Do not hide assertions in Arrange, Act, hooks, or helpers, bundle `.mock.calls`, weaken expected payloads, or fabricate summary objects to meet the count.
 
-Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) as the canonical owner for meaningful success and negative coverage in every authored or modified test file, actual-subject filenames/`describe` scopes, independent workflow ownership, and explicit scenarios versus readable utility tables. Assess the complete file and relevant subject/setup, not names, token positives, or counts. Rejection-only tests lack a successful setup control; an exact successful result plus relevant association regressions can establish both outcomes. Missing necessary source/setup evidence is `BLOCKED`, not compliance. Native `node:assert` remains supported.
+Use [Meaningful Scenarios and Subject Ownership](#meaningful-scenarios-and-subject-ownership) below for the per-file success and negative controls.
 
 For tests that use doubles, apply [Test Doubles](code-organization-reference.md#test-doubles) to readable binding names, ownership of shared baseline state, and using the dependency's public API to drive behavior. Judge those choices from the test and its support; they are not structural verifier rules.
 
@@ -109,9 +109,19 @@ Here `refresh` is the promise returned by the operation under test. Both matcher
 
 Preserve transition, race, and rollback setup and scenario identities when reorganizing tests. A coupled invariant is not a general multi-expect exception for non-controller tests. Keep the complete causal sequence in each focused scenario that needs it; assert a real returned or persisted object/collection when it naturally represents the invariant, or use separate tests for distinct observations. Never discard an intervening failure, stale completion, or rollback operation merely to reach one expectation.
 
+### Meaningful Scenarios and Subject Ownership
+
+Every authored or modified test file must show that its subject can succeed with valid setup and that it handles a relevant negative case. Inspect the complete file and the subject, fixtures, or helpers needed to understand its assertions. Reuse qualifying scenarios in the file; neither a test named “positive” nor success in another file establishes that this setup works. When material consumer evidence is unavailable, report `BLOCKED` and name what is missing.
+
+Counterparts exercise the same operation and assert contrasting outcomes of the same contract. For a validator that promises only acceptance or rejection, explicit successful completion on meaningful valid input and the relevant error on invalid input suffice. Do not pin incidental return identity. When the subject promises a result, identity, or effect, assert it: absence of an error alone does not prove delivery. Preserve native assertions, including `node:assert`; neither matching syntax nor one positive per negative is required.
+
+For example, a final-destination service tested only with missing departures and missing arrivals might reject every itinerary. Keep both regressions and independently arrange a complete two-leg itinerary that yields the exact final location. That result demonstrates valid setup; a token assertion that the fixture exists does not.
+
+Name the file and `describe` scopes for the subject whose behavior is asserted. Keep independently evolving workflows and distinct causes or outcomes in separately named scenarios with concrete setup and literal expectations, even when their Act and Assert look alike. Share mechanics and genuine invariants, not flag-driven dispatch between workflows. Use a table when its interchangeable inputs or expected values clarify one rule, not when handwritten row titles are the only way to explain different behaviors.
+
 ### CLI Scenario Ownership and Shared Mechanics
 
-**Goal:** Let a reader explain the CLI scenario's starting state, commands, and observable outcome from the test itself. Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification): keep material provider/check declarations, baseline source, post-baseline edits/deletions, paging inputs, and recovery transitions visible in Arrange and the command sequence. A multi-mode fixture that selects those scenarios through flags or hidden defaults obscures ownership even when its options have names.
+**Goal:** Let a reader explain the CLI scenario's starting state, commands, and observable outcome from the test itself. Keep material provider/check declarations, baseline source, post-baseline edits/deletions, paging inputs, and recovery transitions visible in Arrange and the command sequence. A multi-mode fixture that selects those scenarios through flags or hidden defaults obscures ownership even when its options have names.
 
 **Bounded caveat:** Reuse mechanical temporary-directory creation, isolated agent/environment configuration, file writing, Git command execution, subprocess runners, output parsing, and cleanup when their contracts remain clear. A helper may commit the files explicitly arranged by the test; it must not silently choose the baseline or apply later changes. Homogeneous parser/argument-validation cases may share a readable literal table. Neither multiple commands in one causal lifecycle nor multiple native `node:assert` calls is a violation by itself.
 
