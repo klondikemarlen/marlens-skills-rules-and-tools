@@ -47,6 +47,12 @@ When adding or updating a declared versioned dependency or artifact reference, p
 
 Verify the chosen version in the manifest and lockfile, confirm the installed artifact version, and exercise the changed consumer path. Do not claim a version is latest based on an earlier check in the conversation. Registry inspection is an adoption-time decision, not a repeated query on every tool turn or an automatic-upgrade policy.
 
+When upgrading a runtime library whose consumers use separately shipped type declarations, include the companion declaration package in the same change when a newer compatible release is available. Check the runtime release’s public API and the declaration package’s published compiler support (for example, minimum TypeScript version, compiler-specific tags, or `typesVersions`). Match the API and the project’s resolved compiler, not the runtime and declaration version numbers. If the current declarations already fit or no compatible update is available, record why they were kept. This does not apply to bundled types or unrelated declaration packages.
+
+Check the runtime and declaration entries in every affected manifest and their resolved versions in the corresponding lockfiles, including when the declarations stay unchanged. Use targeted package-manager updates rather than refreshing unrelated packages. Run each affected consumer’s normal type-check with its existing compiler against the declarations it actually resolves; inspect compiler module resolution if multiple declaration copies make that unclear. A successful runtime build alone is not evidence that the consumer checked the intended declarations.
+
+For example, consider an API and a web app that use Lodash `4.18.1` and TypeScript `5.4.5`. The `@types/lodash` `4.17.24` release declares a TypeScript `5.2` minimum; `4.17.25` requires `5.6`. Check the Lodash APIs both apps use and choose `4.17.24` rather than upgrading the compiler for the newer declarations. Verify the resolution in both lockfiles, install from them, and run the API and web type-checks separately.
+
 ### Before and After
 
 Before: a shim detects `--wait`/`--wait=true`, edits arguments to inject `-d`, checks whether an editor exists, then silently starts without editor integration if absent. This duplicates upstream option handling and hides a missing prerequisite.
