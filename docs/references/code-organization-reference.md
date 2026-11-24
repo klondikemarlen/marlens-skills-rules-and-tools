@@ -578,7 +578,73 @@ end
 
 The example uses Ruby's standard thread result; reuse the project's actual parallel primitive and preserve start/wait order, overlap, error propagation, and external effects. It does not prescribe threads or a new client framework.
 
-Same-named memoized getters remain useful for appropriately cached derived values or reusable clients, such as `def file_name; @file_name ||= build_file_name; end` or `def client; @client ||= StorageClient.new(configuration); end`. These expose the value named by the getter rather than storing a command output under an unrelated method. Do not memoize side-effectful authorization acquisition merely to make it look like a property. Preserve legitimate object-owned lifecycle state and caches; apply this distinction within requested authoring and review, not a repository-wide instance-variable rewrite.
+A [lazy memoized reader](#lazy-memoized-readers) exposes the value it names; it is not an unrelated command storing a result for a later step. Do not hide side-effectful authorization acquisition behind a reader. Preserve legitimate object-owned lifecycle state and caches; apply this distinction within requested authoring and review, not a repository-wide instance-variable rewrite.
+
+### Lazy Memoized Readers
+
+Compute the named value on first access, store it on the object that owns it, and reuse it on later reads. This pays off when setup is nontrivial, some instances never need the value, and the inputs and result stay valid for the owner's lifetime. Prefer plain calculation for cheap work or when each read must be fresh. The pattern is lazy reuse, not a particular operator.
+
+In Ruby, name the reader for its value. A filter can compile its fixed pattern on demand and reuse the same matcher for subsequent lines:
+
+```ruby
+class LineFilter
+  def initialize(pattern)
+    @pattern = pattern.dup.freeze
+  end
+
+  def matcher
+    @matcher ||= Regexp.new(@pattern)
+  end
+end
+```
+
+Use `begin … end` for a sequence of statements, not just because an expression spans several lines. The final expression is the value stored and returned. An applicability guard is independent of memoization: it runs on every call, including cache hits.
+
+```ruby
+class NameBadge
+  def initialize(name)
+    @name = name.strip.freeze
+  end
+
+  def initials
+    return nil if @name.empty?
+
+    @initials ||= begin
+      words = @name.split
+      initials = words.map { |word| word[0].upcase }
+      initials.join.freeze
+    end
+  end
+end
+```
+
+Ruby's `||=` retries both `nil` and `false`. A nil check can reuse `false` if only `nil` means “not computed.” If either can be a completed result that must be reused, check whether the instance variable has been set with `return @value if instance_variable_defined?(:@value)` before computing and assigning it. Leave that variable unset until the computation completes.
+
+In JavaScript or TypeScript, `return (this.cachedFormatter ??= new Intl.NumberFormat(this.locale))` is a compact reader expression when the locale is fixed for the instance and the result is never nullish. `??=` treats only `null` and `undefined` as misses; `||=` also treats results such as `0`, `false`, and `""` as misses. For several setup steps, an explicit cache-hit guard keeps the normal path readable:
+
+```typescript
+class LocalizedSorting {
+  private cachedCollator?: Intl.Collator
+
+  constructor(private readonly languageTag: string) {}
+
+  get collator(): Intl.Collator {
+    if (this.cachedCollator !== undefined) {
+      return this.cachedCollator
+    }
+
+    const locale = this.languageTag.trim() || "en"
+    this.cachedCollator = new Intl.Collator(locale, {
+      numeric: true,
+    })
+    return this.cachedCollator
+  }
+}
+```
+
+Callers read `sorting.collator`. The cache skips locale preparation and collator construction on later reads; it does not cache comparisons made with the collator. The backing field starts `undefined`, which is not a valid collator result. If `undefined` is a valid result, use a distinct sentinel or a separate initialized flag instead. A fallback such as `input || defaultValue` alone remembers nothing, and retaining metadata from successive responses does not cache the requests that produced it. Identify the work skipped on a later read and the object that retains the result.
+
+See [Ruby assignment syntax](https://docs.ruby-lang.org/en/3.3/syntax/assignment_rdoc.html) and [Memoization in Ruby](https://michaeljherold.com/articles/memoization-in-ruby/) for Ruby's truthiness and instance-variable checks.
 
 ## Libraries for Generic Mechanism
 
@@ -2499,7 +2565,7 @@ await searchQueue.add("refresh", { workflowId })
 
 Here `initialize` acquires the process-owned resources; `get` only retrieves them and never acquires them implicitly. Adapt the names and synchronous/asynchronous calls to the existing queue API, preserving startup order, failures, shutdown ownership, and delivery behavior. Tests that actually need this infrastructure own equivalent explicit setup and teardown; importing unrelated test helpers must not acquire it.
 
-A class is useful only when it owns meaningful lifecycle state; this does not require a registry class, another initializer framework, or a universal ban on lazy clients and derived-value caches. Preserve legitimate lazy contracts when boot ownership is not required, including the memoized values described above. Apply this distinction only within requested authoring/review scope; fewer connections alone do not prove faster CI.
+A class is useful only when it owns meaningful lifecycle state; this does not require a registry class, another initializer framework, or a universal ban on lazy clients and derived-value caches. Preserve legitimate [lazy memoized readers](#lazy-memoized-readers) when boot ownership is not required. Apply this distinction only within requested authoring/review scope; fewer connections alone do not prove faster CI.
 
 ### Child-Owned Parent Timestamp Propagation
 
