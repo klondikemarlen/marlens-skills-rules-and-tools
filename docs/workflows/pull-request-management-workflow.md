@@ -50,7 +50,7 @@ Use [Plan Reviewable PR Slices](hands-off-agentic-coding-workflow.md#plan-review
 
 Prefer cohesive dependent slices as a bottom-to-top PR stack and separate PRs for unrelated work. Each slice retains the callers, tests, verification, review/CI gates, and dependencies needed for review. Keep atomic contract changes together when splitting would invalidate an intermediate slice. State whether the PRs are coordinated review units that must be integrated or released together, or independently deployable increments. Keep every ticket acceptance criterion in scope; merging one slice does not complete the ticket.
 
-When native GitHub stack registration is requested, distinguish it from ordinary PR base chaining. First record each PR's repository, state, base and head branches, exact head SHA, draft state, and current native membership using the read-only REST pull-request resource:
+For requested native registration, first [preflight the chain](#creating-a-github-stack). Record each PR's repository, state, base and head branches and exact SHAs, draft state, and current native membership using the read-only REST pull-request resource:
 
 ```bash
 repo=OWNER/REPO
@@ -74,6 +74,8 @@ See [GitHub's stacked pull request APIs](https://docs.github.com/en/pull-request
 
 ### Creating a GitHub Stack
 
+A direct request to stack GitHub PRs (for example, “stack these PRs”) explicitly requests native GitHub registration. The requester does not need to say “register.” A planning question or read-only review does not authorize registration. Requests for dependent branches or PR bases without a stack request remain base-only, and an explicit instruction not to register takes precedence.
+
 Create dependent slices as a bottom-to-top chain. For the bottom slice, create its branch from the intended trunk; for each child slice, create its branch from the immediate predecessor's head branch so its diff contains only its own work. Push each branch and open each PR as a draft targeting its predecessor's head branch (the bottom targets trunk), following [Initial Draft Publication](#initial-draft-publication). Do not mark the whole ticket ready while any slice remains unmerged; each PR must carry its own callers, tests, and verification.
 
 For each PR in the chain, apply [Customer Contract in Stacked PRs](#customer-contract-in-stacked-prs) when drafting or updating its description.
@@ -87,7 +89,7 @@ github-pr-stack \
   https://github.com/OWNER/REPO/pull/TOP_PR
 ```
 
-Run the emitted `gh stack link` command only when registration is explicitly requested, then re-verify membership, order, heads, and draft state as above. Fix any base-chain error by retargeting the PR base, not by rewriting history, unless the user explicitly authorizes history changes.
+After a successful preflight, run the emitted `gh stack link` command only for a request that authorizes native registration, then re-verify membership, order, bases, heads, and draft state as above. Fix any base-chain error by retargeting the PR base, not by rewriting history, unless the user explicitly authorizes history changes.
 
 ### Repository Metadata
 
