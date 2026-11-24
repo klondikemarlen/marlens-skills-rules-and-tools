@@ -9,6 +9,7 @@ Authorization denials name the attempted action and resource: list/view for read
 ```ts
 import type { Request, Response, NextFunction } from "express"
 
+import { resolvePagination } from "./pagination"
 import { canCreateProject, canReadProject } from "./projects.policy"
 import { createProjectForUser, findProjectForUser, listProjectsForUser } from "./projects.service"
 import { serializeProject } from "./projects.serializer"
@@ -16,7 +17,8 @@ import { serializeProject } from "./projects.serializer"
 export async function listProjects(req: Request, res: Response, next: NextFunction) {
   try {
     const currentUserId = currentUserIdFrom(res)
-    const projects = await listProjectsForUser(currentUserId, req.query)
+    const { limit, offset } = resolvePagination(req.query)
+    const projects = await listProjectsForUser(currentUserId, limit, offset)
 
     const serializedProjects = projects.map(serializeProject)
 
