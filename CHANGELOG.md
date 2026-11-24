@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1594) - 2026-11-24
+
+### Changed
+
+- Dependency upgrades now check separately shipped declarations against the runtime API and the existing compiler.
+
 ## [5.17.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1593) - 2026-11-24
 
 ### Changed
