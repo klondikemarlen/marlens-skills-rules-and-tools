@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1588) - 2026-11-23
+
+### Changed
+
+- Use the supported dependency-heavy checkout inventory during closeout and retain resources that exceed it without asking for redundant permission.
+
 ## [5.17.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1587) - 2026-11-23
 
 ### Changed
