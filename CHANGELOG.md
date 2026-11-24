@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1587) - 2026-11-23
+
+### Changed
+
+- Surface the conditional `with override` invocation and its post-correction hold in review-and-merge discovery.
+
 ## [5.17.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1586) - 2026-11-23
 
 ### Changed
