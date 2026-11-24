@@ -2,6 +2,8 @@
 
 Use when creating or verifying a GitHub pull-request stack for dependent slices.
 
+A direct request to stack GitHub PRs (for example, “stack these PRs”) explicitly requests native GitHub registration. The requester does not need to say “register.” A planning question or read-only review does not authorize registration. Requests for dependent branches or PR bases without a stack request remain base-only, and an explicit instruction not to register takes precedence.
+
 ## Creating a Stack
 
 Create dependent slices as a bottom-to-top chain. For the bottom slice, create its branch from the intended trunk; for each child slice, create its branch from the immediate predecessor's head branch so its diff contains only its own work. Push each branch and open each PR as a draft targeting its predecessor's head branch (the bottom targets trunk). Do not mark the whole ticket ready while any slice remains unmerged; each PR must carry its own callers, tests, and verification.
@@ -19,6 +21,8 @@ github-pr-stack \
 
 ## Registering Natively
 
-Chained bases and body links alone do not prove native stack membership. Run the emitted `gh stack link` command only when registration is explicitly requested, then re-read every PR through `gh api repos/OWNER/REPO/pulls/NUMBER` and verify its base/head SHAs and draft state are unchanged and all PRs report the same non-null `stack.id` and `stack.number`, the expected `stack.size`, and consecutive `stack.position` values from bottom to top. If any required state cannot be verified, report the exact missing prerequisite instead of claiming registration.
+After a successful preflight, run the emitted `gh stack link` command only for a request that authorizes native registration. Use the existing PR URLs, not branch arguments or `--open`. Registration does not authorize rewriting commits, merging, or changing readiness.
+
+Chained bases and body links alone do not prove native stack membership. Re-read every PR through `gh api repos/OWNER/REPO/pulls/NUMBER` and verify its base chain, base/head SHAs, and draft state are unchanged and all PRs report the same non-null `stack.id` and `stack.number`, the expected `stack.size`, and consecutive `stack.position` values from bottom to top. If any required state cannot be verified, report the exact missing prerequisite instead of claiming registration.
 
 Fix a base-chain error by retargeting the PR base, not by rewriting history, unless the user explicitly authorizes history changes.

@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1592) - 2026-11-24
+
+### Changed
+
+- A direct request to stack GitHub PRs now calls for native registration and membership readback; planning and base-only requests do not.
+
 ## [5.17.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1588) - 2026-11-23
 
 ### Changed
