@@ -6,6 +6,24 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1587) - 2026-11-23
+
+### Changed
+
+- Surface the conditional `with override` invocation and its post-correction hold in review-and-merge discovery.
+
+## [5.17.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1586) - 2026-11-23
+
+### Changed
+
+- Clarify spy naming, shared mock initialization, and test stimuli through the dependency's public API.
+
+## [5.17.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1585) - 2026-11-23
+
+### Changed
+
+- Address verifier findings by repairing the underlying contract rather than moving the flagged pattern.
+
 ## [5.17.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1584) - 2026-11-23
 
 ### Changed

@@ -12,13 +12,16 @@ Use for one existing PR when asked to review, get Codex review, and merge if no 
 
 - Invocation authorizes review, requesting Codex review, and in-scope fixes for the identified PR. Obtain the required review and verification results before deciding whether to merge. By default, merge only if review and verification required no corrections and all gates pass.
 - Required corrections put that PR on hold for manual re-review unless explicit maintainer authorization covers merging that PR after those fixes. Do not solicit that authorization at the handoff. Explicit read-only, no-merge, wait-only, or other narrower instructions prevail.
-- Administrative override is opt-in: append “with override” or use an equally explicit instruction. Neither this skill's name nor a quoted example grants override authority. Such approval is scoped to this PR, not future work, and does not authorize merging after required corrections.
+- Standard mode does not authorize administrative override. The **With Override** mode or an equally explicit instruction can authorize it for the identified PR only. A quoted example or a blocked merge grants no override authority. Administrative override does not authorize merging after required corrections.
 - “With override when ready” permits bypassing an administrative merge restriction, not treating missing or failing verification as success. Requested Codex review, actionable findings, security gates, and required CI remain gates unless separately and explicitly waived by an authorized maintainer under the existing delivery policy.
 - Project-local procedures and authorization boundaries remain authoritative. Do not change protection rules, App access, credentials, models, or advisor cadence to make a PR mergeable.
 
 ## Inputs and Discovery
 
 Accept a PR URL/number or the uniquely established current PR. Resolve its repository, base, head repository/branch/SHA, draft state, issue, accepted scope, and current review/check evidence from GitHub. If target or fix scope is ambiguous, ask only for that missing decision; never choose another PR or drain a backlog.
+
+- **Standard:** `/skill:review-and-merge <PR URL>`.
+- **With Override:** `/skill:review-and-merge <PR URL> with override`. This uses the same procedure and considers the administrative override only if the verified head is otherwise ready to merge.
 
 On continuation, recover whether any earlier review or verification round required corrections from the existing PR discussion, fixup history, or session evidence. Read the correction record separately from current-head readiness. The absence of current findings does not establish that no correction was required; if the prior disposition needed for the merge decision cannot be established, leave the PR open and name the missing evidence.
 
@@ -39,7 +42,7 @@ Use these existing skills, each selecting its project-local workflow before its 
 
 Consider administrative override only after establishing authority to merge on the applicable path. For an explicitly authorized GitHub administrative merge, use `gh pr merge <PR> --repo <OWNER/REPO> --admin --match-head-commit <SHA>` with the repository's required merge-method option. Use this only for the identified restriction and PR. It does not authorize changing repository settings or bypassing a failed check. If a mandatory external approval is the remaining restriction, identify that approval as the waiver being exercised; do not report it as received. If the instruction does not clearly cover the restriction, request that specific decision. Preserve higher-priority and project-specific non-waivable requirements.
 
-A requested Codex review still running, unresolved security finding, or unrelated failed required check is not made ready by “with override.” Administrative override also does not remove the default hold after required corrections. A separately explicit waiver follows the existing feature policy and is reported as waived/unverified, never PASS.
+Pending, failed, stale, or unavailable review or verification is not a pass. Administrative override does not turn any of these states into readiness, resolve an outstanding security finding, or remove the post-fix hold. A separately explicit waiver follows the existing feature policy and is reported as waived/unverified, never PASS.
 
 ## Representative Decisions
 
