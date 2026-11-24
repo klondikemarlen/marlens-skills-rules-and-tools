@@ -1,13 +1,16 @@
 ---
 name: review-and-merge
-description: Review an existing PR with Codex and verify it. Merge when no corrections are required; otherwise fix and hand back the open PR for manual re-review unless post-fix merge is explicitly authorized.
+description: Add "with override" to allow a needed administrative override. Merge the same PR head only after clean review and passing checks; if fixes are needed, fix, verify, push, and wait for manual re-review.
 ---
 
 # Review and Merge
 
 Use the local `docs/workflows/review-and-merge-workflow.md`, then `agents/workflows/review-and-merge-workflow.md`; otherwise use the [packaged workflow](workflow.md).
 
-- If review and verification require no corrections and all applicable gates pass, merge the authorized, verified head.
+- **Standard:** `/skill:review-and-merge <PR URL>` does not authorize an administrative override.
+- **With Override:** `/skill:review-and-merge <PR URL> with override` explicitly allows a needed administrative override for that PR only. Both modes follow the same workflow.
+
+- If no corrections were required, merge only when review and all applicable checks pass for the same head. Pending, failed, stale, or unavailable verification is not a pass.
 - If review or verification requires a correction, fix, verify, and push it, then leave the PR open for the maintainer's manual re-review without asking to merge now. A rebase, clean rerun, or repeat invocation does not lift this hold; only explicit merge-after-fixes authority for that PR can authorize the corrected path.
 
-`with override` covers an administrative restriction only. It does not lift the post-fix hold or waive review or verification. See the [decision examples](../../examples/outcome-skills.md#review-and-merge).
+The override mode does not lift the post-fix hold or waive review or verification. See the [decision examples](../../examples/outcome-skills.md#review-and-merge).

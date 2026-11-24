@@ -58,7 +58,12 @@ Use [`triage`](skills/triage/SKILL.md) to assess tickets and apply supported evi
 
 Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights from a given OMP chat: `/skill:data-mine <session ID or path>`, or supply the transcript. You can also request “mine this project's memory and global memory separately”; explicitly request internalization and regeneration to deliver reusable gaps into repository guidance and refresh derived OMP memory. Standalone mining is read-only unless you authorize follow-up actions. `wrap-up` uses the same workflow for the current session and completed task's commits.
 
-Use [`review-and-merge`](skills/review-and-merge/SKILL.md) to review an existing PR with Codex and merge it if review and verification require no corrections and all gates pass: `/skill:review-and-merge <PR URL>`. If corrections are required, the agent fixes, verifies, and pushes them, then leaves the PR open for your manual re-review without asking to merge it. A rebase, a clean rerun, or `with override` does not clear that hold. Explicitly say “fix findings and merge after fixes” to authorize merging the corrected PR. `with override` is separate: it covers an administrative restriction for that PR, not review or verification. See the [decision examples](examples/outcome-skills.md#review-and-merge).
+Use [`review-and-merge`](skills/review-and-merge/SKILL.md) to review an existing PR with Codex and merge the same head if no corrections are required and all applicable checks pass.
+
+- **Standard:** `/skill:review-and-merge <PR URL>` never implies administrative override.
+- **With Override:** `/skill:review-and-merge <PR URL> with override` follows the same workflow. It can bypass only an authorized administrative restriction for that PR, and only if needed; it does not waive review or verification.
+
+If corrections are required, the agent fixes, verifies, and pushes them, then leaves the PR open for manual re-review without asking to merge it. A rebase, a clean rerun, or `with override` does not clear that hold. Explicitly say “fix findings and merge after fixes” to authorize merging the corrected PR. See the [decision examples](examples/outcome-skills.md#review-and-merge).
 
 In OMP, type `/skill:` to browse the full catalog. Specialist entrypoints include [`feature`](skills/feature/SKILL.md), [`code-review`](skills/code-review/SKILL.md), [`test-guide`](skills/test-guide/SKILL.md), and [`jira-report`](skills/jira-report/SKILL.md). Agents can also discover the relevant skill from its task description.
 
