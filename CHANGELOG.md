@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.18.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1597) - 2026-11-24
+
+### Changed
+
+- Feature delivery and wrap-up now use project-owned checks for worktree cleanup instead of requiring a Verifier receipt. Pending PR source review remains separate.
+
 ## [5.17.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1594) - 2026-11-24
 
 ### Changed
