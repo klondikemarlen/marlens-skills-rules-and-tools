@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1585) - 2026-11-23
+
+### Changed
+
+- Address verifier findings by repairing the underlying contract rather than moving the flagged pattern.
+
 ## [5.17.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1584) - 2026-11-23
 
 ### Changed
