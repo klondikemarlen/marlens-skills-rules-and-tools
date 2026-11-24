@@ -13,6 +13,8 @@ For scenario-local child graphs, preloads, and fixture review, use [Native Fixtu
 
 For repeated HTTP response setup, reuse project-native route mocking or small composable support. Keep scenario payloads local; see [Composable HTTP GET Routes](../../examples/factory-traits-and-service-shape.md#composable-http-get-routes) for single-route and map forms, lifecycle, and failure semantics.
 
+For mocked collaborators, use [Test Doubles](../../docs/references/code-organization-reference.md#test-doubles) for binding names, restoring shared baseline state, and driving the scenario through the dependency's public API where it fits.
+
 ## Without This Guidance
 
 ```ts

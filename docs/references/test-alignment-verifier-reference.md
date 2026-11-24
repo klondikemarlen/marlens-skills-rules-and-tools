@@ -34,6 +34,8 @@ The shared default is **exactly one `expect` per non-controller test**, proving 
 
 Apply [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) as the canonical owner for meaningful success and negative coverage in every authored or modified test file, actual-subject filenames/`describe` scopes, independent workflow ownership, and explicit scenarios versus readable utility tables. Assess the complete file and relevant subject/setup, not names, token positives, or counts. Rejection-only tests lack a successful setup control; an exact successful result plus relevant association regressions can establish both outcomes. Missing necessary source/setup evidence is `BLOCKED`, not compliance. Native `node:assert` remains supported.
 
+For tests that use doubles, apply [Test Doubles](code-organization-reference.md#test-doubles) to readable binding names, ownership of shared baseline state, and using the dependency's public API to drive behavior. Judge those choices from the test and its support; they are not structural verifier rules.
+
 Apply [Human Readability](code-organization-reference.md#human-readability) to all non-empty expected object literals, including single-property assertion objects and partial-matcher arguments: one property per line even within formatter width, preserving values, order, and matcher semantics. Ordinary small single-field call arguments may remain compact; assertion data is not that exception.
 
 Keep readable expected matcher trees inline, including partial matchers inside complete arrays, instead of extracting one-use matcher aliases solely for the construction default. A simple awaited model query may remain directly in `expect(...)` when it observes the actual result once with the required scope/options. Keep meaningful reused values and required sequencing explicit. This is the [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) exception, not permission to hide transformations, effects, or independent assertions.
@@ -124,7 +126,7 @@ Before: two independently meaningful saves share one test, and wildcard payloads
 ```ts
 test("when the worksheet is edited twice, saves both edits", async () => {
   // Arrange
-  const patchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
+  const worksheetApiPatchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
   const page = await mountWorksheetPage()
 
   // Act
@@ -132,9 +134,9 @@ test("when the worksheet is edited twice, saves both edits", async () => {
   await page.save({ hours: 6 })
 
   // Assert
-  expect(patchSpy).toHaveBeenCalledTimes(2)
-  expect(patchSpy).toHaveBeenNthCalledWith(1, 7, expect.anything())
-  expect(patchSpy).toHaveBeenNthCalledWith(2, 7, expect.anything())
+  expect(worksheetApiPatchSpy).toHaveBeenCalledTimes(2)
+  expect(worksheetApiPatchSpy).toHaveBeenNthCalledWith(1, 7, expect.anything())
+  expect(worksheetApiPatchSpy).toHaveBeenNthCalledWith(2, 7, expect.anything())
 })
 ```
 
@@ -143,28 +145,28 @@ After: each save has its own API-spy expectation with the concrete request contr
 ```ts
 test("when worksheet hours are first edited, saves the first edit", async () => {
   // Arrange
-  const patchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
+  const worksheetApiPatchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
   const page = await mountWorksheetPage()
 
   // Act
   await page.save({ hours: 4 })
 
   // Assert
-  expect(patchSpy).toHaveBeenCalledExactlyOnceWith(7, { hours: 4 })
+  expect(worksheetApiPatchSpy).toHaveBeenCalledExactlyOnceWith(7, { hours: 4 })
 })
 
 test("when saved worksheet hours are edited again, saves the new edit", async () => {
   // Arrange
-  const patchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
+  const worksheetApiPatchSpy = vi.spyOn(worksheetApi, "patch").mockResolvedValue(savedWorksheet)
   const page = await mountWorksheetPage()
   await page.save({ hours: 4 })
-  patchSpy.mockClear()
+  worksheetApiPatchSpy.mockClear()
 
   // Act
   await page.save({ hours: 6 })
 
   // Assert
-  expect(patchSpy).toHaveBeenCalledExactlyOnceWith(7, { hours: 6 })
+  expect(worksheetApiPatchSpy).toHaveBeenCalledExactlyOnceWith(7, { hours: 6 })
 })
 ```
 

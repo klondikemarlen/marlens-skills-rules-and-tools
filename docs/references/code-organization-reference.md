@@ -1423,6 +1423,118 @@ A supported factory/collection API is also suitable when each record's named att
 
 Arrange data through the project's factories rather than unrelated production services. Service calls remain appropriate when that service is the subject under test or the scenario is a feature test. Reuse opt-in relationship traits for repeated setup; keep scenario-specific values, identities, deletion states, ordering, and explicit preloads visible and preserved. This does not prohibit mocked collaborators or introduce a new factory library.
 
+### Test Doubles
+
+#### Names That Identify the Replaced Dependency
+
+Name a binding that holds a spy, mock, or fake so the reader can identify both its role and the dependency or operation it replaces at the use site. Before, `getWorkflow` reads like a real getter:
+
+```ts
+const getWorkflow = vi.spyOn(workflowsApi, "get")
+expect(getWorkflow).toHaveBeenCalledExactlyOnceWith(37)
+```
+
+After, the same setup and assertion identify the API method and the spy:
+
+```ts
+const workflowsApiGetSpy = vi.spyOn(workflowsApi, "get")
+expect(workflowsApiGetSpy).toHaveBeenCalledExactlyOnceWith(37)
+```
+
+Choose names that fit the project; there is no required suffix. This applies to bindings that hold doubles, not to production operations, fixtures, or results returned by a call.
+
+#### Shared Baseline Owned by Test Support
+
+When the runner does not restore all of a stateful mock's defaults and owned state, put baseline restoration behind one named operation in the owning test support. Use the existing lifecycle and the narrowest scope that shares that baseline. Before, a shared hook must know the mock's internal socket registry and connected default:
+
+```ts
+beforeEach(() => {
+  mockChannelManager.sockets.clear()
+  mockChannelManager.setInitiallyConnected(true)
+})
+```
+
+After, the support owns both details and the shared hook just calls the initializer:
+
+```ts
+// In channel-manager test support, alongside the fake that uses this state.
+const sockets = new Map<string, FakeSocket>()
+let initiallyConnected = true
+
+export function mockChannelManager() {
+  sockets.clear()
+  initiallyConnected = true
+}
+
+export function setInitiallyConnected(connected: boolean) {
+  initiallyConnected = connected
+}
+```
+
+```ts
+// In the suite's existing setup.
+beforeEach(() => {
+  mockChannelManager()
+})
+```
+
+Keep a non-default scenario explicit and configure it **before** the application subscribes or otherwise captures the affected state. Ordinary tests should not call the initializer again to obtain a handle: resetting after subscription can leave the application listening on the old instance while the test emits on a new one. In this example, the fake captures the connection default when it creates a socket on first access and reuses that socket by channel:
+
+```ts
+test("when configured to start disconnected, returns a disconnected socket", () => {
+  // Arrange
+  setInitiallyConnected(false)
+
+  // Act
+  const socket = channelManager.socket("/workflows")
+
+  // Assert
+  expect(socket.connected).toBe(false)
+})
+
+test("when using the shared baseline, returns a connected socket", () => {
+  // Arrange uses the suite's existing setup.
+
+  // Act
+  const socket = channelManager.socket("/workflows")
+
+  // Assert
+  expect(socket.connected).toBe(true)
+})
+```
+
+After the disconnected override, the later test starts with an empty registry and the connected default. In this sequence, restoring only the default would return the cached disconnected socket, and clearing only the registry would create another disconnected socket. Within either test, two callers asking for the same channel get the same instance. If that identity needs its own support test, assert `expect(channelManager.socket("/workflows")).toBe(firstSocket)` after obtaining `firstSocket` through the same API, with no initialization between calls.
+
+Reuse the project's setup idiom; this example requires neither a particular reset method or module layout nor a new global mock or hook. Rely on [runner cleanup](#cleanup-necessity) for what it already restores, and keep necessary disposal of live resources.
+
+#### Public API for Driving the Scenario
+
+Before adding a test-only getter, registry, or wrapper, write the consumer's Act using the dependency's existing public API. If the fake can implement that small contract faithfully, keep its bookkeeping private and remove the redundant accessor and caller-side guards. Before, the test reaches through test support to emit an event after the application has mounted:
+
+```ts
+const socket = mockChannelManager.getSocket("/workflows")
+if (!socket) {
+  throw new Error("Expected workflow socket")
+}
+
+socket.emit("updated", { status: "Approved" })
+expect(status).toHaveTextContent("Approved")
+```
+
+After, use the public create-or-get API to drive the same behavior:
+
+```ts
+const socket = channelManager.socket("/workflows")
+socket.emit("updated", { status: "Approved" })
+expect(status).toHaveTextContent("Approved")
+```
+
+The fake must return the same socket for the same channel to application and test callers, without replacing it during the scenario; the next test starts fresh. The observable status change proves event handling. Calling a create-or-get method does **not** prove that the application had already subscribed. If subscription itself is the contract, check actual registration or an observable response that depends on it. Keep an explicit test control when the public API cannot provide the required stimulus.
+
+**Review question:** Looking at the consumer diff, can the Act use the dependency's public API on the same instance the application uses, and does the assertion still prove the intended behavior rather than just successful lookup or creation? This is authoring and review guidance, not a ban on fakes, a syntax rule, or a line-count target.
+
+The [baseline extraction](https://github.com/icefoganalytics/wrap/pull/881/commits/9bc30ff48d) and [public API cutover](https://github.com/icefoganalytics/wrap/commit/99f1ffafdd) are examples of these distinct decisions.
+
 ### Typed Default-Plugin Mount Support
 
 When Vue suites repeatedly install the same default plugins, prefer a shared `mountWithDefaultPlugins(Component, options)` at the existing test-infrastructure owner. Default-plugin installation is infrastructure, not a scenario helper. Create fresh stateful default instances inside every call; never share a store, router, or other mutable default instance across mounts. Direct VTU `mount` remains valid when defaults are unnecessary or setup is not repeated. This does not require Vuetify, a new dependency, or migration of unrelated tests.
@@ -3204,6 +3316,8 @@ expect(getByRole("status")).toHaveTextContent("Loading")
 By contrast, dispose resources that remain live beyond the assertion, such as timers, I/O, or subscriptions. Reuse automatic teardown where it already provides the required disposal. Keep explicit disposal when disposal itself is under test or when it protects a demonstrated isolation invariant.
 
 Inspect the active test-runner configuration before adding local mock-restoration hooks. Rely on configured cleanup for the mocks, globals, or environment state it already covers rather than duplicating it in `afterEach`. Retain local cleanup for uncovered resources or state and preserve intentional mid-test restoration; apply an accepted correction consistently within the reviewed scope.
+
+For a stateful double whose owned baseline the runner does not restore, see [Shared Baseline Owned by Test Support](#shared-baseline-owned-by-test-support).
 
 When a scheduler test file does not test real timer execution, give scheduler registration a safe file-scoped mock instead of relying on each scenario to install a constructor spy. The default must prevent real scheduling for every test, including newly added scenarios and tests running after configured mock reset/restoration. Keep the domain callbacks real when their behavior is under test; scenarios can inspect captured registrations, invoke the captured callback, or override the registration mock without enabling the real scheduler by default.
 

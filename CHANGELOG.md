@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.17.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1586) - 2026-11-23
+
+### Changed
+
+- Clarify spy naming, shared mock initialization, and test stimuli through the dependency's public API.
+
 ## [5.17.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1585) - 2026-11-23
 
 ### Changed
