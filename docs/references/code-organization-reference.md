@@ -399,6 +399,8 @@ When environment configurations repeat common settings, express the shared defau
 
 Resolve environment-string parsing and fallback defaults in the existing configuration layer, exporting appropriately typed values for consumers to use directly. Preserve distinct consumer-specific defaults, accepted invalid/absent-value behavior, and configuration loading/reload timing rather than imposing a new framework or one universal default.
 
+When reporting a missing or invalid setting, follow [Input Diagnostics at the Owning Boundary](#input-diagnostics-at-the-owning-boundary): distinguish the configuration key this layer reads from the inputs its consumers receive.
+
 For example, when the existing `parseIntWithFallback` contract and the established request-timeout default are already accepted:
 
 ```typescript
@@ -2175,6 +2177,28 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 ## Error Ownership and Local Recovery
 
+### Input Diagnostics at the Owning Boundary
+
+Describe missing or invalid caller-supplied values using the receiving function's input contract, regardless of where the caller obtained them. Name a concrete configuration key only at the existing boundary that reads or maps it. Use that key and the expected format to guide operators without echoing the supplied value.
+
+- A certificate loader that accepts `keyVaultUrl` says "A Key Vault URL is required" when the input is missing, or "The Key Vault URL must be an HTTPS URL" if its contract requires HTTPS. It does not name `AZURE_KEY_VAULT_URL`: the caller could supply the URL from a configuration file or a test.
+- The settings reader that maps `process.env.AZURE_KEY_VAULT_URL` to `keyVaultUrl` can tell the operator "Set `AZURE_KEY_VAULT_URL` to a Key Vault HTTPS URL" when that required setting is absent or invalid.
+
+Do not move validation, duplicate checks, or introduce a wrapper just to change a diagnostic. Preserve the existing validation and failure contracts and apply [Shared Environment Defaults](#shared-environment-defaults) at the configuration layer.
+
+### Internal Errors, Public Messages, and Logs
+
+Keep the original cause and relevant diagnostic context available for authorized debugging through the existing error path. At the existing public boundary, map the failure to an informative, operation-specific message that is safe for the audience. Apply this both to immediate responses from a controller or error middleware and to job status or other persisted messages that will be shown to users. Expose only deliberately public fields; do not serialize the internal error or copy its message, stack, or cause into the public result. Preserve the existing classification, HTTP status, job failure and retry behavior, and disclosure restrictions. No new hierarchy or global handler is required.
+
+For example, when SharePoint rejects an attachment copy:
+
+- **Internal error:** Preserve the failed copy operation, the original cause, and relevant provider metadata such as its error code and request ID for authorized debugging.
+- **Immediate HTTP failure:** The controller or existing middleware returns "Could not copy the attachment to SharePoint" with the application's established failure status.
+- **Deferred failure:** If a background job performs the copy instead, its existing failure path persists that safe message in the status the attachment panel displays, not the original error.
+- **Diagnostic log:** The existing logging owner writes "SharePoint attachment copy failed" with approved, sanitized fields such as the provider error code and request ID. Do not log the raw error object, raw provider response, authorization headers, or sensitive URLs.
+
+Logs are a separate disclosure boundary. Use the existing logger and allowlisted or redacted context appropriate to its audience and retention policy. Keeping a cause internally does not make it safe to interpolate or serialize, and preserving useful diagnostics does not require capturing a raw provider response. Do not duplicate events when another boundary already owns reporting.
+
 ### Explicit Fixed-Family Error Types
 
 For a small fixed domain failure family, prefer named errors with identity, message, and HTTP status visible together over one code-selected constructor. A useful shared base preserves existing classification. Before, for an illustrative established contract:
@@ -2327,7 +2351,7 @@ When protocol inspection is genuinely shared by subclasses, put the helper on th
 
 When an owning layer has a family of custom error types, group its shared local base and concrete modules in that owner's `errors/` directory, such as `api/errors/`, rather than scattering them among endpoint clients or placing them in an unrelated global bucket. Keep a cross-owner core base with its actual owner. Preserve behavior and migrate all affected imports and applicable documentation; do not require a folder for every isolated error or introduce a new barrel.
 
-In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
+In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. When this catch owns reporting, name the failed operation and include useful, permitted structured diagnostics under [Internal Errors, Public Messages, and Logs](#internal-errors-public-messages-and-logs). Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
 
