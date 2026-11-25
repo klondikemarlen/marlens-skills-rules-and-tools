@@ -6,6 +6,8 @@ Use when asked to run one complete project-improvement cycle. Compose the existi
 
 Read project-local guidance and the user's target, constraints, and exit intent once. Preserve that scope and authorization throughout the cycle. Reuse the existing issue, plan, or session for accepted decisions, relevant observations, verification results, delivery state, and stage outcomes; do not create another ledger.
 
+**MSSRT checkout default.** When the target repository is `klondikemarlen/marlens-skills-rules-and-tools` and the maintainer gives no narrower scope, select all issues open when the pass starts. Triage that frozen set; apply the one-outcome lifecycle below to each eligible group, not just the first. Group only tickets that share an outcome and proof. Continue independent groups past a blocker and report a disposition for every selected ticket, including deferred and keep-open reviews. Do not add newly arriving issues. An explicit request for one issue or assessment only still wins; consuming repositories retain the ordinary bounded default.
+
 Carry context forward rather than repeat whole-project discovery. Reuse checks only while their relevant inputs and acceptance requirements remain unchanged. Later changes that invalidate earlier proof require focused revalidation before claiming the cycle complete. No-change stages require evidence, not an assumption that earlier work covered them.
 
 ## Ticket Triage Within the Cycle

@@ -6,6 +6,10 @@
   "requiredContext": ["changed-code", "callers", "siblings", "project-guidance"],
   "rubric": [
     {
+      "id": "review-targets-and-behavior-evidence",
+      "question": "Classify selected paths by the responsibility that changed, not by the extension or directory alone. Inspect touched production implementations, including Vue scripts and material template bindings, and preserve changed route, controller, policy, and service boundaries and moves in scope. Use ordinary test scenarios and assertions as caller or behavior evidence, not as primary implementation targets. Review test-support modules such as factories and shared setup as targets when their own ownership, public surface, dependency direction, or state lifetime changes. This distinction applies during assessment, not during changed-path discovery."
+    },
+    {
       "id": "boundary-ownership",
       "question": "For each touched implementation, including one with unchanged exports and no new boundary, inventory its primary operation/class, supporting helpers, independent responsibilities, and invariants. Cite concrete ownership or accumulation: which decisions change for separate reasons, and what coupling does that cause? Also assess every changed or introduced boundary. Do not approve from function/file-size checks or reject from size alone."
     },
@@ -24,6 +28,10 @@
     {
       "id": "public-surface-and-dependencies",
       "question": "Does the feature expose a small intention-revealing consumer API while hiding implementation-only helpers and state, rather than exporting internals merely for tests? Trace actual imports/callers and dependency direction: reject cross-import cycles, reaching through internals, export-everything barrels, or catch-all facades that retain mixed ownership. Allow several intentional lifecycle operations sharing an invariant, existing project entrypoint conventions, and a small cohesive module without a new folder/barrel; do not impose exactly one export."
+    },
+    {
+      "id": "service-collaborator-ownership",
+      "question": "For a changed service collaborator call, identify the caller's resource, the collaborator's resource, and the supported public entry points in actual source. Under Project-Root Imports and Paths, flag a bare cross-resource action such as BulkCreateService.perform when the deepest existing supported named bundle exposes it. Accept the full qualified call, such as TravelDeskInvoiceItems.BulkCreateService.perform. Continue to accept direct named imports from the deepest supported matching entry point in an own-resource controller. Do not require new bundles or private import paths, and preserve stronger project-local conventions."
     },
     {
       "id": "extraction-value",

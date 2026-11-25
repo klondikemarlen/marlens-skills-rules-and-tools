@@ -14,7 +14,7 @@ References are not step-by-step workflows and are not copyable templates. They c
 - Module ownership, public surfaces, and semantic verification: [`module-boundary-reference.md`](./module-boundary-reference.md).
 - Outcome-first planning and fit checks: [`outcome-first-planning-reference.md`](./outcome-first-planning-reference.md).
 - Project knowledge base taxonomy, authority boundaries, and publication safety: [`project-knowledge-base-reference.md`](./project-knowledge-base-reference.md).
-- OMP plugin routine and exact-hash installation policy: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).
+- OMP plugin installation, user and agent feature access, and released-plugin QA: [`omp-plugin-install-reference.md`](./omp-plugin-install-reference.md).
 - Engineering techniques with evidence status and safety boundaries: [`engineering-techniques-reference.md`](./engineering-techniques-reference.md).
 - Finite lazy TypeScript runtime verification and declaration ownership: [`typescript-runtime-entrypoints-verifier-reference.md`](./typescript-runtime-entrypoints-verifier-reference.md).
 - Shared-baseline test-alignment verifier rules and scoped suppression: [`test-alignment-verifier-reference.md`](./test-alignment-verifier-reference.md).

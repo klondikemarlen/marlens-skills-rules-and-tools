@@ -44,6 +44,8 @@ If the target is above that PR, warn before editing with links to both the targe
 
 Exercise these cases through a read-only guidance consumer using supplied remote-state evidence, including a target change. Check the actual warning/no-warning decision and links, not matching wording. This procedure adds no runtime guard or automatic stack mutation.
 
+For a request to carry an accepted fix through open descendants, follow [Propagating a Fix Through an Existing Stack](../../skills/pr-stack/workflow.md#propagating-a-fix-through-an-existing-stack). Keep the existing PRs and apply the targeting advisory and fixup gates above.
+
 ### PR Size and Stack Planning
 
 Use [Plan Reviewable PR Slices](hands-off-agentic-coding-workflow.md#plan-reviewable-pr-slices) for the advisory per-PR changed-file threshold. Reassess at planning, whenever a planned or active PR grows, and before marking it ready. Measure each PR against its actual review base, not cumulatively against trunk; a stacked child is reviewed against its immediate parent.
