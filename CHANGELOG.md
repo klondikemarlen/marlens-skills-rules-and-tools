@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1640) - 2026-11-25
+
+### Changed
+
+- Controller guidance rejects invalid identities and disabled request-level features before resource lookup without bypassing authorization.
+
 ## [5.19.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1637) - 2026-11-25
 
 ### Changed

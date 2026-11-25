@@ -272,6 +272,100 @@ describe("api/src/controllers/project-members-controller.ts", () => {
 
 Use the project's existing authenticated HTTP helper and factories. Also verify that authorized POST and PATCH succeed under the correct parent and that a body-supplied parent cannot override route context, using the existing strip-or-reject contract. Retain independent missing-record and forbidden cases, including a child-policy denial after the parent check succeeds. Keep required preloads for the actual policy and serializer.
 
+## Protected Request Admission
+
+Successful credential verification does not prove that the verified claims contain the identity your application requires. Reject a missing or unusable identity with the existing authentication denial before any account lookup. A fallback such as `""` is a lookup value that might select an account, not a denial. Pass a usable identifier unchanged. This applies to required identity, not to optional non-identity defaults or explicitly public routes.
+
+In this example, the existing `verifyCredential` middleware verifies the token and supplies a verified claims object, but does not require `sub`. The verified JSON transport cannot produce boxed strings, and this project already uses the named Lodash predicates. `trim()` only checks for blankness; it does not alter the account identifier. Adapt the [predicate choice](../../../references/code-organization-reference.md#guard-clauses-and-exceptional-responses), request context, responses, and async error handling to the project.
+
+Resolve feature availability from the authenticated account before looking up the workflow. The archive-only route denies disabled requests. The ordinary listing uses the same flag only for response metadata, never to skip regular data or grant access. This example uses a policy-scoped workflow lookup and distinct permissions for the two folder collections; it preserves a generic 404 when the workflow is missing or the action is not allowed.
+
+```typescript
+import type { NextFunction, Request, Response } from "express"
+import { isEmpty, isString } from "lodash"
+
+async function resolveCurrentAccount(_req: Request, res: Response, next: NextFunction) {
+  const subject: unknown = res.locals.verifiedClaims.sub
+  if (!isString(subject) || isEmpty(subject.trim())) {
+    res.sendStatus(401)
+    return
+  }
+
+  const account = await findAccountBySubject(subject)
+  if (!account) {
+    res.sendStatus(401)
+    return
+  }
+
+  res.locals.currentAccount = account
+  next()
+}
+
+async function listArchivedFolders(req: Request, res: Response) {
+  const { currentAccount } = res.locals
+  const { isFolderArchiveEnabled } = currentAccount.preferences
+  if (!isFolderArchiveEnabled) {
+    res.sendStatus(403)
+    return
+  }
+
+  const workflow = await findWorkflowVisibleTo(currentAccount, req.params.workflowId)
+  if (!workflow || !canListArchivedFolders(currentAccount, workflow)) {
+    res.sendStatus(404)
+    return
+  }
+
+  const folders = await listArchivedFoldersForWorkflow(currentAccount, workflow)
+  const serializedFolders = folders.map(serializeFolder)
+
+  res.json({
+    folders: serializedFolders,
+  })
+}
+
+async function listFolders(req: Request, res: Response) {
+  const { currentAccount } = res.locals
+  const { isFolderArchiveEnabled } = currentAccount.preferences
+  const workflow = await findWorkflowVisibleTo(currentAccount, req.params.workflowId)
+  if (!workflow || !canListFolders(currentAccount, workflow)) {
+    res.sendStatus(404)
+    return
+  }
+
+  const folders = await listFoldersForWorkflow(currentAccount, workflow)
+  const serializedFolders = folders.map(serializeFolder)
+
+  if (isFolderArchiveEnabled) {
+    res.json({
+      folders: serializedFolders,
+      isFolderArchiveEnabled,
+    })
+    return
+  }
+
+  res.json({
+    folders: serializedFolders,
+  })
+}
+
+router.get("/workflows/:workflowId/folders", verifyCredential, resolveCurrentAccount, listFolders)
+router.get(
+  "/workflows/:workflowId/archived-folders",
+  verifyCredential,
+  resolveCurrentAccount,
+  listArchivedFolders
+)
+```
+
+The flag can live in the controller as shown or in the project's established admission middleware. Evaluate it only after authentication and after any data it actually depends on is available. Keep record-level authorization in either design.
+
+Focused regression scenarios:
+
+- A rejected credential never reaches account resolution. A verified token with an absent, non-string, empty, or whitespace-only subject gets the existing authentication denial with no account lookup. A usable subject reaches account resolution unchanged (for example, `" account-7 "` if accepted by the application); a failed account resolution still denies.
+- A caller who otherwise has archive permission gets the disabled-feature response with the flag off, without a workflow or folder read. With the flag on, the route still checks the archive permission before reading and returning archived folders.
+- On the ordinary route, an authorized caller gets the same regular folders with the flag off or on. The workflow lookup follows flag evaluation in both cases; only the enabled response advertises the archive feature.
+- An enabled caller without the relevant resource permission still gets the established resource denial and no protected folder read on either route.
+
 ## Resource Imports and Query Guards
 
 For a controller's own services, use direct named imports from the deepest supported matching resource entry point. For example, an invoice controller uses `import { CreateService, UpdateService } from "@/services/travel-desk-invoices"` when those exports exist, rather than importing the root `TravelDeskInvoices` namespace. Other-domain collaborators and service-to-service dependencies retain [Project-Root Imports and Paths](../../../references/code-organization-reference.md#project-root-imports-and-paths); do not add barrels or bypass public exports for this shape.
