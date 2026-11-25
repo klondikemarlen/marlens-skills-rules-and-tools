@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1641) - 2026-11-25
+
+### Changed
+
+- Plugin settings guidance requires native settings, slash commands and Node CLI commands to share one effective setting.
+
 ## [5.19.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1642) - 2026-11-25
 
 ### Changed
