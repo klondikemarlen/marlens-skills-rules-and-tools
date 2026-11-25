@@ -6,6 +6,48 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1641) - 2026-11-25
+
+### Changed
+
+- Plugin settings guidance requires native settings, slash commands and Node CLI commands to share one effective setting.
+
+## [5.19.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1642) - 2026-11-25
+
+### Changed
+
+- Readability reviews distinguish ordinary call layout and reasonable loader choices from contract violations, and separate nontrivial traversal without losing scope or failure behavior.
+
+## [5.19.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1640) - 2026-11-25
+
+### Changed
+
+- Controller guidance rejects invalid identities and disabled request-level features before resource lookup without bypassing authorization.
+
+## [5.19.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1637) - 2026-11-25
+
+### Changed
+
+- Error guidance distinguishes caller inputs from settings keys and safe public messages from restricted debugging context.
+
+## [5.19.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1636) - 2026-11-25
+
+### Changed
+
+- Migration examples distinguish draft rollback from the revised chain and backfill required fields without granting access.
+
+## [5.19.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1638) - 2026-11-25
+
+### Changed
+
+- Browser QA now reconciles every run-owned record with a fresh authoritative read, including probe writes.
+
+## [5.19.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1635) - 2026-11-25
+
+### Changed
+
+- The wrap-up procedure compares the private network to the pre-verification inventory before running the owning wrapper.
+
 ## [5.19.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1629) - 2026-11-25
 
 ### Changed

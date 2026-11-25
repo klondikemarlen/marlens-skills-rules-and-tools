@@ -50,6 +50,28 @@ Invoke the installed public feature from both paths, using the same authorized i
 
 For guidance-only QA, check contrasting decisions: accept a documented CLI shared by both audiences when its outcomes are observable; reject an interactive-only configuration action when the agent can only ask the operator to run it; and reject an agent path that skips consent or widens report scope even if it returns plausible results. This does not certify downstream features or require adding commands to other plugins.
 
+### One Authority for Plugin Settings
+
+Expose operator-editable plugin preferences in OMP’s native **Settings → Plugins → PLUGIN** screen, the plugin’s slash command, and its Node bin command. Each surface must read and change the same OMP-owned plugin setting; the plugin’s runtime must use that same effective value. Use one setting key and schema for the type, default, and supported constraints. Do not maintain separate UI, CLI, or file-only preferences, or silently fall back to a legacy file when a native read fails. This does not authorize exposing host-owned controls or credential stores.
+
+- For a package-based plugin, declare the schema in [`package.json` under `omp.settings`](https://github.com/can1357/oh-my-pi/blob/v19.2.1/packages/coding-agent/src/extensibility/plugins/types.ts). The host uses that schema to render the [native settings screen](https://github.com/can1357/oh-my-pi/blob/v19.2.1/packages/coding-agent/src/ui/overlays/plugins/settings.tsx).
+- Register the slash command with [`pi.registerCommand`](https://github.com/can1357/oh-my-pi/blob/v19.2.1/docs/extensions.md). Let the slash handler and installed Node entrypoint reuse the same settings operation. OMP 19.2.1 exposes [`omp plugin config get PLUGIN KEY --json`, `omp plugin config set PLUGIN KEY VALUE`, and `omp plugin config delete PLUGIN KEY`](https://github.com/can1357/oh-my-pi/blob/v19.2.1/packages/coding-agent/src/cli/plugin-cli.ts#L971-L1090). A Node process can invoke the supported CLI with separate arguments; don’t import host internals, invent extension context methods, or write OMP’s storage directly. Use non-secret settings for these examples; don’t expose credentials in arguments, output, or evidence.
+- Match the intended OMP profile and working directory across surfaces. For the cited version, [native writes and deletes target the active profile, and project overrides take precedence on reads](https://github.com/can1357/oh-my-pi/blob/v19.2.1/packages/coding-agent/src/extensibility/plugins/manager.ts#L1011-L1045). Distinguish the value saved from the value in effect, including after a reset. Document when changes take effect and how to read them back. Confirm the APIs and behavior on the supported host version; if a required native capability is unavailable, report the gap instead of substituting a custom screen or claiming parity.
+
+For example, [Model Watch 0.3.0](https://github.com/klondikemarlen/omp-model-watch/blob/97d3ce368de53310c9d3022d7b57c063e22e2403/README.md#install-and-use) exposes `checkIntervalHours` in native settings, `/model-watch interval [hours|reset]`, and `node bin/model-watch.js interval [hours|reset]`. The slash command and Node bin read the effective interval when called without a value.
+
+#### Cross-Surface Settings QA
+
+In a disposable profile and working directory without a masking project override, use the installed plugin and write three distinct non-default values in turn. Save each through the named public surface and verify the exact value from a different public surface before the next write:
+
+1. Change the value in native plugin settings; read it from the Node bin command.
+2. Change it using the slash command; read it in native plugin settings.
+3. Change it using the Node bin command; read it using the slash command.
+
+Use the real native editor, slash command and argument autocomplete where available, and the documented `node bin/…` entrypoint; a direct host CLI call is not a substitute for any of them. Reopen the screen or start a fresh OMP process when required for readback, and record that boundary rather than claiming live refresh. Confirm the runtime uses the new value at its documented application point. Verify that rejected inputs leave the effective value unchanged; when reset or project overrides apply, check the effective value with and without an override. An acknowledgment, source inspection, or each writer reading its own value cannot prove cross-surface persistence.
+
+For guidance-only QA, accept a native setting and two commands backed by one host setting with the three handoffs above. Reject three controls that keep separate copies even if they agree at startup, a file-only preference with no native control, and a claim of parity based only on same-surface readback. These decisions do not certify a downstream plugin.
+
 ### Faithful TUI Demos
 
 When a plugin feature has a user-visible terminal effect that users need to inspect without performing the real operation, provide a discoverable, side-effect-free demo where the public host API permits it. Prefer `/<plugin> demo` under the existing command, with help text explaining its scope and real command/argument autocomplete. An existing plugin-specific preview may satisfy this contract; do not add another command solely to standardize spelling. A plugin with no TUI effect needs no demo. If the host owns the surface and offers no safe public preview API, explain that limitation instead of inventing an API or impersonating the host.
