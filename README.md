@@ -45,7 +45,7 @@ This is an informed approval handoff, **not a sandbox or popup interceptor**. Ca
 
 For a complete improvement cycle, ask **“Use evolve on this repo”** or invoke `/skill:evolve` in OMP. It carries one outcome through **design → working implementation → refinement → final verification and delivery → wrap-up**, with bounded triage when selecting ticket work. Prototype only when useful; use Improve and Simplify before shipping, and revisit the affected design or implementation when feedback warrants it. Reuse valid evidence, allow no-change refinement, and stop at the accepted outcome—not an automatic backlog drain.
 
-**In the MSSRT repository itself**, a bare `evolve` means triage all open issues and work through them, not just the first ready ticket. Freeze the issue numbers at the start. Group tickets that share an outcome and verification path; deliver each eligible group through the normal issue/PR/release workflow. Give every remaining ticket a disposition and next action. Keep recurring reviews open, respect existing deferrals and authorization boundaries, and continue independent work when one group is blocked. Later arrivals wait for the next pass. An explicit narrower request wins. Installing MSSRT does not change another repository’s default.
+In the MSSRT checkout itself, the [local Evolve workflow](docs/workflows/evolve-workflow.md#scope-and-shared-evidence) covers all tickets open at the start by default, grouping related work for delivery. This does not change Evolve in consuming projects.
 
 For a narrower task:
 
