@@ -399,6 +399,8 @@ When environment configurations repeat common settings, express the shared defau
 
 Resolve environment-string parsing and fallback defaults in the existing configuration layer, exporting appropriately typed values for consumers to use directly. Preserve distinct consumer-specific defaults, accepted invalid/absent-value behavior, and configuration loading/reload timing rather than imposing a new framework or one universal default.
 
+When reporting a missing or invalid setting, follow [Input Diagnostics at the Owning Boundary](#input-diagnostics-at-the-owning-boundary): distinguish the configuration key this layer reads from the inputs its consumers receive.
+
 For example, when the existing `parseIntWithFallback` contract and the established request-timeout default are already accepted:
 
 ```typescript
@@ -1134,9 +1136,54 @@ For optional live-update behavior around an existing editor, follow [Optional Li
 
 Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
 
-Do not edit applied or released migration history to correct its effects. Add a new forward migration that supersedes or reverses those effects, with the project's required rollback and data-preservation contract. New, actively reviewed, unreleased migrations may still be edited when their deployment state permits; an existing filename alone does not make a migration immutable.
+Do not rewrite released history or migrations already applied to databases that must retain that history. Add a forward migration that supersedes or reverses their effects, following the project's rollback and data-preservation contract. An actively reviewed, unreleased migration may still be edited when its deployment state permits.
+
+If an earlier draft is recorded in a development database, use the project's migration runner with the original files still in place to roll back the affected draft migrations in reverse dependency order. Confirm the target database and authorization for the rollback and any expected loss first; an unreleased PR does not authorize rolling back a shared database or discarding its data. Only after returning to the pre-draft baseline should you replace the files and apply the revised chain. Verify the replacement with its own matching `up` and `down`; its `down` must not try to repair the superseded draft. If a safe rollback is unavailable or data must be preserved, follow the project's forward-migration or recovery contract instead.
+
+A draft `down` should not refuse solely because it finds feature data the maintainer has authorized discarding. If such a guard already blocks rollback, correct it in the draft's matching `down` without changing which schema it undoes. State exactly what rollback will lose, undo only the draft's schema changes in reverse dependency order, and leave the database and unrelated records intact. Keep safeguards where ownership or permission is uncertain or preservation or recovery is required. Let genuine database failures propagate.
 
 For new or actively reviewed unreleased migrations, separate meaningfully distinct schema/table introduction, dependent SQL objects, independently owned data conversions, and obsolete-schema removal when they have distinct responsibility or rollback boundaries. Keep table-local constraints with their table and cohesive schema/backfill work together when they share one responsibility. Order forward dependencies and backfills before dependent conversion or removal, and undo them in reverse dependency order. Choose cohesive boundaries, not a universal file count or line threshold.
+
+### Replacing an Applied Development Draft
+
+For example, an unreleased PostgreSQL draft stored `draft_response` on `workflow_steps` and added an index in a dependent migration. With the original files still in place, run their `down` migrations in this order:
+
+```sql
+DROP INDEX workflow_steps_draft_response_idx;
+
+ALTER TABLE workflow_steps
+  DROP COLUMN draft_response;
+```
+
+With the maintainer's authorization, this removes the draft response values even when populated. It retains the existing workflow steps and all their other data. Do not reset the database to get back to the baseline.
+
+The revised `up` creates the final response table directly, then adds the reference from the existing steps after both tables exist:
+
+```sql
+CREATE TABLE workflow_step_responses (
+  id bigint PRIMARY KEY,
+  response_text text NOT NULL
+);
+
+ALTER TABLE workflow_steps
+  ADD COLUMN response_id bigint,
+  ADD CONSTRAINT workflow_steps_response_id_fk
+    FOREIGN KEY (response_id) REFERENCES workflow_step_responses (id);
+```
+
+The revised `down` removes the dependency before the referenced table. It discards the revised draft's response links and rows, not the workflow step rows:
+
+```sql
+ALTER TABLE workflow_steps
+  DROP CONSTRAINT workflow_steps_response_id_fk,
+  DROP COLUMN response_id;
+
+DROP TABLE workflow_step_responses;
+```
+
+Exercise the original rollback with populated draft responses, then exercise the revised `up` and `down` from the pre-draft baseline with populated revised responses. Check that the existing rows and their unrelated values survive both rollbacks and that the revised foreign key is enforced before rollback. No draft-to-draft conversion is needed when no supported database needs that transition.
+
+### Migration Definitions and Verification
 
 Prefer the application's established seeding system for built-in reference-data initialization. For example, a migration introducing a product-category table owns its schema and constraints; the built-in product-category records belong in the existing seed system, rather than inserts inside that create-table migration. Follow the project's seed ordering and repeat-run contract so required reference records are available before their consumers run.
 
@@ -1213,9 +1260,38 @@ Where soft-delete exclusion is the routine convention, omit `Active` and `Delete
 
 For new or actively reviewed unreleased backfills, prefer converting usable legacy records and skipping known unusable inputs when the project's data-preservation contract permits. Define the tolerated anomaly explicitly, such as an invalid cross-section reference, rather than treating every failure as corrupt data. Skipping conversion does not authorize deleting source records; deletion requires explicitly accepted cleanup scope. Preserve usable neighboring records and unrelated data. Financial, audit, or other mandatory reconciliation requirements take precedence: unresolved records may require blocking completion rather than discarding them. Before dropping legacy storage, establish the accepted disposition of skipped records.
 
+If the new constraint means the affected rows cannot be skipped, backfill the explicitly known legacy gap before enforcing it when the domain provides a safe fallback. Update only the affected rows and preserve valid values. For ownership or another sensitive field, the fallback must represent unresolved data without granting privileges; never substitute an unverified owner. Use it for the migration, not as a standing database default unless the domain independently calls for one. If no safe fallback exists or reconciliation is mandatory, do not silently proceed.
+
 Keep tolerated input validation separate from database execution. Prefer an explicit migration-local anomaly check before conversion; if a known validation exception must be handled, bound that handling to the affected input and proven exception. Propagate unexpected conversion errors and SQL, schema, constraint, or connection failures through the existing transaction/error contract. A catch around the whole backfill that returns success on any error is not best effort.
 
-Prove the boundary with valid records on both sides of a malformed record: the valid records convert with their intended values, only the accepted anomaly is skipped, and source/unrelated data remains intact unless its cleanup was authorized. Inject a genuine database failure and verify migration failure and the project's required rollback behavior, not a successful partial run. For accepted data deletion or lossy conversion, state the loss and verify the required backup/recovery path before discarding originals; a `down` that recreates schema cannot reconstruct discarded values. Do not rewrite released migrations to apply this policy.
+Prove the boundary with valid records on both sides of a known anomaly: valid records keep their intended values, only the accepted anomaly is skipped or backfilled, and source/unrelated data remains intact unless its cleanup was authorized. For a required field, verify the new constraint and any authorization invariant, not just that all rows have a value. Inject a genuine database failure and verify migration failure and the project's required rollback behavior, not a successful partial run. For accepted data deletion or lossy conversion, state the loss and verify the required backup/recovery path before discarding originals; a `down` that recreates schema cannot reconstruct discarded values. Do not rewrite released migrations to apply this policy.
+
+For example, suppose `documents.owner_department_key` is nullable, references `departments.key`, and has no database default. Here `NULL` is the known legacy gap, and the domain already has a reserved `unresolved` department that represents no owner. In the project's migration transaction, backfill only missing values before making the key required:
+
+```sql
+UPDATE documents
+SET owner_department_key = 'unresolved'
+WHERE owner_department_key IS NULL;
+
+ALTER TABLE documents
+  ALTER COLUMN owner_department_key SET NOT NULL;
+```
+
+The migration does not set a database default. An insert omitting the key must still fail. The authorization policy must exclude `unresolved` regardless of membership; the following illustrates the ownership predicate for authenticated account `7`:
+
+```sql
+SELECT documents.id
+FROM documents
+WHERE documents.owner_department_key <> 'unresolved'
+  AND EXISTS (
+    SELECT 1
+    FROM department_memberships
+    WHERE department_memberships.department_key = documents.owner_department_key
+      AND department_memberships.account_id = 7
+  );
+```
+
+Exercise documents owned by two real departments with a missing-owner document between them. Confirm that only the missing value changes and that an account belonging to one real department gets ownership access only to that department's document, even if a membership row exists for `unresolved`. Check that an insert with no owner is rejected rather than silently defaulting.
 
 ## Oversized Responsibility Clusters
 
@@ -2175,6 +2251,28 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 ## Error Ownership and Local Recovery
 
+### Input Diagnostics at the Owning Boundary
+
+Describe missing or invalid caller-supplied values using the receiving function's input contract, regardless of where the caller obtained them. Name a concrete configuration key only at the existing boundary that reads or maps it. Use that key and the expected format to guide operators without echoing the supplied value.
+
+- A certificate loader that accepts `keyVaultUrl` says "A Key Vault URL is required" when the input is missing, or "The Key Vault URL must be an HTTPS URL" if its contract requires HTTPS. It does not name `AZURE_KEY_VAULT_URL`: the caller could supply the URL from a configuration file or a test.
+- The settings reader that maps `process.env.AZURE_KEY_VAULT_URL` to `keyVaultUrl` can tell the operator "Set `AZURE_KEY_VAULT_URL` to a Key Vault HTTPS URL" when that required setting is absent or invalid.
+
+Do not move validation, duplicate checks, or introduce a wrapper just to change a diagnostic. Preserve the existing validation and failure contracts and apply [Shared Environment Defaults](#shared-environment-defaults) at the configuration layer.
+
+### Internal Errors, Public Messages, and Logs
+
+Keep the original cause and relevant diagnostic context available for authorized debugging through the existing error path. At the existing public boundary, map the failure to an informative, operation-specific message that is safe for the audience. Apply this both to immediate responses from a controller or error middleware and to job status or other persisted messages that will be shown to users. Expose only deliberately public fields; do not serialize the internal error or copy its message, stack, or cause into the public result. Preserve the existing classification, HTTP status, job failure and retry behavior, and disclosure restrictions. No new hierarchy or global handler is required.
+
+For example, when SharePoint rejects an attachment copy:
+
+- **Internal error:** Preserve the failed copy operation, the original cause, and relevant provider metadata such as its error code and request ID for authorized debugging.
+- **Immediate HTTP failure:** The controller or existing middleware returns "Could not copy the attachment to SharePoint" with the application's established failure status.
+- **Deferred failure:** If a background job performs the copy instead, its existing failure path persists that safe message in the status the attachment panel displays, not the original error.
+- **Diagnostic log:** The existing logging owner writes "SharePoint attachment copy failed" with approved, sanitized fields such as the provider error code and request ID. Do not log the raw error object, raw provider response, authorization headers, or sensitive URLs.
+
+Logs are a separate disclosure boundary. Use the existing logger and allowlisted or redacted context appropriate to its audience and retention policy. Keeping a cause internally does not make it safe to interpolate or serialize, and preserving useful diagnostics does not require capturing a raw provider response. Do not duplicate events when another boundary already owns reporting.
+
 ### Explicit Fixed-Family Error Types
 
 For a small fixed domain failure family, prefer named errors with identity, message, and HTTP status visible together over one code-selected constructor. A useful shared base preserves existing classification. Before, for an illustrative established contract:
@@ -2327,7 +2425,7 @@ When protocol inspection is genuinely shared by subclasses, put the helper on th
 
 When an owning layer has a family of custom error types, group its shared local base and concrete modules in that owner's `errors/` directory, such as `api/errors/`, rather than scattering them among endpoint clients or placing them in an unrelated global bucket. Keep a cross-owner core base with its actual owner. Preserve behavior and migrate all affected imports and applicable documentation; do not require a folder for every isolated error or introduce a new barrel.
 
-In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. A locally handled failure log should name the operation, include its readable error representation, and retain the original error as structured context, for example ``console.error(`Failed to sync directory: ${error}`, { error })``; use the project's existing logger and safe-disclosure conventions, not a new logging framework. Apply accepted corrections to equivalent touched catches, not unrelated code.
+In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. When this catch owns reporting, name the failed operation and include useful, permitted structured diagnostics under [Internal Errors, Public Messages, and Logs](#internal-errors-public-messages-and-logs). Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
 

@@ -14,10 +14,12 @@ Distinguish a user-led opening from automated QA before choosing a browser or pr
 1. For automated QA, identify the exact user flow, setup state, and expected outcomes. Select the engine under [Browser Opening Modes](#browser-opening-modes); default to an isolated, headless automation instance, not the user's personal browser. Retain ownership of its process/profile for scoped cleanup.
    Before declaring control unavailable or switching engines, use [Browser Control Discovery](../../docs/references/browser-qa-techniques-reference.md#browser-control-discovery): inspect already-installed project tooling and Firefox/Geckodriver where applicable, prefer maintained bindings, and distinguish startup from actual control, authentication, and UI evidence.
    For local feature-worktree data preparation, follow [Reusable Preview Data](../worktree/workflow.md#reusable-preview-data) before browser interaction. A copied dataset or ready server is setup evidence, not UI verification.
+   If the run includes explicitly authorized writes to a live account, start [Live Record Closeout](#live-record-closeout) before the first write.
 2. Prefer user-equivalent actions: navigate, click, type, upload, scroll, and wait for visible state.
 3. Use backend shortcuts only when the user explicitly approves them or the task is not UI validation.
 4. Verify labels and controls from the browser or source before writing QA notes.
 5. Record exact scenarios exercised, visible outcomes, screenshots if useful, and blockers.
+   Complete any required live-record checks before reporting cleanup complete or releasing the access needed to verify it.
 6. For PR screenshot capture or upload, follow [Upload Pull Request Screenshots](../../docs/workflows/upload-pr-screenshots-workflow.md), starting with its capture preflight for the requested browser, application access/data, and supported image capture. Then use its separate GitHub authentication, installed batch upload, saved-body/rendered-placement checks, and owned-session cleanup. Screenshots remain optional when project-local guidance makes them optional; do not invent a screenshot merge gate.
 
 ## Rules
@@ -35,6 +37,16 @@ Distinguish a user-led opening from automated QA before choosing a browser or pr
 - Before expanding scenarios that claim real-authenticated coverage, follow the canonical [Real-Authentication E2E Preflight](../test-guide/workflow.md#real-authentication-e2e-preflight); report smoke/mock and authenticated coverage separately for each environment.
 - Keep personal usernames, absolute home paths, local browser profile/session paths, credentials/tokens, and workstation-specific locations out of all published GitHub QA records, including issue/review/QA comments and screenshot contents, filenames, and metadata. Keep local operational paths and profile/session details in local notes only; legitimate repository-relative source/test paths and reviewer-facing app routes may remain.
 - Before publishing a screenshot, inspect its contents and use a neutral filename and reviewer-facing caption. For screenshot upload and public-safe examples, follow [Upload Pull Request Screenshots](../../docs/workflows/upload-pr-screenshots-workflow.md).
+
+## Live Record Closeout
+
+Use this checklist only for explicitly authorized writes to a live account. It does not grant permission to write or delete. Read-only QA and disposable isolated environments do not need this checklist. An isolated browser profile does not isolate the live account's data.
+
+1. **Track every write that may create a record.** Before each attempt, note the live account, target collection, and how you will identify every record it may create. Record each exact ID linked to the write or use a unique ownership marker that lets you find the record again. Include setup, early probes, retries, and the main test, including records created as side effects. Keep timed-out or ambiguous attempts open until a fresh service read resolves whether they created records. Do not start a write if you cannot reliably account for its records.
+2. **Confirm ownership before deleting.** Read from the live service and match each candidate to the recorded write by exact ID or unique marker in the correct account and collection. Delete only confirmed disposable records within the authorized cleanup scope. Leave user-owned data, intentionally retained fixtures, and records with uncertain ownership untouched. If the read fails, do not delete that record.
+3. **Verify every final disposition.** Make a fresh read from the live service after any deletion. Use an authoritative lookup by ID or a complete query for the recorded marker, covering the correct collection, filters, date ranges, and all pages as applicable. A successful delete response, cached view, or empty partial result is not proof of absence. Account for every entry before reporting cleanup complete. If a read fails, ownership remains uncertain, or a record still exists unexpectedly, report what remains unresolved and why. Report intentionally retained fixtures separately from removed records. Keep sensitive evidence in private QA notes.
+
+For example, an early calendar probe creates appointment `probe-42` and the later smoke test creates `smoke-87` in a different week. Verifying `smoke-87` is gone does not cover `probe-42`, even if the current week's view is empty. Confirm each appointment belongs to the run before deleting it, then verify both are absent with fresh reads that cover their exact IDs or recorded markers. If the probe lookup fails, report the probe as unresolved even if the main scenario and its cleanup passed.
 
 ## Disputed Interaction Behavior
 

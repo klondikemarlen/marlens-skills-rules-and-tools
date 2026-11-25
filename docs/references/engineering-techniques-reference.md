@@ -68,15 +68,21 @@ For existing completion and failure callbacks whose `serializedArguments` alread
 logger.info("Job completed", { jobId, data: serializedArguments })
 ```
 
-In the existing failure callback, consolidate duplicate failure reports into one event retaining the useful permitted context:
+In the existing failure callback, consolidate duplicate failure reports into one event retaining useful permitted context. Here `safeErrorDetails` contains only fields approved for the log sink:
 
 ```typescript
-logger.error("Job failed", { jobId, error, data: serializedArguments })
+logger.error("Job failed", {
+  jobId,
+  error: safeErrorDetails,
+  data: serializedArguments,
+})
 ```
 
 These are separate callback excerpts, not two events to emit for every outcome. Use the actual existing logger API, messages, fields, severity, and lifecycle points; preserve error identity/propagation and job behavior. Do not introduce new events or a logging framework for this preference.
 
 This is not permission to log every raw payload, credentials, tokens, personal data, or otherwise restricted content. Preserve existing sanitization, redaction, retention limits, and stronger security policies; serialized does not mean safe. Separately authorized payload changes remain valid. Preserve useful permitted diagnostics, not unsafe data merely because it was previously logged.
+
+Keep user-visible job status distinct from this diagnostic event under [Internal Errors, Public Messages, and Logs](code-organization-reference.md#internal-errors-public-messages-and-logs).
 
 ## Intermediary Responses to JSON Requests
 
