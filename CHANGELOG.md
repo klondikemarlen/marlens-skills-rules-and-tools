@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.18.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1613) - 2026-11-25
+
+### Changed
+
+- Service write examples project unchanged fields from an explicit allowlist while preserving authorized parent identifiers and missing-key semantics.
+
 ## [5.18.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1618) - 2026-11-25
 
 ### Changed
