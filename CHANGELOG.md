@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1638) - 2026-11-25
+
+### Changed
+
+- Browser QA now reconciles every run-owned record with a fresh authoritative read, including probe writes.
+
 ## [5.19.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1635) - 2026-11-25
 
 ### Changed
