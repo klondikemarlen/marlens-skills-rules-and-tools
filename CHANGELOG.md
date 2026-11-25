@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1636) - 2026-11-25
+
+### Changed
+
+- Migration examples distinguish draft rollback from the revised chain and backfill required fields without granting access.
+
 ## [5.19.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1638) - 2026-11-25
 
 ### Changed
