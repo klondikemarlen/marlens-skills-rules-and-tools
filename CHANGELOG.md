@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.18.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1613) - 2026-11-25
+
+### Changed
+
+- Service write examples project unchanged fields from an explicit allowlist while preserving authorized parent identifiers and missing-key semantics.
+
 ## [5.18.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1611) - 2026-11-25
 
 ### Fixed
