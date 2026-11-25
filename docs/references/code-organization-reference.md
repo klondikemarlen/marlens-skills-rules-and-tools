@@ -2323,6 +2323,10 @@ Do not move validation, duplicate checks, or introduce a wrapper just to change 
 
 Keep the original cause and relevant diagnostic context available for authorized debugging through the existing error path. At the existing public boundary, map the failure to an informative, operation-specific message that is safe for the audience. Apply this both to immediate responses from a controller or error middleware and to job status or other persisted messages that will be shown to users. Expose only deliberately public fields; do not serialize the internal error or copy its message, stack, or cause into the public result. Preserve the existing classification, HTTP status, job failure and retry behavior, and disclosure restrictions. No new hierarchy or global handler is required.
 
+For validation and conflicts shown to end users, explain what happened in terms of their action or the product rule. Name the state when it changes the outcome or next step, and tell users how to recover when the product offers a way forward.
+
+For example, when backend validation rejects a second response to the same workflow step, say “You have already responded to this step,” not “Only one active response is allowed.” Here, “active” merely distinguishes records that have not been soft-deleted; it is not a product state the user needs to interpret. Keep the uniqueness rule unchanged. If the product lets users edit their existing response, tell them how to do that; otherwise, do not suggest editing or retrying the same submission.
+
 For example, when SharePoint rejects an attachment copy:
 
 - **Internal error:** Preserve the failed copy operation, the original cause, and relevant provider metadata such as its error code and request ID for authorized debugging.
