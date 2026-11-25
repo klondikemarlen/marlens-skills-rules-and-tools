@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1614) - 2026-11-25
+
+### Added
+
+- The pr-resume skill looks up the conversation behind a pull request and distinguishes a claim or manual fallback from a confirmed session switch.
+
 ## [5.18.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1612) - 2026-11-25
 
 ### Changed
