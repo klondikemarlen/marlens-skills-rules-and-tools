@@ -19,6 +19,14 @@ Use when closing a requested unit of work, including when asked to wrap up, fini
 - Bare wrap-up does not authorize ending the OMP session. An explicit request to wrap up and exit authorizes scheduling supported runtime exit after the final response, but only once the work is complete. Never exit in place of reporting a blocker or unfinished work.
 - An authorized installed-plugin update uses [Current-Session Restart](../references/omp-plugin-install-reference.md#applying-installed-updates-to-the-current-session) after delivery and verification are complete. This is a scoped resume handoff, not permission for restart-all or an implicit wrap-up-and-exit.
 
+## Verification-Only Compose Runtime
+
+Before verification can create resources, record the owning checkout, wrapper, resolved Compose project and whether its exact private network already exists (including its ID). A failed lookup is not absence. A retained checkout does not by itself require keeping a runtime created solely for a lint or test run.
+
+When QA finishes, compare against that baseline. Inspect project labels, all project containers (including stopped ones), network endpoints, pending jobs, other users and dependent services. If the runtime was absent beforehand, belongs only to this verification and has no remaining consumers, declare the exact intended dispositions, including the retained checkout, gateway and named volumes. Run the owning wrapper’s scoped `down` without volume removal, then verify those dispositions from fresh observations. A successful command alone is not proof.
+
+If the network predated QA, the baseline is unknown, there is concurrent or pending use, or the wrapper would affect unrelated resources, retain the runtime and state why. An empty network does not establish ownership. Never prune the daemon or use `down -v` for this cleanup.
+
 ## Process
 
 1. **Reconstruct the requested finish line.** Use the original request and existing issue/plan as source of scope, acceptance criteria, target, and non-goals. Retain the repository, immutable task base/head revisions, and relevant paths for commit-history mining before cleanup removes worktrees or topic refs. Do not invent new criteria or drop accepted ones.
