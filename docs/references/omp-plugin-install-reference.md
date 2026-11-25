@@ -26,6 +26,28 @@ Within an authorized plugin release/install task, verify the released remote art
 
 Start a new OMP process: existing processes retain extension modules loaded at startup. Exercise the changed behavior and real command/argument autocomplete where that surface exists; distinguish successful discovery from completed execution. For guidance-only changes, use bounded contrasting decisions against the installed guidance rather than claim a runtime feature was exercised. Record missing prerequisites or a process that returns no answer as missing evidence, not PASS, and do not repeat unchanged successful checks.
 
+### User and Agent Feature Access
+
+Every feature in Marlen’s OMP plugins must be runnable by both a user and an agent. This includes state-changing actions, interactive workflows, configuration, and reports. Document the installed public invocation for each audience, the inputs and scope it uses, and where callers can observe the outcome or failure. One supported interface can serve both audiences; neither a second command nor identical presentation is required.
+
+#### Plugin-Scoped CLI Subcommands
+
+When a feature needs a shell interface, prefer a subcommand of the plugin’s installed executable, such as `PLUGIN FEATURE [OPTIONS]`, rather than a new executable for each action or a general slash-command bridge. Ship or expose that executable through the plugin’s documented installation route, list the subcommand in its help, and document the exact public invocation and any scope or configuration options. An agent calls it directly using its normal tool permissions and can read the result and failure status without scraping the TUI. Use the CLI’s existing machine-readable output convention when one is available.
+
+For example, the installed Instance Control CLI exposes `ompi control list --json`; the interactive path is `/ompi list`. With the same authorized profile and live instance registry, compare the scoped identities returned, not the JSON and terminal formatting. See the [peer messaging workflow](../workflows/peer-messaging-workflow.md#process) for both invocations and profile selection. An existing public agent tool can also satisfy the contract; do not add a redundant CLI just to match this spelling.
+
+#### Equivalent Behavior and Authorization
+
+- Keep the operation and its authorization with the same feature owner. Let the public interfaces share the operation rather than reproduce its behavior. For the same authorized inputs and scope, expose equivalent results, side effects, errors, and relevant diagnostics; normalize presentation only, not meaning.
+- Preserve permissions, target boundaries, redactions, and required human consent. An agent may initiate an approval-gated request through the supported flow and observe its disposition; it may not approve on the human’s behalf. Make pending approval distinguishable from success, denial, and cancellation, and perform no gated action without the required consent.
+- Asking the operator to run the command, taking over a user terminal, importing private modules, and editing internal state do not count as agent interfaces. This standard does not authorize changing another plugin or bypassing a host-owned control.
+
+#### Installed Feature QA
+
+Invoke the installed public feature from both paths, using the same authorized inputs and scope. Use equivalent initial states for writes so that one run cannot hide the other path’s effects. Check actual resulting state for state changes and configuration, compare facts for the same records for reports, and exercise the outcome and cancellation paths for interactive flows. Exercise applicable failures and check relevant diagnostics and redactions on both paths. For approval-gated operations, verify that pending and declined requests do not perform the gated action; exercise success only with genuine authorized human consent. Registration, help, and an accepted request are not evidence of completion.
+
+For guidance-only QA, check contrasting decisions: accept a documented CLI shared by both audiences when its outcomes are observable; reject an interactive-only configuration action when the agent can only ask the operator to run it; and reject an agent path that skips consent or widens report scope even if it returns plausible results. This does not certify downstream features or require adding commands to other plugins.
+
 ### Faithful TUI Demos
 
 When a plugin feature has a user-visible terminal effect that users need to inspect without performing the real operation, provide a discoverable, side-effect-free demo where the public host API permits it. Prefer `/<plugin> demo` under the existing command, with help text explaining its scope and real command/argument autocomplete. An existing plugin-specific preview may satisfy this contract; do not add another command solely to standardize spelling. A plugin with no TUI effect needs no demo. If the host owns the surface and offers no safe public preview API, explain that limitation instead of inventing an API or impersonating the host.
