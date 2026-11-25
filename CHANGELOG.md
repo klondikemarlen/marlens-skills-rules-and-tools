@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1646) - 2026-11-25
+
+### Changed
+
+- The Express route template shows feature flags beside the handlers they protect and explains when middleware instances must stay shared.
+
 ## [5.20.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1639) - 2026-11-25
 
 ### Changed
