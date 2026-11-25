@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.18.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1612) - 2026-11-25
+
+### Changed
+
+- PR stack guidance distinguishes inherited fixes from child-owned adaptations and verifies each published child head.
+
 ## [5.18.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1613) - 2026-11-25
 
 ### Changed
