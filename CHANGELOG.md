@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1629) - 2026-11-25
+
+### Changed
+
+- Provider reviewers now check whether changed assertion criteria can be judged from the shipped rule and consumer evidence before release.
+
 ## [5.19.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1625) - 2026-11-25
 
 ### Fixed
