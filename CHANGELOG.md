@@ -2,9 +2,33 @@
 
 All notable changes to this project are documented here, based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/). This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Releases are merges to `main`; historical dates below are the observed GitHub merge dates, not install or deployment dates. Entries migrated from the README retain their original prose.
+An open release PR’s version heading and UTC date identify a candidate, not a release. The merge to `main` releases that version; check the date against the linked PR’s `mergedAt`. Historical dates are merge dates, not install or deployment dates. Entries migrated from the README retain their original prose.
 
 ## Unreleased
+
+## [5.18.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1613) - 2026-11-25
+
+### Changed
+
+- Service write examples project unchanged fields from an explicit allowlist while preserving authorized parent identifiers and missing-key semantics.
+
+## [5.18.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1618) - 2026-11-25
+
+### Changed
+
+- Marlen’s OMP plugin guidance now requires a supported way for users and agents to run every feature and verify equivalent outcomes without bypassing permissions or human consent.
+
+## [5.18.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1611) - 2026-11-25
+
+### Fixed
+
+- Module review now selects changed Vue components alongside their tests and checks edited service calls against the existing resource namespace.
+
+## [5.18.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1610) - 2026-11-25
+
+### Changed
+
+- In this repository, a bare Evolve request now covers the open ticket queue, with a disposition for every ticket. The default for consuming projects is unchanged.
 
 ## [5.18.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1604) - 2026-11-24
 
