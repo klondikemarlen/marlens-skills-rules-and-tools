@@ -65,6 +65,15 @@ assert.ok(
   "Ship the complete authoring passage with assertion reviews"
 )
 
+const importPassage = authoringGuide.match(
+  /^In tests, prefer owning bundle\/barrel imports .*?^Do not add a default export [^\n]+/msu
+)?.[0]
+assert.ok(importPassage, "Locate the test import rules and example in the authoring guide")
+assert.ok(
+  assertionSource.includes(importPassage),
+  "Ship the complete test import passage with assertion reviews"
+)
+
 const defaultFunctionExportsVerification = verifications.find(
   (verification) => verification.id === "marlens-rules:default-function-exports"
 )
