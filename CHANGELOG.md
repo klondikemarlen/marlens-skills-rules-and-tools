@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1639) - 2026-11-25
+
+### Changed
+
+- Replayable matched and near-miss parser requests distinguish implicit skill selection from actual adherence.
+
 ## [5.19.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1641) - 2026-11-25
 
 ### Changed
