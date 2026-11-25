@@ -6,6 +6,10 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+### Changed
+
+- Marlen’s OMP plugin guidance now requires a supported way for users and agents to run every feature and verify equivalent outcomes without bypassing permissions or human consent.
+
 ## [5.18.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1611) - 2026-11-25
 
 ### Fixed
