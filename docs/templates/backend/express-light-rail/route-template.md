@@ -21,6 +21,22 @@ projectsRouter.get("/:projectId", getProject)
 projectsRouter.patch("/:projectId", updateProject)
 ```
 
+## Route-Specific Guards
+
+For an archive list and restore endpoint, keep authentication router-wide and show the flag on each route it protects:
+
+```ts
+archivedProjectsRouter.use(requireAuth)
+archivedProjectsRouter.get("/", requireFeatureMiddleware("projectArchive"), listArchivedProjects)
+archivedProjectsRouter.post(
+  "/:projectId/restore",
+  requireFeatureMiddleware("projectArchive"),
+  restoreProject
+)
+```
+
+Repeat the short factory call, not its implementation, when separate instances behave identically. Preserve middleware order. Keep a binding when its name explains a policy, construction is nontrivial, or the routes must share state (for example, one rate limiter).
+
 ## Checklist
 
 - [ ] Middleware order matches sibling routers.
