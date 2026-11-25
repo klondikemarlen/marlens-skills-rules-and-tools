@@ -69,6 +69,37 @@ class TravelOrderEvent {
 
 These model excerpts assume the project's existing decorator, external date type, and model setup; they do not introduce those dependencies. Preserve option values, property type, and decorator order. Empty objects, import/destructuring bindings, the documented small self-contained type/call-argument exceptions, and stronger project conventions are not automatic failures. A layout correction applies within accepted scope, not to every compact object in the repository.
 
+## Ordinary Single-Field Call Arguments
+
+The accepted task touches an ordinary logging call and a 422 validation response. No local rule mandates either layout. Under [Simple Construction and Values](../docs/references/code-organization-reference.md#simple-construction-and-values), `logger.error(message, { error })` stays compact because the whole call reads clearly. The field-wrapped response in the reference also passes when sibling validation responses use that layout. This chain-wrapped version is another legitimate choice:
+
+```typescript
+return response
+  .status(422)
+  .json({ message: "The selected destination is not available for this trip." })
+```
+
+- **Same status, body, and evaluation:** `PASS` either readable layout. Neither field count nor formatter width justifies a mandatory rewrite.
+- **Changed wire contract:** `FAIL` a wrap that also changes the status or payload outside the accepted task. Restore the original response contract.
+- **Required project layout or assertion data:** keep the applicable multiline rule. The same `message` literal in a compact `expect(...).toEqual({ message: "..." })` still fails under the shared assertion convention; see [Single-Property Assertion Objects](#single-property-assertion-objects).
+
+## Shared Loader Versus Selective Preloading
+
+The maintainer chooses one loader for PATCH and DELETE so both paths load a record the same way. Supply both handlers, the loader, consumers, local rules, and the accepted task. In the baseline case, extra association loads are bounded, response and write behavior are unchanged, and request traces stay within the accepted latency budget.
+
+- **Consistent loader with no contract violation:** `PASS` for this decision. Selective preloading can avoid unnecessary queries, but would add a second loading path. Explain the tradeoff without requiring the rewrite.
+- **Measured material regression:** `FAIL` when comparable traces tie repeated unnecessary queries from the loader to the endpoint exceeding its accepted latency budget. Cite the loader, query fan-out, and affected request; suggest removing the measured cost rather than mandating a specific control-flow shape.
+- **Missing required association:** `FAIL` if a proposed selective loader omits an association required by the PATCH response serializer. A readable optimization cannot waive the required preload.
+
+## Traversal Versus Core Processing
+
+Use the [file pagination example](../docs/references/code-organization-reference.md#nontrivial-traversal-and-core-processing) as a comparison against a direct loop with the same contract. Supply the baseline, proposed patch, and installed client behavior. The accepted change reorganizes pagination without changing which files are requested or how they are mapped.
+
+- **Traversal extracted safely:** `PASS` when page 1 returns `[a]`, an empty page 2 still points to page 3, page 3 returns `[b]` with no continuation, and listing returns `[a, b]` in mapped form. Every request uses the configured endpoint, original folder and fields, and no redirects; continuation advances in order without callers handling it.
+- **Clear direct loop or compatible SDK iterator:** `PASS` a direct loop for already-loaded files, or a supported SDK iterator when its options, scope checks, order, and failure contract are proven equivalent. Do not demand a helper or generator solely for style.
+- **Changed traversal contract:** `FAIL` if the helper stops at the empty page, changes the folder or fields using continuation parameters, follows an out-of-scope continuation, or returns partial files after a failed page request. An out-of-scope continuation must fail before issuing another request; a page request failure must reject with the original error.
+- **Missing required client evidence:** `BLOCKED` if the installed iterator's redirect or continuation behavior is needed to assess equivalence but cannot be established. Report independently visible contract regressions separately.
+
 ## Construction Without Moving Work
 
 Under [Function Calls Before Construction](../docs/references/code-organization-reference.md#function-calls-before-construction), this definition fails: calls are hidden in object values and an array element.

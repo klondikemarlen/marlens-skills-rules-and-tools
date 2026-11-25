@@ -232,7 +232,17 @@ return state.statistics
 
 Retain a local for meaningful computation or a required snapshot. Return the property only when getters, setters, reactive wrapping, intervening mutations, and identity semantics cannot change the original return contract; a reactive proxy read is not necessarily the constructed object's identity. Preserve property-access timing and evaluation count rather than introducing a new state read merely to remove a name.
 
-Keep simple single-field object type annotations and object arguments inline when they fit readably: `const response: { id: string } = await request()` and `logger.error(message, { error })`. Wrap a long surrounding request chain independently; the small shape need not expand with it. Retain multiline complex shapes, test expectations, and stronger project conventions.
+Keep simple single-field object type annotations inline when they read well, such as `const response: { id: string } = await request()`. For an ordinary single-field object argument, judge the whole call: prefer `logger.error(message, { error })` when the call reads comfortably. When a call is harder to scan, either wrap the chain or put the field on its own line. Use nearby equivalent branches as a guide, not field count or formatter width.
+
+For example, keep the status and response body together while wrapping the message to match adjacent error responses:
+
+```typescript
+return response.status(422).json({
+  message: "The selected destination is not available for this trip.",
+})
+```
+
+This is a layout choice, not a template. Preserve the status, payload, and evaluation; retain stronger project conventions and the [existing multiline treatment](#diff-friendly-configuration-layouts) for nested responses, assertion data, and other applicable shapes.
 
 Expand non-empty expected object literals one property per line, including single-property assertion objects and objects passed to partial matchers, even when they fit within formatter print width:
 
@@ -292,6 +302,8 @@ A legitimately touched file is not permission to relocate its unchanged setup de
 ### Scoped Readability Review
 
 Compare every ordering or formatting change with the accepted task and baseline, including computed-property moves and destructuring reorderings within otherwise legitimately changed files. Require a concrete task, dependency/initialization, or binding-convention reason; a touched file alone does not justify churn. Preserve justified normalization, explicit cleanup, and necessary formatting without diff-size quotas or a blanket refactoring ban. [Whitespace Matters](../../rules/whitespace-matters.md) owns whitespace/import scope, and [Diff-Friendly Configuration Layouts](#diff-friendly-configuration-layouts) owns object-layout application.
+
+Distinguish a preference among readable designs from a finding. Explain the concrete tradeoff and honor the maintainer's in-scope choice when both options satisfy the applicable contracts. For example, a consistent shared record loader for PATCH and DELETE may do more preloading than those handlers consume, but it also lets readers follow one loading path. Selective preloading is an optional recommendation unless evidence shows a material impact, such as request traces showing extra queries causing an accepted latency limit to be exceeded. Investigate and report evidenced correctness, security, and material performance risks and violations of binding requirements; the choice of a readable design does not waive them. Do not treat missing evidence needed to assess a required contract as proof that the design is safe.
 
 The supplied `marlens-rules:scoped-readability` contract reviews these decisions alongside construction and operation clarity. Missing accepted-task, baseline, changed-code, or governing guidance evidence is `BLOCKED`, not permission to infer intent or approve from formatter/typecheck success. Cite specific changed locations and their justification or violation, assess the complete supplied scope, and request a fresh assessment after correction. See the contrasting [scoped readability scenarios](../../examples/scoped-readability-review.md); Verifier owns capture, execution, and native result delivery, not this policy document.
 
@@ -663,6 +675,53 @@ For security-sensitive output encoding or sanitization, use an established, main
 Before implementing domain-specific retry or recovery loops, inspect the installed client and queue capabilities and their configuration. Prefer supported native retries/backoff for the failure layer they actually cover. Distinguish connection retry, execution retry, and durable handoff failure: reconnecting a client does not retry failed job execution, and execution retries do not recover work that was never durably handed off.
 
 Do not silently reset exhausted attempts by removing and recreating jobs or resetting domain status. Necessary recovery for an uncovered delivery gap belongs at the existing shared infrastructure owner with an explicit policy, not duplicated in domain scheduling code. Preserve accepted attempt limits and delivery requirements; this is not a universal retry-forever or terminal-failure policy.
+
+### Nontrivial Traversal and Core Processing
+
+When traversal has an independent contract and separation makes the operation easier to follow, use a supported iterator or a focused local helper for page or batch advancement, termination, and traversal-specific checks. Keep resource-specific filters, selection, and mapping at their existing owner. Use the installed SDK's iterator when it can honor the request contract; prefer a local helper if it cannot. Keep a direct loop when it is already easy to read, such as mapping an already-loaded collection. Do not require a generator, split trivial loops, or introduce a generic traversal framework for one caller.
+
+For example, a file integration must send the same folder filter and selected fields on every page, disallow redirects, and reject continuation links outside its configured endpoint. The installed SDK iterator cannot enforce those constraints for subsequent requests. The integration's local helper below uses its existing HTTP client instead. The caller chooses which files and fields to request and maps each page without knowing how continuation works:
+
+```javascript
+async function listFolderFiles(filesApi, folderId) {
+  const files = []
+  for await (const page of folderFilePages(filesApi, folderId, "id,name")) {
+    for (const file of page) {
+      files.push({
+        externalIdentifier: file.id,
+        name: file.name,
+      })
+    }
+  }
+
+  return files
+}
+
+async function* folderFilePages(filesApi, folderId, fields) {
+  const endpoint = new URL(filesApi.getUri({ url: "/Files" }))
+  let pageUrl = endpoint
+
+  while (true) {
+    const params = new URLSearchParams(pageUrl.search)
+    params.set("folderId", folderId)
+    params.set("fields", fields)
+    const { data } = await filesApi.get("/Files", {
+      params,
+      maxRedirects: 0,
+    })
+    yield data.items
+
+    if (!data.nextLink) return
+
+    pageUrl = new URL(data.nextLink, endpoint)
+    if (pageUrl.origin !== endpoint.origin || pageUrl.pathname !== endpoint.pathname) {
+      throw new Error("File continuation points outside the configured endpoint")
+    }
+  }
+}
+```
+
+The example preserves sequential requests and page/item order. An empty page with a continuation still advances; a missing continuation ends traversal. An out-of-scope link fails before another request, and an HTTP failure still rejects the operation rather than returning partial results. Preserve the real integration's request options, trust boundary, and failure behavior; the example is not a transport or error-handling policy to copy into other clients.
 
 ## Domain Discovery Checkpoint
 
