@@ -6,6 +6,12 @@ Releases are merges to `main`; historical dates below are the observed GitHub me
 
 ## Unreleased
 
+## [5.18.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1610) - 2026-11-25
+
+### Changed
+
+- In this repository, a bare Evolve request now covers the open ticket queue, with a disposition for every ticket. The default for consuming projects is unchanged.
+
 ## [5.18.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1604) - 2026-11-24
 
 ### Fixed
