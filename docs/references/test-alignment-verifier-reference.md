@@ -218,6 +218,8 @@ The same check reviews [test dependency groups and direct subject imports](code-
 
 Invoke the check through the supported OMP Verifier interface, for example `/verifier verify marlens-rules:test-assertion-focus`; the installed Verifier's existing semantic review flow captures scope and required context. This declaration adds no executable, natural-language parser, directive, dependency, or advisor. See [Agentic Semantic Verification](rules-and-verifications-reference.md#agentic-semantic-verification) for the shared contract ownership and protocol boundary.
 
+When this provider changes a rubric question or its governing source, run [Reviewing a Changed Provider Criterion](../../examples/test-assertion-focus.md#reviewing-a-changed-provider-criterion) on the shipped evidence before release. This is a provider review step, not an additional consumer verification.
+
 ## Scoped Suppression
 
 Use the repository-root `.marlens-verifications.json` only when a bounded legacy path cannot meet the shared contract yet:

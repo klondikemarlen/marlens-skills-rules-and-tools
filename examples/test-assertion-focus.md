@@ -351,6 +351,22 @@ Start a fresh OMP process in an owned temporary directory, preserving configured
 
 This read-only exercise demonstrates guidance consumption only. It is not coordinator-validated semantic-check PASS, native blocker publication, installed-release proof, or application behavior evidence; use the earlier native Verifier procedure for those claims.
 
+## Reviewing a Changed Provider Criterion
+
+Run this check on the provider PR when an assertion rubric question or its governing passage changes. It tests whether the shipped evidence is sufficient, not whether the consumer tests execute. Select the affected criterion; do not replay the catalog or add a model call to ordinary consumer PRs.
+
+1. Run the existing package parity check. Use Verifier's contract loader on the packed candidate: keep the selected rubric question and the text actually captured from its declared source fragment. Do not substitute the authoring manual. Record the provider revision, criterion ID, and contract/source hashes.
+2. Pair those inputs with the complete changed consumer test, the exercised subject and material setup or exports, and the local policy that actually governs this fixture. Use separate, neutrally labeled packets. Give a fresh reviewer only one packet at a time, without checkout access, tools, earlier answers, expected verdicts, or this example page. Ask for the governing evidence, decision, and smallest correction or specific missing information.
+3. Review a compliant case and a one-change violation. Repeat a compliant case using equivalent local wording or renamed symbols. In separate copies withhold (a) the material provider rule, including equivalent wording in the question, examples, and captured source, and (b) a material consumer input. Leave the other side intact. Also omit one genuinely irrelevant input. Removing a paragraph while leaving the answer elsewhere is not a missing-rule control.
+4. Compare results **after** review. The complete pair must distinguish compliant behavior from a concrete violation, not just quote the rubric. Equivalent wording must preserve the decision. Missing policy on the provider side must identify that gap, not accuse the consumer; missing material consumer evidence must identify the particular input needed. Neither warrants a guess. Omitting irrelevant evidence must not block the decision. Record observed decisions and citations with the revision in the provider PR; a failed control requires fixing the evidence or fixture before claiming coverage. This supplements, not replaces, required CI and named reviews.
+
+Use the same neutral prompt for every variant:
+
+> Decide only the specified review question. Quote the supplied rule that establishes what is required for that decision, then cite the consumer evidence that satisfies or violates it. Do not infer a requirement from the criterion name, another criterion, or familiarity with good tests. If either premise is unavailable, report BLOCKED and identify the missing evidence and which side must supply it. Otherwise report PASS or FAIL, with a concrete correction for a violation.
+
+- `meaningful-scenarios-and-subject-ownership`: Use the acceptance-only validator from [Acceptance Is Sometimes the Whole Contract](#acceptance-is-sometimes-the-whole-contract). Show the validator and both tests; contrast removing the successful call while retaining the rejection. Rename the validator and express acceptance in domain language. For the provider control remove the rules for meaningful success, negative coverage and the acceptance-only exception wherever supplied. For the consumer control omit the subject contract when completion versus an additional promised effect changes whether the assertion is adequate. Import-order policy is irrelevant here.
+- `actual-subject-import-and-placement`: Use the direct subject from [Default-Exported Subject](#default-exported-subject), with its supported export and the actual fixture import groups. Reverse only the subject and fixture groups; retain the same Act and assertions. Contrast a real fixture-local override phrased in different words. Remove the provider's placement and precedence rules for the missing-rule control. Separately omit a referenced local ordering policy whose contents could reverse the decision. An unrelated serializer convention is not required.
+
 ## Controller Query Transport and Import Review
 
 ### Structured Query Handoff
