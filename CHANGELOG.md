@@ -6,6 +6,18 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1638) - 2026-11-25
+
+### Changed
+
+- Browser QA now reconciles every run-owned record with a fresh authoritative read, including probe writes.
+
+## [5.19.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1635) - 2026-11-25
+
+### Changed
+
+- The wrap-up procedure compares the private network to the pre-verification inventory before running the owning wrapper.
+
 ## [5.19.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1629) - 2026-11-25
 
 ### Changed
