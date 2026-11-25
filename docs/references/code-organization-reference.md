@@ -1134,9 +1134,54 @@ For optional live-update behavior around an existing editor, follow [Optional Li
 
 Keep each database migration self-contained. Do not import or invoke another migration's `up` or `down` implementation; keep the schema definitions, SQL, and rollback definitions that this migration needs local to it so execution does not depend on another migration file. Apply this when authoring or reviewing migrations, not as permission to rewrite historical migrations or add tooling.
 
-Do not edit applied or released migration history to correct its effects. Add a new forward migration that supersedes or reverses those effects, with the project's required rollback and data-preservation contract. New, actively reviewed, unreleased migrations may still be edited when their deployment state permits; an existing filename alone does not make a migration immutable.
+Do not rewrite released history or migrations already applied to databases that must retain that history. Add a forward migration that supersedes or reverses their effects, following the project's rollback and data-preservation contract. An actively reviewed, unreleased migration may still be edited when its deployment state permits.
+
+If an earlier draft is recorded in a development database, use the project's migration runner with the original files still in place to roll back the affected draft migrations in reverse dependency order. Confirm the target database and authorization for the rollback and any expected loss first; an unreleased PR does not authorize rolling back a shared database or discarding its data. Only after returning to the pre-draft baseline should you replace the files and apply the revised chain. Verify the replacement with its own matching `up` and `down`; its `down` must not try to repair the superseded draft. If a safe rollback is unavailable or data must be preserved, follow the project's forward-migration or recovery contract instead.
+
+A draft `down` should not refuse solely because it finds feature data the maintainer has authorized discarding. If such a guard already blocks rollback, correct it in the draft's matching `down` without changing which schema it undoes. State exactly what rollback will lose, undo only the draft's schema changes in reverse dependency order, and leave the database and unrelated records intact. Keep safeguards where ownership or permission is uncertain or preservation or recovery is required. Let genuine database failures propagate.
 
 For new or actively reviewed unreleased migrations, separate meaningfully distinct schema/table introduction, dependent SQL objects, independently owned data conversions, and obsolete-schema removal when they have distinct responsibility or rollback boundaries. Keep table-local constraints with their table and cohesive schema/backfill work together when they share one responsibility. Order forward dependencies and backfills before dependent conversion or removal, and undo them in reverse dependency order. Choose cohesive boundaries, not a universal file count or line threshold.
+
+### Replacing an Applied Development Draft
+
+For example, an unreleased PostgreSQL draft stored `draft_response` on `workflow_steps` and added an index in a dependent migration. With the original files still in place, run their `down` migrations in this order:
+
+```sql
+DROP INDEX workflow_steps_draft_response_idx;
+
+ALTER TABLE workflow_steps
+  DROP COLUMN draft_response;
+```
+
+With the maintainer's authorization, this removes the draft response values even when populated. It retains the existing workflow steps and all their other data. Do not reset the database to get back to the baseline.
+
+The revised `up` creates the final response table directly, then adds the reference from the existing steps after both tables exist:
+
+```sql
+CREATE TABLE workflow_step_responses (
+  id bigint PRIMARY KEY,
+  response_text text NOT NULL
+);
+
+ALTER TABLE workflow_steps
+  ADD COLUMN response_id bigint,
+  ADD CONSTRAINT workflow_steps_response_id_fk
+    FOREIGN KEY (response_id) REFERENCES workflow_step_responses (id);
+```
+
+The revised `down` removes the dependency before the referenced table. It discards the revised draft's response links and rows, not the workflow step rows:
+
+```sql
+ALTER TABLE workflow_steps
+  DROP CONSTRAINT workflow_steps_response_id_fk,
+  DROP COLUMN response_id;
+
+DROP TABLE workflow_step_responses;
+```
+
+Exercise the original rollback with populated draft responses, then exercise the revised `up` and `down` from the pre-draft baseline with populated revised responses. Check that the existing rows and their unrelated values survive both rollbacks and that the revised foreign key is enforced before rollback. No draft-to-draft conversion is needed when no supported database needs that transition.
+
+### Migration Definitions and Verification
 
 Prefer the application's established seeding system for built-in reference-data initialization. For example, a migration introducing a product-category table owns its schema and constraints; the built-in product-category records belong in the existing seed system, rather than inserts inside that create-table migration. Follow the project's seed ordering and repeat-run contract so required reference records are available before their consumers run.
 
@@ -1213,9 +1258,38 @@ Where soft-delete exclusion is the routine convention, omit `Active` and `Delete
 
 For new or actively reviewed unreleased backfills, prefer converting usable legacy records and skipping known unusable inputs when the project's data-preservation contract permits. Define the tolerated anomaly explicitly, such as an invalid cross-section reference, rather than treating every failure as corrupt data. Skipping conversion does not authorize deleting source records; deletion requires explicitly accepted cleanup scope. Preserve usable neighboring records and unrelated data. Financial, audit, or other mandatory reconciliation requirements take precedence: unresolved records may require blocking completion rather than discarding them. Before dropping legacy storage, establish the accepted disposition of skipped records.
 
+If the new constraint means the affected rows cannot be skipped, backfill the explicitly known legacy gap before enforcing it when the domain provides a safe fallback. Update only the affected rows and preserve valid values. For ownership or another sensitive field, the fallback must represent unresolved data without granting privileges; never substitute an unverified owner. Use it for the migration, not as a standing database default unless the domain independently calls for one. If no safe fallback exists or reconciliation is mandatory, do not silently proceed.
+
 Keep tolerated input validation separate from database execution. Prefer an explicit migration-local anomaly check before conversion; if a known validation exception must be handled, bound that handling to the affected input and proven exception. Propagate unexpected conversion errors and SQL, schema, constraint, or connection failures through the existing transaction/error contract. A catch around the whole backfill that returns success on any error is not best effort.
 
-Prove the boundary with valid records on both sides of a malformed record: the valid records convert with their intended values, only the accepted anomaly is skipped, and source/unrelated data remains intact unless its cleanup was authorized. Inject a genuine database failure and verify migration failure and the project's required rollback behavior, not a successful partial run. For accepted data deletion or lossy conversion, state the loss and verify the required backup/recovery path before discarding originals; a `down` that recreates schema cannot reconstruct discarded values. Do not rewrite released migrations to apply this policy.
+Prove the boundary with valid records on both sides of a known anomaly: valid records keep their intended values, only the accepted anomaly is skipped or backfilled, and source/unrelated data remains intact unless its cleanup was authorized. For a required field, verify the new constraint and any authorization invariant, not just that all rows have a value. Inject a genuine database failure and verify migration failure and the project's required rollback behavior, not a successful partial run. For accepted data deletion or lossy conversion, state the loss and verify the required backup/recovery path before discarding originals; a `down` that recreates schema cannot reconstruct discarded values. Do not rewrite released migrations to apply this policy.
+
+For example, suppose `documents.owner_department_key` is nullable, references `departments.key`, and has no database default. Here `NULL` is the known legacy gap, and the domain already has a reserved `unresolved` department that represents no owner. In the project's migration transaction, backfill only missing values before making the key required:
+
+```sql
+UPDATE documents
+SET owner_department_key = 'unresolved'
+WHERE owner_department_key IS NULL;
+
+ALTER TABLE documents
+  ALTER COLUMN owner_department_key SET NOT NULL;
+```
+
+The migration does not set a database default. An insert omitting the key must still fail. The authorization policy must exclude `unresolved` regardless of membership; the following illustrates the ownership predicate for authenticated account `7`:
+
+```sql
+SELECT documents.id
+FROM documents
+WHERE documents.owner_department_key <> 'unresolved'
+  AND EXISTS (
+    SELECT 1
+    FROM department_memberships
+    WHERE department_memberships.department_key = documents.owner_department_key
+      AND department_memberships.account_id = 7
+  );
+```
+
+Exercise documents owned by two real departments with a missing-owner document between them. Confirm that only the missing value changes and that an account belonging to one real department gets ownership access only to that department's document, even if a membership row exists for `unresolved`. Check that an insert with no owner is rejected rather than silently defaulting.
 
 ## Oversized Responsibility Clusters
 
