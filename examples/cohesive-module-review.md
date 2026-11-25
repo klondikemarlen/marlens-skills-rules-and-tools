@@ -83,3 +83,23 @@ These are proposed semantic QA cases, not recorded verification results. Use the
 | Only the first evaluator page, export list, or a diff hunk is available | `BLOCKED`: identify missing implementation/state/caller evidence and recover it without dropping changed scope; neither file length nor unchanged exports permits a verdict. |
 
 For a real extraction, focused behavioral proof must additionally observe tampered/stale request rejection, pending-to-complete and checkpoint transitions, invalid-assessment non-consumption, missing-page behavior, receipt timing, diagnostic non-mutation, and lock release after failure where affected. Keep scenario-specific setup and assertions; native `node:assert` is not subject to an exactly-one-`expect` rule. Do not re-pin incidental output to hide a changed lifecycle contract.
+
+### Changed Vue, Test, and Backend Boundaries
+
+Use separate Git changes relative to the fixture's base. Run `omp-verifier automatic --base <fixture-base>` with the candidate provider available. Inspect `reviewRequest.scope.changedPaths` for `marlens-rules:module-boundary-alignment`, not the union of all checks. Then review the captured source to assess ownership; membership in `changedPaths` alone does not make a file an implementation target.
+
+| Fixture Change | Automatic Candidates and Assessment |
+| --- | --- |
+| Change the parent-scoped submit call in `web/src/pages/InvoiceEdit.vue` and the matching assertion in `web/tests/InvoiceEdit.test.ts` | Both paths are selected. Review the SFC's submit logic and event bindings as implementation; use the test to corroborate the request behavior. |
+| Make only the SFC change above, with no manual caller context | The SFC alone selects the check. Inspect its submit logic and material caller or sibling context. |
+| Move parent routing and authorization across `api/src/routes/invoices.ts`, `api/src/controllers/invoices-controller.ts`, `api/src/policies/invoice-policy.ts`, and `api/src/services/invoices/update-service.ts`. Change ownership of reusable parent linkage in `api/tests/factories/invoice-factory.ts` and update a route test assertion. | All changed JS/TS paths remain candidates. Review the route, controller, policy, service, and factory ownership; treat the changed assertion as evidence of the request behavior. A green test does not establish that the moves preserved ownership. |
+
+### Cross-Resource Action and Own-Resource Controller
+
+Give the fixture an existing root service export `TravelDeskInvoiceItems` with a `BulkCreateService` member. Keep the supported direct item-resource entry point at `@/services/travel-desk-invoice-items`. In separate changes against the same fixture base, use the import and call shapes below with the same item data. Keep the service exports and project guidance available as evidence.
+
+| Changed Caller | Expected Decision for `service-collaborator-ownership` |
+| --- | --- |
+| Invoice service imports `BulkCreateService` directly from `@/services/travel-desk-invoice-items` and calls `BulkCreateService.perform(items)` | `FAIL`: cite the edited call and the existing public item bundle that exposes the action. |
+| Invoice service imports `TravelDeskInvoiceItems` from `@/services` and calls `TravelDeskInvoiceItems.BulkCreateService.perform(items)` | `PASS` for this criterion: the same action identifies its resource through the existing bundle. |
+| Invoice-item controller imports `BulkCreateService` from `@/services/travel-desk-invoice-items` and calls `BulkCreateService.perform(items)` | `PASS` for this criterion: the controller and action own the same resource and the import uses its supported entry point. |
