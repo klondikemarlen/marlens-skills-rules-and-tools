@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1637) - 2026-11-25
+
+### Changed
+
+- Error guidance distinguishes caller inputs from settings keys and safe public messages from restricted debugging context.
+
 ## [5.19.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1636) - 2026-11-25
 
 ### Changed
