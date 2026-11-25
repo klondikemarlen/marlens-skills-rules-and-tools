@@ -6,6 +6,8 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1647) - 2026-11-25
+
 ### Changed
 
 - Plain Language guidance explains how to write end-user validation and conflict messages around the user’s task without losing useful recovery steps or developer diagnostics.
