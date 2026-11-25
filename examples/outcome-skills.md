@@ -24,6 +24,71 @@ The user names an outcome; a thin skill selects maintained workflows. Readabilit
 | “Use wrap-up.” Delivery is verified; unrelated uncommitted files and an upstream insight remain.                                              | Preserve unrelated files. Deduplicate and route the insight, filing externally only where authorized. Bare wrap-up does not authorize exit.                                                                     |
 | “Use wrap-up; then exit.” Delivery is verified, an owned clean disposable worktree remains, and one upstream filing is explicitly authorized. | Safely remove only verified owned resources, file the deduplicated finding with its evidenced owner, schedule supported exit after the final response, then give that response. Do not implement upstream work. |
 
+## Implicit Simplify Selection
+
+Use this pair when changing a relevant skill trigger or investigating a missed or wrong route. It is not a new model call on every PR. The explicit examples above test what happens after selection; they do not test whether ordinary intent selects the skill.
+
+- **Matched:** “Simplify this parser without changing behavior.” Make one bounded parser improvement that reduces the burden of following its control flow. Preserve the parser's exports, results, and errors.
+- **Near miss:** “Explain why this parser is hard to follow; don't edit it.” Explain the actual control flow and why it is difficult to follow. Make no edits and do not start ticket, branch, PR, or release work.
+
+### Replay the Pair
+
+From this repository's root, prepare byte-identical copies of the same dependency-free consumer fixture. Use an owned temporary location outside any project checkout or local workflow overlay. Keep the same installed catalog, configured model and provider route, and advisor cadence for both runs. Do not invoke a skill explicitly, send the scoring instructions to the model, or reuse a session. Both runs get the same local permission boundary; only the first user message differs.
+
+```bash
+qa=$(mktemp -d /tmp/mssrt-skill-selection.XXXXXX)
+mkdir "$qa/baseline"
+cp examples/fixtures/simplify-parser/*.mjs "$qa/baseline/"
+cat > "$qa/baseline/AGENTS.md" <<'EOF'
+This project parses one line of a settings file in parse-setting.mjs.
+Check its consumer contract with `node --test parse-setting.test.mjs`.
+Work only in this directory. Any edits the user requests are local only.
+No commits, ticket or PR writes, publishing, or other delivery operations are authorized.
+EOF
+cp -R "$qa/baseline" "$qa/matched"
+cp -R "$qa/baseline" "$qa/near-miss"
+(cd "$qa/baseline" && node --test parse-setting.test.mjs)
+omp --version
+(cd "$qa/baseline" && omp plugin list)
+```
+
+Record the OMP version and installed MSSRT guidance version/source. If the source of a linked or overlaid skill is not the intended artifact, correct the setup before running. With a passing baseline, run each prompt in its own fresh process:
+
+```bash
+omp -p --mode json --no-session --no-title --max-time 300 \
+  --cwd "$qa/matched" "Simplify this parser without changing behavior." \
+  > "$qa/matched.jsonl" 2> "$qa/matched.stderr"
+printf 'Matched exit: %s\n' "$?"
+
+omp -p --mode json --no-session --no-title --max-time 300 \
+  --cwd "$qa/near-miss" "Explain why this parser is hard to follow; don't edit it." \
+  > "$qa/near-miss.jsonl" 2> "$qa/near-miss.stderr"
+printf 'Near-miss exit: %s\n' "$?"
+```
+
+### Check and Score
+
+Use the untouched baseline as the expected file tree. For behavior proof, run the baseline test against the changed parser in a separate directory so a changed test cannot make a regression pass:
+
+```bash
+# Expected: only parse-setting.mjs differs; diff exits 1 for a difference.
+diff -ru --no-dereference "$qa/baseline" "$qa/matched"
+# Expected: no output; diff exits 0.
+diff -ru --no-dereference "$qa/baseline" "$qa/near-miss"
+
+mkdir "$qa/proof"
+cp "$qa/baseline/parse-setting.test.mjs" "$qa/matched/parse-setting.mjs" "$qa/proof/"
+(cd "$qa/proof" && node --test parse-setting.test.mjs)
+```
+
+Assess **selection and work separately** for each case:
+
+- **Selection:** Inspect actual primary-session events and tool-call results for evidence of the chosen route. A named Simplify selection event is direct evidence when exposed. A deliberate read of the Simplify entry followed into its workflow before acting can show the assistant chose that route; it is not proof of native dispatch or adherence. A catalog match, a lone skill read, mention in the final answer, or the right edit is not selection proof. A readability reference alongside either request is not a wrong selection. Record the selected route or observed abstention; use **unknown** if the trace establishes neither.
+- **Work:** In the matched case, inspect whether the parser diff removes the nested happy path or duplicated exit without shifting the same complexity elsewhere, and require passing independent consumer tests and no unauthorized delivery action. Whitespace-only edits do not qualify. In the near miss, require a grounded explanation (for example, how ignored lines, validation, and success are nested), an unchanged tree, and no edit or delivery action in the trace. The tree comparison alone cannot detect reverted edits or attempted delivery.
+- **Diagnosis:** Observed abstention in the matched run is a missed selection even if the edit is good. An observed incompatible route in either case is a wrong selection (for example, taking the Simplify implementation route on the near miss, even if nothing is written). A correct observed route with failed work is an adherence failure. If selection is unknown, report the work result without diagnosing selection. A timeout, unavailable provider, or incomplete capture is missing evidence for the affected assertion, not a missed selection or a pass.
+
+For each run, retain the exact prompt, installed guidance identity, effective provider/model, selection observation (or **unknown**) with its evidence, and the work verdict with the response, diff, test, or tool evidence that supports it. Keep the raw traces local and publish only concise, sanitized observations. Remove only the owned temporary directory after retaining the evidence you need.
+
 ## Review and Merge
 
 Replay these cases using the [skill entry](../skills/review-and-merge/SKILL.md), the [canonical workflow](../docs/workflows/review-and-merge-workflow.md), and the [packaged fallback](../skills/review-and-merge/workflow.md). These examples authorize no GitHub writes.

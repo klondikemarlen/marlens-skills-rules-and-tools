@@ -26,6 +26,8 @@ Within an authorized plugin release/install task, verify the released remote art
 
 Start a new OMP process: existing processes retain extension modules loaded at startup. Exercise the changed behavior and real command/argument autocomplete where that surface exists; distinguish successful discovery from completed execution. For guidance-only changes, use bounded contrasting decisions against the installed guidance rather than claim a runtime feature was exercised. Record missing prerequisites or a process that returns no answer as missing evidence, not PASS, and do not repeat unchanged successful checks.
 
+When changing Simplify's implicit trigger or investigating related misrouting, use the [matched and near-miss Simplify replay](../../examples/outcome-skills.md#implicit-simplify-selection). Score observed selection separately from the work performed; explicit invocation and command discovery only prove other contracts. Do not add this model replay to routine PR checks.
+
 ### User and Agent Feature Access
 
 Every feature in Marlen’s OMP plugins must be runnable by both a user and an agent. This includes state-changing actions, interactive workflows, configuration, and reports. Document the installed public invocation for each audience, the inputs and scope it uses, and where callers can observe the outcome or failure. One supported interface can serve both audiences; neither a second command nor identical presentation is required.
