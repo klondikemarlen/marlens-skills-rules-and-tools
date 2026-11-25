@@ -109,6 +109,26 @@ Here `refresh` is the promise returned by the operation under test. Both matcher
 
 Preserve transition, race, and rollback setup and scenario identities when reorganizing tests. A coupled invariant is not a general multi-expect exception for non-controller tests. Keep the complete causal sequence in each focused scenario that needs it; assert a real returned or persisted object/collection when it naturally represents the invariant, or use separate tests for distinct observations. Never discard an intervening failure, stale completion, or rollback operation merely to reach one expectation.
 
+### Test Import Placement
+
+In tests, prefer owning bundle/barrel imports for dependencies and a direct default import for the primary subject under test when its concrete module supports that export. Preserve supported resolution, public package/export boundaries, named-only or third-party export contracts, and explicit project-local conventions, including coupled-fixture import exceptions; a deeper private implementation path is not automatically a valid subject import. The production service-collaborator preference does not override those explicit test conventions.
+
+Give the actual primary subject-under-test import its own group after factory/test-support imports, separated by one blank line. When its supported module has a default export, use that default import rather than a named subject import from a bundle. Preserve explicit project-local ordering overrides, supported paths, and initialization-sensitive order. Apply an accepted correction across the authorized changed-test scope without unrelated cleanup.
+
+Assess dependency groups even when a test exercises the subject through a router or public entrypoint and never imports it directly. Apply the explicit local grouping for the file. For example, when the local test guide puts domain dependencies first and factories and request support together, separate model imports from that test-support group and do not split factories from request helpers. Cite the governing guide and the specific imports that should move. Do not infer this grouping from a project name or alias, apply it elsewhere without applicable guidance, or add an unused subject import.
+
+Identify the subject from its Act and assertions, not just a filename or import spelling. Inspect the actual export and applicable local conventions before reporting an exact import/location and concrete correction. Supporting named imports, named-only subjects, and mixed-subject tests without evidence of one primary subject are not violations. Missing necessary source/export or local-guidance context is a review limitation, not permission to invent a default export. For example:
+
+```typescript
+import { FundingCategory } from "@/models"
+
+import { fundingCategoryFactory } from "@/tests/factories"
+
+import DestroyService from "@/services/children-with-diverse-needs-funding-categories/destroy-service"
+```
+
+Do not add a default export to a third-party module or rewrite unrelated dependency imports to fit this example.
+
 ### Meaningful Scenarios and Subject Ownership
 
 Every authored or modified test file must contain at least one meaningful successful scenario and one meaningful negative scenario for its subject. When two tests are counterparts, exercise the same operation and assert contrasting outcomes of the same contract. For a validator whose entire promise is acceptance or rejection, explicitly check that a meaningful valid input completes successfully and that an invalid input fails with the relevant error. Do not pin an incidental return value or object identity. If the operation promises a result, identity, or side effect, assert that observable on success; merely checking that nothing threw is insufficient. Paired tests need not use identical fixtures or matchers, and this does not require a one-to-one matrix.
