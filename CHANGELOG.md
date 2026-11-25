@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.19.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1625) - 2026-11-25
+
+### Fixed
+
+- Assertion reviews receive the test import placement rules with the check, without fetching the full authoring guide.
+
 ## [5.19.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1614) - 2026-11-25
 
 ### Added
