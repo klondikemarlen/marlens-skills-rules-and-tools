@@ -37,6 +37,21 @@ export function verifyReviewProcedures({ read, fail }) {
     requireEvery(
       workflow,
       [
+        "When revising previously corrected behavior, check its history before editing.",
+        "git blame -L <start>,<end> -- <file>",
+        "git log --follow -- <file>",
+        "git show <commit> -- <path-at-that-commit>",
+        "consult the linked review when the reason is unclear",
+        "scoped to the touched behavior, separate from the current PR recurrence check",
+        "surface the conflict explicitly",
+        "unless an accepted new requirement supersedes it",
+      ],
+      (requiredText) => `${name} must preserve prior corrections with scoped history: ${requiredText}`,
+      fail
+    )
+    requireEvery(
+      workflow,
+      [
         "gh api --method PUT",
         "pulls/$number/merge-async",
         '-f sha="$head_sha"',
