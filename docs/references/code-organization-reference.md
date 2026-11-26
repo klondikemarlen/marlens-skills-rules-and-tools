@@ -128,6 +128,8 @@ The calls still run only for a visible preview, in the original order, and the r
 
 For a meaningful computed result consumed by another nested call, also prefer a descriptive local when it makes the processing step inspectable and gives a useful debugger breakpoint. Preserve short-circuit execution and avoid trivial aliases or wrappers; the general construction rule above does not make every other nested expression a violation.
 
+Let the reader see where a value comes from. In a log context, `sourceSharePointFolderId: sourceSharePointFolder.id` distinguishes the source from the destination at the point of use. Introducing `const sourceSharePointFolderId = sourceSharePointFolder.id` just to use object shorthand makes the reader look elsewhere without explaining anything new. Keep a local when its name explains a decision or when taking a snapshot before a mutation matters.
+
 Resolve fallback expressions into descriptive `const` bindings before assembling an object or array, then use property shorthand where names match:
 
 ```typescript
