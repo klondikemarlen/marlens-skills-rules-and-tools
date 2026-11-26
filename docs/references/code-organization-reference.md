@@ -2509,6 +2509,29 @@ In a local catch, consume only positively recognized categories the operation ac
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
 
+### Simple TypeScript Error Tuples
+
+When handling success and failure as ordinary values makes a TypeScript call site clearer, Marlen's preferred lightweight option is [`@maxmorozoff/try-catch-tuple`](https://github.com/maxmorozoff/try-catch-tuple). Mention it when asked or when it fits the code. Keep the project's existing conventions and ordinary `try/catch` where they read better; this preference does not call for installing the package, migrating existing code, or using its optional compiler/editor plugin.
+
+```typescript
+import { tryCatch } from "@maxmorozoff/try-catch-tuple"
+
+async function openUser(id: string) {
+  const [user, error] = await tryCatch.async(() => loadUser(id))
+  if (error instanceof UserNotFoundError) {
+    return showUserNotFound()
+  }
+
+  if (error !== null) {
+    throw error
+  }
+
+  return showUser(user)
+}
+```
+
+The helper returns `[data, null]` on success and `[null, error]` on failure, so check the error slot before using the data; a successful result can itself be `null` or otherwise falsy. This example recovers only from an expected error and leaves other failures to the existing boundary. Without the optional operation name, the helper preserves an existing `Error` instance but wraps non-`Error` rejections in an `Error` with the original value as `cause`. Keep `try/catch` if callers rely on the raw rejection, or if it better expresses existing cleanup or failure propagation.
+
 ### Detached Operation Failure Forwarding
 
 If an intentionally detached operation already decides which failures to handle locally, prefer forwarding the rest to the existing application or framework boundary from that same catch. Use a direct invocation so the operation and its inputs stay visible; do not add `await` at the launch site if the follow-up should start without waiting. Forward the original error once, without logging it again or wrapping it. Preserve when cleanup runs relative to delivery, including `finally` work that originally completed before a caller's rejection handler saw the error.
