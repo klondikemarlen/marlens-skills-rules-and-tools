@@ -72,6 +72,14 @@ Use the real native editor, slash command and argument autocomplete where availa
 
 For guidance-only QA, accept a native setting and two commands backed by one host setting with the three handoffs above. Reject three controls that keep separate copies even if they agree at startup, a file-only preference with no native control, and a claim of parity based only on same-surface readback. These decisions do not certify a downstream plugin.
 
+### Persistent Plugin Status Reports
+
+Keep a small status report in the conversation when users need to refer to it in later turns. Borrow the host panel’s titled frame and label/value layout, not its modal behavior or close hint. Put the version loaded by the current process first when it matters. Use host theme roles, spell out states such as `On`, `Off`, or `Unavailable`, and preserve the same facts as readable text when the card renderer is unavailable. Keep the reported values with the message rather than recomputing them from current settings on replay.
+
+Leave a one-off notice as a notice when users do not need a retained record. Use a panel when the report needs scrolling, navigation, or focused inspection. Neither a visible notice nor an inspect-and-dismiss [demo](#faithful-tui-demos) proves that a result is retained in the conversation. Choose the surface for the task; no shared helper or retrofit is required.
+
+Use the real command in a fresh OMP terminal with the intended plugin artifact. Check normal and narrow widths for a readable title, labels, and complete values. Submit another message and confirm the result stays above it without needing dismissal or starting a model turn of its own. Check plain-text fallback separately; if claiming session replay or native Tern rendering, observe that path directly. For guidance-only QA, contrast a small result users need to cite later with a one-off notice and a report that needs navigation; do not treat that decision check as downstream UI verification.
+
 ### Faithful TUI Demos
 
 When a plugin feature has a user-visible terminal effect that users need to inspect without performing the real operation, provide a discoverable, side-effect-free demo where the public host API permits it. Prefer `/<plugin> demo` under the existing command, with help text explaining its scope and real command/argument autocomplete. An existing plugin-specific preview may satisfy this contract; do not add another command solely to standardize spelling. A plugin with no TUI effect needs no demo. If the host owns the surface and offers no safe public preview API, explain that limitation instead of inventing an API or impersonating the host.

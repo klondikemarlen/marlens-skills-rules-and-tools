@@ -6,6 +6,10 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+### Added
+
+- Guidance on when to keep a small OMP plugin status in the conversation and how to keep its values readable at narrow widths and without a card renderer.
+
 ## [5.21.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1675) - 2026-11-26
 
 ### Changed
