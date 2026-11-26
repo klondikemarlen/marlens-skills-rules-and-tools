@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1674) - 2026-11-26
+
+### Changed
+
+- Distinguish a late service-method read from an import cycle that reads a binding during initialization.
+
 ## [5.20.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1673) - 2026-11-26
 
 ### Changed
