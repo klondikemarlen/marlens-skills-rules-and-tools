@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1671) - 2026-11-26
+
+### Changed
+
+- A trusted typed public message can reach the user without a second registry of display strings. Unclassified errors and legacy diagnostic text must remain private.
+
 ## [5.20.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1670) - 2026-11-26
 
 ### Changed
