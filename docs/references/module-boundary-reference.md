@@ -14,7 +14,7 @@ A useful module, file, or folder boundary should satisfy at least one of these c
 - **Hides volatility:** the module hides a decision likely to change, such as an external API, storage mechanism, parser format, platform branch, or authorization rule, behind the smallest useful public surface.
 - **Keeps domain behavior findable:** exported names and filenames reveal ownership, such as `approveTravelAuthorization` or `eligibleRecipientsForDigest`, instead of generic mechanism names such as `manager`, `processor`, `helper`, or `utils`.
 - **Preserves one-way dependencies:** outer or infrastructure code may depend on inner domain/application contracts, but domain decisions should not import framework clients, HTTP requests, CLI subprocess wrappers, or database plumbing unless the local architecture explicitly does that.
-- **Avoids cycles:** a split that creates circular imports, mutual knowledge, or cross-calling services is worse than keeping the code together.
+- **Avoids cycles:** a split that creates mutual implementation dependencies or requires a cyclic binding during initialization is worse than keeping the code together. A verified [sibling service through its owning barrel](code-organization-reference.md#sibling-services-through-the-owning-barrel) is not a mutual dependency between the implementations.
 - **Keeps a small public API:** callers get a few intention-revealing operations; they do not reach through the module to manipulate internals.
 
 Co-locate code until there is a real change axis, invariant boundary, duplicated behavior, or volatile dependency to isolate.
@@ -37,6 +37,40 @@ Apply the canonical implementation-file policy above by identifying one primary 
 
 Reject a touched implementation that accumulates independent owners behind private helpers or hidden state just as you would an incoherent new boundary. Passing function/file-size checks, adding a barrel, or dividing the same coupling into `part-one`/`helpers` files does not resolve that failure. Explain the concrete independent change axes, coupled effects, or state-lifetime risk; size alone is not evidence. See [Cohesive Module Review](../../examples/cohesive-module-review.md) for contrasting layouts and a pinned consumer assessment.
 
+### Single-Item Lookup Results
+
+Name a lookup for the operation its caller needs and return that operation's result directly. A lookup for eligible users of one workflow step takes that step's ID and returns its list, including the agreed empty list when the query succeeds without matches. Do not require a single-item caller to make a one-element batch, read back its own key, and apply the shared no-match default.
+
+Before, the caller handles the batch result shape:
+
+```js
+const eligibleUsersByStep = await listEligibleUsersByStep([stepId])
+const eligibleUsers = eligibleUsersByStep.get(stepId) ?? []
+```
+
+After, the caller receives the promised list:
+
+```js
+const eligibleUsers = await listEligibleUsersForStep(stepId)
+```
+
+The single-item lookup can adapt an existing batch lookup without duplicating its query or eligibility rules. In this example the batch lookup returns a `Map` of step IDs to lists and omits keys with no matches:
+
+```js
+async function listEligibleUsersForStep(stepId) {
+  const eligibleUsersByStep = await listEligibleUsersByStep([stepId])
+  return eligibleUsersByStep.get(stepId) ?? []
+}
+```
+
+The empty list is a successful result, not a recovery path for a rejected query. Keep rejections visible to the existing failure owner. Genuine batch consumers can still call `listEligibleUsersByStep(stepIds)` and use the keyed result; there is no need to wrap every batch API or replace one batch query with a call per item.
+
+Caller-specific filtering is still useful after the lookup. For example, a picker can hide users already selected in that picker without redefining step eligibility:
+
+```js
+const selectableUsers = eligibleUsers.filter((user) => !selectedUserIds.has(user.id))
+```
+
 ### Semantic Module-Boundary Review
 
 Module-boundary alignment is semantic review, not a size or count check. The package supplies its policy through the `marlens-rules:module-boundary-alignment` agentic verification contract in `package.json` and `verifications/module-boundary-alignment.json`. This reference's Module Decomposition guidance and the Code Organization Reference's [Review Structure](code-organization-reference.md#review-structure-not-metrics), [Service Orchestration](code-organization-reference.md#service-orchestration-readability), and [Pattern Fit and Non-Fit](code-organization-reference.md#pattern-fit-and-non-fit) guidance remain authoritative. The contract asks the existing verifier model to assess ownership within touched implementations as well as changed or introduced boundaries. An unchanged export list is not an exemption. It does not make every extraction suspect: retain short modules when they own a meaningful invariant, domain action, volatile dependency, independent change axis, or genuinely reusable behavior.
@@ -45,7 +79,7 @@ Treat selected paths as review candidates, not interchangeable implementation ta
 
 OMP Verifier 1.29 discovers candidates by matching positive `pathTriggers` globs against changed paths. The `.vue` trigger does not inspect SFC blocks before selection, and JavaScript and TypeScript triggers still select matching test files. Make the distinction between implementation targets and behavior evidence in the assessment; it is not a conditional path exclusion.
 
-For a changed service collaborator call, apply [Project-Root Imports and Paths](code-organization-reference.md#project-root-imports-and-paths). Check the caller's resource, the collaborator's resource, and the actual public exports. Use the deepest existing supported named bundle and keep its full member path at the call site, such as `TravelDeskInvoiceItems.BulkCreateService.perform` from an invoice service. A matching invoice controller may directly import its own `CreateService` from the supported invoice entry point; that exception does not extend to other resources. Do not invent a bundle when none exists, and preserve stronger project-local conventions.
+For a changed service collaborator call, apply [Project-Root Imports and Paths](code-organization-reference.md#project-root-imports-and-paths). Check the caller's resource, the collaborator's resource, and the actual public exports. Use the deepest existing supported named bundle and keep its full member path for cross-resource calls, such as `TravelDeskInvoiceItems.BulkCreateService.perform` from an invoice service. A matching invoice controller may directly import its own `CreateService` from the supported invoice entry point. A sibling service may use a named import through its existing owning service barrel under the [verified initialization rule](code-organization-reference.md#sibling-services-through-the-owning-barrel). Do not invent a bundle when none exists, and preserve stronger project-local conventions.
 
 The contract requires changed code, relevant callers, sibling modules, and project guidance. The consumer needs OMP Verifier 0.10.0 or later to prepare, capture, and evaluate the declared contract. If required context or a supported runtime is unavailable, report `BLOCKED` with the missing evidence; do not guess, claim a pass, or treat retrieval limits as a semantic result. Project-specific architecture and naming conventions take precedence over generic guidance.
 

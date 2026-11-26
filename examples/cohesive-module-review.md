@@ -103,3 +103,67 @@ Give the fixture an existing root service export `TravelDeskInvoiceItems` with a
 | Invoice service imports `BulkCreateService` directly from `@/services/travel-desk-invoice-items` and calls `BulkCreateService.perform(items)` | `FAIL`: cite the edited call and the existing public item bundle that exposes the action. |
 | Invoice service imports `TravelDeskInvoiceItems` from `@/services` and calls `TravelDeskInvoiceItems.BulkCreateService.perform(items)` | `PASS` for this criterion: the same action identifies its resource through the existing bundle. |
 | Invoice-item controller imports `BulkCreateService` from `@/services/travel-desk-invoice-items` and calls `BulkCreateService.perform(items)` | `PASS` for this criterion: the controller and action own the same resource and the import uses its supported entry point. |
+
+### Sibling Service Through Its Owning Barrel
+
+Run this example with Node v24.14.0 or later. It sets up the project-root `#/` alias using Node's package import map, then starts a new process that resolves the barrel and calls the affected service. The barrel deliberately re-exports `BulkCreateService` first.
+
+```bash
+(
+  set -eu
+  fixture=$(mktemp -d)
+  trap 'rm -rf -- "$fixture"' EXIT
+  cd "$fixture"
+  mkdir -p services/invoice-items
+
+  cat > package.json <<'JSON'
+{
+  "imports": {
+    "#/*": "./*"
+  }
+}
+JSON
+
+  cat > services/invoice-items/index.mjs <<'JS'
+export { BulkCreateService } from "./bulk-create-service.mjs"
+export { ValidateItemService } from "./validate-item-service.mjs"
+JS
+
+  cat > services/invoice-items/bulk-create-service.mjs <<'JS'
+import { ValidateItemService } from "#/services/invoice-items/index.mjs"
+
+export class BulkCreateService {
+  static perform(amounts) {
+    for (const amount of amounts) {
+      ValidateItemService.perform(amount)
+    }
+  }
+}
+JS
+
+  cat > services/invoice-items/validate-item-service.mjs <<'JS'
+export class ValidateItemService {
+  static perform(amount) {
+    if (amount <= 0) {
+      throw new Error("Invoice item amount must be positive")
+    }
+  }
+}
+JS
+
+  node --input-type=module <<'JS'
+import assert from "node:assert/strict"
+
+import { BulkCreateService } from "#/services/invoice-items/index.mjs"
+
+assert.equal(
+  import.meta.resolve("#/services/invoice-items/index.mjs"),
+  new URL("./services/invoice-items/index.mjs", import.meta.url).href
+)
+assert.doesNotThrow(() => BulkCreateService.perform([10, 20]))
+assert.throws(() => BulkCreateService.perform([10, 0]), /Invoice item amount must be positive/)
+JS
+)
+```
+
+`BulkCreateService` imports the barrel that re-exports it, but its method runs only after Node finishes evaluating both service modules. The validator does not depend on bulk creation. To see the unsafe variant, add `const validateItem = ValidateItemService.perform` immediately after the import in `bulk-create-service.mjs` in the fixture above and call `validateItem(amount)` inside the method instead. The same fresh-process command then fails while importing the barrel, before any assertion, because `ValidateItemService` has not initialized.
