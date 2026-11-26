@@ -2,21 +2,28 @@
 
 Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
-## Process
+## Capture for Either Publishing Route
 
 1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional, and use **Capture Preflight** before opening a browser or preparing data.
 2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture the actual application in the requested browser at stable states; avoid transient spinners, snackbars, or partially loaded screens.
 3. Keep every image for the run in that directory, use it as the default upload source, and verify the exact selected upload files are readable. Use only the scoped sandbox exception below when necessary; do not scatter working copies.
-4. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. Follow **Default Browser and Login Handoff** below; selected Firefox uses **Firefox GitHub Login and Upload**, never the Chromium-only bootstrap. Use **Interactive Sign-In Preference** only for explicitly requested existing-session reuse.
-5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images, and keep the exact placeholder-bearing target Markdown available locally for read-only recovery; do not publish the snapshot or QA logs.
-6. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
-7. Call `github_pr_screenshot_upload_path` and use the complete **Browser Helper** invocation below, or its direct Puppeteer invocation in **Firefox GitHub Login and Upload** when Firefox is selected. The batch uploader opens the exact target editor, replaces every exact placeholder, and submits once.
-8. Treat a successful helper return as persisted-body verification only. If it throws, inspect its phase evidence and follow **Read-Only Recovery After Save** before deciding whether publication failed or retrying any upload.
-9. Require a new `user-attachments/assets/...` URL for every screenshot. Read the exact saved target body/comment, confirm each placeholder was replaced in its intended slot, and compare all non-screenshot Markdown and existing image URLs with the local pre-upload body.
-10. In the rendered target, separately confirm each image is loaded directly after its reviewer-facing caption and route. Persisted URLs alone do not prove rendered placement.
-11. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
-12. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
-13. Release the owned tab and stop the owned session process even after failure, as described below.
+
+For an authorized Firefox upload to a PR description, continue with [Firefox GitHub Login and Upload](#firefox-github-login-and-upload). The command handles its own slots, editor discovery, save, and verification. Do not follow the manual steps below.
+
+## Manual Browser Helper Route
+
+Use this route when calling the page-driven helper directly instead of running the Firefox publishing command.
+
+1. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. Follow **Default Browser and Login Handoff** below. Use **Interactive Sign-In Preference** only for explicitly requested existing-session reuse.
+2. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images, and keep the exact placeholder-bearing target Markdown available locally for read-only recovery; do not publish the snapshot or QA logs.
+3. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
+4. Call `github_pr_screenshot_upload_path` and use **Browser Helper** below. The batch uploader opens the exact target editor, replaces every exact placeholder, and submits once.
+5. Treat a successful helper return as persisted-body verification only. If it throws, inspect its phase evidence and follow **Read-Only Recovery After Save** before deciding whether publication failed or retrying any upload.
+6. Require a new `user-attachments/assets/...` URL for every screenshot. Read the exact saved target body/comment, confirm each placeholder was replaced in its intended slot, and compare all non-screenshot Markdown and existing image URLs with the local pre-upload body.
+7. In the rendered target, separately confirm each image is loaded directly after its reviewer-facing caption and route. Persisted URLs alone do not prove rendered placement.
+8. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
+9. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
+10. Release the owned tab and stop the owned session process even after failure, as described below.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 
@@ -32,162 +39,44 @@ Manual login occurs in that isolated window, not automatically in the user's reg
 
 ## Firefox GitHub Login and Upload
 
-When Firefox is selected under [Browser Opening Modes](browser-qa-workflow.md#browser-opening-modes), do not invoke `github-headless-session` or OMP Browser's CDP-only `tab.run`. The installed upload helper's direct Firefox route uses [Installed Puppeteer Firefox Probe](../references/browser-qa-techniques-reference.md#installed-puppeteer-firefox-probe): discover an already-installed compatible `puppeteer` or `puppeteer-core` binding, Firefox executable, and WebDriver BiDi support. Select `browser: "firefox"` and `protocol: "webDriverBiDi"` explicitly. The general Playwright preference does not make this Puppeteer-specific helper callable through Playwright. Do not install dependencies, change project browser defaults, or silently switch to Chromium. If the binding or compatible Firefox control session is unavailable, name that exact prerequisite and stop this route.
+Run `command -v github-pr-screenshots` and `github-pr-screenshots --help` to discover the command installed with MSSRT; update it through the same package installation. Use Linux with `flock`, GitHub CLI (`gh` signed in as the same authorized GitHub account), an installed Firefox and a compatible installed Node/Puppeteer WebDriver BiDi binding. The command discovers `puppeteer-core` or `puppeteer` from the current project or the installed package; use `--binding /absolute/path/to/puppeteer-core/package.json` if installed elsewhere, and `--firefox /absolute/path/to/firefox` if it is not on `PATH`. See [Installed Puppeteer Firefox Probe](../references/browser-qa-techniques-reference.md#installed-puppeteer-firefox-probe) for binding and engine compatibility. No binding or browser downloads, Chromium fallback, tokens passed as browser credentials, or personal-profile attachment.
 
-A Firefox launch or reaching GitHub's sign-in form proves only startup/control and the manual handoff, not authentication or publication. Report authentication, file transfer, saved-body verification, and rendered placement separately; do not call the route passed until each requested phase succeeds.
+Keep the manifest and vetted captures in the private run directory. Use this shape; relative file paths are resolved next to the manifest. Supply a one-line caption and a relative app route starting with `/`, without credentials, secrets, or private customer data:
 
-Each newly launched owned Firefox session should use its initial page for the PR, creating a page only when the session exposes none. Apply this at initial startup, the visible login handoff, and headless continuation so a spare blank tab is not left beside the target. This is not permission to reuse or close tabs in a personal or otherwise unowned browser.
-
-Use a unique private profile directory outside the repository in a location the Firefox process can read; keep it separate from the screenshot run directory. Retain the owned process handle and profile path locally. Start headless and inspect sign-in state. When manual login/MFA is necessary, explain that a separate visible Firefox window is needed and obtain the user's agreement before launching it. If the user declines, closes the request, or an interactive handoff is unavailable, stop the affected authentication/upload phase without opening a window. Let the user switch windows manually; do not foreground or focus it automatically. After real login, close that owned browser and continue headlessly with the same disposable profile. Never automate credentials, bypass authentication protections, copy personal profiles/cookies, or terminate a personal browser. The isolated profile does not reduce the account's normal GitHub permissions; use an authorized dedicated account with only the repository access needed.
-
-The following bounded Node example assumes an already-installed `puppeteer` binding (or `puppeteer-core`; change the import below to match discovery), `firefoxExecutable`, an existing browser-visible `profileParent` outside the repository, `prUrl`, `uploadDirectory`, `screenshotDirectory`, and `uploaderUrl` (the installed `file:` URL returned by `github_pr_screenshot_upload_path`) are supplied from the current QA run:
-
-```js
-import { once } from "node:events"
-import { access, mkdir, mkdtemp, rm, stat } from "node:fs/promises"
-import { constants } from "node:fs"
-import { createInterface } from "node:readline/promises"
-import { stdin, stdout } from "node:process"
-import path from "node:path"
-import puppeteer from "puppeteer"
-
-await mkdir(profileParent, { recursive: true, mode: 0o700 })
-const prUrl = "https://github.com/owner/repository/pull/123#issue-456"
-const targetSelector = new URL(prUrl).hash
-const screenshots = [
-  {
-    filePath: path.join(uploadDirectory, "billing-overview.png"),
-    placeholder: "<!-- screenshot: billing-overview -->",
-  },
-  {
-    filePath: path.join(uploadDirectory, "billing-settings.png"),
-    placeholder: "<!-- screenshot: billing-settings -->",
-  },
-]
-const profileRoot = await mkdtemp(path.join(profileParent, "github-pr-firefox-"))
-const launchOptions = {
-  browser: "firefox",
-  protocol: "webDriverBiDi",
-  executablePath: firefoxExecutable,
-  userDataDir: profileRoot,
-  defaultViewport: null,
-  args: ["--no-remote"],
-}
-let browser
-
-async function closeOwnedBrowser() {
-  if (!browser) return
-  const ownedProcess = browser.process()
-  const exited =
-    ownedProcess && ownedProcess.exitCode === null && ownedProcess.signalCode === null
-      ? once(ownedProcess, "exit")
-      : null
-  await browser.close()
-  if (exited) await exited
-  browser = undefined
-}
-
-try {
-  for (const { filePath } of screenshots) {
-    await access(filePath, constants.R_OK)
-    const image = await stat(filePath)
-    if (!image.isFile() || image.size === 0) {
-      throw new Error("A staged screenshot is missing or empty.")
-    }
-  }
-
-  browser = await puppeteer.launch({ ...launchOptions, headless: true })
-  let page = (await browser.pages())[0] ?? (await browser.newPage())
-  await page.goto(prUrl, { waitUntil: "domcontentloaded" })
-
-  if (await page.$('a[href^="/login"]')) {
-    if (!stdin.isTTY || !stdout.isTTY) {
-      throw new Error("GitHub login needs an agreed interactive Firefox handoff.")
-    }
-
-    const terminal = createInterface({ input: stdin, output: stdout })
-    const handoff = new AbortController()
-    terminal.once("close", () => handoff.abort())
-    try {
-      const agreement = await terminal.question(
-        "GitHub login/MFA needs a separate visible Firefox window. Open it now? Type yes to continue: ",
-        { signal: handoff.signal }
-      )
-      if (agreement.trim().toLowerCase() !== "yes") {
-        throw new Error("The visible Firefox login handoff was declined.")
-      }
-
-      await closeOwnedBrowser()
-      browser = await puppeteer.launch({ ...launchOptions, headless: false })
-      page = (await browser.pages())[0] ?? (await browser.newPage())
-      await page.goto(prUrl, { waitUntil: "domcontentloaded" })
-      await terminal.question(
-        "Switch to the owned Firefox window manually, complete GitHub login/MFA, then press Enter here: ",
-        { signal: handoff.signal }
-      )
-      if (await page.$('a[href^="/login"]')) {
-        throw new Error("GitHub still shows a sign-in link after the manual Firefox handoff.")
-      }
-    } finally {
-      terminal.close()
-    }
-
-    await closeOwnedBrowser()
-    browser = await puppeteer.launch({ ...launchOptions, headless: true })
-    page = (await browser.pages())[0] ?? (await browser.newPage())
-    await page.goto(prUrl, { waitUntil: "domcontentloaded" })
-  }
-
-  if (await page.$('a[href^="/login"]')) {
-    throw new Error("The owned Firefox profile is signed out after headless continuation.")
-  }
-  await page.waitForSelector(targetSelector, { visible: true })
-
-  const { uploadPullRequestCommentScreenshots } = await import(uploaderUrl)
-  const results = await uploadPullRequestCommentScreenshots({
-    page,
-    prUrl,
-    editorSelector: "textarea",
-    fileInputSelector: 'input[type="file"]',
-    screenshots,
-  })
-  console.log(results.map(({ attachmentUrl }) => attachmentUrl))
-
-  await page.waitForFunction(
-    (selector) => {
-      const target = document.querySelector(selector)
-      const body = target?.querySelector(".js-comment-body, .markdown-body") ?? target
-      const images = [...(body?.querySelectorAll("img") ?? [])]
-      return images.length > 0 && images.every((image) => image.complete)
-    },
-    { timeout: 60_000 },
-    targetSelector
-  )
-  const renderedImages = await page.$eval(targetSelector, (target) => {
-    const body = target.querySelector(".js-comment-body, .markdown-body") ?? target
-    return [...body.querySelectorAll("img")].map((image) => ({
-      loaded: image.complete && image.naturalWidth > 0,
-      width: image.naturalWidth,
-      height: image.naturalHeight,
-      alt: image.alt,
-    }))
-  })
-  if (renderedImages.some((image) => !image.loaded)) {
-    throw new Error("At least one rendered target image has not loaded.")
-  }
-  console.log(renderedImages)
-  await page.screenshot({
-    path: path.join(screenshotDirectory, "pr-rendered.png"),
-    fullPage: true,
-  })
-  // Inspect the rendered target: confirm the new images load beneath their intended captions/routes in order.
-} finally {
-  await closeOwnedBrowser()
-  await rm(profileRoot, { recursive: true, force: true })
+```json
+{
+  "prUrl": "https://github.com/owner/repository/pull/123",
+  "screenshots": [
+    { "filePath": "./overview.png", "caption": "Billing Overview", "route": "/billing" },
+    { "filePath": "./settings.png", "caption": "Billing Settings", "route": "/billing/settings" }
+  ]
 }
 ```
 
-The manual step is only complete when the visible user login/MFA has been performed; the script then checks signed-in state again after the headless relaunch. The batch helper submits once and verifies the saved editor body before returning. Inspect the captured rendered target and confirm each newly uploaded image is visibly loaded beneath its matching caption and route, in order; image count/load state and saved URLs alone are not placement proof. If browser close/exit cannot be confirmed, retain the profile and diagnose only that owned process instead of deleting a live profile. Clean up the profile only after confirmed exit, and remove screenshot staging only under **Screenshot Staging**.
+```bash
+github-pr-screenshots preview --manifest /path/to/private/run/screenshots.json
+github-pr-screenshots publish --manifest /path/to/private/run/screenshots.json
+```
+
+`preview` does not access GitHub or launch Firefox. `publish` shows the target and ordered files, captions, and routes before asking for confirmation in the terminal. It appends the batch to the existing description; it never asks for a fragment, editor selector, pre-published placeholder, or drag-and-drop. If the default PR view has no classic body target, the command tries `?overview=false` on that same PR without changing a GitHub preference.
+
+### Sign-In, Reuse, and Revocation
+
+The managed headless Firefox profile is private and scoped to the repository named in the manifest. It is stored outside the checkout at `mssrt-pr-screenshots` under `$XDG_STATE_HOME` (default `~/.local/state`). If the installed browser is sandboxed, supply `--profile-root /absolute/path/to/private/browser-visible/state` outside the repository, such as a dedicated subdirectory of the user's Firefox Snap common directory. Use the same root for every action on that profile. The root must be owned by the current user with mode `0700`. This applies to login state, not [capture files](#screenshot-staging).
+
+On first use or when signed out, confirm separately before the command opens a visible owned window, switch to it yourself, and complete GitHub login/MFA before confirming continuation. Decline either prompt or cancel to stop; if the browser cannot prove sign-in in the reopened headless profile, publication stops. Routine runs check the account but do not ask for login while it remains valid. Application QA login is separate. The profile does not grant or reduce GitHub permissions; use an authorized account with only the needed access and publish private captures only to the approved target.
+
+Run `github-pr-screenshots revoke --manifest /path/to/private/run/screenshots.json` with the same profile root to confirm removal of only the managed login profile. This neither signs out a different browser nor revokes the GitHub account's other sessions; use GitHub's own session controls for server-side revocation. It leaves captures and recovery receipts separate. If the owned process might still be running, do not delete the profile or terminate other browsers.
+
+### Save, History, and Recovery
+
+The action returns an ordered list of GitHub attachment URLs only after exact saved-body readback, edit-history reconciliation, and Firefox sees each loaded image under its own caption and app route. It never returns signed image proxy URLs or logs PR Markdown, edits, credentials, or raw browser/API diagnostics.
+
+Concurrency protection is **best effort, not atomic**. The command hashes the current description with only CRLF normalized to LF, requires the browser editor to match, and checks the PR body hash and latest edit ID again immediately before Save. It stops before the write on drift. GitHub can still accept a stale edit between the final check and Save. The command checks its own saved revision and intervening edits against the baseline in GitHub history. If it can identify a single independent append to a complete prior snapshot, it restores that append alongside the approved screenshot batch and repeats the fresh comparison and readback. It will not guess how to merge replacements, multiple intervening edits, missing or redacted history, or histories whose records do not match the independently fetched body. If necessary, compare **edited** revisions in the PR description manually and preserve unrelated text before updating it.
+
+Run `github-pr-screenshots resume --manifest /path/to/private/run/screenshots.json` using the same captures and profile root after interruption. The private receipt tracks each confirmed attachment and possible Save; resuming can finish known unstarted uploads or verify the already saved batch without re-uploading. If an upload began but no URL was recorded, or Save remains ambiguous, stop and inspect the PR/history. Do not delete the receipt or change the filename or contents to evade that stop. Delete private receipts only when no longer needed for recovery; they contain target/attachment references and hashes, not full PR text or browser credentials. Revoking a profile does not remove attachments already published to GitHub.
+
+Compared with calling the low-level uploader, first use needs one manifest, the preview confirmation, and manual sign-in only if needed. Repeat use needs a manifest and preview confirmation, with no new controller or selector setup. Existing low-level helper contracts for page-driven uploads remain available under [Browser Helper](#browser-helper).
 
 ## Capture Preflight
 
@@ -336,7 +225,7 @@ Call `github_pr_screenshot_upload_path` first and retain its returned installed 
 
 On success, the existing result contract remains an ordered array of `{ markdown, attachmentUrl }`. On failure, inspect `error.uploadEvidence` for the phase, known URLs, save status, read-back URLs, and body-match result; a generated URL or returned submit click alone is not proof of persistence. Follow **Read-Only Recovery After Save** instead of repeating the batch after a post-save failure.
 
-This `browser.open`/`tab.run` example is the unattended headless Chromium/CDP route. When Firefox is selected under [Browser Opening Modes](browser-qa-workflow.md#browser-opening-modes), use the direct Puppeteer/WebDriver BiDi procedure in **Firefox GitHub Login and Upload**; do not attach OMP Browser to a Firefox process or fall back to Chromium.
+This `browser.open`/`tab.run` example is the unattended headless Chromium/CDP route. For an authorized Firefox PR-body upload, use **Firefox GitHub Login and Upload**; do not attach OMP Browser to a Firefox process or silently switch to Chromium.
 
 The read-back opens the saved editor for the exact target and cancels that read-only edit after inspection. GitHub may render images through signed proxy URLs; comparing original attachment URLs with rendered HTML can falsely report failure. Verify loaded images and caption placement separately, and never publish signed proxy URLs instead of the generated attachment URLs.
 

@@ -436,6 +436,52 @@ Keep import/destructuring conventions distinct from value-object layout. Check o
 
 This applies beyond Vue defaults. Preserve multiline extensible layouts rather than compacting them solely because a formatter permits it, subject to project formatting constraints. Small self-contained types and call arguments may remain inline as above; this is not a mandate to expand every expression or sweep unrelated formatting.
 
+In test Arrange, put each property of an explicit multi-property scenario record on its own line, whether the record is passed to an individual factory call or appears in a collection. These named inputs explain the case, even when the object could fit on one line. Keep record values, property and record order, and factory calls and lifecycle unchanged; review the scenario being authored or changed, not unrelated tests. An ordinary small call argument is still eligible for the compact layout above.
+
+#### Worked Review: Invoice Fee Selection
+
+Review an invoice creation change and its scenario for rejecting two selected fees with the same document number. In the service, the booking-source loader produces two values that the caller uses; the other two calls only enforce conditions:
+
+```typescript
+const { bookingReference, sourceAirSegmentNumbers } =
+  await LoadInvoiceBookingSourceService.perform(externalBookingEventIdentifier)
+
+TravelDeskInvoiceItems.AssertInvoiceItemsMatchSourcesService.perform(
+  travelDeskInvoiceItemsAttributes,
+  sourceAirSegmentNumbers
+)
+await this.assertSelectedFeesCanBeInvoicedTogether(
+  bookingReference,
+  sourceServiceFeeEventExternalIdentifiers,
+  currencyCode
+)
+```
+
+Accept the loader's result-oriented name, even though a missing booking can make it reject. Reject `ValidateInvoiceItemsMatchSourcesService` and `validateSelectedFeesCanBeInvoicedTogether` for these two guards: the standalone service throws and the awaited private method rejects on failure, with no result to consume from either on success. Preserve their owners, inputs, failure behavior, and position before the write. A Sequelize model's `validate()` is a different boundary; leave that name and its rejection contract intact.
+
+In Arrange, the booking and its flight segment are already present, and `duplicateFeeTransaction` is the explicit fee payload with document number `"FEE-314"` shared by both records. If the proposed setup already uses the factory's supported `createMany`, review this layout without changing the collection API:
+
+```diff
+ await travelDeskBookingEventFactory
+   .params({
+     serviceFeeTransaction: duplicateFeeTransaction,
+   })
+   .createMany([
+-    { externalTravelPortIdentifier: 920002, bookingReference: "INV001" },
+-    { externalTravelPortIdentifier: 920003, bookingReference: "INV001" },
++    {
++      externalTravelPortIdentifier: 920002,
++      bookingReference: "INV001",
++    },
++    {
++      externalTravelPortIdentifier: 920003,
++      bookingReference: "INV001",
++    },
+   ])
+```
+
+Accept the expanded records: two distinct fee events still belong to the same booking and carry the same document number. The Act still selects both, and the assertion still checks for `"Multiple versions of a service fee document cannot be selected."` Keep the input values, order, and creation behavior. Neither the guard names nor the layout calls for an extra service, a factory refactor, or changes to unrelated tests.
+
 ### Intentional Unbounded Loops
 
 Prefer `while (true)` over an empty `for (;;)` header when termination is intentionally inside the loop:
@@ -2308,7 +2354,9 @@ Match a module's primary named/default export to its filename under the project'
 
 For domain projection helpers, prefer a parent-qualified `<Parent><Thing>` name that remains meaningful outside its containing folder. For example, use `workflowStepsAsGroups` in `workflow-steps/workflow-steps-as-groups.ts` rather than `asGroups` in `workflow-steps/as-groups.ts`. Apply the export, filename, caller, and mirrored-test alignment above when making an accepted rename. This preference concerns domain projections, not unrelated predicates or action helpers; stronger project-local naming conventions still win.
 
-Prefer `assert...` for condition-checking functions that throw on failure, naming the asserted condition so the failure contract is apparent at the call site. Do not mechanically rename boolean predicates or framework-required methods.
+Prefer `assert<Condition>` for condition-checking functions and private methods that throw or reject on failure and do not supply a result to the caller. Name an existing standalone guard service `Assert<Condition>` with the project's usual suffix, such as `AssertInvoiceItemsMatchSourcesService`. Name the condition in either case so the call reads as a requirement, not a data-producing operation. This does not require extracting a service or changing an operation's return contract.
+
+Keep boolean predicate names and model/framework validation names. For example, Sequelize's `validate()` may reject; validation is not required to return a boolean. Name an operation that loads or derives a result for what it provides, even when it can throw. See the [invoice fee selection review](#worked-review-invoice-fee-selection) for the distinctions at one call site.
 
 Name conversion helpers for the concrete operation and both source and destination, such as `convertPlacementToReorderRequest`, rather than a destination-only `toReorderRequest`. Apply accepted names to the affected helper and every caller while preserving framework-required names and behavior.
 
@@ -3064,16 +3112,16 @@ Extraction is warranted when the helper name captures a cohesive domain decision
 
 Extraction is not warranted for a trivial one-line transform, direct delegation that adds no meaningful domain-step clarity, a short branch that is clearer inline, or a helper that hides unrelated database queries, aggregate boundaries, transactions, or permissions.
 
-One narrow delegation case is preserving an action's established flow of named private domain steps. If a direct shared-validator call interrupts that flow, a private `validateArrangement` step may delegate to the existing `assertContiguousGroups` owner without copying its rules or relocating the shared validator. For example, within an existing service whose replacement operation and `Arrangement` type are already defined:
+One narrow delegation case is preserving an action's established flow of named private domain steps. If a direct shared-validator call interrupts that flow, a private `assertArrangementHasContiguousGroups` step may delegate to the existing `assertContiguousGroups` owner without copying its rules or relocating the shared validator. For example, within an existing service whose replacement operation and `Arrangement` type are already defined:
 
 ```typescript
 perform() {
   const arrangement = this.proposedArrangement
-  this.validateArrangement(arrangement)
+  this.assertArrangementHasContiguousGroups(arrangement)
   return this.replaceArrangement(arrangement)
 }
 
-private validateArrangement(arrangement: Arrangement): void {
+private assertArrangementHasContiguousGroups(arrangement: Arrangement): void {
   assertContiguousGroups(arrangement)
 }
 ```

@@ -56,6 +56,56 @@ test("when a current-user request supplies environment overrides, validation rej
   )
 })
 
+test("when a canonical PR URL is supplied, validation snapshots it separately from literal prose", () => {
+  // Arrange
+  const original = request()
+  const pullRequestUrl = "https://github.com/example-owner/example.repo/pull/115"
+  const whatHappened = '<b>Export & review</b> <a href="javascript:alert(1)">PR</a>'
+  original.context.pullRequestUrl = pullRequestUrl
+  original.context.whatHappened = whatHappened
+  // Act
+  const normalized = validateRequest(original)
+  delete original.context.pullRequestUrl
+  original.context.whatHappened = "Changed after validation."
+  // Assert
+  assert.equal(normalized.context.pullRequestUrl, pullRequestUrl)
+  assert.equal(normalized.context.whatHappened, whatHappened)
+  assert.equal(Object.isFrozen(normalized.context), true)
+})
+
+test("when no PR URL is supplied, validation leaves it absent", () => {
+  // Arrange
+  const original = request()
+  // Act
+  const normalized = validateRequest(original)
+  // Assert
+  assert.equal(Object.hasOwn(normalized.context, "pullRequestUrl"), false)
+})
+
+for (const pullRequestUrl of [
+  null,
+  "",
+  "javascript:alert(1)",
+  "file:///tmp/example",
+  "http://github.com/owner/repo/pull/115",
+  "https://github.com.example/owner/repo/pull/115",
+  "https://github.com@other.example/owner/repo/pull/115",
+  "https://github.com/owner/../pull/115",
+  "https://github.com/owner/repo/issues/115",
+  "https://github.com/owner/repo/pull/115?next=anything",
+  "https://github.com/owner/repo/pull/115#files",
+  "https://github.com/owner/repo/pull/115/",
+  "https://github.com/owner/repo/pull/115\n",
+]) {
+  test(`when the PR URL is ${JSON.stringify(pullRequestUrl)}, validation rejects it`, () => {
+    // Arrange
+    const original = request()
+    original.context.pullRequestUrl = pullRequestUrl
+    // Act / Assert
+    assert.throws(() => validateRequest(original), /context\.pullRequestUrl must be a canonical/u)
+  })
+}
+
 const invalidMutations = [
   (value) => {
     value.extra = true
