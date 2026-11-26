@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 import { execFile } from "node:child_process"
+import { createHash } from "node:crypto"
 import { access, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -13,6 +14,7 @@ import {
   requireFreshScreenshotBody,
   screenshotBodyVersion,
 } from "../../lib/github-pr-screenshot-history.mjs"
+import { publishScreenshotBatch } from "../../lib/github-pr-screenshots.mjs"
 
 const BASELINE = "## Context\nExisting ![old](https://github.com/user-attachments/assets/old-id)\n"
 const MARKER = "<!-- mssrt-pr-screenshots:test -->"
@@ -204,6 +206,132 @@ test("when publish cannot prompt for consent, fails without starting a browser",
   // Assert
   await assert.rejects(publication, /interactive terminal to confirm/u)
   await assert.rejects(access(profileRoot), { code: "ENOENT" })
+})
+
+test("when a peer appends text during Save, restores that text without uploading again", async (t) => {
+  // Arrange
+  const directory = await mkdtemp(join(tmpdir(), "screenshot-repair-test-"))
+  t.after(() => rm(directory, { recursive: true, force: true }))
+  const firstPath = join(directory, "before.png")
+  const secondPath = join(directory, "after.png")
+  const firstCapture = "before capture bytes"
+  const secondCapture = "after capture bytes"
+  await writeFile(firstPath, firstCapture)
+  await writeFile(secondPath, secondCapture)
+  const url = "https://github.com/example/project/pull/173"
+  const batch = {
+    id: "test",
+    marker: MARKER,
+    screenshots: [
+      {
+        filePath: firstPath,
+        hash: createHash("sha256").update(firstCapture).digest("hex"),
+        caption: "Before",
+        route: "/before",
+        alt: "QA Screenshot 1",
+      },
+      {
+        filePath: secondPath,
+        hash: createHash("sha256").update(secondCapture).digest("hex"),
+        caption: "After",
+        route: "/after",
+        alt: "QA Screenshot 2",
+      },
+    ],
+  }
+  const state = {
+    attachments: [],
+    activeUpload: null,
+    submission: null,
+  }
+  const uploadedFiles = []
+  const savedBodies = []
+  const history = [edit("baseline", BASELINE)]
+  let renderedBody
+  const github = {
+    async readPullRequest() {
+      return {
+        ...observation(history[0].diff, [...history]),
+        url,
+        markdown: history[0].diff,
+      }
+    },
+    async openEditor() {
+      let markdown = history[0].diff
+      return {
+        readMarkdown: async () => markdown,
+        async replaceMarkdown(body) {
+          markdown = body
+        },
+        async upload(filePath) {
+          uploadedFiles.push(filePath)
+          return {
+            attachmentUrl: `https://github.com/user-attachments/assets/upload-${uploadedFiles.length}`,
+          }
+        },
+        async save() {
+          if (savedBodies.length === 0) {
+            history.unshift(edit("peer-append", `${BASELINE}\nExtra reviewer note.\n`, "reviewer"))
+          }
+          savedBodies.push(markdown)
+          history.unshift(edit(`save-${savedBodies.length}`, markdown))
+        },
+      }
+    },
+    async verifyPlacement() {
+      renderedBody = history[0].diff
+    },
+  }
+  const receiptPath = join(directory, "receipt.json")
+  const checkpoint = () => writeFile(receiptPath, JSON.stringify(state))
+
+  // Act
+  const result = await publishScreenshotBatch(batch, state, checkpoint, github)
+
+  // Assert
+  const savedSlots = [
+    "<!-- mssrt-pr-screenshots:test -->",
+    "",
+    "## QA Screenshots",
+    "",
+    "### Before",
+    "",
+    "`/before`",
+    "",
+    "![QA Screenshot 1](https://github.com/user-attachments/assets/upload-1)",
+    "",
+    "### After",
+    "",
+    "`/after`",
+    "",
+    "![QA Screenshot 2](https://github.com/user-attachments/assets/upload-2)",
+    "",
+  ].join("\n")
+  const repairedBody = `${BASELINE}\nExtra reviewer note.\n\n${savedSlots}`
+  assert.deepEqual(savedBodies, [`${BASELINE}\n${savedSlots}`, repairedBody])
+  assert.equal(renderedBody, repairedBody)
+  assert.deepEqual(uploadedFiles, [firstPath, secondPath])
+  assert.deepEqual(result, {
+    status: "published",
+    prUrl: "https://github.com/example/project/pull/173",
+    repairedConcurrentAppend: true,
+    attachments: [
+      {
+        caption: "Before",
+        route: "/before",
+        attachmentUrl: "https://github.com/user-attachments/assets/upload-1",
+        saved: true,
+        rendered: true,
+      },
+      {
+        caption: "After",
+        route: "/after",
+        attachmentUrl: "https://github.com/user-attachments/assets/upload-2",
+        saved: true,
+        rendered: true,
+      },
+    ],
+  })
 })
 
 function edit(id, diff, actor = "maintainer") {
