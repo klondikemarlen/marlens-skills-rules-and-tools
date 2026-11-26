@@ -26,6 +26,7 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 The [Zen of Python](https://peps.python.org/pep-0020/) informs explicit, simple, readable choices; the [Rails Doctrine](https://rubyonrails.org/doctrine/) informs useful conventions and cohesive integrated systems. Apply their intent pragmatically, not as permission to impose Python syntax, Rails architecture, or abstraction for its own sake on another project.
 
 - Choose explanatory function and variable names that reveal domain purpose and effects, not vague mechanisms or unnecessary abbreviations.
+- When binding a newly constructed named domain error, prefer the full error name in the language's local identifier style. `sharePointFolderCopyError` keeps the provider and resource visible where the value is logged or thrown; `copyError` does not. Use the same name in analogous changed branches and test setup. An unclassified catch binding or a cause passed through unchanged can still be `error` or `cause`; do not introduce a same-value alias just to rename it. See the [worked remote copy flow](../../examples/scoped-readability-review.md#remote-copy-failure-ownership).
 - Keep responsibilities cohesive and related steps together. Make dependencies, state ownership, side effects, and failure paths visible.
 - Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction. For optional inputs whose absence selects a return or fallback, follow [input-object guards](#guard-clauses-and-exceptional-responses) before deriving property locals.
 - Use consistent formatting and blank lines to separate meaningful logical steps; follow [Whitespace Matters](../../rules/whitespace-matters.md).
@@ -2324,6 +2325,14 @@ Use these terms as review vocabulary, not as mandatory layers:
 Protected work should expose its ownership through an intention-revealing `With...` service boundary when that service coordinates the protected action. Do not extract a utility that merely acquires a lock while leaving the domain operation, persistence, and invariant ownership elsewhere. Keep the existing transaction and locking semantics; this is not a mandate for a new layer or ORM.
 
 ## Error Ownership and Local Recovery
+
+### Operation-Specific Handlers and Follow-Up Work
+
+Keep a `try` limited to the operation or cohesive steps whose failures its handler owns. The `catch` can report, translate, or propagate those failures. Put separate fallible follow-up work in the owning orchestration flow, outside that operation-specific handler. Give follow-up work a separate narrow handler only if it needs its own recovery or translation; otherwise let its failure propagate unchanged. This is not one `try` per `await`.
+
+When the orchestration owns propagation and a shared helper only does bookkeeping, have the helper record the failure, not throw it on the caller's behalf. Await the record step when completion matters, then explicitly throw the selected error at the decision point. Preserve which error reaches the caller: if recording succeeds, throw the selected original failure; if the existing contract lets a failed write reject unchanged, do not relabel that database rejection or blanket-catch it to force the original error through. Ordinary returned promises and helpers or framework boundaries that genuinely own termination keep their existing contracts.
+
+Independent follow-up is not cleanup, rollback, or intentional local recovery. Keep those at the boundary that owns the resource or recovery, with an explicit contract for any secondary failure. Preserve `finally` cleanup on all applicable paths; do not let fallible cleanup replace an earlier failure by accident. The [worked remote copy flow](../../examples/scoped-readability-review.md#remote-copy-failure-ownership) contrasts a broad `try` and a hidden throw with a narrow remote handler, explicit propagation after status recording, real local recovery, and cleanup.
 
 ### Input Diagnostics at the Owning Boundary
 

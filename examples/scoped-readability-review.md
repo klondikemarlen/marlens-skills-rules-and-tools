@@ -233,6 +233,204 @@ assert.equal(failedEditor.observedError, saveError)
 - **TypeScript `function refresh(): void` or callback `() => void`:** `PASS`; types are not unary operators.
 - **Missing operation/error-boundary/pending-setup evidence:** `BLOCKED`, not a guessed promise-handling verdict.
 
+## Remote Copy Failure Ownership
+
+Apply [Operation-Specific Handlers and Follow-Up Work](../docs/references/code-organization-reference.md#operation-specific-handlers-and-follow-up-work) and [Human Readability](../docs/references/code-organization-reference.md#human-readability) together. The copy job must record a failed remote copy before rejecting with that error. If either status write fails, its database error must reach the caller unchanged. The adapter may recover an idempotent repeat only when the provider confirms that the original copy completed and returns its destination. The job owns a local copy slot whose release is synchronous and cannot fail.
+
+In this rejected excerpt, the remote catch also sees the database result of recording success. Returning `failCopy(...)` does forward a rejection, but only the helper body reveals whether it records a failure or also terminates the job. The shortened `copyError` loses the provider and resource. Slot handling is omitted from this excerpt.
+
+```javascript
+async function performCopy(sharePoint, job, logger) {
+  try {
+    const destination = await sharePoint.copyFolder()
+    await job.recordSuccess(destination)
+  } catch (cause) {
+    const copyError = new SharePointFolderCopyError(cause)
+    return failCopy(job, logger, copyError)
+  }
+}
+
+async function failCopy(job, logger, copyError) {
+  await recordCopyFailure(job, logger, copyError)
+  throw copyError
+}
+```
+
+In the corrected flow, the adapter translates only the provider call. The job catches the resulting domain error to select its failure path, then records the selected failure and visibly throws that same error after recording completes. The database writes are not inside the copy handler. Run this single exercise as a `.mjs` file with `node --test`:
+
+```javascript
+import assert from "node:assert/strict"
+import test from "node:test"
+
+class SharePointFolderCopyError extends Error {
+  constructor(cause) {
+    super("SharePoint folder copy failed", {
+      cause,
+    })
+    this.name = "SharePointFolderCopyError"
+  }
+}
+
+class SharePointFolderAlreadyCopiedError extends Error {
+  constructor(destination) {
+    super("The provider confirmed this copy already completed")
+    this.destination = destination
+  }
+}
+
+async function copyRemoteFolder(sharePoint) {
+  try {
+    return await sharePoint.copyFolder()
+  } catch (cause) {
+    if (cause instanceof SharePointFolderAlreadyCopiedError) {
+      return cause.destination
+    }
+
+    const sharePointFolderCopyError = new SharePointFolderCopyError(cause)
+    throw sharePointFolderCopyError
+  }
+}
+
+async function performCopy(copyFolder, job, logger, copySlot) {
+  try {
+    let destination
+    let sharePointFolderCopyError
+
+    try {
+      destination = await copyFolder()
+    } catch (error) {
+      if (!(error instanceof SharePointFolderCopyError)) {
+        throw error
+      }
+
+      sharePointFolderCopyError = error
+    }
+
+    if (sharePointFolderCopyError) {
+      await recordCopyFailure(job, logger, sharePointFolderCopyError)
+      throw sharePointFolderCopyError
+    }
+
+    await job.recordSuccess(destination)
+  } finally {
+    copySlot.release()
+  }
+}
+
+async function recordCopyFailure(job, logger, sharePointFolderCopyError) {
+  logger.error("SharePoint folder copy failed", {
+    errorType: sharePointFolderCopyError.name,
+  })
+  await job.recordFailure()
+}
+
+function buildCopyJob({ databaseError } = {}) {
+  const events = []
+
+  return {
+    events,
+    job: {
+      async recordSuccess(destination) {
+        events.push(`copied:${destination}`)
+        if (databaseError) {
+          throw databaseError
+        }
+      },
+      async recordFailure() {
+        events.push("recording failure")
+        await Promise.resolve()
+        if (databaseError) {
+          throw databaseError
+        }
+
+        events.push("failure recorded")
+      },
+    },
+    logger: {
+      error(message, { errorType }) {
+        events.push(`logged:${errorType}`)
+      },
+    },
+    copySlot: {
+      release() {
+        events.push("slot released")
+      },
+    },
+  }
+}
+
+test("propagates the same remote error after recording it and releasing the slot", async () => {
+  const cause = new Error("Provider rejected the copy")
+  const sharePointFolderCopyError = new SharePointFolderCopyError(cause)
+  const { events, job, logger, copySlot } = buildCopyJob()
+
+  const attempt = performCopy(async () => {
+    throw sharePointFolderCopyError
+  }, job, logger, copySlot)
+
+  await assert.rejects(attempt, (error) => error === sharePointFolderCopyError)
+  assert.deepEqual(events, [
+    "logged:SharePointFolderCopyError",
+    "recording failure",
+    "failure recorded",
+    "slot released",
+  ])
+})
+
+test("propagates the database error when recording a remote failure fails", async () => {
+  const databaseError = new Error("Cannot record copy status")
+  const { events, job, logger, copySlot } = buildCopyJob({
+    databaseError,
+  })
+  const providerError = new Error("Provider rejected the copy")
+  const sharePoint = {
+    async copyFolder() {
+      throw providerError
+    },
+  }
+
+  const attempt = performCopy(() => copyRemoteFolder(sharePoint), job, logger, copySlot)
+
+  await assert.rejects(attempt, (error) => error === databaseError)
+  assert.deepEqual(events, [
+    "logged:SharePointFolderCopyError",
+    "recording failure",
+    "slot released",
+  ])
+})
+
+test("does not classify a failed success-status write as a remote copy failure", async () => {
+  const databaseError = new Error("Cannot record copy status")
+  const { events, job, logger, copySlot } = buildCopyJob({
+    databaseError,
+  })
+
+  const attempt = performCopy(async () => "folder-17", job, logger, copySlot)
+
+  await assert.rejects(attempt, (error) => error === databaseError)
+  assert.deepEqual(events, ["copied:folder-17", "slot released"])
+})
+
+test("recovers a provider-confirmed repeat without recording a new failure", async () => {
+  const { events, job, logger, copySlot } = buildCopyJob()
+  const sharePointFolderAlreadyCopiedError = new SharePointFolderAlreadyCopiedError("folder-17")
+  const sharePoint = {
+    async copyFolder() {
+      throw sharePointFolderAlreadyCopiedError
+    },
+  }
+
+  await performCopy(() => copyRemoteFolder(sharePoint), job, logger, copySlot)
+
+  assert.deepEqual(events, ["copied:folder-17", "slot released"])
+})
+```
+
+- **Corrected flow:** `PASS` when the handler scope, logger's existing ownership, status-write ordering, exception identities, confirmed recovery, and slot cleanup hold. The fixture uses a typed rejection with the same full binding name as the adapter's constructed error.
+- **Database write caught or relabeled by the copy handler, or the remote error forced through after a failed write:** `FAIL`; restore the separate write and its rejection contract.
+- **`return failCopy(...)` hides the job's throw, or `copyError` shortens the concrete binding:** `FAIL` in this flow; await bookkeeping, throw explicitly, and keep the domain qualifiers in production and the fixture. A framework termination helper or a generic catch binding has a different contract.
+- **Removal of confirmed recovery or `finally` to make the handler narrower:** `FAIL`; recovery and cleanup already have owners. If those contracts are not known, report `BLOCKED` rather than inferring that all work in the handler can move.
+
 ## Vue Action Guard Ownership
 
 Use the [accepted UI-gated action convention](../docs/references/vue-component-authoring-reference.md#ui-gated-action-guard-ownership), not a blanket guard-removal rule. For these cases the accepted task is to apply that correction to the changed retirement action and its relevant in-scope sibling actions. Supply the complete baseline/comparison and project guidance as well as the following owner context; these excerpts alone do not establish a real application's caller inventory.
