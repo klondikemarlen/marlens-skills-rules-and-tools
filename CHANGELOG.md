@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.21.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1683) - 2026-11-26
+
+### Changed
+
+- Track non-urgent work for another session in the owning repository's issue tracker so it survives a missed message. Keep FYIs and urgent corrections out of that filing path.
+
 ## [5.21.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1675) - 2026-11-26
 
 ### Changed
