@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1670) - 2026-11-26
+
+### Changed
+
+- Separate remote-copy failure from failure to record its status. Keep the concrete error name and the final throw visible at the owning boundary.
+
 ## [5.20.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1669) - 2026-11-26
 
 ### Changed
