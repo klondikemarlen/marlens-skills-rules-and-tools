@@ -175,7 +175,9 @@ test("when previewing two captures, prints them in order without browser state",
       },
     ],
   })
-  await assert.rejects(access(profileRoot), { code: "ENOENT" })
+  await assert.rejects(access(profileRoot), {
+    code: "ENOENT",
+  })
 })
 
 test("when publish cannot prompt for consent, fails without starting a browser", async (t) => {
@@ -205,7 +207,9 @@ test("when publish cannot prompt for consent, fails without starting a browser",
 
   // Assert
   await assert.rejects(publication, /interactive terminal to confirm/u)
-  await assert.rejects(access(profileRoot), { code: "ENOENT" })
+  await assert.rejects(access(profileRoot), {
+    code: "ENOENT",
+  })
 })
 
 test("when a peer appends text during Save, restores that text without uploading again", async (t) => {
