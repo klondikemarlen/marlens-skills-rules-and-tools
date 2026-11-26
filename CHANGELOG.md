@@ -12,6 +12,36 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 - Preview and publish ordered Firefox QA screenshots to one GitHub pull request, reuse its repository's managed sign-in, and resume from a private receipt instead of uploading again. The publisher checks the saved body, edit history, and rendered screenshot order; concurrent-edit recovery is best effort.
 
+## [5.22.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1685) - 2026-11-26
+
+### Added
+
+- See what a release changes and open its pull request from the privilege preview without approving the pending command.
+
+## [5.21.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1682) - 2026-11-26
+
+### Changed
+
+- Distinguish throwing assertion services and private guards from model validation and result-producing operations, and keep each property of an explicit test scenario record on its own line.
+
+## [5.21.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1684) - 2026-11-26
+
+### Added
+
+- Guidance on when to keep a small OMP plugin status in the conversation and how to keep its values readable at narrow widths and without a card renderer.
+
+## [5.21.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1686) - 2026-11-26
+
+### Changed
+
+- Keep interrupted Verifier reviews with the named reviewer, route evidenced tool defects, and continue independent checks without treating them as a review verdict.
+
+## [5.21.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1683) - 2026-11-26
+
+### Changed
+
+- Track non-urgent work for another session in the owning repository's issue tracker so it survives a missed message. Keep FYIs and urgent corrections out of that filing path.
+
 ## [5.21.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1675) - 2026-11-26
 
 ### Changed

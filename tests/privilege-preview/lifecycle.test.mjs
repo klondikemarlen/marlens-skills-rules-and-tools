@@ -80,6 +80,19 @@ for (const execution of ["administrator", "current-user"]) {
   }
 }
 
+test("when a preview has a PR link, the dialog receives it and cancellation still runs nothing", async () => {
+  // Arrange
+  const boundary = harness(["ready", "cancelled"])
+  const original = { ...request(), execution: "current-user" }
+  original.context.pullRequestUrl = "https://github.com/example-owner/example-repo/pull/115"
+  // Act
+  const outcome = await runPreview(original, boundary)
+  // Assert
+  assert.deepEqual(outcome, { result: "cancelled" })
+  assert.equal(boundary.inputLines[0].request.context.pullRequestUrl, original.context.pullRequestUrl)
+  assert.equal(boundary.calls.length, 1)
+})
+
 test("when approved repeatedly, the exact frozen argv executes only once without a shell", async () => {
   // Arrange
   const boundary = harness(["ready", "approved", "approved"])

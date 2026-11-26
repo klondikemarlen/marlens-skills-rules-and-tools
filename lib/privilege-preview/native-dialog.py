@@ -208,6 +208,14 @@ def main():
                                      else execution_copy["header"], "dim-label"))
             content.append(self.text(targets[0]["value"], "title-1"))
             self.section(content, "What happened", context["whatHappened"])
+            pull_request_url = context.get("pullRequestUrl")
+            if pull_request_url:
+                pull_request_number = pull_request_url.rsplit("/", 1)[-1]
+                content.append(Gtk.LinkButton(
+                    uri=pull_request_url,
+                    label=f"View PR #{pull_request_number}",
+                    halign=Gtk.Align.START,
+                ))
             content.append(self.text(request["reason"]))
             if context.get("repository"):
                 self.section(content, "Project", context["repository"])
