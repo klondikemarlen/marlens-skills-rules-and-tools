@@ -6,7 +6,7 @@ Use when useful work is already owned by another independently running OMP sessi
 
 **WHY:** Address the session that owns relevant work without duplicating it or mistaking peer context for user authority.
 
-**WHAT:** One scoped message or an explicit no-send decision, with truthful acknowledgement and a reply destination when needed.
+**WHAT:** An owning-repository issue for actionable work that can wait, plus one scoped message or an explicit no-send decision, with truthful acknowledgement and a reply destination when needed.
 
 **Decision Rules:**
 
@@ -17,23 +17,28 @@ Use when useful work is already owned by another independently running OMP sessi
 ## Process
 
 1. **Choose whether to hand off.** Reuse the [hands-off workflow's context handoff](../autopilot/workflow.md#context-handoff-template) for ownership, relevant evidence, constraints, and proof. A small solo edit stays inline. Useful work already owned by a peer goes to that owner rather than a duplicate task; do not claim or transfer implementation ownership merely by sending a message.
+   - **Actionable work that can wait:** Use the owning repository's tracker as the durable record. Search for a covering issue and reuse it. If none exists, file one there only with applicable authorization; include the evidence, desired outcome, and how to tell when the work is done. If you cannot verify or file the issue, report the missing access or approval rather than handing off untracked work in chat or filing in a different repository.
+   - **FYI:** If there is no requested action, skip the issue. Send useful context only when it helps the peer's current work, and make clear that no action is needed.
+   - **Urgent correction:** If active work needs immediate redirection, don't wait on filing. Use `steer` only within existing authority and at a supported boundary. Track any separate work that can wait through the issue-first path.
 2. **Check the outgoing interface.** `ompi control version` reports the native wrapper, not OMP. Check `/ompi version` for the loaded slash-command interface when using it. The separate `send` and `steer` verbs below require the 0.21.0 interface; do not teach the outgoing `send --steer` flag. A remote merge, installed-on-disk version, or updated sender does not upgrade a receiver's already-loaded adapter. If the interface or target lacks support, report the prerequisite; do not install, restart, change profiles, or alter configuration without the applicable authorization.
 3. **Discover and select.** List current scoped identities, for example `ompi control list --json` or `ompi control list --profile work --json`; inside OMP use `/ompi list` or `/ompi list --profile work`. Match the intended project working directory, profile/config-root scope, and saved session using the returned metadata. Select one full control-instance ID or an unambiguous hexadecimal prefix, not a saved conversation ID or an assumed title match. There is no `all` message target. Missing, ambiguous, stale, closing, unauthorized, or unsupported targets mean no send, not a guessed replacement. After a restart, rediscover and re-establish the intended session: control IDs change and must not silently retarget a replacement.
 4. **Prepare a bounded message.** Include the goal, recipient's existing ownership, relevant context, requested result/proof, and non-goals. When a reply is needed, state an explicit verified reply destination and scope; the recipient must discover that current destination before replying. Do not assume the source session's `local://` artifacts are accessible to another session. Include the needed safe excerpt or an ordinary accessible path whose contents, permissions, and scope have been verified; do not export secrets or whole transcripts by default.
+
+   For a durable handoff, use ordinary `send` with the issue link, a suggested priority and its reason, and a request to pick it up when ready. The suggestion does not set tracker priority or assign the issue, and neither filing nor messaging authorizes implementation. Leave scheduling and ownership with the receiving project.
 5. **Send once through the supported surface.** Preserve the selected discovery scope and put profile/output options before the target. Bash takes one literal MESSAGE argv: quote it and escape embedded shell syntax correctly, without evaluating message contents. The slash command takes the raw tail after ID; shell quotes are literal text there. Use the actual selected ID in place of `ID`:
 
    ```bash
    ompi control version
    ompi control list --json
-   ompi control send --json ID 'Please investigate the failing build.'
+   ompi control send --json ID 'FYI: The build logs are now available. No action needed.'
    ompi control steer --json ID 'Pause that approach and check the latest user correction.'
-   ompi control send --profile work --json ID 'Please report the current blocker.'
+   ompi control send --profile work --json ID 'FYI: The release is live. No action needed.'
    ```
 
    ```text
-   /ompi send ID Please investigate the failing build.
+   /ompi send ID FYI: The build logs are now available. No action needed.
    /ompi steer ID Pause that approach and check the latest user correction.
-   /ompi send --profile work ID Please report the current blocker.
+   /ompi send --profile work ID FYI: The release is live. No action needed.
    ```
 
    These are alternative examples, not a batch to execute. Preserve the runtime's message size and content constraints; do not invent flags or APIs.
@@ -42,15 +47,23 @@ Use when useful work is already owned by another independently running OMP sessi
 
 ## Representative Decisions
 
-| Situation                                           | Decision                                                                    |
-| --------------------------------------------------- | --------------------------------------------------------------------------- |
-| Tiny solo change                                    | Work inline; no peer discovery ritual.                                      |
-| Another session owns relevant work                  | Verify its current scope and identity, then send one bounded request there. |
-| Busy peer, ordinary request                         | `send`; do not interrupt active work.                                       |
-| Deliberate correction to active approach            | `steer`, within existing task and communication authority.                  |
-| Unavailable, ambiguous, unauthorized, or old target | Do not guess, upgrade, restart, or silently choose another session.         |
-| Submitted request, no reply yet                     | Report only API handoff; do not claim completion or automatically retry.    |
+| Situation | Decision |
+| --- | --- |
+| Tiny solo change | Work inline; no peer discovery ritual. |
+| Non-urgent work for a busy peer | Reuse a covering issue or file one with authorization, then `send` to the verified owner. |
+| Useful context with no requested action | Send an FYI if helpful; do not create a ticket. |
+| Deliberate correction to active approach | `steer`, within existing task and communication authority; don't wait on filing. |
+| Unavailable, ambiguous, unauthorized, or old target | Do not guess, upgrade, restart, or silently choose another session. |
+| Submitted request, no reply yet | Report only API handoff; do not claim completion or automatically retry. |
+
+### Worked Example
+
+The build-tools session is busy with a release. A repeated startup delay can wait, and its repository already has an open issue covering the delay. Reuse that issue rather than filing a duplicate. After verifying the session, send:
+
+> Please pick up https://github.com/example/build-tools/issues/42 when you're ready. Suggested priority: medium. The delay affects every clean build, but it doesn't block the release.
+
+The issue remains the backlog item even if the session never receives the message. The receiving project still decides when and by whom to do the work.
 
 ## Output Contract
 
-Report the chosen target/scope, reason for `send` or `steer` (or no-send), observed acknowledgement and uncertainty, explicit reply destination if applicable, and any missing prerequisite. Keep transport runtime QA with omp-instance-control; guidance-consumer decisions do not prove live delivery, queue processing, steering, or downstream work completion.
+Report the issue link for tracked work separately from the message outcome. Include the chosen target/scope, reason for `send` or `steer` (or no-send), observed acknowledgement and uncertainty, explicit reply destination if applicable, and any missing prerequisite. Keep transport runtime QA with omp-instance-control; guidance-consumer decisions do not prove live delivery, queue processing, steering, or downstream work completion.
