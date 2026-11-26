@@ -800,6 +800,79 @@ return {
 
 Expected `PASS` with an unchanged-field response type based on `Pick<Receipt, "id" | "reference">` and explicit wire types for `issuedAt` and `lines`. Do not introduce `this.record.receipt`, a query, or a `pick` of the raw date or lines. If a source key can be absent and the response requires an own property, establish equivalence before recommending `pick`.
 
+## Public Error Message Provenance
+
+Apply [Internal Errors, Public Messages, and Logs](../docs/references/code-organization-reference.md#internal-errors-public-messages-and-logs). The roster import error type owns wording approved for users. The existing job status writer exclusively populates the public message field for new failures. Legacy failure text and diagnostic details have no public contract, even when they happen to match approved wording. The reader below runs only for failed imports.
+
+In the rejected design the panel compares the text in a mixed legacy field against a list of approved messages. A legitimate copy edit then requires changing the list, and a matching value still says nothing about its writer. In the corrected design the writer selects what is safe; the reader trusts only the public storage contract. Run the corrected producer and consumer together as a `.mjs` file with `node --test`:
+
+```javascript
+import assert from "node:assert/strict"
+import test from "node:test"
+
+class RosterImportRejectedError extends Error {
+  constructor(cause) {
+    super("Check the roster file format and try again.", {
+      cause,
+    })
+  }
+}
+
+const importFailureFallback = "Could not import the roster."
+
+function rosterImportFailureStatus(error) {
+  let publicFailureMessage = importFailureFallback
+  if (error instanceof RosterImportRejectedError) {
+    publicFailureMessage = error.message
+  }
+
+  return {
+    status: "failed",
+    publicFailureMessage,
+  }
+}
+
+function rosterImportFailureForDisplay({ publicFailureMessage }) {
+  return publicFailureMessage ?? importFailureFallback
+}
+
+test("uses the trusted type's public wording unchanged from write to display", () => {
+  const cause = new Error("Parser rejected a private roster value")
+  const rosterImportRejectedError = new RosterImportRejectedError(cause)
+
+  const failureStatus = rosterImportFailureStatus(rosterImportRejectedError)
+
+  assert.deepEqual(failureStatus, {
+    status: "failed",
+    publicFailureMessage: "Check the roster file format and try again.",
+  })
+  assert.equal(rosterImportFailureForDisplay(failureStatus), "Check the roster file format and try again.")
+  assert.equal(rosterImportRejectedError.cause, cause)
+})
+
+test("uses the fallback for an unrecognized exception even with identical wording", () => {
+  const error = new Error("Check the roster file format and try again.")
+
+  const failureStatus = rosterImportFailureStatus(error)
+
+  assert.equal(failureStatus.publicFailureMessage, "Could not import the roster.")
+})
+
+test("ignores legacy wording and diagnostics when no public message was written", () => {
+  const legacyFailureStatus = {
+    status: "failed",
+    legacyFailureText: "Check the roster file format and try again.",
+    diagnosticMessage: "Parser rejected a private roster value",
+  }
+
+  assert.equal(rosterImportFailureForDisplay(legacyFailureStatus), "Could not import the roster.")
+})
+```
+
+- **Typed public wording, isolated storage, and a fallback for unknowns:** `PASS`; public copy can change at its owner without a corresponding consumer registry. Retain the cause only on the internal path and keep diagnostic log handling separate.
+- **String matching, exposing arbitrary `Error.message`, or reading mixed legacy/diagnostic values as public:** `FAIL`; distinguish the producers and storage paths instead.
+- **Unknown writers or unclear trust contract:** `BLOCKED` for the proposed exposure; missing provenance is not evidence that stored text is public.
+
 ## Evidence Boundary
 
 For each case obtain a cited, current-scope `PASS`, `FAIL`, or `BLOCKED` through the supported semantic review path. Preserve concrete findings even when another criterion lacks context. Formatter/typecheck success and the disposable behavioral exercises protect different contracts; none substitutes for semantic review. Supplied policy and installation do not establish automatic selection, native advisor delivery, or a hard completion gate. Fresh-process discovery and corrective re-review remain release QA responsibilities owned by Verifier.
