@@ -6,6 +6,10 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+### Changed
+
+- Keep interrupted Verifier reviews with the named reviewer, route evidenced tool defects, and continue independent checks without treating them as a review verdict.
+
 ## [5.21.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1675) - 2026-11-26
 
 ### Changed
