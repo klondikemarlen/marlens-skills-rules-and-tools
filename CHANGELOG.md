@@ -6,6 +6,8 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1689) - 2026-11-26
+
 ### Added
 
 - Preview and publish ordered Firefox QA screenshots to one GitHub pull request, reuse its repository's managed sign-in, and resume from a private receipt instead of uploading again. The publisher checks the saved body, edit history, and rendered screenshot order; concurrent-edit recovery is best effort.
