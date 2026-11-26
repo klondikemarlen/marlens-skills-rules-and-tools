@@ -606,6 +606,9 @@ for (const [name, workflow] of [
   ["authoritative code review workflow", codeReviewWorkflow],
   ["packaged code review workflow", codeReviewFallbackWorkflow],
 ]) {
+  if (!workflow.includes("#function-calls-before-construction), including its documented exceptions")) {
+    fail(`${name} must honor the exceptions to Function Calls Before Construction`)
+  }
   if (
     !workflow.includes(
       "shared setup or teardown hook that awaits an external, asynchronous, or potentially slow subsystem"

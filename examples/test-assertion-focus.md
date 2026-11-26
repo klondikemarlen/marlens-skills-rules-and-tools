@@ -364,8 +364,48 @@ Use the same neutral prompt for every variant:
 
 > Decide only the specified review question. Quote the supplied rule that establishes what is required for that decision, then cite the consumer evidence that satisfies or violates it. Do not infer a requirement from the criterion name, another criterion, or familiarity with good tests. If either premise is unavailable, report BLOCKED and identify the missing evidence and which side must supply it. Otherwise report PASS or FAIL, with a concrete correction for a violation.
 
+- `observable-contract-and-direct-assertions`: Use [Fixture Creation Order and Application Order](#fixture-creation-order-and-application-order). In the missing-rule control, omit the equivalent ordering and severity guidance from the captured source and question. In the missing-consumer-evidence control, omit the scope of the maintainer's decision or the history query needed to determine whether it enforces chronology. An unrelated controller naming convention is not required.
 - `meaningful-scenarios-and-subject-ownership`: Use the acceptance-only validator from [Acceptance Is Sometimes the Whole Contract](#acceptance-is-sometimes-the-whole-contract). Show the validator and both tests; contrast removing the successful call while retaining the rejection. Rename the validator and express acceptance in domain language. For the provider control remove the rules for meaningful success, negative coverage and the acceptance-only exception wherever supplied. For the consumer control omit the subject contract when completion versus an additional promised effect changes whether the assertion is adequate. Import-order policy is irrelevant here.
 - `actual-subject-import-and-placement`: Use the direct subject from [Default-Exported Subject](#default-exported-subject), with its supported export and the actual fixture import groups. Reverse only the subject and fixture groups; retain the same Act and assertions. Contrast a real fixture-local override phrased in different words. Remove the provider's placement and precedence rules for the missing-rule control. Separately omit a referenced local ordering policy whose contents could reverse the decision. An unrelated serializer convention is not required.
+
+## Fixture Creation Order and Application Order
+
+For the persistence case, use isolated SQL Server fixtures with exactly two workflow step responses. Supply the complete changed test and its setup, the model/query and withdrawal code, and the maintainer's explicit direction for these tests to compare the complete result in fixture creation order without an assertion-only sort. Withhold the expected verdicts from the reviewer.
+
+```typescript
+test("when one response is withdrawn, persists it and leaves the other active", async () => {
+  // Arrange
+  const withdrawnResponse = await workflowStepResponseFactory.create()
+  const activeResponse = await workflowStepResponseFactory.create()
+
+  // Act
+  await withdrawnResponse.withdraw()
+
+  // Assert
+  const responses = await WorkflowStepResponse.findAll()
+
+  expect(responses).toEqual([
+    expect.objectContaining({
+      id: withdrawnResponse.id,
+      status: "withdrawn",
+    }),
+    expect.objectContaining({
+      id: activeResponse.id,
+      status: "active",
+    }),
+  ])
+})
+```
+
+Review separate packets with the necessary consumer evidence:
+
+- **Incidental order without a demonstrated reversal:** The test above gets a non-blocking advisory. A different retrieval order can fail it even when both states are correct; do not claim SQL Server returns rows in insertion order. Rewrite the maintainer's direction in equivalent words and expect the same result.
+- **Rejected rewrite, same evidence:** Include the review that requested `ORDER BY` or matcher replacement and the maintainer's decision to decline that change. Do not renew the blocker or repeat either prescription.
+- **Broken application order:** Use a chronological history operation with the two responses created newest first, a literal oldest-first expectation, and a history query that does not enforce that order. **FAIL:** the operation promises oldest-first history but does not deliver it reliably. Fix the operation, not the assertion's result order. With correct ordering in the history query, the same assertion is valid.
+- **Demonstrated reversal:** Give the reviewer the original persistence test and a result trace showing the two expected responses in reverse order. **FAIL:** cite the observed mismatch; the earlier preference does not waive a demonstrated false failure.
+- **Weakened membership:** Wrap the original persistence test's expected entries in `expect.arrayContaining`. **FAIL:** a third unexpected response or an extra copy can pass. Restore complete-result coverage without conflating it with field matching inside each entry.
+
+These are provider evaluation cases, not observed SQL Server runs or evidence about a released artifact.
 
 ## Controller Query Transport and Import Review
 

@@ -106,7 +106,7 @@ These excerpts assume each boundary's existing serializer/options and caller; pr
 
 ### Function Calls Before Construction
 
-By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [linear test expectations](#linear-test-expectations), [simple serializer projection](#simple-serializer-projections), and [existing policy allowlist](#existing-policy-allowlists) exceptions permit contextual inline construction when extraction adds no meaning.
+By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [simple message formatting](#simple-message-formatting), [linear test expectations](#linear-test-expectations), [simple serializer projection](#simple-serializer-projections), and [existing policy allowlist](#existing-policy-allowlists) exceptions permit contextual inline construction when extraction adds no meaning.
 
 Keep each evaluation within its original execution scope: a branch, loop iteration, callback invocation, lazy getter, or transaction must still own its work. Preserve evaluation count and left-to-right order, conditional/short-circuit execution, receiver binding, async/concurrent starts and awaits, rejection ownership, spread precedence, and returned identity. Capture intervening effectful property/index reads at their original evaluation points when needed; do not hoist a later call ahead of an earlier getter or turn concurrent starts into sequential awaits.
 
@@ -141,6 +141,23 @@ return {
 ```
 
 This replaces `passengerName: item.passengerName ?? null`, not a direct property read that had no fallback. Null and undefined still yield null; an empty string remains an empty string. Preserve the original operator (`??` versus `||`), fallback laziness, execution scope, property-read order, and evaluation count. Capture earlier effectful reads before preparing a later fallback; never hoist it across a guard or callback. This does not authorize adding/removing fallback behavior, redundant aliases for direct reads, or extracting simple literal options.
+
+#### Simple Message Formatting
+
+A short, pure formatting call on an already-available value may stay in a readable message interpolation when its result is used only there. This includes messages in object properties and decorator options. Keep shared inputs named, and keep formatting results named when reused or clearer as a separate step.
+
+```typescript
+const allowedOutcomes = ["approved", "rejected"]
+
+class OutcomeInput {
+  @IsIn(allowedOutcomes, {
+    message: `Outcome must be one of: ${allowedOutcomes.join(", ")}.`,
+  })
+  outcome!: string
+}
+```
+
+`allowedOutcomes` remains the named source used by both the validator and the message. Only the display join is inline; the validator still checks the same values and the message still reads `Outcome must be one of: approved, rejected.` This exception does not cover validation, lookups, or effects. Preserve evaluation scope, timing, count, and order, as well as error behavior and exact rendered text. Keep the local if moving the call would cross a guard, a lazy boundary, or an order-sensitive operation.
 
 #### Linear Test Expectations
 
@@ -1930,9 +1947,7 @@ expect(records).toEqual([
 ])
 ```
 
-Here ownership and draft status are relevant unchanged state. For multiple unordered records, use the project's supported exact unordered collection/model matcher; do not normalize SQL order or use a subset matcher that misses extra rows.
-
-Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
+Here ownership and draft status are relevant unchanged state. For multi-record persistence assertions, follow [Fixture Creation Order and Application Order](test-alignment-verifier-reference.md#fixture-creation-order-and-application-order) to distinguish incidental retrieval order from an order the operation promises. Keep literal expected entries in the established operation order when it is part of the behavior. Do not infer side-effect order from an unordered persistence read.
 
 ### Structured Controller Query Inputs
 
@@ -2324,6 +2339,10 @@ Do not move validation, duplicate checks, or introduce a wrapper just to change 
 ### Internal Errors, Public Messages, and Logs
 
 Keep the original cause and relevant diagnostic context available for authorized debugging through the existing error path. At the existing public boundary, map the failure to an informative, operation-specific message that is safe for the audience. Apply this both to immediate responses from a controller or error middleware and to job status or other persisted messages that will be shown to users. Expose only deliberately public fields; do not serialize the internal error or copy its message, stack, or cause into the public result. Preserve the existing classification, HTTP status, job failure and retry behavior, and disclosure restrictions. No new hierarchy or global handler is required.
+
+For validation and conflicts shown to end users, explain what happened in terms of their action or the product rule. Name the state when it changes the outcome or next step, and tell users how to recover when the product offers a way forward.
+
+For example, when backend validation rejects a second response to the same workflow step, say “You have already responded to this step,” not “Only one active response is allowed.” Here, “active” merely distinguishes records that have not been soft-deleted; it is not a product state the user needs to interpret. Keep the uniqueness rule unchanged. If the product lets users edit their existing response, tell them how to do that; otherwise, do not suggest editing or retrying the same submission.
 
 For example, when SharePoint rejects an attachment copy:
 

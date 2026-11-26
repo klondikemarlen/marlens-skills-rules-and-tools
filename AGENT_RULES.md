@@ -59,6 +59,8 @@ For mechanical quick tweaks, follow [Work Levels](docs/workflows/hands-off-agent
 
 Use plain terms in user-facing summaries, PR bodies, and final reports. Define domain terms once when they are useful; otherwise choose clearer phrases so maintainers and reviewers do not need glossary context.
 
+Apply the same standard to [end-user validation and conflict messages](docs/references/code-organization-reference.md#internal-errors-public-messages-and-logs), even when the text is defined in backend code.
+
 Keep user responses and GitHub comments brief, natural, and human. Lead with the useful outcome, question, or blocker; preserve necessary links, limitations, and explicitly requested detail. Workflow output fields are execution requirements, not automatic public headings or permission to post. Use [Workflow Outputs and Publication](docs/references/guidance-precedence-reference.md#workflow-outputs-and-publication) to select the reader and destination; publish nothing when there is no new reader-needed information.
 
 Operational handoffs must use the recipient's available tools and artifacts, or explain how to obtain them. Follow [Actionable Operational Handoffs](docs/references/guidance-precedence-reference.md#actionable-operational-handoffs); developer-local files are not recipient prerequisites by assumption.
