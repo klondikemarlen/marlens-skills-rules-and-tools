@@ -1,6 +1,8 @@
 import { requireEvery, requireText } from "./verify-skill-workflows-assertions.mjs"
 
 export function verifyReviewProcedures({ read, fail }) {
+  verifyMergeEntrypoints({ read, fail })
+
   const commentResolutionWorkflow = read(
     "docs/workflows/pull-request-comment-resolution-workflow.md"
   )
@@ -92,6 +94,62 @@ export function verifyReviewProcedures({ read, fail }) {
       "Reserve browser authentication blockers for explicit browser UI validation",
     ],
     (requiredText) => `github tooling reference must document ${requiredText}`,
+    fail
+  )
+}
+
+function verifyMergeEntrypoints({ read, fail }) {
+  for (const [owner, entry] of [
+    ["docs/workflows/feature-workflow.md", "../../skills/autonomous-merge/SKILL.md"],
+    ["skills/feature/workflow.md", "../autonomous-merge/SKILL.md"],
+    ["docs/workflows/evolve-workflow.md", "../../skills/autonomous-merge/SKILL.md"],
+    ["skills/evolve/workflow.md", "../autonomous-merge/SKILL.md"],
+  ]) {
+    requireText(
+      read(owner),
+      `[Autonomous Merge](${entry})`,
+      `${owner} must select the discoverable autonomous merge entrypoint`,
+      fail
+    )
+  }
+
+  for (const [name, decision] of [
+    ["autonomous-merge", "A correction does not create an extra manual re-review hold"],
+    [
+      "review-and-merge",
+      "If corrections were required and there is no explicit post-fix merge authority",
+    ],
+  ]) {
+    for (const [workflow, shared] of [
+      [`docs/workflows/${name}-workflow.md`, "verified-merge-workflow.md"],
+      [`skills/${name}/workflow.md`, "../../docs/workflows/verified-merge-workflow.md"],
+    ]) {
+      const guidance = read(workflow)
+      requireText(
+        guidance,
+        `[shared verified merge procedure](${shared})`,
+        `${workflow} must use the common merge gates`,
+        fail
+      )
+      requireText(
+        guidance,
+        decision,
+        `${workflow} must preserve its own corrected-head decision`,
+        fail
+      )
+    }
+  }
+
+  requireEvery(
+    read("docs/workflows/verified-merge-workflow.md"),
+    [
+      "base branch and SHA, and head repository, branch, and SHA",
+      "obtain fresh applicable verification, named review, and CI",
+      "A required approval is a gate even if the host does not enforce it",
+      "Do not merge, enable auto-merge, or enqueue",
+      "--match-head-commit <SHA>",
+    ],
+    (requiredText) => `shared merge procedure must require ${requiredText}`,
     fail
   )
 }

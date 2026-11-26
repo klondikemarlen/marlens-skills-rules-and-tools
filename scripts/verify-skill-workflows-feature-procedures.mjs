@@ -12,8 +12,9 @@ export function verifyFeatureProcedures({ read, fail, alwaysLoadedGuidance }) {
       [
         "Open a draft pull request",
         "Resolve every actionable review finding or comment",
-        "Merge verified pull requests by default with a merge commit",
-        "Wait only when the work specifically requires end-user testing the agent cannot perform",
+        "Reserve `review-and-merge` for explicit operator invocation",
+        "to merge the verified head with a merge commit by default",
+        "A corrected PR needs fresh applicable evidence",
         "explicit user or maintainer request to waive, drop, or clean up",
         "record the missing evidence",
         "Learner Coverage During Issue Triage",

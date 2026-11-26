@@ -31,6 +31,30 @@ for (const manifest of [packageJson.omp, packageJson.pi].filter(Boolean)) {
   for (const extension of manifest.extensions ?? []) expectPublished(extension)
   for (const skill of manifest.skills ?? []) expectPublished(skill)
 }
+
+for (const [host, manifest] of [
+  ["OMP", packageJson.omp],
+  ["Pi", packageJson.pi],
+]) {
+  assert.ok(
+    manifest?.skills?.includes("./skills"),
+    `${host} must discover the packaged skill directory`
+  )
+}
+
+for (const filename of [
+  "skills/autonomous-merge/SKILL.md",
+  "skills/autonomous-merge/workflow.md",
+  "skills/review-and-merge/SKILL.md",
+  "skills/review-and-merge/workflow.md",
+  "skills/feature/workflow.md",
+  "skills/evolve/workflow.md",
+  "docs/workflows/verified-merge-workflow.md",
+  "examples/outcome-skills.md",
+]) {
+  expectPublished(filename)
+}
+
 for (const verification of packageJson.omp.verifications ?? []) {
   const declaredPath =
     verification.mode === "agentic" ? verification.contract : verification.entry
