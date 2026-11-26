@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1673) - 2026-11-26
+
+### Changed
+
+- Single-item consumers should receive the item’s result and agreed no-match value without unpacking a keyed batch.
+
 ## [5.20.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1672) - 2026-11-26
 
 ### Changed
