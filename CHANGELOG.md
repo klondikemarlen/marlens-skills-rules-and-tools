@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1669) - 2026-11-26
+
+### Changed
+
+- A blank line before a loop can distinguish batch execution from result handling; a loop that starts a block needs no leading blank.
+
 ## [5.20.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1668) - 2026-11-26
 
 ### Changed

@@ -33,6 +33,32 @@ The [Zen of Python](https://peps.python.org/pep-0020/) informs explicit, simple,
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
 - Avoid repeating generic extraction history or assurances that licensing and attribution were preserved in source headers; use the repository's standard license and central attribution material for general provenance. Retain concise per-file notices required by the applicable license and useful technical rationale. Apply an accepted correction to analogous headers within the authored or requested review scope, not a repository-wide sweep. Uncertainty about license choice does not authorize changing licenses or removing required notices; leave unclear obligations intact pending clarification.
 
+When a `for` loop follows another statement in the same block, normally leave one blank line before it. This makes distinct steps visible, such as [running a batch of copies and then inspecting the results](https://github.com/icefoganalytics/wrap/pull/918/commits/c80668caa9):
+
+```typescript
+async function copyDocuments(documents: Document[]) {
+  const copyResults = await Promise.allSettled(documents.map(copyDocument))
+
+  for (const result of copyResults) {
+    recordCopyResult(result)
+  }
+}
+```
+
+When the loop is the first statement of a method or nested block, start it immediately after the opening brace, even when more work follows the loop:
+
+```typescript
+function recordCopyResults(copyResults: PromiseSettledResult<void>[]) {
+  for (const result of copyResults) {
+    recordCopyResult(result)
+  }
+
+  updateCopySummary()
+}
+```
+
+Apply this as a readability default in code being edited, not a lint requirement or a reason to reformat unrelated code.
+
 Lint cleanup and refactoring must distinguish current behavior from the intended contract. An ineffective declaration, guard, or configuration can still express a purpose; no current runtime effect is not evidence that it is obsolete. Inspect surrounding code, callers, relevant documentation, tests, and accepted maintainer corrections before choosing repair or removal. Ask whether to repair or remove only when that intent remains genuinely ambiguous. Once the intended contract is established, repair its enforcement rather than deleting the construct merely to clear a diagnostic. Remove genuinely obsolete code when its retirement is established; do not ask a question solely because the code is ineffective.
 
 For example, Ruby `private` before `def self.…` does not make those singleton methods private. If the accepted intent is private class helpers, `private_class_method` for the relevant methods or visibility inside a singleton-class body are contextual repair options, not a universal rewrite. Check the actual helper callers and preserve the intended public entrypoints; an existing external caller may reveal a contract conflict to resolve, not permission to silently discard accepted privacy.
