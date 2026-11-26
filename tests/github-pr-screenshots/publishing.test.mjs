@@ -20,30 +20,47 @@ const SUBMITTED = `${BASELINE}\n${MARKER}\nQA evidence\n`
 const run = promisify(execFile)
 const command = fileURLToPath(new URL("../../bin/github-pr-screenshots", import.meta.url))
 
-test("body hashes ignore CRLF but not changes to unrelated Markdown", () => {
-  const original = markdownHash("## Context\r\nOne  \r\n")
+test("when only line endings differ, hashes match without trimming other Markdown", () => {
+  // Arrange
+  const windowsMarkdown = "## Context\r\nOne  \r\n"
+  const unixMarkdown = "## Context\nOne  \n"
+  const trimmedMarkdown = "## Context\nOne\n"
 
-  assert.equal(original, markdownHash("## Context\nOne  \n"))
-  assert.notEqual(original, markdownHash("## Context\nOne\n"))
+  // Act
+  const windowsHash = markdownHash(windowsMarkdown)
+  const unixHash = markdownHash(unixMarkdown)
+  const trimmedHash = markdownHash(trimmedMarkdown)
+
+  // Assert
+  assert.equal(windowsHash, unixHash)
+  assert.notEqual(windowsHash, trimmedHash)
 })
 
-test("refuses to save after an edit and revert even when the body hash is unchanged", () => {
+test("when an edit is reverted to the same body, still refuses to save", () => {
+  // Arrange
   const before = screenshotBodyVersion(observation(BASELINE, [edit("baseline", BASELINE)]))
   const current = observation(BASELINE, [edit("reverted", BASELINE), edit("baseline", BASELINE)])
 
+  // Act / Assert
   assert.throws(() => requireFreshScreenshotBody(current, before), /edit revision changed/u)
 })
 
-test("verifies our exact saved recent revision and its baseline", () => {
+test("when history contains only our saved edit after the baseline, verifies the save", () => {
+  // Arrange
   const before = screenshotBodyVersion(observation(BASELINE, [edit("baseline", BASELINE)]))
   const after = observation(SUBMITTED, [edit("ours", SUBMITTED), edit("baseline", BASELINE)])
 
-  assert.deepEqual(auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER), {
+  // Act
+  const audit = auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER)
+
+  // Assert
+  assert.deepEqual(audit, {
     status: "verified",
   })
 })
 
-test("locates a single intervening append while preserving every original Markdown byte", () => {
+test("when one intervening edit only appends text, identifies it for repair", () => {
+  // Arrange
   const before = screenshotBodyVersion(observation(BASELINE, [edit("baseline", BASELINE)]))
   const independentBody = `${BASELINE}\nExtra reviewer note.\n`
   const after = observation(SUBMITTED, [
@@ -52,14 +69,19 @@ test("locates a single intervening append while preserving every original Markdo
     edit("baseline", BASELINE),
   ])
 
-  assert.deepEqual(auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER), {
+  // Act
+  const audit = auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER)
+
+  // Assert
+  assert.deepEqual(audit, {
     status: "repairable",
     intervening:
       "## Context\nExisting ![old](https://github.com/user-attachments/assets/old-id)\n\nExtra reviewer note.\n",
   })
 })
 
-test("does not treat an intervening redacted revision as a clean save", () => {
+test("when an intervening revision is redacted, reports an ambiguous save", () => {
+  // Arrange
   const before = screenshotBodyVersion(observation(BASELINE, [edit("baseline", BASELINE)]))
   const after = observation(SUBMITTED, [
     edit("ours", SUBMITTED),
@@ -67,12 +89,17 @@ test("does not treat an intervening redacted revision as a clean save", () => {
     edit("baseline", BASELINE),
   ])
 
-  assert.deepEqual(auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER), {
+  // Act
+  const audit = auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER)
+
+  // Assert
+  assert.deepEqual(audit, {
     status: "ambiguous",
   })
 })
 
-test("does not overwrite a later peer edit when our saved revision is present but no longer current", () => {
+test("when a peer edits the body after our save, reports an ambiguous save", () => {
+  // Arrange
   const before = screenshotBodyVersion(observation(BASELINE, [edit("baseline", BASELINE)]))
   const current = `${SUBMITTED}\nPeer change after the save.\n`
   const after = observation(current, [
@@ -81,21 +108,28 @@ test("does not overwrite a later peer edit when our saved revision is present bu
     edit("baseline", BASELINE),
   ])
 
-  assert.deepEqual(auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER), {
+  // Act
+  const audit = auditScreenshotHistory(after, before, markdownHash(SUBMITTED), MARKER)
+
+  // Assert
+  assert.deepEqual(audit, {
     status: "ambiguous",
   })
 })
 
-test("rejects an unrecognized history representation before publication", () => {
+test("when history is not a complete body snapshot, rejects it before publication", () => {
+  // Arrange
   const pr = observation(BASELINE, [edit("opaque", "@@ -1 +1 @@\n- old\n+ new")])
 
+  // Act / Assert
   assert.throws(
     () => screenshotBodyVersion(pr),
     /does not expose the current complete body revision/u
   )
 })
 
-test("shows the exact ordered capture plan without creating local browser state", async (t) => {
+test("when previewing two captures, prints them in order without browser state", async (t) => {
+  // Arrange
   const directory = await mkdtemp(join(tmpdir(), "screenshot-preview-test-"))
   t.after(() => rm(directory, { recursive: true, force: true }))
   const manifest = join(directory, "screenshots.json")
@@ -113,6 +147,7 @@ test("shows the exact ordered capture plan without creating local browser state"
   )
   const profileRoot = join(directory, "unused-profile")
 
+  // Act
   const { stdout } = await run(process.execPath, [
     command,
     "preview",
@@ -122,6 +157,7 @@ test("shows the exact ordered capture plan without creating local browser state"
     profileRoot,
   ])
 
+  // Assert
   assert.deepEqual(JSON.parse(stdout), {
     prUrl: "https://github.com/example/project/pull/173",
     screenshots: [
@@ -140,7 +176,8 @@ test("shows the exact ordered capture plan without creating local browser state"
   await assert.rejects(access(profileRoot), { code: "ENOENT" })
 })
 
-test("refuses non-interactive publication before creating an owned profile", async (t) => {
+test("when publish cannot prompt for consent, fails without starting a browser", async (t) => {
+  // Arrange
   const directory = await mkdtemp(join(tmpdir(), "screenshot-consent-test-"))
   t.after(() => rm(directory, { recursive: true, force: true }))
   const manifest = join(directory, "screenshots.json")
@@ -154,17 +191,18 @@ test("refuses non-interactive publication before creating an owned profile", asy
     })
   )
 
-  await assert.rejects(
-    run(process.execPath, [
-      command,
-      "publish",
-      "--manifest",
-      manifest,
-      "--profile-root",
-      profileRoot,
-    ]),
-    /interactive terminal to confirm/u
-  )
+  // Act
+  const publication = run(process.execPath, [
+    command,
+    "publish",
+    "--manifest",
+    manifest,
+    "--profile-root",
+    profileRoot,
+  ])
+
+  // Assert
+  await assert.rejects(publication, /interactive terminal to confirm/u)
   await assert.rejects(access(profileRoot), { code: "ENOENT" })
 })
 
