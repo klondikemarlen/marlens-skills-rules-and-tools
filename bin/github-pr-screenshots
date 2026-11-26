@@ -1,0 +1,90 @@
+#!/usr/bin/env node
+import { createInterface } from "node:readline/promises"
+import { parseArgs } from "node:util"
+
+import githubPrScreenshots from "../lib/github-pr-screenshots.mjs"
+
+const usage = `Usage: github-pr-screenshots <preview|publish|resume|revoke> --manifest FILE
+       [--binding /path/to/puppeteer-core/package.json] [--firefox PATH]
+       [--profile-root /absolute/private/directory]
+
+Manifest: {"prUrl":"https://github.com/OWNER/REPO/pull/123",
+  "screenshots":[{"filePath":"./capture.png","caption":"Before","route":"/app"}]}
+
+Firefox publication is best-effort, not an atomic GitHub edit. Every publish or
+resume previews the exact target and ordered files before it asks you to proceed.
+Sign-in is manual when required. Revoke removes only the managed login profile.
+`
+
+try {
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      manifest: { type: "string" },
+      binding: { type: "string" },
+      firefox: { type: "string" },
+      "profile-root": { type: "string" },
+      help: { type: "boolean", short: "h" },
+    },
+  })
+  if (values.help) {
+    process.stdout.write(usage)
+  } else {
+    const [action] = positionals
+    if (
+      positionals.length !== 1 ||
+      !["preview", "publish", "resume", "revoke"].includes(action) ||
+      !values.manifest
+    ) {
+      throw new Error(usage)
+    }
+
+    const result = await githubPrScreenshots(
+      action,
+      {
+        ...values,
+        profileRoot: values["profile-root"],
+        showPreview(preview) {
+          const output = action === "preview" ? process.stdout : process.stderr
+          output.write(`${JSON.stringify(preview, null, 2)}\n`)
+        },
+      },
+      confirm
+    )
+    if (action !== "preview") {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+    }
+    if (result.status === "cancelled") process.exitCode = 1
+  }
+} catch (error) {
+  const message =
+    error?.code && !error.code.startsWith("ERR_PARSE_ARGS")
+      ? "Local publishing state is unavailable. Inspect the private profile root and receipt permissions."
+      : error.message
+  process.stderr.write(`${message}\n`)
+  process.exitCode = 1
+}
+
+async function confirm(message) {
+  if (!process.stdin.isTTY || !process.stderr.isTTY) {
+    throw new Error(
+      "Run this action in an interactive terminal to confirm the exact GitHub target and any manual sign-in."
+    )
+  }
+
+  const terminal = createInterface({ input: process.stdin, output: process.stderr })
+  const cancellation = new AbortController()
+  terminal.once("close", () => cancellation.abort())
+  terminal.once("SIGINT", () => terminal.close())
+  try {
+    const answer = await terminal.question(`${message} Type yes to continue: `, {
+      signal: cancellation.signal,
+    })
+    return answer.trim().toLowerCase() === "yes"
+  } catch (error) {
+    if (!cancellation.signal.aborted) throw error
+    return false
+  } finally {
+    terminal.close()
+  }
+}
