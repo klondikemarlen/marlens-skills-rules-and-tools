@@ -6,7 +6,7 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
-## [5.20.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1648) - 2026-11-25
+## [5.20.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1648) - 2026-11-26
 
 ### Changed
 
