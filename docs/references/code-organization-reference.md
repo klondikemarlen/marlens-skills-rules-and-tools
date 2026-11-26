@@ -26,12 +26,39 @@ Human readability is an ordinary engineering standard, not an optional cleanup p
 The [Zen of Python](https://peps.python.org/pep-0020/) informs explicit, simple, readable choices; the [Rails Doctrine](https://rubyonrails.org/doctrine/) informs useful conventions and cohesive integrated systems. Apply their intent pragmatically, not as permission to impose Python syntax, Rails architecture, or abstraction for its own sake on another project.
 
 - Choose explanatory function and variable names that reveal domain purpose and effects, not vague mechanisms or unnecessary abbreviations.
+- When binding a newly constructed named domain error, prefer the full error name in the language's local identifier style. `sharePointFolderCopyError` keeps the provider and resource visible where the value is logged or thrown; `copyError` does not. Use the same name in analogous changed branches and test setup. An unclassified catch binding or a cause passed through unchanged can still be `error` or `cause`; do not introduce a same-value alias just to rename it. See the [worked remote copy flow](../../examples/scoped-readability-review.md#remote-copy-failure-ownership).
 - Keep responsibilities cohesive and related steps together. Make dependencies, state ownership, side effects, and failure paths visible.
 - Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction. For optional inputs whose absence selects a return or fallback, follow [input-object guards](#guard-clauses-and-exceptional-responses) before deriving property locals.
 - Use consistent formatting and blank lines to separate meaningful logical steps; follow [Whitespace Matters](../../rules/whitespace-matters.md).
 - Extract helpers when a meaningful name and boundary clarify an operation or remove real duplication. Do not lower cyclomatic complexity merely by scattering decisions across trivial helpers or adding layers.
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
 - Avoid repeating generic extraction history or assurances that licensing and attribution were preserved in source headers; use the repository's standard license and central attribution material for general provenance. Retain concise per-file notices required by the applicable license and useful technical rationale. Apply an accepted correction to analogous headers within the authored or requested review scope, not a repository-wide sweep. Uncertainty about license choice does not authorize changing licenses or removing required notices; leave unclear obligations intact pending clarification.
+
+When a `for` loop follows another statement in the same block, normally leave one blank line before it. This makes distinct steps visible, such as [running a batch of copies and then inspecting the results](https://github.com/icefoganalytics/wrap/pull/918/commits/c80668caa9):
+
+```typescript
+async function copyDocuments(documents: Document[]) {
+  const copyResults = await Promise.allSettled(documents.map(copyDocument))
+
+  for (const result of copyResults) {
+    recordCopyResult(result)
+  }
+}
+```
+
+When the loop is the first statement of a method or nested block, start it immediately after the opening brace, even when more work follows the loop:
+
+```typescript
+function recordCopyResults(copyResults: PromiseSettledResult<void>[]) {
+  for (const result of copyResults) {
+    recordCopyResult(result)
+  }
+
+  updateCopySummary()
+}
+```
+
+Apply this as a readability default in code being edited, not a lint requirement or a reason to reformat unrelated code.
 
 Lint cleanup and refactoring must distinguish current behavior from the intended contract. An ineffective declaration, guard, or configuration can still express a purpose; no current runtime effect is not evidence that it is obsolete. Inspect surrounding code, callers, relevant documentation, tests, and accepted maintainer corrections before choosing repair or removal. Ask whether to repair or remove only when that intent remains genuinely ambiguous. Once the intended contract is established, repair its enforcement rather than deleting the construct merely to clear a diagnostic. Remove genuinely obsolete code when its retirement is established; do not ask a question solely because the code is ineffective.
 
@@ -127,6 +154,8 @@ function buildPreview(rows: Row[], container: Container, isVisible: boolean) {
 The calls still run only for a visible preview, in the original order, and the returned object contains the exact computed values. A function body defined inside an object or array remains deferred: extract a call inside that body at invocation time, never into construction-time setup. For native test factories, apply the same rule within each scenario's Arrange scope; factory API and association choices remain owned by [Scenario-Oriented Verification](#scenario-oriented-verification).
 
 For a meaningful computed result consumed by another nested call, also prefer a descriptive local when it makes the processing step inspectable and gives a useful debugger breakpoint. Preserve short-circuit execution and avoid trivial aliases or wrappers; the general construction rule above does not make every other nested expression a violation.
+
+Let the reader see where a value comes from. In a log context, `sourceSharePointFolderId: sourceSharePointFolder.id` distinguishes the source from the destination at the point of use. Introducing `const sourceSharePointFolderId = sourceSharePointFolder.id` just to use object shorthand makes the reader look elsewhere without explaining anything new. Keep a local when its name explains a decision or when taking a snapshot before a mutation matters.
 
 Resolve fallback expressions into descriptive `const` bindings before assembling an object or array, then use property shorthand where names match:
 
@@ -2333,6 +2362,14 @@ Protected work should expose its ownership through an intention-revealing `With.
 
 ## Error Ownership and Local Recovery
 
+### Operation-Specific Handlers and Follow-Up Work
+
+Keep a `try` limited to the operation or cohesive steps whose failures its handler owns. The `catch` can report, translate, or propagate those failures. Put separate fallible follow-up work in the owning orchestration flow, outside that operation-specific handler. Give follow-up work a separate narrow handler only if it needs its own recovery or translation; otherwise let its failure propagate unchanged. This is not one `try` per `await`.
+
+When the orchestration owns propagation and a shared helper only does bookkeeping, have the helper record the failure, not throw it on the caller's behalf. Await the record step when completion matters, then explicitly throw the selected error at the decision point. Preserve which error reaches the caller: if recording succeeds, throw the selected original failure; if the existing contract lets a failed write reject unchanged, do not relabel that database rejection or blanket-catch it to force the original error through. Ordinary returned promises and helpers or framework boundaries that genuinely own termination keep their existing contracts.
+
+Independent follow-up is not cleanup, rollback, or intentional local recovery. Keep those at the boundary that owns the resource or recovery, with an explicit contract for any secondary failure. Preserve `finally` cleanup on all applicable paths; do not let fallible cleanup replace an earlier failure by accident. The [worked remote copy flow](../../examples/scoped-readability-review.md#remote-copy-failure-ownership) contrasts a broad `try` and a hidden throw with a narrow remote handler, explicit propagation after status recording, real local recovery, and cleanup.
+
 ### Input Diagnostics at the Owning Boundary
 
 Describe missing or invalid caller-supplied values using the receiving function's input contract, regardless of where the caller obtained them. Name a concrete configuration key only at the existing boundary that reads or maps it. Use that key and the expected format to guide operators without echoing the supplied value.
@@ -2344,7 +2381,11 @@ Do not move validation, duplicate checks, or introduce a wrapper just to change 
 
 ### Internal Errors, Public Messages, and Logs
 
-Keep the original cause and relevant diagnostic context available for authorized debugging through the existing error path. At the existing public boundary, map the failure to an informative, operation-specific message that is safe for the audience. Apply this both to immediate responses from a controller or error middleware and to job status or other persisted messages that will be shown to users. Expose only deliberately public fields; do not serialize the internal error or copy its message, stack, or cause into the public result. Preserve the existing classification, HTTP status, job failure and retry behavior, and disclosure restrictions. No new hierarchy or global handler is required.
+Keep the original cause and relevant diagnostic context available for authorized debugging through the existing error path. At the existing public boundary, select an informative, operation-specific message safe for the audience. Apply this both to immediate HTTP responses and to job status or other messages persisted for display. Expose only deliberately public fields; do not serialize the error or expose arbitrary exception messages, stacks, or causes. Preserve the existing classification, HTTP status, job failure and retry behavior, and disclosure restrictions. No new hierarchy or global handler is required.
+
+Once the boundary identifies a trusted error type with an explicit public message contract, use that message unchanged. Its type and construction contract establish what may be disclosed; a second registry of approved wording neither establishes provenance nor survives ordinary copy edits. This also applies when the type deliberately defines `message` itself as public. For unrecognized exceptions, select the boundary's existing safe fallback rather than exposing `Error.message`.
+
+Establish the same distinction when writing a message for later display. Use an existing public-only field or another storage contract that distinguishes deliberately public text from diagnostics and legacy values of unknown provenance. Only writers that select public text may populate that public path. Readers use the proven public value unchanged and use the safe fallback for a failed record without one, even when its legacy text happens to equal current public wording. Do not promote mixed historical values by matching English strings. This does not prescribe a field name, schema, or migration strategy. See the [public error message exercise](../../examples/scoped-readability-review.md#public-error-message-provenance).
 
 For validation and conflicts shown to end users, explain what happened in terms of their action or the product rule. Name the state when it changes the outcome or next step, and tell users how to recover when the product offers a way forward.
 
@@ -2514,6 +2555,29 @@ When an owning layer has a family of custom error types, group its shared local 
 In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. When this catch owns reporting, name the failed operation and include useful, permitted structured diagnostics under [Internal Errors, Public Messages, and Logs](#internal-errors-public-messages-and-logs). Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
+
+### Simple TypeScript Error Tuples
+
+When handling success and failure as ordinary values makes a TypeScript call site clearer, Marlen's preferred lightweight option is [`@maxmorozoff/try-catch-tuple`](https://github.com/maxmorozoff/try-catch-tuple). Mention it when asked or when it fits the code. Keep the project's existing conventions and ordinary `try/catch` where they read better; this preference does not call for installing the package, migrating existing code, or using its optional compiler/editor plugin.
+
+```typescript
+import { tryCatch } from "@maxmorozoff/try-catch-tuple"
+
+async function openUser(id: string) {
+  const [user, error] = await tryCatch.async(() => loadUser(id))
+  if (error instanceof UserNotFoundError) {
+    return showUserNotFound()
+  }
+
+  if (error !== null) {
+    throw error
+  }
+
+  return showUser(user)
+}
+```
+
+The helper returns `[data, null]` on success and `[null, error]` on failure, so check the error slot before using the data; a successful result can itself be `null` or otherwise falsy. This example recovers only from an expected error and leaves other failures to the existing boundary. Without the optional operation name, the helper preserves an existing `Error` instance but wraps non-`Error` rejections in an `Error` with the original value as `cause`. Keep `try/catch` if callers rely on the raw rejection, or if it better expresses existing cleanup or failure propagation.
 
 ### Detached Operation Failure Forwarding
 
@@ -3417,9 +3481,23 @@ For a combined null-or-undefined absence check, prefer the existing `isNil(value
 
 Likewise, replace `bookingEvent === null` with `isNil(bookingEvent)` when the missing-record contract treats both null and undefined as absence and the predicate is already available. Keep `bookingEvent === null` when undefined means something different, such as an omitted update; keep undefined-only checks narrow. Do not broaden a contract merely to use the preferred predicate.
 
-For request-input type guards in controllers and admission middleware, prefer the established named Lodash predicate when Lodash is already available and the check accepts the same values the boundary can actually receive. For example, `isString(recordLocator)` can narrow a controller query value before forwarding it unchanged to the service. Preserve the existing rejection or fallback path. Inspect the actual producers, sibling guards, and predicate semantics: Lodash `isString` accepts boxed strings as well as primitives, unlike `typeof value === "string"`. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
+For type guards on request inputs or supplied attributes, prefer the project's established named predicate in controllers, admission middleware, and service input validation when it clarifies the check and accepts the same values the boundary can actually receive. For example, `isString(recordLocator)` can narrow a controller query value before forwarding it unchanged to the service. Preserve the existing rejection or fallback path. Inspect actual producers, sibling guards, and predicate semantics: Lodash `isString` also accepts boxed strings. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
 
 A string predicate does not establish nonblankness. Where the input must be nonblank, test blankness separately after narrowing; if trimming is only for that test, pass the original value onward. See the [Express admission example](../templates/backend/express-light-rail/controller-template.md#protected-request-admission) for a required identity that must be rejected rather than defaulted.
+
+For example, a service validating an optional `requireAllPlayers` attribute from a JSON request can use the project's existing Lodash predicates. In this contract, an absent or `undefined` value is allowed, `null` is rejected, and both boolean values are valid:
+
+```js
+function validateRequireAllPlayers(requireAllPlayers) {
+  if (isUndefined(requireAllPlayers)) return
+
+  if (!isBoolean(requireAllPlayers)) {
+    throw new Error("requireAllPlayers must be a boolean")
+  }
+}
+```
+
+The service can pass the original value onward, including `false`. A truthiness guard would skip `false` and other falsey values, and `isNil` would also skip `null`; neither expresses this contract. Lodash `isBoolean` accepts boxed booleans such as `new Boolean(false)`, which JSON cannot represent. Check all supported callers, including direct service calls. If a boxed value can reach a boundary that intentionally accepts only primitive booleans, retain `typeof requireAllPlayers !== "boolean"` for the rejection check and keep the optionality guard unchanged.
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
 

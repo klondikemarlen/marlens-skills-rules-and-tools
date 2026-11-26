@@ -37,6 +37,40 @@ Apply the canonical implementation-file policy above by identifying one primary 
 
 Reject a touched implementation that accumulates independent owners behind private helpers or hidden state just as you would an incoherent new boundary. Passing function/file-size checks, adding a barrel, or dividing the same coupling into `part-one`/`helpers` files does not resolve that failure. Explain the concrete independent change axes, coupled effects, or state-lifetime risk; size alone is not evidence. See [Cohesive Module Review](../../examples/cohesive-module-review.md) for contrasting layouts and a pinned consumer assessment.
 
+### Single-Item Lookup Results
+
+Name a lookup for the operation its caller needs and return that operation's result directly. A lookup for eligible users of one workflow step takes that step's ID and returns its list, including the agreed empty list when the query succeeds without matches. Do not require a single-item caller to make a one-element batch, read back its own key, and apply the shared no-match default.
+
+Before, the caller handles the batch result shape:
+
+```js
+const eligibleUsersByStep = await listEligibleUsersByStep([stepId])
+const eligibleUsers = eligibleUsersByStep.get(stepId) ?? []
+```
+
+After, the caller receives the promised list:
+
+```js
+const eligibleUsers = await listEligibleUsersForStep(stepId)
+```
+
+The single-item lookup can adapt an existing batch lookup without duplicating its query or eligibility rules. In this example the batch lookup returns a `Map` of step IDs to lists and omits keys with no matches:
+
+```js
+async function listEligibleUsersForStep(stepId) {
+  const eligibleUsersByStep = await listEligibleUsersByStep([stepId])
+  return eligibleUsersByStep.get(stepId) ?? []
+}
+```
+
+The empty list is a successful result, not a recovery path for a rejected query. Keep rejections visible to the existing failure owner. Genuine batch consumers can still call `listEligibleUsersByStep(stepIds)` and use the keyed result; there is no need to wrap every batch API or replace one batch query with a call per item.
+
+Caller-specific filtering is still useful after the lookup. For example, a picker can hide users already selected in that picker without redefining step eligibility:
+
+```js
+const selectableUsers = eligibleUsers.filter((user) => !selectedUserIds.has(user.id))
+```
+
 ### Semantic Module-Boundary Review
 
 Module-boundary alignment is semantic review, not a size or count check. The package supplies its policy through the `marlens-rules:module-boundary-alignment` agentic verification contract in `package.json` and `verifications/module-boundary-alignment.json`. This reference's Module Decomposition guidance and the Code Organization Reference's [Review Structure](code-organization-reference.md#review-structure-not-metrics), [Service Orchestration](code-organization-reference.md#service-orchestration-readability), and [Pattern Fit and Non-Fit](code-organization-reference.md#pattern-fit-and-non-fit) guidance remain authoritative. The contract asks the existing verifier model to assess ownership within touched implementations as well as changed or introduced boundaries. An unchanged export list is not an exemption. It does not make every extraction suspect: retain short modules when they own a meaningful invariant, domain action, volatile dependency, independent change axis, or genuinely reusable behavior.
