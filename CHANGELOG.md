@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1668) - 2026-11-26
+
+### Changed
+
+- Use the history of touched lines to distinguish a prior deliberate correction from a new readability suggestion.
+
 ## [5.20.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1667) - 2026-11-26
 
 ### Changed
