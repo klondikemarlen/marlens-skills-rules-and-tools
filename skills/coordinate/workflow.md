@@ -25,6 +25,7 @@ Use when useful work is already owned by another independently running OMP sessi
 4. **Prepare a bounded message.** Include the goal, recipient's existing ownership, relevant context, requested result/proof, and non-goals. When a reply is needed, state an explicit verified reply destination and scope; the recipient must discover that current destination before replying. Do not assume the source session's `local://` artifacts are accessible to another session. Include the needed safe excerpt or an ordinary accessible path whose contents, permissions, and scope have been verified; do not export secrets or whole transcripts by default.
 
    For a durable handoff, use ordinary `send` with the issue link, a suggested priority and its reason, and a request to pick it up when ready. The suggestion does not set tracker priority or assign the issue, and neither filing nor messaging authorizes implementation. Leave scheduling and ownership with the receiving project.
+
 5. **Send once through the supported surface.** Preserve the selected discovery scope and put profile/output options before the target. Bash takes one literal MESSAGE argv: quote it and escape embedded shell syntax correctly, without evaluating message contents. The slash command takes the raw tail after ID; shell quotes are literal text there. Use the actual selected ID in place of `ID`:
 
    ```bash
@@ -47,14 +48,14 @@ Use when useful work is already owned by another independently running OMP sessi
 
 ## Representative Decisions
 
-| Situation | Decision |
-| --- | --- |
-| Tiny solo change | Work inline; no peer discovery ritual. |
-| Non-urgent work for a busy peer | Reuse a covering issue or file one with authorization, then `send` to the verified owner. |
-| Useful context with no requested action | Send an FYI if helpful; do not create a ticket. |
-| Deliberate correction to active approach | `steer`, within existing task and communication authority; don't wait on filing. |
-| Unavailable, ambiguous, unauthorized, or old target | Do not guess, upgrade, restart, or silently choose another session. |
-| Submitted request, no reply yet | Report only API handoff; do not claim completion or automatically retry. |
+| Situation                                           | Decision                                                                                  |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Tiny solo change                                    | Work inline; no peer discovery ritual.                                                    |
+| Non-urgent work for a busy peer                     | Reuse a covering issue or file one with authorization, then `send` to the verified owner. |
+| Useful context with no requested action             | Send an FYI if helpful; do not create a ticket.                                           |
+| Deliberate correction to active approach            | `steer`, within existing task and communication authority; don't wait on filing.          |
+| Unavailable, ambiguous, unauthorized, or old target | Do not guess, upgrade, restart, or silently choose another session.                       |
+| Submitted request, no reply yet                     | Report only API handoff; do not claim completion or automatically retry.                  |
 
 ### Worked Example
 
