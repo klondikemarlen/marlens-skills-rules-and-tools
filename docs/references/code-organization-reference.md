@@ -128,6 +128,8 @@ The calls still run only for a visible preview, in the original order, and the r
 
 For a meaningful computed result consumed by another nested call, also prefer a descriptive local when it makes the processing step inspectable and gives a useful debugger breakpoint. Preserve short-circuit execution and avoid trivial aliases or wrappers; the general construction rule above does not make every other nested expression a violation.
 
+Let the reader see where a value comes from. In a log context, `sourceSharePointFolderId: sourceSharePointFolder.id` distinguishes the source from the destination at the point of use. Introducing `const sourceSharePointFolderId = sourceSharePointFolder.id` just to use object shorthand makes the reader look elsewhere without explaining anything new. Keep a local when its name explains a decision or when taking a snapshot before a mutation matters.
+
 Resolve fallback expressions into descriptive `const` bindings before assembling an object or array, then use property shorthand where names match:
 
 ```typescript
@@ -2506,6 +2508,29 @@ When an owning layer has a family of custom error types, group its shared local 
 In a local catch, consume only positively recognized categories the operation actually handles. Rethrow the rest if the caller or framework owns the rejection; otherwise apply the [detached-operation boundary](#detached-operation-failure-forwarding) when the operation itself owns forwarding. Do not enumerate exceptional errors to escape an otherwise catch-all toast. Keep `finally` cleanup on every path. When this catch owns reporting, name the failed operation and include useful, permitted structured diagnostics under [Internal Errors, Public Messages, and Logs](#internal-errors-public-messages-and-logs). Apply accepted corrections to equivalent touched catches, not unrelated code.
 
 For reducing duplicate background-job events while preserving useful permitted payloads, follow [Background Job Diagnostics](engineering-techniques-reference.md#background-job-diagnostics).
+
+### Simple TypeScript Error Tuples
+
+When handling success and failure as ordinary values makes a TypeScript call site clearer, Marlen's preferred lightweight option is [`@maxmorozoff/try-catch-tuple`](https://github.com/maxmorozoff/try-catch-tuple). Mention it when asked or when it fits the code. Keep the project's existing conventions and ordinary `try/catch` where they read better; this preference does not call for installing the package, migrating existing code, or using its optional compiler/editor plugin.
+
+```typescript
+import { tryCatch } from "@maxmorozoff/try-catch-tuple"
+
+async function openUser(id: string) {
+  const [user, error] = await tryCatch.async(() => loadUser(id))
+  if (error instanceof UserNotFoundError) {
+    return showUserNotFound()
+  }
+
+  if (error !== null) {
+    throw error
+  }
+
+  return showUser(user)
+}
+```
+
+The helper returns `[data, null]` on success and `[null, error]` on failure, so check the error slot before using the data; a successful result can itself be `null` or otherwise falsy. This example recovers only from an expected error and leaves other failures to the existing boundary. Without the optional operation name, the helper preserves an existing `Error` instance but wraps non-`Error` rejections in an `Error` with the original value as `cause`. Keep `try/catch` if callers rely on the raw rejection, or if it better expresses existing cleanup or failure propagation.
 
 ### Detached Operation Failure Forwarding
 
