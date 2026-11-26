@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1672) - 2026-11-26
+
+### Changed
+
+- Moving input validation into a service should not silently change the accepted values.
+
 ## [5.20.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1671) - 2026-11-26
 
 ### Changed
