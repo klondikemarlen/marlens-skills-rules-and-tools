@@ -1945,9 +1945,7 @@ expect(records).toEqual([
 ])
 ```
 
-Here ownership and draft status are relevant unchanged state. For multiple unordered records, use the project's supported exact unordered collection/model matcher; do not normalize SQL order or use a subset matcher that misses extra rows.
-
-Do not add database or JavaScript sorting solely to normalize assertion collections. When an observed collection has an established operation-order contract, keep literal expected entries in that order so side-effect sequence remains visible. Retain explicit ordering when ordering itself is the behavior under test. If retrieval order is not guaranteed, assert the real unordered contract with supported project matchers or observe an actually ordered operation when sequence matters; do not infer side-effect order from unordered SQL retrieval.
+Here ownership and draft status are relevant unchanged state. For multi-record persistence assertions, follow [Fixture Creation Order and Application Order](test-alignment-verifier-reference.md#fixture-creation-order-and-application-order) to distinguish incidental retrieval order from an order the operation promises. Keep literal expected entries in the established operation order when it is part of the behavior. Do not infer side-effect order from an unordered persistence read.
 
 ### Structured Controller Query Inputs
 
