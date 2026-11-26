@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1662) - 2026-11-26
+
+### Changed
+
+- Lint changed files through the project wrapper for source-only edits; widen the check for shared inputs or mandatory project policy.
+
 ## [5.20.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1655) - 2026-11-26
 
 ### Changed
