@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.22.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1685) - 2026-11-26
+
+### Added
+
+- See what a release changes and open its pull request from the privilege preview without approving the pending command.
+
 ## [5.21.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1682) - 2026-11-26
 
 ### Changed
