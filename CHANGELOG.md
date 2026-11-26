@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1667) - 2026-11-26
+
+### Changed
+
+- TypeScript callers can use a lightweight tuple when it clarifies local recovery, without adopting it as a dependency policy.
+
 ## [5.20.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1662) - 2026-11-26
 
 ### Changed
