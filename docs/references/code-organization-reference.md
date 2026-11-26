@@ -3409,9 +3409,23 @@ For a combined null-or-undefined absence check, prefer the existing `isNil(value
 
 Likewise, replace `bookingEvent === null` with `isNil(bookingEvent)` when the missing-record contract treats both null and undefined as absence and the predicate is already available. Keep `bookingEvent === null` when undefined means something different, such as an omitted update; keep undefined-only checks narrow. Do not broaden a contract merely to use the preferred predicate.
 
-For request-input type guards in controllers and admission middleware, prefer the established named Lodash predicate when Lodash is already available and the check accepts the same values the boundary can actually receive. For example, `isString(recordLocator)` can narrow a controller query value before forwarding it unchanged to the service. Preserve the existing rejection or fallback path. Inspect the actual producers, sibling guards, and predicate semantics: Lodash `isString` accepts boxed strings as well as primitives, unlike `typeof value === "string"`. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
+For type guards on request inputs or supplied attributes, prefer the project's established named predicate in controllers, admission middleware, and service input validation when it clarifies the check and accepts the same values the boundary can actually receive. For example, `isString(recordLocator)` can narrow a controller query value before forwarding it unchanged to the service. Preserve the existing rejection or fallback path. Inspect actual producers, sibling guards, and predicate semantics: Lodash `isString` also accepts boxed strings. Preserve deliberate primitive-only contracts and safe `typeof` checks for possibly undeclared bindings. Do not add dependencies, broaden accepted inputs, or replace unrelated `typeof` expressions merely for style.
 
 A string predicate does not establish nonblankness. Where the input must be nonblank, test blankness separately after narrowing; if trimming is only for that test, pass the original value onward. See the [Express admission example](../templates/backend/express-light-rail/controller-template.md#protected-request-admission) for a required identity that must be rejected rather than defaulted.
+
+For example, a service validating an optional `requireAllPlayers` attribute from a JSON request can use the project's existing Lodash predicates. In this contract, an absent or `undefined` value is allowed, `null` is rejected, and both boolean values are valid:
+
+```js
+function validateRequireAllPlayers(requireAllPlayers) {
+  if (isUndefined(requireAllPlayers)) return
+
+  if (!isBoolean(requireAllPlayers)) {
+    throw new Error("requireAllPlayers must be a boolean")
+  }
+}
+```
+
+The service can pass the original value onward, including `false`. A truthiness guard would skip `false` and other falsey values, and `isNil` would also skip `null`; neither expresses this contract. Lodash `isBoolean` accepts boxed booleans such as `new Boolean(false)`, which JSON cannot represent. Check all supported callers, including direct service calls. If a boxed value can reach a boundary that intentionally accepts only primitive booleans, retain `typeof requireAllPlayers !== "boolean"` for the rejection check and keep the optionality guard unchanged.
 
 Prefer `isEmpty(value)` or `!isEmpty(value)` over a length comparison used solely to test emptiness when the semantics are equivalent. Follow the project's existing import conventions; do not add a dependency just for this preference. Keep `.length` for counts or indexing, and preserve distinctions such as an absent/undefined value versus an empty collection.
 
