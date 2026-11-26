@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.21.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1682) - 2026-11-26
+
+### Changed
+
+- Distinguish throwing assertion services and private guards from model validation and result-producing operations, and keep each property of an explicit test scenario record on its own line.
+
 ## [5.21.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1675) - 2026-11-26
 
 ### Changed
