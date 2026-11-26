@@ -1,6 +1,10 @@
 # Autonomous Merge Workflow
 
+## Intent
+
 Use this final merge stage for one existing PR in an already-authorized delivery. [Feature](../feature/workflow.md) owns delivery; Evolve delegates its merge through Feature. Do not select this route for an explicit `review-and-merge` invocation, a readiness question, or a no-merge request.
+
+## Process
 
 1. Resolve the identified PR and confirm the active delivery already authorizes merging it. Use the project-local contribution, review, and release requirements. A ticket, a clean review, green CI, or this skill invocation alone grants no merge authority.
 2. Apply the [shared verified merge procedure](../../docs/workflows/verified-merge-workflow.md). Reuse evidence from the delivery lifecycle that still applies; perform missing required checks and refresh the affected review and verification after corrections. Request Codex or another named reviewer when the project or active request requires it, not merely because the operator command does.

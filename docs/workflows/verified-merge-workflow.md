@@ -1,6 +1,10 @@
 # Verified Merge Workflow
 
+## Intent
+
 Shared procedure for [Autonomous Merge](autonomous-merge-workflow.md) and operator [Review and Merge](review-and-merge-workflow.md). The caller owns selection, authority, and the decision to hand back or proceed; this procedure defines the evidence and pinned merge operation. It is not a command or a grant of authority.
+
+## Process
 
 1. **Identify the open target.** Resolve the host, target repository, PR number, base branch and SHA, and head repository, branch, and SHA. Confirm draft state, accepted scope, the applicable project and host requirements, and authority for the intended operation. A closed, retargeted, ambiguous, or unavailable PR is not eligible. Before starting, retrying, or resuming automatic review, confirm live eligibility for those revisions and use the owning checkout. Review-only work needs no checkout mutation. Before fixes, reuse the registered PR-head worktree and apply the [PR workflow](../../skills/pr/SKILL.md) draft-state gate.
 2. **Obtain applicable review and verification.** Follow [Code Review](../../skills/code-review/SKILL.md) against the actual base and scope. Require initial complete-PR self-review, applicable checks and QA, and any named reviews required by the request or project. When Codex review is required, follow [Requested Codex Reviews](../references/github-tooling-reference.md#requested-codex-reviews), including eligibility, exact request, acknowledgement, bounded observation or recovery, trusted author, full current-head SHA, comments and threads, and terminal result. A published request, acknowledgement, empty formal review, older result, or silence is not completion. A pending Verifier request needs the named reviewer's next command; pass the still-applicable handle and owning checkout to the verifier, not a file watcher. Skipped, pending, stale, failed, or unavailable results are not passing evidence.
