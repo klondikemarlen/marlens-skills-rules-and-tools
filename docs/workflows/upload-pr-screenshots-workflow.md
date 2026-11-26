@@ -2,23 +2,28 @@
 
 Use when a pull request needs GitHub-uploaded screenshots or visual evidence.
 
-For an authorized Firefox upload to a PR description, prepare the captures in steps 1–3, then use [Firefox GitHub Login and Upload](#firefox-github-login-and-upload). That command owns the remaining publication steps. Other supported targets or browsers can use [Browser Helper](#browser-helper).
-
-## Process
+## Capture for Either Publishing Route
 
 1. Identify reviewer-relevant UI states from the diff or PR body. Follow project-local guidance on whether screenshots are required or optional, and use **Capture Preflight** before opening a browser or preparing data.
 2. Before capturing, allocate the run directory in **Screenshot Staging** below. Capture the actual application in the requested browser at stable states; avoid transient spinners, snackbars, or partially loaded screens.
 3. Keep every image for the run in that directory, use it as the default upload source, and verify the exact selected upload files are readable. Use only the scoped sandbox exception below when necessary; do not scatter working copies.
-4. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. Follow **Default Browser and Login Handoff** below; selected Firefox uses **Firefox GitHub Login and Upload**, never the Chromium-only bootstrap. Use **Interactive Sign-In Preference** only for explicitly requested existing-session reuse.
-5. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images, and keep the exact placeholder-bearing target Markdown available locally for read-only recovery; do not publish the snapshot or QA logs.
-6. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
-7. Call `github_pr_screenshot_upload_path` and use **Browser Helper** below. The batch uploader opens the exact target editor, replaces every exact placeholder, and submits once.
-8. Treat a successful helper return as persisted-body verification only. If it throws, inspect its phase evidence and follow **Read-Only Recovery After Save** before deciding whether publication failed or retrying any upload.
-9. Require a new `user-attachments/assets/...` URL for every screenshot. Read the exact saved target body/comment, confirm each placeholder was replaced in its intended slot, and compare all non-screenshot Markdown and existing image URLs with the local pre-upload body.
-10. In the rendered target, separately confirm each image is loaded directly after its reviewer-facing caption and route. Persisted URLs alone do not prove rendered placement.
-11. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
-12. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
-13. Release the owned tab and stop the owned session process even after failure, as described below.
+
+For an authorized Firefox upload to a PR description, continue with [Firefox GitHub Login and Upload](#firefox-github-login-and-upload). The command handles its own slots, editor discovery, save, and verification. Do not follow the manual steps below.
+
+## Manual Browser Helper Route
+
+Use this route when calling the page-driven helper directly instead of running the Firefox publishing command.
+
+1. Check GitHub browser authentication before declaring screenshots upload-ready; a signed-in `gh` CLI does not authenticate the browser. Follow **Default Browser and Login Handoff** below. Use **Interactive Sign-In Preference** only for explicitly requested existing-session reuse.
+2. Add one stable HTML-comment placeholder per screenshot to the existing PR body, immediately after its caption and reviewer-facing app route. Preserve surrounding text and existing images, and keep the exact placeholder-bearing target Markdown available locally for read-only recovery; do not publish the snapshot or QA logs.
+3. Obtain the exact PR-body `#issue-…` fragment from the page. Do not substitute a new-comment composer or an `#issuecomment-…` reply. Inspect the existing PR body editor—not the temporary new-comment composer—and identify its textarea selector and scoped file input selector.
+4. Call `github_pr_screenshot_upload_path` and use **Browser Helper** below. The batch uploader opens the exact target editor, replaces every exact placeholder, and submits once.
+5. Treat a successful helper return as persisted-body verification only. If it throws, inspect its phase evidence and follow **Read-Only Recovery After Save** before deciding whether publication failed or retrying any upload.
+6. Require a new `user-attachments/assets/...` URL for every screenshot. Read the exact saved target body/comment, confirm each placeholder was replaced in its intended slot, and compare all non-screenshot Markdown and existing image URLs with the local pre-upload body.
+7. In the rendered target, separately confirm each image is loaded directly after its reviewer-facing caption and route. Persisted URLs alone do not prove rendered placement.
+8. If GitHub appended an attachment elsewhere, use `gh api` only after the web upload has produced its URL to move the generated Markdown into the intended slot; reload and repeat the rendered-order check.
+9. After the web upload has produced a URL, API text edits may update PR/comment Markdown when that is safer than saving through the browser.
+10. Release the owned tab and stop the owned session process even after failure, as described below.
 
 REST/`gh api` can edit Markdown text but cannot create the required `user-attachments/assets/...` URL.
 
