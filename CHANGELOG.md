@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.20.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1655) - 2026-11-26
+
+### Changed
+
+- Keep source and destination property reads visible when an alias would add no meaning.
+
 ## [5.20.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1653) - 2026-11-26
 
 ### Fixed
