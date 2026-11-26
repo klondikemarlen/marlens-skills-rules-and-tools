@@ -106,7 +106,7 @@ These excerpts assume each boundary's existing serializer/options and caller; pr
 
 ### Function Calls Before Construction
 
-By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [linear test expectations](#linear-test-expectations), [simple serializer projection](#simple-serializer-projections), and [existing policy allowlist](#existing-policy-allowlists) exceptions permit contextual inline construction when extraction adds no meaning.
+By default, evaluate function calls into descriptive named variables before constructing an array or object, including calls in property values, computed keys, spreads, and array elements. This applies to synchronous computations and asynchronous factory/query calls, not just expensive work. Keep meaningful operations inspectable; do not add placeholder aliases for already-available values. The [simple message formatting](#simple-message-formatting), [linear test expectations](#linear-test-expectations), [simple serializer projection](#simple-serializer-projections), and [existing policy allowlist](#existing-policy-allowlists) exceptions permit contextual inline construction when extraction adds no meaning.
 
 Keep each evaluation within its original execution scope: a branch, loop iteration, callback invocation, lazy getter, or transaction must still own its work. Preserve evaluation count and left-to-right order, conditional/short-circuit execution, receiver binding, async/concurrent starts and awaits, rejection ownership, spread precedence, and returned identity. Capture intervening effectful property/index reads at their original evaluation points when needed; do not hoist a later call ahead of an earlier getter or turn concurrent starts into sequential awaits.
 
@@ -139,6 +139,23 @@ return {
 ```
 
 This replaces `passengerName: item.passengerName ?? null`, not a direct property read that had no fallback. Null and undefined still yield null; an empty string remains an empty string. Preserve the original operator (`??` versus `||`), fallback laziness, execution scope, property-read order, and evaluation count. Capture earlier effectful reads before preparing a later fallback; never hoist it across a guard or callback. This does not authorize adding/removing fallback behavior, redundant aliases for direct reads, or extracting simple literal options.
+
+#### Simple Message Formatting
+
+A short, pure formatting call on an already-available value may stay in a readable message interpolation when its result is used only there. This includes messages in object properties and decorator options. Keep shared inputs named, and keep formatting results named when reused or clearer as a separate step.
+
+```typescript
+const allowedOutcomes = ["approved", "rejected"]
+
+class OutcomeInput {
+  @IsIn(allowedOutcomes, {
+    message: `Outcome must be one of: ${allowedOutcomes.join(", ")}.`,
+  })
+  outcome!: string
+}
+```
+
+`allowedOutcomes` remains the named source used by both the validator and the message. Only the display join is inline; the validator still checks the same values and the message still reads `Outcome must be one of: approved, rejected.` This exception does not cover validation, lookups, or effects. Preserve evaluation scope, timing, count, and order, as well as error behavior and exact rendered text. Keep the local if moving the call would cross a guard, a lazy boundary, or an order-sensitive operation.
 
 #### Linear Test Expectations
 
