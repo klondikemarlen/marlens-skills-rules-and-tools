@@ -38,9 +38,13 @@ The default `whitespace-matters` rule selects commit/push and PR creation/readin
 
 Projects need working lint configuration appropriate to their maintained source. Use the project's existing linter and documented non-fixing command: ESLint with suitable language/framework support, or an equivalent native tool. Inspect effective configuration, included files, parsers/plugins, and the configured warning policy; a dependency or a successful command that ignores the changed source does not establish coverage. Formatting, typechecking, tests, and rendered behavior protect different contracts.
 
+For a source-only edit, prefer the wrapper’s file-targeted invocation. For example, pass `src/cart.js` to a supported lint command rather than scanning every module. Confirm it actually checks that file with the normal rules and warning policy: appending a filename to a script that already runs `eslint .` does not narrow its scope. If the wrapper cannot target files, use its documented broader check rather than bypassing it.
+
+For a shared configuration, plugin dependency, or ignore-pattern change, check the source governed by that input, not just the configuration file. Cross-file rules and mandatory project checks can also require broader coverage.
+
 The shared [`project-linting`](../../rules/project-linting.md) rule requires applicable lint evidence at readiness. When using OMP Verifier, express the executable check through its existing [project-specific requirements](https://github.com/klondikemarlen/omp-verifier#project-specific-verifier-requirements), not a new command runner, package manifest entry for an unspecified command, or generic model judgment.
 
-For a project whose documented `npm run lint` checks `src/**/*.js` without fixing files, merge this requirement into its existing project `WATCHDOG.yml` verifier entry:
+For a project whose only documented lint command is a non-fixing `npm run lint` over `src/**/*.js`, merge this requirement into its existing project `WATCHDOG.yml` verifier entry:
 
 ```yaml
 advisors:
