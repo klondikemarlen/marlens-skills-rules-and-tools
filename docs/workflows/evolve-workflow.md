@@ -28,6 +28,8 @@ Evolve composes the skills around one accepted outcome rather than running sever
 
 Within this composition, Advance selects and progresses the outcome; Improve and Simplify are pre-delivery refinement passes on that outcome, not fresh searches for another feature. Their local findings and proof return to the active [Feature Workflow](feature-workflow.md), which owns the required review, QA, merge, release, and install gates. Do not merge merely to finish an Advance checkbox. Standalone invocations retain their own complete-delivery contracts; a stage handoff inside evolve is not a claim that the feature has shipped.
 
+When the active delivery authorizes merge, Feature selects [Autonomous Merge](../../skills/autonomous-merge/SKILL.md); Evolve does not invoke the operator `review-and-merge` command or add its post-fix hold.
+
 ## Working Flow
 
 | Phase                   | Skill Contribution and Handoff                                                                                                                                                                                                                                                                                                                                                                                                                                                   |

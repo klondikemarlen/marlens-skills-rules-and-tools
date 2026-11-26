@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.21.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1675) - 2026-11-26
+
+### Changed
+
+- Autonomous delivery should not acquire the operator command’s discretionary post-fix hold, and it must never skip a real human-review requirement.
+
 ## [5.20.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1674) - 2026-11-26
 
 ### Changed

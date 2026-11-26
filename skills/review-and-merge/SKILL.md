@@ -1,11 +1,13 @@
 ---
 name: review-and-merge
-description: Add "with override" to allow a needed administrative override. Merge the same PR head only after clean review and passing checks; if fixes are needed, fix, verify, push, and wait for manual re-review.
+description: Explicit operator review and merge. Add "with override" to allow a needed administrative override. Merge the same PR head only after clean review and passing checks; if fixes are needed, verify, push, and wait for manual re-review.
 ---
 
 # Review and Merge
 
 Use the local `docs/workflows/review-and-merge-workflow.md`, then `agents/workflows/review-and-merge-workflow.md`; otherwise use the [packaged workflow](workflow.md).
+
+Use this only for an explicit operator request. For an authorized Feature or Evolve delivery, select [Autonomous Merge](../autonomous-merge/SKILL.md) instead.
 
 - **Standard:** `/skill:review-and-merge <PR URL>` does not authorize an administrative override.
 - **With Override:** `/skill:review-and-merge <PR URL> with override` explicitly allows a needed administrative override for that PR only. Both modes follow the same workflow.

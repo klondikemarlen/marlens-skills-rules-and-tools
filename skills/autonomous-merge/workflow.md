@@ -1,0 +1,12 @@
+# Autonomous Merge Workflow
+
+## Intent
+
+Use this final merge stage for one existing PR in an already-authorized delivery. [Feature](../feature/workflow.md) owns delivery; Evolve delegates its merge through Feature. Do not select this route for an explicit `review-and-merge` invocation, a readiness question, or a no-merge request.
+
+## Process
+
+1. Resolve the identified PR and confirm the active delivery already authorizes merging it. Use the project-local contribution, review, and release requirements. A ticket, a clean review, green CI, or this skill invocation alone grants no merge authority.
+2. Apply the [shared verified merge procedure](../../docs/workflows/verified-merge-workflow.md). Reuse evidence from the delivery lifecycle that still applies; perform missing required checks and refresh the affected review and verification after corrections. Request Codex or another named reviewer when the project or active request requires it, not merely because the operator command does.
+3. Once the exact current target, base, and head pass every applicable gate, merge the verified head via the ordinary supported path. A correction does not create an extra manual re-review hold, but switching entrypoints does not clear an existing operator hold. If required human approval is missing, evidence is not current and passing, the host blocks the ordinary path, or merge authority is missing, leave the PR open and name the exact gate. Do not bypass protection, use an administrative override, or waive a requirement through this entrypoint.
+4. Confirm the remote merge before returning to Feature for ticket reconciliation, applicable release and installed-artifact verification, and closeout. Report the merged or open PR, the revision and evidence, and any remaining gate. A queued merge is not a completed delivery.

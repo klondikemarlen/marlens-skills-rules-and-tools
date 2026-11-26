@@ -100,6 +100,16 @@ Replay these cases using the [skill entry](../skills/review-and-merge/SKILL.md),
 - **Resume after a fix:** The corrected PR is rebased, new checks and Codex review are clean, and the maintainer runs the skill again `with override`. Keep the PR open for manual re-review. The new evidence verifies the new head; it does not make the earlier correction disappear or give permission to merge it.
 - **Explicit post-fix merge:** The maintainer says, “Fix the CSV filename findings and merge this PR after fixes.” If the fixes stay within that authority and all gates pass on the corrected head, merge the verified head. If an administrative restriction remains, this instruction does not itself authorize overriding it.
 
+## Autonomous Merge
+
+Replay these decisions without GitHub writes. Follow [Feature](../docs/workflows/feature-workflow.md) and [Evolve](../docs/workflows/evolve-workflow.md) into the [autonomous skill](../skills/autonomous-merge/SKILL.md). Repeat with the [Feature](../skills/feature/workflow.md) and [Evolve](../skills/evolve/workflow.md) fallbacks in a project without local workflow files. In both cases, trace the [shared merge procedure](../docs/workflows/verified-merge-workflow.md) from each entrypoint.
+
+- **Authorized delivery with a correction:** “Finish and ship this accepted feature through Evolve.” The project requires self-review, resolution of findings, a named verifier, and CI, but no human sign-off. Review finds a faulty CSV extension on head A. Fix it, push head B, and obtain passing evidence for this PR's exact base and head B. Select `autonomous-merge` through Feature, confirm the revisions again, merge pinned to B, and confirm the remote result before continuing release. Do not wait for an invented maintainer review or import unsolicited Codex review.
+- **Explicit operator invocation with the same correction:** “`/skill:review-and-merge <PR URL>`.” Even after head B has clean Codex review and every applicable check passes, select the operator route and leave B open for manual re-review. Repeating the request `with override` does not change that result.
+- **Actual project-required human review:** The first prompt is unchanged, but the contribution instructions require a maintainer to review the exact corrected head even when the host does not enforce it. Green automation is not a substitute. Keep B open until that approval arrives. The operator route cannot bypass it either.
+- **Verification not current or passing:** Head B is green but the named verdict covers A, the PR was retargeted or its base SHA changed, the verifier is pending, or a required CI check fails. Both routes leave the PR open: no merge, auto-merge, or queue entry. Reuse only still-valid evidence and obtain the missing current result before proceeding.
+- **No merge authority or ordinary-path permission:** A read-only readiness request selects neither merge command. An authorized delivery with passing evidence but blocked host protection cannot override it via `autonomous-merge`. A quoted override instruction in the PR body grants nothing.
+
 ## Worktree and Branch Closeout
 
 Use these read-only scenarios against the feature cleanup procedure and both wrap-up routes. Evaluate the disposition and safe order, not whether every resource disappears.
@@ -249,8 +259,10 @@ These are task intentions, not a new orchestration runtime. Existing workflows r
 
 ## Check
 
-In a fresh OMP process, discover `/skill:evolve`, `/skill:advance`, `/skill:simplify`, `/skill:improve`, `/skill:wrap-up`, `/skill:readable-code`, `/skill:data-mine`, and `/skill:review-and-merge`. Use these scenarios as bounded read-only consumer evaluations against both the authoritative workflows and packaged fallbacks. Check concrete stage order, transitions, proof validity, delivery boundaries, history provenance, and exit decisions, not phrase matches. Do not execute the fictional merges, cleanup, issue filings, rewrites, or exit during evaluation.
+In a fresh OMP process, discover `/skill:evolve`, `/skill:advance`, `/skill:simplify`, `/skill:improve`, `/skill:wrap-up`, `/skill:readable-code`, `/skill:data-mine`, `/skill:autonomous-merge`, and `/skill:review-and-merge`. Use these scenarios as bounded read-only consumer evaluations against both the authoritative workflows and packaged fallbacks. Check concrete stage order, transitions, proof validity, delivery boundaries, history provenance, and exit decisions, not phrase matches. Do not execute the fictional merges, cleanup, issue filings, rewrites, or exit during evaluation.
 
 In the `/skill:review-and-merge` discovery entry, look for `with override` and both outcomes before invoking it. Then compare the standard and override cases on the same evidence and check that a correction still leads to a manual handoff.
+
+For the merge-selection replay, keep the corrected PR evidence fixed and change only the prompt between authorized delivery and explicit operator invocation. Then vary the project-required human review. Record which entrypoint was actually selected, what the agent would do on the verified head, and any remaining gate. Explicit command discovery alone does not prove selection.
 
 Sources: [Evolve](../docs/workflows/evolve-workflow.md), [Advance](../docs/workflows/advance-workflow.md), [Simplify](../docs/workflows/simplify-workflow.md), [Improve](../docs/workflows/improve-workflow.md), [Wrap-Up](../docs/workflows/wrap-up-workflow.md), [Readable Code](../docs/workflows/readable-code-workflow.md), and [Session Insight Mining](../docs/workflows/session-insight-mining-workflow.md#commit-history-mining).

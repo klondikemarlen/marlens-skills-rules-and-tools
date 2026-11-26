@@ -866,6 +866,19 @@ if (
   )
 }
 
+for (const skill of ["autonomous-merge", "review-and-merge"]) {
+  const local = resolveFirstWorkflow(root, skill)
+  const authoritativePath = path.join(root, "docs", "workflows", `${skill}-workflow.md`)
+  if (local.kind !== "local" || local.path !== authoritativePath) {
+    fail(`${skill}: expected authoritative workflow, got ${local.kind} (${local.path})`)
+  }
+
+  const packaged = resolveFirstWorkflow(path.join(root, ".missing-local-workflows-fixture"), skill)
+  if (packaged.kind !== "fallback" || packaged.path !== `skill://${skill}/workflow.md`) {
+    fail(`${skill}: expected packaged workflow, got ${packaged.kind} (${packaged.path})`)
+  }
+}
+
 if (process.env.WRAP_PROJECT) {
   fixtureChecks.push(
     {

@@ -60,7 +60,9 @@ Use [`triage`](skills/triage/SKILL.md) to assess tickets and apply supported evi
 
 Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights from a given OMP chat: `/skill:data-mine <session ID or path>`, or supply the transcript. You can also request “mine this project's memory and global memory separately”; explicitly request internalization and regeneration to deliver reusable gaps into repository guidance and refresh derived OMP memory. Standalone mining is read-only unless you authorize follow-up actions. `wrap-up` uses the same workflow for the current session and completed task's commits.
 
-Use [`review-and-merge`](skills/review-and-merge/SKILL.md) to review an existing PR with Codex and merge the same head if no corrections are required and all applicable checks pass.
+Use [`autonomous-merge`](skills/autonomous-merge/SKILL.md) at the merge step of an already-authorized Feature or Evolve delivery. In OMP, invoke `/skill:autonomous-merge <PR URL>`. Corrections need fresh verification for the exact current target, base, and head, not an extra manual re-review. The command grants no merge authority and does not bypass required approvals, CI, or host protection. See the [decision examples](examples/outcome-skills.md#autonomous-merge).
+
+Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for an explicit operator request to review an existing PR with Codex and merge the same head if no corrections are required and all applicable checks pass.
 
 - **Standard:** `/skill:review-and-merge <PR URL>` never implies administrative override.
 - **With Override:** `/skill:review-and-merge <PR URL> with override` follows the same workflow. It can bypass only an authorized administrative restriction for that PR, and only if needed; it does not waive review or verification.
