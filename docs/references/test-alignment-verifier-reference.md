@@ -89,7 +89,7 @@ expect(hits).toEqual([
 ])
 ```
 
-For an established `7`-then-`9` result order, this accepts additional fields on those two records but rejects an unexpected third element, a missing record, or a different member without a separate count assertion. Use the actual result path and supported project matchers. If order is not guaranteed, preserve the real unordered contract with a supported exact unordered collection matcher; do not add sorting solely to normalize assertions. See [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification).
+For an established `7`-then-`9` result order, this accepts additional fields on those two records but rejects an unexpected third element, a missing record, or a different member without a separate count assertion. Use the actual result path and supported project matchers.
 
 Reserve subset matching for a contract that genuinely permits additional elements. Unspecified ordering alone is not that permission. A reviewer should distinguish complete-result membership/cardinality from partial record-field matching, preserve legitimate subset contracts, and avoid exact matching of unrelated object fields.
 
@@ -108,6 +108,14 @@ await expect(refresh).rejects.toThrow(/Unavailable/)
 Here `refresh` is the promise returned by the operation under test. Both matchers prove failure as well as the expected message; do not replace them with an unguarded `catch` assertion that passes when nothing throws. Use the active framework's supported equivalent, retaining native `node:assert` rather than migrating it. Preserve additional error-contract checks where required and ordinary identity assertions for non-error contracts. This is authoring/review guidance, not a new automatic syntax check.
 
 Preserve transition, race, and rollback setup and scenario identities when reorganizing tests. A coupled invariant is not a general multi-expect exception for non-controller tests. Keep the complete causal sequence in each focused scenario that needs it; assert a real returned or persisted object/collection when it naturally represents the invariant, or use separate tests for distinct observations. Never discard an intervening failure, stale completion, or rollback operation merely to reach one expectation.
+
+### Fixture Creation Order and Application Order
+
+Establish what orders the result, if anything, from the test, the query or operation under test, and applicable project guidance. An unordered SQL query does not guarantee insertion order. When a test proves persisted membership and state, not sequence, prefer a supported exact unordered matcher by default; don't add database or JavaScript sorting solely to normalize the assertion.
+
+When the maintainer explicitly chooses the project's positional fixture convention for incidental persistence order, and the assertion still checks the complete relevant collection, report the possibility of a false failure if retrieval order changes as a non-blocking advisory. Do not fail on that risk alone. If the maintainer already rejected a sort or matcher rewrite, do not repeat it without new evidence. Scope the decision to the affected tests; do not infer it from the use of positional assertions.
+
+Keep an actionable failure when the assertion relies on an ordering contract the operation does not enforce (for example, chronological history or pagination), when the expected order is demonstrably reversed in an actual result, or when the matcher can hide missing, duplicate, or unexpected rows in a complete-result contract. Explain the concrete mismatch and preserve exact coverage in the correction; do not sort an assertion to conceal a broken application sequence. See [contrasting fixture cases](../../examples/test-assertion-focus.md#fixture-creation-order-and-application-order).
 
 ### Test Import Placement
 

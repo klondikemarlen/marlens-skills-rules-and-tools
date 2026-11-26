@@ -6,11 +6,23 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
-## [5.20.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1662) - 2026-11-26
+## [5.20.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1655) - 2026-11-26
 
 ### Changed
 
-- Prefer linting changed files through the project wrapper for source-only edits; keep broader checks when required for coverage or by project policy.
+- Keep source and destination property reads visible when an alias would add no meaning.
+
+## [5.20.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1653) - 2026-11-26
+
+### Fixed
+
+- Test assertion review warns about incidental SQL row order without blocking maintainer-approved positional fixture assertions. It still flags broken ordering guarantees, observed reversals, and assertions that can miss extra or duplicate rows.
+
+## [5.20.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1648) - 2026-11-26
+
+### Changed
+
+- Authors can format a value where its message displays it, without extracting a local just for that string. Shared values and work whose timing matters still stay separate.
 
 ## [5.20.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1647) - 2026-11-26
 
