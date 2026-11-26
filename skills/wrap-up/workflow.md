@@ -47,11 +47,11 @@ Establish readiness for the final response first: required review, verification,
 
 When review findings arrive after a completion response or during another discussion, apply [Findings Delivered After Completion](../code-review/workflow.md#findings-delivered-after-completion). Reassess the affected completion claim and disposition the findings within existing authority; do not stop at disclosing them.
 
+## Recovering Interrupted Verifier Review
+
 When investigating a lingering activity label, distinguish observed unnecessary tool orchestration from a stale UI status, scheduler delay, or advisor latency. A screenshot or unmeasured wait alone does not establish which caused the delay. Keep required advisor/review gates intact, and do not claim guidance changes fix runtime/UI behavior or improve latency without measured evidence.
 
-Before waiting for a review, confirm who or what has been dispatched to advance the exact request, which session or task owns that review, and how the terminal result will reach the session. A prepared request file or `PENDING` status describes the review, not an active producer. A confirmed reviewer can finish asynchronously; wait through its supported completion path. Waiting is not a verdict.
-
-Without a confirmed producer, report the review as outstanding, not running. Use the verifier's supported handoff or recovery path when applicable. If dispatch is unavailable, name the exact missing prerequisite and leave the verification gate outstanding. Do not launch an indefinite file watcher or blindly rerun verification; an observer cannot dispatch a reviewer or submit an assessment.
+Before waiting for a review, confirm the dispatched reviewer owns the exact request and can deliver a terminal result. A prepared request or `PENDING` is not a running review. Apply [Recovering Interrupted Verifier Review](../../docs/workflows/wrap-up-workflow.md#recovering-interrupted-verifier-review) to diagnose the state, resume through the named reviewer when eligible, route evidenced defects, and continue reachable work without substituting local proof for required review. Do not start a file watcher or blindly rerun verification.
 
 After stopping an owned wait, report exactly what stopped and what verification remains outstanding. Stopping an observer does not cancel its review request or stop a separately dispatched reviewer. Do not silently start a replacement job.
 
