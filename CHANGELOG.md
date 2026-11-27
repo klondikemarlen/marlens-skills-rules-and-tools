@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1702) - 2026-11-27
+
+### Changed
+
+- Clarify service tests with domain-named results for rejection assertions and a single, visible reload when checking persisted state.
+
 ## [5.23.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1704) - 2026-11-27
 
 ### Changed
