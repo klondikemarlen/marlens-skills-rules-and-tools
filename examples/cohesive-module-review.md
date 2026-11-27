@@ -94,6 +94,17 @@ Use separate Git changes relative to the fixture's base. Run `omp-verifier autom
 | Make only the SFC change above, with no manual caller context | The SFC alone selects the check. Inspect its submit logic and material caller or sibling context. |
 | Move parent routing and authorization across `api/src/routes/invoices.ts`, `api/src/controllers/invoices-controller.ts`, `api/src/policies/invoice-policy.ts`, and `api/src/services/invoices/update-service.ts`. Change ownership of reusable parent linkage in `api/tests/factories/invoice-factory.ts` and update a route test assertion. | All changed JS/TS paths remain candidates. Review the route, controller, policy, service, and factory ownership; treat the changed assertion as evidence of the request behavior. A green test does not establish that the moves preserved ownership. |
 
+### Controller Record Loader Call Sites
+
+Use a fixture where a comparable sibling controller loads a record through a private helper that owns its lookup and preloads, and handles missing records and authorization in each action. Keep the sibling and project guidance available alongside the changed controller and its route callers. Evaluate the changes separately.
+
+| Changed Action | Expected Decision for `controller-record-loader-ownership` |
+| --- | --- |
+| `show()` calls `loadRecord({ include: [{ association: "steps", attributes: ["id"], separate: true }] })`; the helper forwards the plan to the ORM. | `FAIL`: cite the action's call and the sibling loader's fixed graph. The action still decides which association to fetch, which fields to select, and how to fetch them. |
+| `show()` calls the same `loadRecord(recordId)` as `update()` and `destroy()`. The loader owns the fixed graph, and actions handle missing records and check their respective permissions explicitly. | `PASS`: a record ID is a meaningful input, not a fetch plan. Don't require two leaner loaders solely because some actions don't use all loaded associations. |
+| An authorized recovery action uses `loadArchivedRecord(recordId)`; ordinary actions keep using `loadRecord(recordId)` and cannot see archived records. | `PASS`: the separate path preserves an actual visibility contract rather than optimizing a shared one. Check how the action enforces recovery permission. |
+| An ordinary policy-scoped `index()` supplies filtering, projection, and pagination to its collection query. | No record-loader finding: similar ORM syntax does not establish the same responsibility or require a loader. |
+
 ### Cross-Resource Action and Own-Resource Controller
 
 Give the fixture an existing root service export `TravelDeskInvoiceItems` with a `BulkCreateService` member. Keep the supported direct item-resource entry point at `@/services/travel-desk-invoice-items`. In separate changes against the same fixture base, use the import and call shapes below with the same item data. Keep the service exports and project guidance available as evidence.

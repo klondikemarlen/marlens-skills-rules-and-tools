@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1715) - 2026-11-27
+
+### Changed
+
+- Flag controller actions that build ORM fetch plans for established record loaders. Cite a comparable local loader and preserve explicit authorization and missing-record handling.
+
 ## [5.23.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1716) - 2026-11-27
 
 ### Changed

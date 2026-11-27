@@ -37,6 +37,14 @@ Apply the canonical implementation-file policy above by identifying one primary 
 
 Reject a touched implementation that accumulates independent owners behind private helpers or hidden state just as you would an incoherent new boundary. Passing function/file-size checks, adding a barrel, or dividing the same coupling into `part-one`/`helpers` files does not resolve that failure. Explain the concrete independent change axes, coupled effects, or state-lifetime risk; size alone is not evidence. See [Cohesive Module Review](../../examples/cohesive-module-review.md) for contrasting layouts and a pinned consumer assessment.
 
+### Controller Record Loader Ownership
+
+Where the local controller pattern gives a named loader responsibility for single-record lookup and preloading, review what the action passes, not just whether it calls a loader. Compare the changed call site and loader with a comparable local implementation, such as a sibling controller whose loader owns the lookup predicate and association graph. Cite both locations and explain the leaked decision: for example, an action that supplies association names, selected columns, or separate-query flags owns query construction even if a named helper executes it. Moving those options to a local variable in the action does not restore ownership.
+
+For actions with the same record-loading contract, prefer one readable loader with a fixed association graph. Pass meaningful inputs as needed, such as a record ID or an already-loaded parent; keep the missing-record and authorization decisions explicit in the public action. Use separate named loading paths when an actual semantic or visibility requirement warrants them, such as an authorized recovery action that can see records hidden from ordinary readers. Preserve those scopes and decisions; don't widen visibility to share a loader.
+
+Favor the simpler shared path over per-action wrappers or configurable includes that only promise speculative speedups. This preference extends beyond database queries: don't make ordinary work harder to read for hypothetical micro-optimizations. When optimization is explicitly the core task, use measurements to choose the tradeoff; real correctness, security, or material performance evidence still matters. Don't prescribe a universal loader framework or flag ordinary policy-scoped collection queries by ORM syntax alone.
+
 ### Single-Item Lookup Results
 
 Name a lookup for the operation its caller needs and return that operation's result directly. A lookup for eligible users of one workflow step takes that step's ID and returns its list, including the agreed empty list when the query succeeds without matches. Do not require a single-item caller to make a one-element batch, read back its own key, and apply the shared no-match default.
