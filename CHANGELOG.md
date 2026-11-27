@@ -6,6 +6,16 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1713) - 2026-11-27
+
+### Changed
+
+- Accept equally clear compact expected objects in review while keeping multiline as the authoring default. Binding project rules and substantive assertion checks still apply.
+
+### Added
+
+- Document a local way to link rule findings to edit rounds and distinguish layout-only changes from changes to tested behavior.
+
 ## [5.23.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1710) - 2026-11-27
 
 ### Changed
