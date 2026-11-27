@@ -367,6 +367,122 @@ Use the same neutral prompt for every variant:
 - `observable-contract-and-direct-assertions`: Use [Fixture Creation Order and Application Order](#fixture-creation-order-and-application-order). In the missing-rule control, omit the equivalent ordering and severity guidance from the captured source and question. In the missing-consumer-evidence control, omit the scope of the maintainer's decision or the history query needed to determine whether it enforces chronology. An unrelated controller naming convention is not required.
 - `meaningful-scenarios-and-subject-ownership`: Use the acceptance-only validator from [Acceptance Is Sometimes the Whole Contract](#acceptance-is-sometimes-the-whole-contract). Show the validator and both tests; contrast removing the successful call while retaining the rejection. Rename the validator and express acceptance in domain language. For the provider control remove the rules for meaningful success, negative coverage and the acceptance-only exception wherever supplied. For the consumer control omit the subject contract when completion versus an additional promised effect changes whether the assertion is adequate. Import-order policy is irrelevant here.
 - `actual-subject-import-and-placement`: Use the direct subject from [Default-Exported Subject](#default-exported-subject), with its supported export and the actual fixture import groups. Reverse only the subject and fixture groups; retain the same Act and assertions. Contrast a real fixture-local override phrased in different words. Remove the provider's placement and precedence rules for the missing-rule control. Separately omit a referenced local ordering policy whose contents could reverse the decision. An unrelated serializer convention is not required.
+- `local-policy-and-shared-default` and `independent-outcomes-and-hidden-assertions`: Use [Scope-Matched Findings for a Feature Test](#scope-matched-findings-for-a-feature-test). Check the actual attribution and correction, not whether the response repeats the rubric.
+
+## Scope-Matched Findings for a Feature Test
+
+This synthetic scenario is self-contained. In an owned disposable project, create the three files below. The editor reads a review step before the first response, then tries to change its required count. The workflow must reject that stale edit but still allow adding a second reviewer to finish the step.
+
+**`src/review-step.js`**
+
+```javascript
+export function openReviewStep() {
+  const step = {
+    status: "pending",
+    requiredResponses: 2,
+    assignees: ["first"],
+    responders: [],
+  }
+
+  function read() {
+    return structuredClone(step)
+  }
+
+  function edit({ requiredResponses, assignees = step.assignees }) {
+    if (step.responders.length > 0 && requiredResponses !== step.requiredResponses) {
+      throw new Error("The response count cannot change after a response.")
+    }
+
+    step.requiredResponses = requiredResponses
+    step.assignees = [...assignees]
+    return read()
+  }
+
+  function respond(reviewer) {
+    if (!step.assignees.includes(reviewer)) {
+      throw new Error("Only an assigned reviewer may respond.")
+    }
+
+    if (!step.responders.includes(reviewer)) {
+      step.responders.push(reviewer)
+    }
+
+    if (step.responders.length >= step.requiredResponses) {
+      step.status = "completed"
+    }
+
+    return read()
+  }
+
+  return { read, edit, respond }
+}
+```
+
+**`tests/features/review-step.test.js`**
+
+```javascript
+import { expect, test } from "bun:test"
+
+import { openReviewStep } from "../../src/review-step.js"
+
+test("when a response arrives during editing, rejects a stale edit and allows recovery", () => {
+  const step = openReviewStep()
+  const editorSnapshot = step.read()
+  expect(editorSnapshot).toEqual({
+    status: "pending",
+    requiredResponses: 2,
+    assignees: ["first"],
+    responders: [],
+  })
+
+  expect(step.respond("first")).toEqual({
+    status: "pending",
+    requiredResponses: 2,
+    assignees: ["first"],
+    responders: ["first"],
+  })
+
+  expect(() => step.edit({ requiredResponses: editorSnapshot.requiredResponses + 1 })).toThrow(
+    /^The response count cannot change after a response\.$/
+  )
+
+  expect(
+    step.edit({
+      requiredResponses: editorSnapshot.requiredResponses,
+      assignees: ["first", "rescuer"],
+    })
+  ).toEqual({
+    status: "pending",
+    requiredResponses: 2,
+    assignees: ["first", "rescuer"],
+    responders: ["first"],
+  })
+
+  expect(step.respond("rescuer")).toEqual({
+    status: "completed",
+    requiredResponses: 2,
+    assignees: ["first", "rescuer"],
+    responders: ["first", "rescuer"],
+  })
+})
+```
+
+**`tests/README.md`**
+
+```markdown
+In service and query tests, keep exactly one direct `expect(...)` in the final Assert section.
+```
+
+Run `bun test tests/features/review-step.test.js` from the disposable project. The application scenario should pass; this deliberate style violation is a separate semantic review decision.
+
+Use the [changed-provider criterion procedure](#reviewing-a-changed-provider-criterion) with the complete test, subject, and local guide. Keep these expected decisions out of the reviewer packet:
+
+- **Narrow local rule:** Cite the **shared** exactly-one rule for the five direct expectations in this non-controller feature test. The local service/query rule neither corroborates that finding nor conflicts with the shared rule. The count is not evidence of five independent outcomes or a workflow defect.
+- **Scope contrast:** Change only `service and query tests` in the local guide to `service, query, and feature tests`. The supported shared finding stays the same; the amended local passage can now corroborate it. An equivalent rewording of the original narrow rule should not change attribution.
+- **Causal correction:** Distinguish the stale count-edit rejection, the accepted assignment edit that preserves the count and first response, and completion by the new assignee. Keep the editor's read, the first response while the editor is open, and the rejected edit before the recovery actions that need them. An ordinary assignment-and-completion test would not prove recovery. Keep the initial and pending-state observations in focused coverage if removed from the recovery test's setup; assert real results, not test-assembled summaries.
+- **Evidence controls:** Withhold the shared count rule wherever it appears in the selected provider evidence; the narrow local sentence cannot fill that gap. Separately withhold the local guide or the test's read, first response, and rejected edit. Identify the resulting gaps in attribution or the recovery recommendation without guessing. An unrelated serializer convention is not required.
+
+For native provider-behavior QA, review the same complete fixture using `/verifier verify marlens-rules:test-assertion-focus` in a disposable project with the candidate provider. Check the validated finding itself: a generic failure does not prove correct attribution or preservation of recovery. Keep this result separate from named source review of the provider PR.
 
 ## Fixture Creation Order and Application Order
 

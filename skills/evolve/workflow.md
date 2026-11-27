@@ -1,6 +1,6 @@
 # Evolve Workflow
 
-Use when asked to run one complete project-improvement cycle. Compose the existing stage workflows; do not build a runner or duplicate their procedures.
+Evolve runs one complete project-improvement cycle by default. A request to continue through a bounded ticket selection can compose several cycles. Use the existing stage workflows; do not build a runner or duplicate their procedures.
 
 ## Scope and Shared Evidence
 
@@ -16,13 +16,22 @@ Apply the triage workflow's supported updates under the cycle's existing authori
 
 Before advance selects ticket work, run triage's [Approval Decision Handoff](../triage/workflow.md#approval-decision-handoff) to check which decisions genuinely remain. Do not seek repeat acceptance of the maintainer's own requests or routine low-risk external contributions. For external contributions with concrete security implications, explain the concern and offer scoped approve/reject/defer choices. Ask unresolved product or policy questions using their actual alternatives, not a ticket-approval prompt. Reuse existing decisions and carry each response into selection. Eligibility is not automatic backlog draining; unanswered or deferred decisions do not block independently authorized work.
 
-Carry the resulting evidence, grouping, applied/unapplied dispositions, and unresolved prerequisites into advance and later relevant stages using the existing issue, plan, or session. Reuse a current triage already supplied with the request; do not recapture the backlog or repeat related-issue discovery unless changed evidence or scope makes it necessary. Refresh only affected decisions when later information changes a blocker or acceptance requirement. This is selection within the existing pass, not another implementation stage or an automatic backlog loop.
+Carry the resulting evidence, grouping, applied/unapplied dispositions, and unresolved prerequisites into Advance and later relevant stages using the existing issue, plan, or session. Reuse current triage supplied with the request. Refresh only the affected ticket states, prerequisites, or acceptance decisions when evidence changes.
 
-When no tickets are available or relevant, continue advance's selection from accepted direction, plans, or evidenced blockers without manufacturing a backlog for triage. Preserve any ticket creation required by the selected outcome's actual delivery workflow.
+When no tickets are available or relevant for ordinary single-outcome selection, continue Advance's selection from accepted direction, plans, or evidenced blockers without manufacturing a backlog for triage. Preserve any ticket creation required by the selected outcome's actual delivery workflow.
+
+## Continue Through a Selected Backlog
+
+1. **Fix the selection.** For an explicit backlog pass, record the authorized tracker and repository or project, the selected ticket identities (or the result of the bounded query at the start), and any supplied order. Keep that set fixed; related tickets and new arrivals do not join it. Preserve the requested mode and limits. A priority order or triage result alone does not authorize implementation or delivery.
+2. **Choose the next eligible outcome.** Use [Triage](../triage/workflow.md#process) to distinguish priority from readiness. Take the first independently actionable, authorized outcome in the supplied order; when none is supplied, use Triage's ranking guidance. Group tickets only when they share an outcome and proof. Preserve the priority and exact missing prerequisite or decision for skipped higher-priority work rather than treating it as resolved or lowering its rank.
+3. **Finish or record what blocks the current cycle before selecting again.** Keep each outcome in [its own Feature delivery lifecycle](#one-outcome-one-delivery-lifecycle) with all applicable gates. Use its observed disposition to refresh only affected states and prerequisites, then select again from the same set without a new prompt. A gate still blocks that outcome and any dependent work; it does not block authorized independent work.
+4. **Stop at the selection boundary.** When no selected authorized outcome remains independently actionable, including when every remaining path needs an approval or prerequisite, report which outcomes shipped and the disposition and next action for each remaining ticket. Do not substitute other work or claim delivery for a blocked or deferred outcome.
+
+See the [worked backlog example](../../examples/outcome-skills.md#explicit-evolve-backlog).
 
 ## One Outcome, One Delivery Lifecycle
 
-Evolve composes the skills around one accepted outcome rather than running several independent shipping campaigns. Read each applicable skill entrypoint and select its project-local workflow or packaged fallback. Keep the same scope, acceptance criteria, issue, branch/worktree, draft PR, and evidence as work moves between skills. Local project requirements remain authoritative.
+Each cycle composes the skills around one accepted outcome rather than running several independent shipping campaigns. Read each applicable skill entrypoint and select its project-local workflow or packaged fallback. Keep the same scope, acceptance criteria, issue, branch/worktree, draft PR, and evidence as work moves between skills. Local project requirements remain authoritative.
 
 Within this composition, Advance selects and progresses the outcome; Improve and Simplify are pre-delivery refinement passes on that outcome, not fresh searches for another feature. Their local findings and proof return to the active [Feature Workflow](../feature/workflow.md), which owns the required review, QA, merge, release, and install gates. Do not merge merely to finish an Advance checkbox. Standalone invocations retain their own complete-delivery contracts; a stage handoff inside evolve is not a claim that the feature has shipped.
 
@@ -67,5 +76,5 @@ Unrelated opportunities remain outside the selected delivery. Record their dispo
 - Continue reachable authorized work when implementation, review, QA, or installation fails; a merge alone does not finish delivery. Do not start a new improvement campaign to bypass a failed gate.
 - If selection establishes no authorized actionable outcome, report that evidence-backed result and wrap up without manufacturing design, implementation, or refinement work.
 - If an external prerequisite genuinely blocks completion, preserve unreleased work and uncertain resources. Complete independently reachable required work, then use wrap-up for truthful incomplete-status closeout with the exact prerequisite and attempted path. Do not claim success, expand external authority, or exit.
-- Finish after the selected outcome's iteration and applicable delivery gates are complete. Give one concise result with relevant design/refinement decisions, evidence, and residual risks. Preserve the disposition and next action for approved-but-unselected, rejected, deferred, and unanswered decisions from the selected backlog. No automatic backlog draining or mandatory change quota.
+- Finish an ordinary invocation after the selected outcome's iteration and applicable delivery gates. For a bounded backlog pass, use the selection and stopping rules above. Give one concise result with relevant decisions, evidence, and residual risks; retain the disposition and next action for approved-but-unselected, rejected, deferred, and unanswered decisions. No automatic backlog draining or mandatory change quota.
 - Bare `evolve` does not authorize exit. If the user explicitly requested “evolve, then exit,” follow wrap-up's supported exit scheduling only after successful completion. An unavailable exit mechanism is reported, not replaced with process killing. Authorized installed-plugin restarts follow the feature and wrap-up handoff; they do not begin another evolution cycle.

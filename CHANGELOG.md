@@ -12,6 +12,30 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 - Use the Vue copy-recovery example to keep screen visibility separate from polling, show one public explanation for a confirmed failure, and label status checks separately from actions that restart a copy.
 
+## [5.23.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1701) - 2026-11-27
+
+### Changed
+
+- Keep the source visible when forwarding unchanged framework values, and translate provider paging inside the integration rather than in application callers.
+
+## [5.23.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1705) - 2026-11-27
+
+### Changed
+
+- Ask Evolve to continue through a bounded backlog in the supplied order without stopping at a blocker that the remaining work does not depend on. Each outcome keeps its own delivery gates, and bare Evolve defaults stay unchanged.
+
+## [5.23.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1703) - 2026-11-27
+
+### Fixed
+
+- Attribute semantic test findings to the rule that actually applies. Report expectation counts separately from independent outcomes, and preserve the causal steps that prove stale-edit rejection and recovery.
+
+## [5.23.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1700) - 2026-11-27
+
+### Changed
+
+- Rank tickets by the harm or delay users experience, separately from which fix can start next.
+
 ## [5.23.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1692) - 2026-11-26
 
 ### Changed
