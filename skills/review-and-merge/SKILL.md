@@ -11,6 +11,7 @@ Use this only for an explicit operator request. For an authorized Feature or Evo
 
 - **Standard:** `/skill:review-and-merge <PR URL>` does not authorize an administrative override.
 - **With Override:** `/skill:review-and-merge <PR URL> with override` explicitly allows a needed administrative override for that PR only. Both modes follow the same workflow.
+- Neither mode requests GitHub Codex review by itself. Apply the [Codex review policy](../../docs/references/github-tooling-reference.md#decide-whether-codex-applies) separately from the normal review and merge gates.
 
 - If no corrections were required, merge only when review and all applicable checks pass for the same head. Pending, failed, stale, or unavailable verification is not a pass.
 - If review or verification requires a correction, fix, verify, and push it, then leave the PR open for the maintainer's manual re-review without asking to merge now. A rebase, clean rerun, or repeat invocation does not lift this hold; only explicit merge-after-fixes authority for that PR can authorize the corrected path.

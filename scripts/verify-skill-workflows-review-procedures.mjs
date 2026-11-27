@@ -107,6 +107,10 @@ export function verifyReviewProcedures({ read, fail }) {
       "gh api -X PATCH repos/OWNER/REPOSITORY/pulls/NUMBER",
       "Do not pass shell-sensitive Markdown inline",
       "Reserve browser authentication blockers for explicit browser UI validation",
+      "GitHub Codex review is opt-in by project",
+      "An explicit maintainer request for Codex review on the identified PR is a one-off request",
+      "If neither project opt-in nor an explicit request applies, do not request Codex",
+      "Compare the full reviewed commit SHA with the actual current PR head",
     ],
     (requiredText) => `github tooling reference must document ${requiredText}`,
     fail
@@ -152,6 +156,14 @@ function verifyMergeEntrypoints({ read, fail }) {
         `${workflow} must preserve its own corrected-head decision`,
         fail
       )
+      if (name === "review-and-merge") {
+        requireText(
+          guidance,
+          "It does not by itself request Codex review",
+          `${workflow} must not treat invocation alone as a Codex request`,
+          fail
+        )
+      }
     }
   }
 
@@ -159,6 +171,7 @@ function verifyMergeEntrypoints({ read, fail }) {
     read("docs/workflows/verified-merge-workflow.md"),
     [
       "base branch and SHA, and head repository, branch, and SHA",
+      "#decide-whether-codex-applies",
       "obtain fresh applicable verification, named review, and CI",
       "A required approval is a gate even if the host does not enforce it",
       "Do not merge, enable auto-merge, or enqueue",

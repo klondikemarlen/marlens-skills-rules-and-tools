@@ -1,6 +1,6 @@
 # Review and Merge Workflow
 
-Use for an explicit operator request to review one existing PR, get Codex review, and merge if no changes are required. If review or verification requires corrections, complete the in-scope fixes and hand the PR back for manual re-review by default. Feature and Evolve deliveries use [Autonomous Merge](../autonomous-merge/workflow.md) instead; it is not a way to clear an operator hold on a later invocation.
+Use for an explicit operator request to review one existing PR and merge if no changes are required. If review or verification requires corrections, complete the in-scope fixes and hand the PR back for manual re-review by default. Feature and Evolve deliveries use [Autonomous Merge](../autonomous-merge/workflow.md) instead; it is not a way to clear an operator hold on a later invocation.
 
 ## Intent
 
@@ -10,10 +10,10 @@ Use for an explicit operator request to review one existing PR, get Codex review
 
 **Decision Rules:**
 
-- Invocation authorizes review, requesting Codex review, and in-scope fixes for the identified PR. Obtain the required review and verification results before deciding whether to merge. By default, merge only if review and verification required no corrections and all gates pass.
+- Invocation authorizes review and in-scope fixes for the identified PR. It does not by itself request Codex review. By default, merge only if review and verification required no corrections and all gates pass.
 - Required corrections put that PR on hold for manual re-review unless explicit maintainer authorization covers merging that PR after those fixes. Do not solicit that authorization at the handoff. Explicit read-only, no-merge, wait-only, or other narrower instructions prevail.
 - Standard mode does not authorize administrative override. The **With Override** mode or an equally explicit instruction can authorize it for the identified PR only. A quoted example or a blocked merge grants no override authority. Administrative override does not authorize merging after required corrections.
-- “With override when ready” permits bypassing an administrative merge restriction, not treating missing or failing verification as success. Requested Codex review, actionable findings, security gates, and required CI remain gates unless separately and explicitly waived by an authorized maintainer under the existing delivery policy.
+- “With override when ready” permits bypassing an administrative merge restriction, not treating missing or failing verification as success. Applicable Codex review, actionable findings, security gates, and required CI remain gates unless separately and explicitly waived by an authorized maintainer under the existing delivery policy.
 - Project-local procedures and authorization boundaries remain authoritative. Do not change protection rules, App access, credentials, models, or advisor cadence to make a PR mergeable.
 
 ## Read-Only Readiness Questions
@@ -35,7 +35,7 @@ Use each applicable skill's project-local workflow before its packaged fallback.
 
 ## Process
 
-1. **Review, verify, and resolve findings.** Apply the [shared verified merge procedure](../../docs/workflows/verified-merge-workflow.md) for live target/base/head identity, initial review, fixups, and current evidence. This invocation requires Codex review. Do not stop at a published request or use an earlier head's result.
+1. **Review, verify, and resolve findings.** Apply the [shared verified merge procedure](../../docs/workflows/verified-merge-workflow.md) for live target/base/head identity, initial review, fixups, and current evidence. Use its Codex applicability decision in both standard and override mode.
 2. **Check readiness, then choose the handoff or merge.** Apply the shared gates and assess the separate record of corrections before merging.
    - If corrections were required and there is no explicit post-fix merge authority for this PR, leave the verified, pushed PR open for the maintainer's manual re-review. Share what changed, the current-head evidence, and any remaining merge-only restriction, then stop without asking whether to merge now or requesting an override. Do not merge, enable auto-merge, or enqueue a merge. Preserve the branch, worktree, and review evidence; do not publish, install, or perform merged-branch cleanup.
    - A rebase, a fresh clean automated review, a passing verification rerun, or a later invocation (including “with override”) can refresh readiness evidence but does not clear the hold. Neither “when ready” nor completion of manual review alone grants post-fix merge authority. A separate, explicit maintainer instruction to merge the corrected PR can authorize it within that instruction's scope, subject to all applicable gates.
@@ -50,11 +50,10 @@ Pending, failed, stale, or unavailable review or verification is not a pass. Adm
 
 ## Representative Decisions
 
-- Clean self-review, trusted current-head Codex completion requiring no changes, and passing applicable verification and CI: use the authorized ordinary merge, pinned to that head. Evidence-backed dismissal of an incorrect finding does not itself mean changes were required.
-- A Codex finding or a verifier failure required a fix: verify the affected behavior, push the correction, and obtain applicable current-head review and verification results. Hand the still-open PR back for manual re-review, not an immediate merge decision. If the PR is then rebased and a repeated “with override” invocation gets clean results, keep it open.
+- No Codex requirement, clean self-review, and all other applicable gates passing: use the authorized ordinary merge, pinned to that head. Do not post a Codex request, ask about connector setup, or wait for a Codex verdict.
+- A review finding or a verifier failure required a fix: verify the affected behavior, push the correction, and obtain applicable current-head review and verification results. Hand the still-open PR back for manual re-review, not an immediate merge decision. If the PR is then rebased and a repeated “with override” invocation gets clean results, keep it open. Evidence-backed dismissal of an incorrect finding does not itself mean changes were required.
 - The maintainer explicitly says “fix those findings and merge this PR after fixes,” or later explicitly directs merging the corrected PR: merge only if that authority covers the corrections and all applicable gates pass on the current head. Administrative override still needs its own authority.
-- Empty formal reviews but a trusted complete current-head Codex summary: apply the reference's comment-based completion rules; do not wait solely for a formal review.
-- Stale, pending, unavailable, or conflicting Codex result: no merge under the ordinary “when ready” instruction, even with administrative override.
+- When Codex applies, a trusted terminal current-head summary can establish completion without a formal review. A stale, pending, unavailable, or conflicting result does not satisfy that gate, even with administrative override.
 - An otherwise authorized merge with all shared gates satisfied but a remaining administrative restriction: use an expressly authorized override only if that instruction covers the identified restriction and the ordinary path is unavailable. Without override authority, request that specific decision.
 - A local no-merge instruction or non-waivable security policy: retain it regardless of the generic skill or example invocation.
 
