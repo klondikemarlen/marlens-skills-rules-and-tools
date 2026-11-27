@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.12](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1716) - 2026-11-27
+
+### Changed
+
+- Declare fixed Vue prop defaults where optional props are defined, while preserving explicit values, reactive fallbacks, and each sibling component's wording.
+
 ## [5.23.11](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1717) - 2026-11-27
 
 ### Changed
