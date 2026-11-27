@@ -6,6 +6,8 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.21](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1733) - 2026-11-27
+
 ### Changed
 
 - The Express policy template shows how to keep membership checks private to the action’s policy without coupling sibling permissions.
