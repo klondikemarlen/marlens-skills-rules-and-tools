@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process"
-import { existsSync, readFileSync, statSync } from "node:fs"
+import { existsSync, lstatSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 
 import ts from "typescript"
@@ -56,16 +56,162 @@ function repositoryRoot(projectDirectory) {
   return git(projectDirectory, ["rev-parse", "--show-toplevel"]).trim()
 }
 
-function automaticTestPaths(root, environment) {
-  const value = environment.OMP_VERIFIER_CHANGED_PATHS
-  if (value === undefined) return undefined
+function selectedPaths(value) {
+  if (value === undefined) {
+    return undefined
+  }
 
   const paths = JSON.parse(value)
   if (!Array.isArray(paths) || paths.some((filePath) => typeof filePath !== "string")) {
     throw new Error("OMP_VERIFIER_CHANGED_PATHS must be a JSON array of paths")
   }
 
-  return [...new Set(paths)]
+  return new Set(paths)
+}
+
+function isProjectPath(filePath) {
+  return (
+    filePath.trim() &&
+    !filePath.includes("\0") &&
+    !path.isAbsolute(filePath) &&
+    !(path.sep === "\\" && (filePath.includes("\\") || /^[a-z]:/iu.test(filePath))) &&
+    filePath.split("/").every((part) => part && part !== "." && part !== "..")
+  )
+}
+
+function validLineRanges(ranges) {
+  if (!Array.isArray(ranges)) {
+    return false
+  }
+
+  let previousLast = 0
+  for (const range of ranges) {
+    if (!Array.isArray(range) || range.length !== 2) {
+      return false
+    }
+
+    const [first, last] = range
+    if (
+      !Number.isSafeInteger(first) ||
+      !Number.isSafeInteger(last) ||
+      first <= previousLast ||
+      last < first
+    ) {
+      return false
+    }
+
+    previousLast = last
+  }
+
+  return true
+}
+
+function readPrScope(environment) {
+  let scope
+  let matchingPaths
+  try {
+    scope = JSON.parse(environment.OMP_VERIFIER_PR_SCOPE)
+    matchingPaths = selectedPaths(environment.OMP_VERIFIER_CHANGED_PATHS)
+  } catch {
+    throw new Error("Expected JSON scope and matching paths from OMP Verifier.")
+  }
+
+  if (!matchingPaths || ![...matchingPaths].every(isProjectPath)) {
+    throw new Error("Expected project-relative paths in OMP_VERIFIER_CHANGED_PATHS.")
+  }
+
+  if (scope?.version !== 1) {
+    throw new Error("Expected PR scope version 1.")
+  }
+
+  for (const key of ["baseCommit", "mergeBaseCommit", "headCommit"]) {
+    if (typeof scope[key] !== "string" || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u.test(scope[key])) {
+      throw new Error(`Expected a full Git commit ID in ${key}.`)
+    }
+  }
+
+  const { mode, lineRanges, deletedPaths, wholeFilePaths } = scope
+  const expectedMode = wholeFilePaths?.length ? "changed-lines-and-files" : "changed-lines"
+  if (
+    mode !== expectedMode ||
+    !lineRanges ||
+    typeof lineRanges !== "object" ||
+    Array.isArray(lineRanges) ||
+    !Array.isArray(deletedPaths) ||
+    !Array.isArray(wholeFilePaths)
+  ) {
+    throw new Error("Expected a matching mode and lineRanges, deletedPaths, and wholeFilePaths.")
+  }
+
+  const rangesByPath = new Map(Object.entries(lineRanges))
+  for (const [filePath, ranges] of rangesByPath) {
+    if (!matchingPaths.has(filePath) || !validLineRanges(ranges)) {
+      throw new Error(`Expected ordered one-based line ranges for a matching path: ${filePath}.`)
+    }
+  }
+
+  for (const filePath of deletedPaths) {
+    if (!matchingPaths.has(filePath) || rangesByPath.has(filePath)) {
+      throw new Error("Deleted paths must be matching paths without line ranges.")
+    }
+  }
+
+  for (const filePath of wholeFilePaths) {
+    if (!rangesByPath.has(filePath)) {
+      throw new Error("Whole-file paths must be matching paths with a lineRanges entry.")
+    }
+  }
+
+  return { matchingPaths, rangesByPath, wholeFiles: new Set(wholeFilePaths) }
+}
+
+function scopedTestFiles(root, { matchingPaths, rangesByPath, wholeFiles }) {
+  const files = []
+
+  for (const testPath of [...matchingPaths].filter(isTestPath).sort()) {
+    const lineRanges = rangesByPath.get(testPath)
+    const wholeFile = wholeFiles.has(testPath)
+    const entry = scopedFileEntry(root, testPath)
+
+    if (!lineRanges) {
+      // A removed rename source is absent from both lineRanges and deletedPaths.
+      if (entry && !entry.isDirectory()) {
+        throw new Error(`No lineRanges entry for present test file ${testPath}.`)
+      }
+      continue
+    }
+
+    if (!entry || ((wholeFile || lineRanges.length > 0) && !entry.isFile())) {
+      throw new Error(`The captured scope does not match the test file at ${testPath}.`)
+    }
+
+    if (wholeFile || lineRanges.length > 0) {
+      files.push({ testPath, lineRanges, wholeFile })
+    }
+  }
+
+  return files
+}
+
+function scopedFileEntry(root, testPath) {
+  try {
+    return lstatSync(path.join(root, testPath), { throwIfNoEntry: false })
+  } catch (error) {
+    if (error.code === "ENOTDIR") {
+      return undefined
+    }
+
+    throw new Error(`Cannot inspect the captured test file ${testPath}.`, { cause: error })
+  }
+}
+
+function automaticTestPaths(root, environment) {
+  const paths = selectedPaths(environment.OMP_VERIFIER_CHANGED_PATHS)
+  if (!paths) {
+    return undefined
+  }
+
+  return [...paths]
     .filter(isTestPath)
     .filter((filePath) => existsSync(path.join(root, filePath)))
     .sort()
@@ -111,17 +257,53 @@ function isControllerTestPath(testPath) {
   )
 }
 
-function lineNumber(source, offset) {
-  let line = 1
-  for (let index = 0; index < offset; index += 1) {
-    if (source[index] === "\n") line += 1
+function sourceLineStarts(source) {
+  const starts = [0]
+
+  for (
+    let newline = source.indexOf("\n");
+    newline !== -1;
+    newline = source.indexOf("\n", newline + 1)
+  ) {
+    starts.push(newline + 1)
   }
 
-  return line
+  return starts
 }
 
-function lineAt(source, line) {
-  return source.split("\n")[line - 1]?.trim() ?? ""
+function lineAtOffset(lineStarts, offset) {
+  let first = 0
+  let last = lineStarts.length
+
+  while (first + 1 < last) {
+    const middle = Math.floor((first + last) / 2)
+    if (lineStarts[middle] <= offset) {
+      first = middle
+    } else {
+      last = middle
+    }
+  }
+
+  return first + 1
+}
+
+function firstChangedLine(lineRanges, start, end) {
+  let first = 0
+  let last = lineRanges.length
+
+  while (first < last) {
+    const middle = Math.floor((first + last) / 2)
+    if (lineRanges[middle][1] < start) {
+      first = middle + 1
+    } else {
+      last = middle
+    }
+  }
+
+  const range = lineRanges[first]
+  if (range && range[0] <= end) {
+    return Math.max(start, range[0])
+  }
 }
 
 function parseGuidance(source, relativePath) {
@@ -342,14 +524,16 @@ function nativeAssertionBindings(sourceFile) {
   return bindings
 }
 
-function assertionCounts(callback, nativeBindings) {
-  let expectations = 0
+function assertionFacts(callback, nativeBindings, sourceFile) {
+  const expectationOffsets = []
   let nativeAssertions = 0
 
   function visit(node) {
     if (ts.isCallExpression(node)) {
       const callee = node.expression
-      if (ts.isIdentifier(callee) && callee.text === "expect") expectations += 1
+      if (ts.isIdentifier(callee) && callee.text === "expect") {
+        expectationOffsets.push(callee.getStart(sourceFile))
+      }
 
       let root = callee
       while (ts.isPropertyAccessExpression(root) || ts.isElementAccessExpression(root)) {
@@ -361,7 +545,7 @@ function assertionCounts(callback, nativeBindings) {
   }
 
   if (callback) visit(callback)
-  return { expectations, nativeAssertions }
+  return { expectationOffsets, nativeAssertions }
 }
 
 function testBlocks(source, testPath) {
@@ -379,23 +563,28 @@ function testBlocks(source, testPath) {
           : thirdArgument
       if (title && (ts.isStringLiteral(title) || ts.isNoSubstitutionTemplateLiteral(title))) {
         const offset = node.getStart(sourceFile)
-        const line = lineNumber(source, offset)
-        const body =
+        const bodyOffset =
           callback &&
           (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) &&
           ts.isBlock(callback.body)
-            ? source.slice(callback.body.getStart(sourceFile) + 1, callback.body.end - 1)
-            : ""
+            ? callback.body.getStart(sourceFile) + 1
+            : undefined
+        const body = bodyOffset === undefined ? "" : source.slice(bodyOffset, callback.body.end - 1)
+        const titleSpan = [title.getStart(sourceFile), title.end - 1]
+        const { expectationOffsets, nativeAssertions } = assertionFacts(
+          callback,
+          nativeBindings,
+          sourceFile
+        )
 
-        const counts = assertionCounts(callback, nativeBindings)
         blocks.push({
           name: title.text,
-          line,
-          code: lineAt(source, line),
+          titleSpan,
           body,
+          bodyOffset,
           offset,
-          expectations: counts.expectations,
-          nativeAssertions: counts.nativeAssertions,
+          expectationOffsets,
+          nativeAssertions,
         })
       }
     }
@@ -408,38 +597,67 @@ function testBlocks(source, testPath) {
 }
 
 function checkTestName(block) {
-  return /^when\s+.+,\s+.+$/iu.test(block.name)
-    ? null
-    : "does not use `when [condition], [behavior]` naming"
+  if (/^when\s+.+,\s+.+$/iu.test(block.name)) {
+    return null
+  }
+
+  return {
+    reason: "does not use `when [condition], [behavior]` naming",
+    spans: [block.titleSpan],
+  }
 }
 
 function checkArrangeActAssert(block) {
-  const arrange = block.body.search(/(?:\/\/|\/\*)\s*Arrange\b/u)
-  const act = block.body.search(/(?:\/\/|\/\*)\s*Act\b/u)
-  const assert = block.body.search(/(?:\/\/|\/\*)\s*Assert\b/u)
-  const combined = block.body.search(/(?:\/\/|\/\*)\s*Act\s*(?:\/|&|and)\s*Assert\b/u)
-  const orderedSeparatePhases = arrange !== -1 && act > arrange && assert > act
-  const orderedCombinedPhases = arrange !== -1 && combined > arrange
+  const arrange = /(?:\/\/|\/\*)\s*Arrange\b/u.exec(block.body)
+  const act = /(?:\/\/|\/\*)\s*Act\b/u.exec(block.body)
+  const assert = /(?:\/\/|\/\*)\s*Assert\b/u.exec(block.body)
+  const combined = /(?:\/\/|\/\*)\s*Act\s*(?:\/|&|and)\s*Assert\b/u.exec(block.body)
+  const orderedSeparatePhases =
+    arrange && act && assert && act.index > arrange.index && assert.index > act.index
+  const orderedCombinedPhases = arrange && combined && combined.index > arrange.index
 
-  return orderedSeparatePhases || orderedCombinedPhases
-    ? null
-    : "does not contain ordered Arrange, Act, and Assert comments"
+  if (orderedSeparatePhases || orderedCombinedPhases) {
+    return null
+  }
+
+  const spans = [arrange, act, assert, combined]
+    .filter(Boolean)
+    .map((match) => bodyMatchSpan(block.bodyOffset, match))
+  return { reason: "does not contain ordered Arrange, Act, and Assert comments", spans }
 }
 
 // Native node:assert tests keep their framework; a native import alone cannot
 // exempt an empty or expect-based test from the shared expectation count.
 
 function checkExpectationCount(block, source, testPath) {
-  if (isControllerTestPath(testPath)) return null
-  if (block.expectations === 0 && block.nativeAssertions > 0) return null
+  const expectationCount = block.expectationOffsets.length
+  if (
+    isControllerTestPath(testPath) ||
+    expectationCount === 1 ||
+    (expectationCount === 0 && block.nativeAssertions > 0)
+  ) {
+    return null
+  }
 
-  return block.expectations === 1
-    ? null
-    : `test ${JSON.stringify(block.name)} contains ${block.expectations} direct \`expect(...)\` calls; expected exactly 1`
+  return {
+    reason: `test ${JSON.stringify(block.name)} contains ${expectationCount} direct \`expect(...)\` calls; expected exactly 1`,
+    spans: block.expectationOffsets.map((offset) => [offset, offset]),
+  }
 }
 
 function checkMockCalls(block) {
-  return /\.mock\s*\.calls\b/gu.test(block.body) ? "asserts against `.mock.calls`" : null
+  const matches = [...block.body.matchAll(/\.mock\s*\.calls\b/gu)]
+  if (!matches.length) {
+    return null
+  }
+
+  const spans = matches.map((match) => bodyMatchSpan(block.bodyOffset, match))
+  return { reason: "asserts against `.mock.calls`", spans }
+}
+
+function bodyMatchSpan(bodyOffset, match) {
+  const start = bodyOffset + match.index
+  return [start, start + match[0].length - 1]
 }
 
 function describeDepth(source, offset) {
@@ -464,11 +682,64 @@ function describeDepth(source, offset) {
 function checkDescribeDepth(block, source) {
   return describeDepth(source, block.offset) >= 3
     ? null
-    : "is not nested under file, class, and method `describe` blocks"
+    : { reason: "is not nested under file, class, and method `describe` blocks", spans: [] }
 }
 
-function formatViolation(testPath, block, source, reason) {
-  return `${testPath}:${block.line}: \`${block.code}\` — ${reason}; source ${source.path}:${source.line} (\`marlens-test-alignment: ${source.directive}\`).`
+function eligibleFindingLine(block, spans, lineStarts, lineRanges) {
+  if (!lineRanges) {
+    return lineAtOffset(lineStarts, block.offset)
+  }
+
+  // Prefer rule-specific evidence. For rules about missing structure, the
+  // declaration is the only anchor; an arbitrary callback edit is not evidence.
+  if (!spans.length) {
+    const declarationLine = lineAtOffset(lineStarts, block.offset)
+    return firstChangedLine(lineRanges, declarationLine, declarationLine)
+  }
+
+  let earliestLine
+
+  for (const [start, end] of spans) {
+    const startLine = lineAtOffset(lineStarts, start)
+    const endLine = lineAtOffset(lineStarts, end)
+    const changedLine = firstChangedLine(lineRanges, startLine, endLine)
+
+    if (changedLine !== undefined && (earliestLine === undefined || changedLine < earliestLine)) {
+      earliestLine = changedLine
+    }
+  }
+
+  return earliestLine
+}
+
+function formatViolation(testPath, line, code, ruleSource, reason) {
+  return `${testPath}:${line}: \`${code}\` — ${reason}; source ${ruleSource.path}:${ruleSource.line} (\`marlens-test-alignment: ${ruleSource.directive}\`).`
+}
+
+function invalidPrScope(evidence) {
+  return result(
+    "BLOCKED",
+    "OMP_VERIFIER_PR_SCOPE is invalid for test alignment.",
+    evidence,
+    "Capture a fresh PR scope with OMP Verifier against the actual PR base."
+  )
+}
+
+function readTestSource(root, testPath, lineRanges) {
+  let source
+  try {
+    source = readFileSync(path.join(root, testPath), "utf8")
+  } catch (error) {
+    throw new Error(`Cannot read test file ${testPath}.`, { cause: error })
+  }
+
+  const lineStarts = sourceLineStarts(source)
+  const lineCount = lineStarts.at(-1) === source.length ? lineStarts.length - 1 : lineStarts.length
+  if (lineRanges?.at(-1)?.[1] > lineCount) {
+    throw new Error(`Line ranges exceed the length of ${testPath}.`)
+  }
+
+  return { source, lineStarts }
 }
 
 function collectVerification(projectDirectory, environment) {
@@ -493,10 +764,20 @@ function collectVerification(projectDirectory, environment) {
     )
   }
 
-  let testPaths
+  const scoped = environment.OMP_VERIFIER_PR_SCOPE !== undefined
+  let testFiles
   try {
-    testPaths = changedTestFiles(root, environment)
-  } catch {
+    if (scoped) {
+      const scope = readPrScope(environment)
+      testFiles = scopedTestFiles(root, scope)
+    } else {
+      testFiles = changedTestFiles(root, environment).map((testPath) => ({ testPath }))
+    }
+  } catch (error) {
+    if (scoped) {
+      return invalidPrScope(error.message)
+    }
+
     return result(
       "BLOCKED",
       "Changed files could not be inspected.",
@@ -505,11 +786,13 @@ function collectVerification(projectDirectory, environment) {
     )
   }
 
-  if (testPaths.length === 0) {
+  if (testFiles.length === 0) {
     return result(
       "PASS",
       "No changed test files require alignment review.",
-      "The worktree diff contains no changed test files.",
+      scoped
+        ? "The captured PR scope contains no eligible test source lines or whole files."
+        : "The worktree diff contains no changed test files.",
       "No follow-up check is required."
     )
   }
@@ -530,25 +813,45 @@ function collectVerification(projectDirectory, environment) {
   const suppressed = []
   const violations = []
 
-  for (const testPath of testPaths) {
+  for (const { testPath, lineRanges, wholeFile } of testFiles) {
     const suppression = matchingSuppression(suppressions, testPath)
+    let testSource
+    if (!suppression || lineRanges?.length) {
+      try {
+        testSource = readTestSource(root, testPath, lineRanges)
+      } catch (error) {
+        if (scoped) {
+          return invalidPrScope(error.message)
+        }
+
+        throw error.cause ?? error
+      }
+    }
+
     if (suppression) {
       suppressed.push(`${testPath} (${suppression.path}: ${suppression.reason})`)
       continue
     }
 
     const guidance = guidanceForTest(root, testPath)
-    const source = readFileSync(path.join(root, testPath), "utf8")
+    const { source, lineStarts } = testSource
+
+    const eligibleRanges = wholeFile ? undefined : lineRanges
     const blocks = testBlocks(source, testPath)
     configured.push(`${testPath} (${guidance.size} rule${guidance.size === 1 ? "" : "s"})`)
 
     for (const block of blocks) {
       for (const [directive, ruleSource] of guidance) {
-        const reason = DIRECTIVES[directive].check(block, source, testPath)
-        if (!reason) continue
+        const finding = DIRECTIVES[directive].check(block, source, testPath)
+        if (!finding) continue
+
+        const line = eligibleFindingLine(block, finding.spans, lineStarts, eligibleRanges)
+        if (line === undefined) continue
+
+        const code = source.slice(lineStarts[line - 1], lineStarts[line]).trim()
 
         violations.push({
-          evidence: formatViolation(testPath, block, ruleSource, reason),
+          evidence: formatViolation(testPath, line, code, ruleSource, finding.reason),
           remediation: DIRECTIVES[directive].remediation,
         })
       }
@@ -571,9 +874,11 @@ function collectVerification(projectDirectory, environment) {
     suppressed.length > 0 ? ` Suppressed ${CHECK_ID} for ${suppressed.join(", ")}.` : ""
   return result(
     "PASS",
-    configured.length > 0
-      ? "Changed test files follow shared baseline and local alignment guidance."
-      : "Changed test files are covered by a scoped test-alignment suppression.",
+    configured.length === 0
+      ? "Changed test files are covered by a scoped test-alignment suppression."
+      : scoped
+        ? "No test-alignment violations were found at eligible PR locations."
+        : "Changed test files follow shared baseline and local alignment guidance.",
     `${inspected}${skipped}`.trim(),
     "No follow-up check is required."
   )
