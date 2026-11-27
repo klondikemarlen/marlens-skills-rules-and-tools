@@ -2257,6 +2257,33 @@ import DestroyService from "@/services/children-with-diverse-needs-funding-categ
 
 Do not add a default export to a third-party module or rewrite unrelated dependency imports to fit this example.
 
+When a helper intended for reuse belongs to an established test-support entry point but is missing from its exports, add a named export there instead of importing the implementation file in ordinary consuming tests. Import from the entry point even when a test needs only one helper, and combine compatible named imports from that entry point in a single declaration. Follow the project's supported paths, export shape, and import groups. Do not create a barrel just for this convention or expose private helpers. A test of the helper itself can still import its supported concrete module as the subject. Setup and mock registration can keep direct imports where required to preserve initialization order.
+
+For example, suppose `@/tests/support` already exports `buildJsonResponse`, but ordinary tests also need the reusable `buildErrorResponse`. Before, a test mixes the entry point and a leaf:
+
+```typescript
+import { buildJsonResponse } from "@/tests/support"
+import { buildErrorResponse } from "@/tests/support/build-error-response"
+```
+
+Add the missing named re-export to the existing `tests/support/index.ts`, following [Library Index Barrels](#library-index-barrels):
+
+```typescript
+export { buildErrorResponse } from "./build-error-response"
+```
+
+After, that test imports both helpers from the same entry point:
+
+```typescript
+import { buildErrorResponse, buildJsonResponse } from "@/tests/support"
+```
+
+A separate test that needs only the error response uses the same entry point:
+
+```typescript
+import { buildErrorResponse } from "@/tests/support"
+```
+
 Model barrels are an exception to the dependency-bundle preference: export models only. Import a model-owned constant or enum directly from that model's module instead of expanding the model barrel. This does not change service-barrel grouping or permit bypassing public package/export boundaries. Explicit project-local conventions remain authoritative.
 
 Preserve the positions and order of unchanged imports when editing unrelated behavior. Do not move them merely to tidy or alphabetize a touched file; retain required new imports and intentional import changes. Review the full PR diff for equivalent incidental moves and remove them. Explicitly requested import cleanup and changes required by project tooling remain valid.
