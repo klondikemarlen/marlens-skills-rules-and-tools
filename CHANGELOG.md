@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.9](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1710) - 2026-11-27
+
+### Changed
+
+- Make guidance sync notices start with the MSSRT version and say whether OMP can recall the rules. See `/mssrt memory sync status` for the full import details.
+
 ## [5.23.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1707) - 2026-11-27
 
 ### Changed
