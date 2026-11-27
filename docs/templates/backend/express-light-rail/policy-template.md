@@ -52,6 +52,34 @@ If `ProjectAttachmentsPolicy.create()` happens to use the same membership check 
 - **Shared invariant:** Use a well-named shared predicate when the same domain fact must change in lockstep for all callers. Each action still decides how that fact affects permission.
 - **Domain base class:** Inherit behavior when it belongs to a meaningful common policy type. Don't invent a base class solely to avoid repeating a check.
 
+## Alternative Allow Paths for One Action
+
+When one action has several ways to grant permission, prefer one positive guard per sufficient path, followed by an explicit deny. Unlike the independent actions above, these guards all decide the same permission. A project note may be updated by its author or its assigned editor, but both must have project access. Compute the shared access check once and name it in both guards so each states the full rule.
+
+```ts
+export function canUpdateProjectNote(userId: string, note: ProjectNote): boolean {
+  const hasProjectAccess = note.project.memberIds.includes(userId)
+
+  if (hasProjectAccess && note.authorId === userId) {
+    return true
+  }
+
+  if (hasProjectAccess && note.editorId === userId) {
+    return true
+  }
+
+  return false
+}
+
+type ProjectNote = {
+  project: { memberIds: readonly string[] }
+  authorId: string
+  editorId: string | null
+}
+```
+
+Without access, neither role check runs. If the author path grants permission, the editor check does not run. When changing an existing policy, preserve its conditions and evaluation order; don't compute path-specific checks eagerly. Keep early denials or required preconditions when they protect later checks, and keep named shared predicates for genuine domain invariants.
+
 ## Template
 
 ```ts
