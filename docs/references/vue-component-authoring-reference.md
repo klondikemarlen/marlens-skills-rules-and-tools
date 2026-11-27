@@ -246,6 +246,33 @@ const props = withDefaults(
 
 Adding another default should add its own line without rewriting `loading` or the delimiters. This is distinct from prop-type, event-map, and class-object formatting; preserve project constraints.
 
+## Static Prop Defaults
+
+When an optional typed prop has a fixed fallback for omission or `undefined`, prefer declaring it with `withDefaults(defineProps<...>(), ...)`. Render the resolved prop directly rather than repeating the missing-value check in template branches or interpolation. For example, in `CopyFailedRow.vue`:
+
+```vue
+<template>
+  <p>{{ props.message }}</p>
+</template>
+
+<script setup lang="ts">
+const props = withDefaults(
+  defineProps<{
+    message?: string
+  }>(),
+  {
+    message: "The copy failed. Try starting it again.",
+  }
+)
+</script>
+```
+
+Omitting `message` or passing `:message="undefined"` renders “The copy failed. Try starting it again.” Passing `message="Copy was interrupted."` renders “Copy was interrupted.” unchanged. Use the same declaration pattern in equivalent sibling components in scope, keeping copy specific to each one: a stale-copy row might say “The copy is taking longer than expected.”
+
+Vue does not substitute the default for an explicit `false`, `""`, or `null`. Keep those values when the prop's contract accepts them and they mean something, such as an off switch, an intentionally blank message, or a nullable state. If callers already rely on `null` or `""` selecting the fallback, keep the existing normalization or check for those values explicitly; `withDefaults` alone cannot preserve that behavior. Do not make a genuinely required prop optional to give it a default.
+
+If the fallback depends on changing state, such as a responsive breakpoint, derive it in setup as a [reactive presentation default](#reactive-presentation-defaults), not a fixed prop default.
+
 ## Multiline Emitted-Event Maps
 
 Prefer multiline object event maps passed to `defineEmits`, including a single-event map: put the opening brace, each event, and the closing brace on separate lines. Separate the event declaration from the following declaration using [Whitespace Matters](../../rules/whitespace-matters.md). Formatter acceptance of compact syntax does not establish this structural preference.
