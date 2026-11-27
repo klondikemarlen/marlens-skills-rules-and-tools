@@ -292,6 +292,8 @@ Automatic checks require declared `pathTriggers`. This package narrows test alig
 
 For a PR, pass its actual target to `omp-verifier automatic --base <target>`. For a stacked PR, that target is its immediate parent. The coordinator supplies version 1 `OMP_VERIFIER_PR_SCOPE` for the current comparison. Test alignment reads the full test file and its applicable guidance, but reports findings only at eligible head-side locations. If line 1 contains an unchanged violation and the PR adds a violation on line 2, only line 2 is reported. Explicit `--whole-file <path>` makes both lines eligible for that path; it does not widen other files.
 
+Replacing a callback’s only assertion with an ordinary statement can introduce a violation even though the test declaration did not change. Compare the callback against the PR’s merge base: report the changed replacement when it removes the last assertion, not an incidental body edit in a callback that was already assertion-free.
+
 Without a coordinator PR scope, the standalone or manual check continues to assess every test in each selected file, including legacy callbacks. Record the actual `PASS`, `FAIL`, or `BLOCKED` result. A passing behavioral suite does not establish structural alignment.
 
 In an OMP session launched with `MARLENS_TEST_ALIGNMENT_BASE` set to that base ref, invoke `/verifier verify marlens-rules:test-alignment`. Alternatively, locate the declared check entry in the installed provider and run it from the active project in a terminal:
