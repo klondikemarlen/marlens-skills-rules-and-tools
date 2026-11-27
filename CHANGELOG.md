@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## 5.23.23 - 2026-11-27
+
+### Changed
+
+- Readability guidance keeps the owner visible in short property reads and distinguishes shorthand aliases from useful local bindings.
+
 ## [5.23.22](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1735) - 2026-11-27
 
 ### Changed
