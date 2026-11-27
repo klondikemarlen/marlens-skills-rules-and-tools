@@ -781,6 +781,44 @@ For a record-bound form, guard record-dependent rendering with the project's sup
 
 Use existing components, request/recovery bindings, and the actual record policy; the read-only branch illustrates an accepted record-specific permission alternative, not a new access-denial requirement. Here `isNil` checks `null` and `undefined` and must retain the project's supported template type narrowing; pass the original narrowed record without casts or changing its model/source nil types. A nil record alone does not justify an indefinite skeleton: retain distinct pending, failed/retry, and settled-absent states. If a refresh keeps an available record, preserve its existing pending/error feedback and stale-data policy rather than dropping that feedback because the example's missing branch is bypassed. During review, check missing and available records separately from loading, including failure/recovery and permitted/restricted record actions. Access presentation still follows the [existing owning boundary](#permission-restricted-navigation-and-access-presentation).
 
+### Recovery Messages and Action Names
+
+When several public messages explain the same outcome, resolve their precedence once and render the selected text through one presentation element. Keep the source state with its existing owners. A confirmed copy failure and an inability to read the latest copy status answer different questions and may need different recovery actions.
+
+In the failed-copy screen used in [Screen-Owned Visibility and Recovery Polling](#screen-owned-visibility-and-recovery-polling), the unknown-outcome branch takes precedence over a previously saved failure. The failed branch prefers the current retry's public error, then the saved public explanation, then a safe fallback:
+
+```vue
+<template>
+  <section>
+    <template v-if="isCopyOutcomeUnknown">
+      <p role="status">Could not check the current copy status.</p>
+      <button type="button" @click="checkCopyStatus">Check copy status</button>
+    </template>
+    <template v-else-if="hasCopyFailed">
+      <p role="status">{{ failedCopyMessage }}</p>
+      <button type="button" @click="retryCopy">Retry copy</button>
+    </template>
+  </section>
+</template>
+
+<script setup lang="ts">
+const failedCopyMessage = computed(() => {
+  if (publicRetryError.value) {
+    return publicRetryError.value
+  }
+  if (savedPublicFailureExplanation.value) {
+    return savedPublicFailureExplanation.value
+  }
+
+  return "The attachments could not be copied."
+})
+</script>
+```
+
+This excerpt assumes the screen already has status and action bindings. Use only [deliberately public text](code-organization-reference.md#internal-errors-public-messages-and-logs), never raw exceptions or legacy text of unknown provenance. Scope the retry error to the current copy and attempt so a stale error cannot override a new saved explanation. Consolidate presentation without combining the sources in storage, erasing their operation-specific handling, or changing the existing announcement behavior.
+
+Name the control, visibly and accessibly, for the action it performs in the current state. **Check copy status** reads the existing result; **Retry copy** submits another copy request and may then reconcile it with a read. A change in loading or appearance alone does not change the action name. Verify the accessible name and handler against the resulting request: the check must send the status read and no retry submission; retry must send the restart request, not just refresh. The two branches illustrate distinct actions, not a requirement for two components or two buttons.
+
 ## Task-Focused Help and Supplemental Table Information
 
 Before adding or polishing explanatory UI, identify the end-user task or decision it supports. Keep QA-only ranking mechanics, count explanations, and verification notes in testing instructions or reviewer evidence, not the product. When feedback questions a panel's value or existence, reconsider removing it before improving its layout. Preserve administrative counts and help that serve an evidenced user need.
@@ -1564,7 +1602,78 @@ const { workflowStep, isLoading, refresh } = useWorkflowStep(workflowStepId, {
 
 Keep explicit `refresh()` available and invoke it from the caller's existing refresh trigger; suppression of automatic fetching must not silently disable manual refresh. Preserve ordinary immediate/ID-change fetching for default callers and the existing response to a reactive predicate becoming false. These are alternative caller examples, not declarations to combine or an instruction to suppress every watcher.
 
-Retain the composable's accepted cancellation and request-ownership contracts when the ID changes or clears, the guard suppresses watching, the scope disposes, or an obsolete request settles. An older request must not publish data, policy, or errors into a newer context, but each model-composable request resets `isLoading` to `false` unconditionally in `finally`, even while a replacement is pending; follow [Record-Scoped Async Ownership](#record-scoped-async-ownership). Do not introduce `skipWatchIf` in projects lacking it or redesign an adequate watcher API merely to match this example.
+Retain the composable's accepted cancellation and request-ownership contracts when the ID changes or clears, the guard suppresses watching, the scope disposes, or an obsolete request settles. An older request must not publish data, policy, or errors into a newer context, but each model-composable request resets `isLoading` to `false` unconditionally in `finally`, even while a replacement is pending; follow [Record-Scoped Async Ownership](#record-scoped-async-ownership).
+
+If callers genuinely need a new configurable skip and the project has no established convention, use an optional named `skip<Step>If` predicate in the options object, defaulted to `() => false`. Omission or `false` keeps ordinary behavior; `true` skips only the named step. `skipWatchIf` suppresses automatic watcher work, not explicit refresh. `skipInitialDelayIf` bypasses the first wait, not the poll. Do not add a second option for a gate the caller already owns, redesign an adequate watcher API, or change when an existing predicate is evaluated.
+
+### Screen-Owned Visibility and Recovery Polling
+
+Keep watched inputs, entry conditions, and synchronous cleanup registration visible at the watcher. Hand a multi-step workflow to a named operation that owns its timing, cancellation mechanics, and error handling. A local operation is enough when it stays cohesive; use a private module when the workflow is a distinct responsibility. Do not extract a pass-through helper for an ordinary guard and awaited refresh.
+
+In this example adapted from [WRAP's attachment copy recovery](https://github.com/icefoganalytics/wrap/pull/918), the screen decides whether the attachment panel and browser tab are visible. It passes a live condition for whether to suppress automatic recovery polling, not the panel or document state:
+
+```typescript
+const copyRecovery = useCopyRecovery(copyFolderId, {
+  skipRecoveryPollingIf: () => !props.isPanelVisible || documentVisibility.value !== "visible",
+})
+```
+
+Before the initial status read settles, the recovery composable registers a watcher on the supplied getter and its own nullable `recoveryTarget`. That target identifies the copy and its recovery window: it stays stable across visibility changes, changes for a new failed attempt or a new reconciliation window after an unreadable retry outcome, and clears when no recovery is needed. Eligibility stays with the operation. The watcher does not inspect screen visibility or compute deadlines:
+
+```typescript
+const updateFailedCopyPolling: WatchCallback<[CopyRecoveryTarget | null, boolean]> = (
+  [newTarget, shouldSkip],
+  [previousTarget, wasSkipped],
+  onCleanup
+) => {
+  if (newTarget === null || shouldSkip) return
+
+  const stopPolling = startFailedCopyRecovery(newTarget, {
+    skipInitialDelayIf: () => newTarget === previousTarget && wasSkipped === true,
+  })
+  onCleanup(stopPolling)
+}
+
+watch([recoveryTarget, skipRecoveryPollingIf], updateFailedCopyPolling)
+```
+
+The operation's entry excerpt shows the distinct scheduling choice. It uses the window's retained deadline, not a new deadline on each watcher run:
+
+```typescript
+function startFailedCopyRecovery(
+  target: CopyRecoveryTarget,
+  { skipInitialDelayIf = () => false }: {
+    skipInitialDelayIf?: () => boolean
+  } = {}
+) {
+  const polling = createFailedCopyPolling(target)
+  if (skipInitialDelayIf()) {
+    polling.reconcileNow()
+  } else {
+    polling.scheduleNextRead()
+  }
+
+  return () => polling.stop()
+}
+```
+
+The named operations illustrate ownership, not APIs to add. Here the normal start delays its first read and schedules only within the window. Resuming the same window performs one immediate reconciliation read even after expiry; it never extends the deadline. The operation cancels pending waits and prevents stopped runs from publishing late status or scheduling further work. It retries eligible read failures within the same window and propagates unexpected ones through the existing application error boundary. A post-retry reconciliation must read after the restart request settles; a read already in flight cannot establish the new attempt's outcome. An unavailable status read does not prove the copy failed; use the separate [unknown-outcome presentation](#recovery-messages-and-action-names).
+
+By contrast, a screen that only refreshes once when its selected folder changes can keep the read inline in the named watcher handler. Reuse the existing read's cancellation and error ownership; do not add this as a second watcher for the polling path above:
+
+```typescript
+async function refreshSelectedCopyStatus(newCopyFolderId: number | null) {
+  if (newCopyFolderId === null) return
+
+  await readCopyStatus(newCopyFolderId)
+}
+
+watch(copyFolderId, refreshSelectedCopyStatus)
+```
+
+Use the existing visibility inputs, watch timing, and recovery state. Do not snapshot a reactive condition or merely read it inside a `watch` callback and expect it to retrigger the watcher. When the screen already owns the watcher and its gate, pass no second visibility option to the operation. This boundary does not prevent UI-specific composables from reading the UI state they own.
+
+Review the flow with the same copy: start with the normal delay; hide the panel or tab and verify cleanup, then resume before and after the deadline and check for one immediate read with no new window. Replace the target or unmount and ensure old work cannot update the current state. Check a retryable read failure and an unexpected error separately, and verify that the post-retry read cannot use a pre-retry result. Exercise the message precedence and read-versus-restart request separately from the timer behavior.
 
 ## Mutable Component Workflow Snapshots
 
