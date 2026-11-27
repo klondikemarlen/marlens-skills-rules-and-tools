@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1730) - 2026-11-27
+
+### Changed
+
+- New local GitHub clones default to SSH and include an `origin` check. Use a different transport when explicitly requested, and report SSH failures instead of retrying over HTTPS.
+
 ## [5.23.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1727) - 2026-11-27
 
 ### Changed
