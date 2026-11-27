@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1721) - 2026-11-27
+
+### Fixed
+
+- Test alignment no longer asks a PR author to clean up unchanged test lines. Explicit whole-file checks still report legacy violations.
+
 ## [5.23.13](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1715) - 2026-11-27
 
 ### Changed
