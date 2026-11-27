@@ -157,6 +157,8 @@ For a meaningful computed result consumed by another nested call, also prefer a 
 
 Let the reader see where a value comes from. In a log context, `sourceSharePointFolderId: sourceSharePointFolder.id` distinguishes the source from the destination at the point of use. Introducing `const sourceSharePointFolderId = sourceSharePointFolder.id` just to use object shorthand makes the reader look elsewhere without explaining anything new. Keep a local when its name explains a decision or when taking a snapshot before a mutation matters.
 
+Prefer a short qualified property read when its receiver answers “whose value is this?” In a policy, keep `this.user.id === this.record.ownerId` even when another guard also reads `this.user.id`. A local called `userId` removes the actor from view without adding meaning. Repetition alone does not justify an alias. Bind a local when it clarifies a distinct role, names a computation, narrows a checked association, or deliberately captures a value before it changes. Destructuring is a way to write a useful binding, not a reason to introduce one.
+
 Resolve fallback expressions into descriptive `const` bindings before assembling an object or array, then use property shorthand where names match:
 
 ```typescript
