@@ -290,17 +290,19 @@ Automatic checks require declared `pathTriggers`. This package narrows test alig
 
 ## Diff Scope
 
-Before merge, select the actual PR base ref and check the current PR scope. The check assesses every test in each selected changed file, including legacy callbacks outside the edited lines. Record its `PASS`, `FAIL`, or `BLOCKED` result in the project's existing permitted evidence location. Behavioral-suite success does not prove this structural contract; anticipated final-yield advice is not a completed check.
+For a PR, pass its actual target to `omp-verifier automatic --base <target>`. For a stacked PR, that target is its immediate parent. The coordinator supplies version 1 `OMP_VERIFIER_PR_SCOPE` for the current comparison. Test alignment reads the full test file and its applicable guidance, but reports findings only at eligible head-side locations. If line 1 contains an unchanged violation and the PR adds a violation on line 2, only line 2 is reported. Explicit `--whole-file <path>` makes both lines eligible for that path; it does not widen other files.
+
+Without a coordinator PR scope, the standalone or manual check continues to assess every test in each selected file, including legacy callbacks. Record the actual `PASS`, `FAIL`, or `BLOCKED` result. A passing behavioral suite does not establish structural alignment.
 
 In an OMP session launched with `MARLENS_TEST_ALIGNMENT_BASE` set to that base ref, invoke `/verifier verify marlens-rules:test-alignment`. Alternatively, locate the declared check entry in the installed provider and run it from the active project in a terminal:
 
 ```bash
-env -u OMP_VERIFIER_CHANGED_PATHS \
+env -u OMP_VERIFIER_CHANGED_PATHS -u OMP_VERIFIER_PR_SCOPE \
   MARLENS_TEST_ALIGNMENT_BASE="<actual PR base ref>" \
   node "<installed provider root>/verifications/test-alignment.mjs"
 ```
 
-Do not run the slash command as a shell executable. Clearing `OMP_VERIFIER_CHANGED_PATHS` avoids a stale automatic per-turn selection overriding the manual PR scope. `MARLENS_TEST_ALIGNMENT_BASE` compares committed branch changes to the base and also includes current worktree and untracked tests. Without it, the check examines only the current worktree diff against `HEAD` plus untracked tests, so a clean committed branch can miss its PR changes.
+Do not run the slash command as a shell executable. Clear both coordinator variables for the manual whole-file check above. `MARLENS_TEST_ALIGNMENT_BASE` compares committed branch changes to the base and also includes current worktree and untracked tests. Without it, the check examines only the current worktree diff against `HEAD` plus untracked tests, so a clean committed branch can miss its PR changes.
 
 The standalone entry prints the same structured result and uses a fail-closed shell contract: `PASS` exits zero; `FAIL` and `BLOCKED` exit nonzero. Its JSON output retains the actual status, evidence, and next check; callers must not reinterpret `BLOCKED` as a structural failure or pass. An unavailable base therefore stops a shell `&&` continuation while preserving its prerequisite evidence. No installed coordinator is needed for this standalone path. Preserve explicit local additions and supported scoped suppressions. If the relevant check or base ref is unavailable, record `BLOCKED` with the exact prerequisite rather than claiming a structural PASS. No matching changed tests means `N/A` for this gate. This is focused pre-merge evidence, not a new runtime completion barrier, advisor cadence, model route, or unrelated hygiene scan.
 
@@ -310,7 +312,7 @@ Coordinator integration needs support for nonzero structured `BLOCKED` results, 
 
 Default evidence is capped at the coordinator's 4,000-character field limit. Oversized results retain their actual `PASS`, `FAIL`, or `BLOCKED` status and full violation count, show the leading diagnostics, and explicitly disclose shortened evidence. This bounds reporting, not the inspected scope or enforcement.
 
-For complete evidence, run the same installed `verifications/test-alignment.mjs` entry with `--full` from the same project directory, preserving `OMP_VERIFIER_CHANGED_PATHS` for automatic selection or `MARLENS_TEST_ALIGNMENT_BASE` for PR scope. Redirect stdout to a local JSON file if needed. This explicit standalone diagnostic mode includes every finding, inspected filename, and suppression; it is not coordinator-schema output. Exit status remains zero only for `PASS`. It re-inspects current files, so preserve the source revision and selection when comparing with an earlier result.
+For complete evidence, run the same installed `verifications/test-alignment.mjs` entry with `--full` from the same project directory. Preserve the source revision, `OMP_VERIFIER_CHANGED_PATHS`, and `OMP_VERIFIER_PR_SCOPE` when reproducing an automatic result, or the chosen `MARLENS_TEST_ALIGNMENT_BASE` for a manual check. `--full` removes the output limit, not the finding boundary: it includes every eligible finding, inspected filename, and suppression. It re-inspects current files and exits zero only for `PASS`; the unbounded output is not coordinator-schema output.
 
 From a source checkout, exercise an installed or unpacked package's standalone CLI by pointing the repository's focused behavioral check at that entrypoint. The maintainer check lives in `scripts/`, which is not part of the installed package:
 
