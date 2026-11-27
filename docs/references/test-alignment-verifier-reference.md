@@ -118,10 +118,16 @@ For synchronous exceptions and promise rejections, prefer an independently speci
 expect(() => parseRecord(invalidInput)).toThrow("Invalid record")
 ```
 
-Name a service result for the domain value it returns: `updatedWorkflowStep` describes the result even when the test is holding the unawaited promise, whereas `update` can describe a callable, such as a bound model method. Pass the promise to the rejection matcher and await the assertion, not the service call:
+Name a service result for the domain value it returns: `updatedWorkflowStep` describes the result even when the test is holding the unawaited promise, whereas `update` can describe a callable, such as a bound model method. Pass the promise to the rejection matcher and await the assertion, not the service call.
+
+This excerpt assumes a workflow step with a recorded completion, so changing its required count is locked:
 
 ```typescript
-const updatedWorkflowStep = UpdateService.perform(workflowStep, { requiredCompletionCount: 3 }, user)
+const updatedWorkflowStep = UpdateService.perform(
+  workflowStep,
+  { requiredCompletionCount: 3 },
+  user
+)
 
 await expect(updatedWorkflowStep).rejects.toThrow(
   "Undo all completions before changing the required number of completions."
