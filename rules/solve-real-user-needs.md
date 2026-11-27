@@ -5,6 +5,10 @@ description: "Prioritize evidenced user problems and useful outcomes over specul
 
 Solve real user needs with the smallest complete requested feature set, not the most technically capable implementation. Use the request, existing product context, usage, or reported failures to identify the useful outcome. Do not invent demand or require new user research for an already-clear request.
 
+When generating a standalone deliverable, separate staging from delivery before writing any generated files. By default, create a unique directory for the task under the operating system's temporary directory. Write drafts, render inputs, and intermediate or alternate exports there from the first write; do not generate them in the delivery folder and move them out later.
+
+Place only the requested finished files at the delivery destination. If the user asks for only a PDF in Documents, render and check it in staging, then copy or move only the finished PDF to Documents. Honor explicit staging and delivery paths, leave unrelated user files untouched, and keep maintained project files in their normal project locations.
+
 Developers and package consumers are end users too. Identify the actual human consumer, discoverable native entrypoint, and normal journey through first successful use, routine reuse/update, status, and recovery. Reuse already-clear requirements rather than making the person repeat them. Backend/API success alone does not prove consumer activation or maintenance; missing routine controls are a product gap, not something solved by a longer runbook.
 
 Where safe, the product should derive and manage its own paths, prerequisites, state, and refresh lifecycle instead of asking people to remember implementation details or orchestrate routine steps. Prefer coherent native controls, sensible defaults, clear status/errors, and optional help for advanced details. An already-simple CLI may be the right interface; do not require a GUI, slash command, or arbitrary click/command-count quota. Keep lower-level procedures available for advanced use and diagnostics.
