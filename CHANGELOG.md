@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.18](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1727) - 2026-11-27
+
+### Changed
+
+- Standalone report guidance shows how to share approved workload ranges for external sizing while keeping sensitive figures private and separating observed use from tested capacity or concurrency limits.
+
 ## [5.23.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1729) - 2026-11-27
 
 ### Changed
