@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1705) - 2026-11-27
+
+### Changed
+
+- Ask Evolve to continue through a bounded backlog in the supplied order without stopping at a blocker that the remaining work does not depend on. Each outcome keeps its own delivery gates, and bare Evolve defaults stay unchanged.
+
 ## [5.23.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1703) - 2026-11-27
 
 ### Fixed
