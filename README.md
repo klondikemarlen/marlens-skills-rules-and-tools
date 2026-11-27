@@ -64,7 +64,7 @@ Use [`data-mine`](skills/data-mine/SKILL.md) to extract evidence-backed insights
 
 Use [`autonomous-merge`](skills/autonomous-merge/SKILL.md) at the merge step of an already-authorized Feature or Evolve delivery. In OMP, invoke `/skill:autonomous-merge <PR URL>`. Corrections need fresh verification for the exact current target, base, and head, not an extra manual re-review. The command grants no merge authority and does not bypass required approvals, CI, or host protection. See the [decision examples](examples/outcome-skills.md#autonomous-merge).
 
-Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for an explicit operator request to review an existing PR with Codex and merge the same head if no corrections are required and all applicable checks pass.
+Use [`review-and-merge`](skills/review-and-merge/SKILL.md) for an explicit operator request to review an existing PR and merge the same head if no corrections are required and all applicable checks pass. GitHub Codex review is not implied; [it applies only under explicit project policy or a scoped maintainer request](docs/references/github-tooling-reference.md#decide-whether-codex-applies).
 
 - **Standard:** `/skill:review-and-merge <PR URL>` never implies administrative override.
 - **With Override:** `/skill:review-and-merge <PR URL> with override` follows the same workflow. It can bypass only an authorized administrative restriction for that PR, and only if needed; it does not waive review or verification.
@@ -154,6 +154,7 @@ The [full documentation map](docs/index.md) is the starting point for procedures
 | Task                                 | Read                                                                                             |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | Deliver an issue or feature          | [Feature workflow](docs/workflows/feature-workflow.md)                                           |
+| Clone a GitHub repository locally    | [GitHub clone transport](docs/references/github-tooling-reference.md#new-local-clones)           |
 | Create or update a pull request      | [PR management](docs/workflows/pull-request-management-workflow.md)                              |
 | Resolve review feedback              | [Review-comment resolution](docs/workflows/pull-request-comment-resolution-workflow.md)          |
 | Commit changes or edit older commits | [Commit conventions](COMMITTING.md) and [rebase workflow](docs/workflows/git-rebase-workflow.md) |

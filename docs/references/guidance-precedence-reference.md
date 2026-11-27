@@ -118,6 +118,12 @@ Compose a report from the final evidence-backed understanding: lead with the cur
 
 Introduce a diagnostic observation before discussing its limits or possible relevance. Place a qualification beside the evidence it qualifies, rather than foregrounding an unexplained comparison. Keep a material uncertainty or safety limitation in the opening when it changes how the reader must interpret the problem or act. Preserve necessary diagnostics, affected versions, regression history, and explicitly requested chronological detail, clearly distinguishing historical hypotheses from current findings. This is a relevance and placement rule, not a ban on caveats, technical detail, or investigation history.
 
+#### External Sizing Briefs
+
+Give readers enough information to size a comparable deployment without exposing sensitive measurements. Keep exact activity and utilization figures in the authorized internal record unless the audience is approved to receive them and needs that precision. If the audience is authorized to receive a workload summary, use the least precise range or rounded description that the evidence supports and that still informs the planning decision. Rounding does not grant disclosure permission: omit measurements if the audience is not approved to receive them even in aggregate.
+
+Say what was counted, over what interval and observation period, and under what deployment shape and relevant limits, where those details are approved for the audience. Label historical workloads as observations, not forecasts, tested capacity, or concurrent-user limits. Counts per day or hour do not tell you how many users were active at once. State which limits are configured, which were tested under stated conditions, and what remains unknown; do not imply a capacity guarantee. See the [external sizing brief example](../../examples/reader-focused-publication.md#external-sizing-briefs).
+
 ## Rules
 
 - Keep project-specific commands, services, routes, domain terms, auth, schemas, deployment details, and UI labels in the target project.
