@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.3](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1703) - 2026-11-27
+
+### Fixed
+
+- Attribute semantic test findings to the rule that actually applies. Report expectation counts separately from independent outcomes, and preserve the causal steps that prove stale-edit rejection and recovery.
+
 ## [5.23.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1692) - 2026-11-26
 
 ### Changed
