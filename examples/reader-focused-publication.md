@@ -74,6 +74,29 @@ In a fictional restore report, an unrelated file was overwritten in a disposable
 
 If the receiving reader explicitly asks for an investigation timeline, retain the initial Slack-only hypothesis, the later confirmation of a whole-machine shutdown hang, and the crash-report observation in their actual order. Label the hypothesis as historical and the causal relationship as unknown; do not present the abandoned hypothesis as the current diagnosis or delete requested history as “noise.”
 
+### External Sizing Briefs
+
+This deployment and all measurements are fictional. A prospective adopter needs a starting workload for a pilot load test. The adopter is approved to receive coarse workload bands, the deployment shape, and the configured upload limit, but not the exact activity table.
+
+**Before — Internal Record, Not for External Sharing:**
+
+| Measurement | Internal Detail |
+| --- | --- |
+| Deployment | Two application replicas and one shared database |
+| Registered accounts at the end of the period | 2,743 |
+| Completed document uploads per weekday over 20 monitored weekdays | 3,840–6,720 |
+| Completed uploads in each monitored weekday's busiest clock hour | 618–1,144 |
+| Configured maximum file size per upload | 25 MB |
+| Capacity and concurrent users | No load test was run; simultaneous users were not measured |
+
+**After — Brief for the Approved Adopter:**
+
+> Over 20 monitored weekdays, a deployment with two application replicas and a shared database saw roughly 3,000–7,000 completed document uploads per weekday. The busiest clock hour of each monitored weekday saw roughly 500–1,200 completed uploads. The configured file-size limit was 25 MB per upload.
+>
+> Use these observations as a starting workload for your own load test, not as a capacity estimate. The deployment was not load-tested, and we did not measure how many users were active at once.
+
+If the brief is instead posted to an audience approved only for the deployment shape and upload limit, omit both workload bands. The exact table remains useful for authorized internal analysis that needs that precision, not as an appendix to either external brief.
+
 ## Upstream Feature Requests
 
 Apply [Reader-Focused Feature Requests](../docs/references/github-tooling-reference.md#reader-focused-feature-requests). These are illustrative drafts, not claims of publication or supported runtime behavior.
@@ -107,6 +130,8 @@ Completing required work, retaining evidence, and communicating with a reader ar
 Run a bounded, read-only OMP authoring/review consumer against the supplied situations and the applicable canonical or packaged workflows. Ask for the chosen action, destination, and minimal public text or no write. Include contrasting no-template, explicit-detail, material-blocker, and shared-versus-downstream cases rather than checking for matching phrases.
 
 For report authoring, supply troubleshooting notes with an abandoned hypothesis and request an actual standalone draft, not just a placement recommendation. Check the opening and retained evidence together. Contrast a safety-critical opening and an explicitly requested chronological handoff; do not accept a shortened draft that loses a material warning or requested history.
+
+For sizing-brief QA, ask for actual drafts for three audiences using the fictional internal record: an adopter approved for coarse bands, a public audience approved only for deployment shape and upload limit, and an internal analyst who is approved for and needs exact figures. Check what each draft discloses and whether it preserves the approved workload basis, deployment limits, and the distinction between observed traffic and capacity or concurrency.
 
 For feature-request QA, draft all three outputs from supplied notes: a follow-up to an existing safe-reload request, an unrelated feature request with a concrete benefit, and a bug report retaining reproduction and material uncertainty. Assess the actual drafts for self-contained meaning and useful technical detail; do not accept a checklist answer, internal-issue dependency, or vague shortened text.
 

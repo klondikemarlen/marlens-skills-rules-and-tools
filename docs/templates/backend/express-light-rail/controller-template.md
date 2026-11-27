@@ -131,6 +131,32 @@ Use the existing loader's actual predicates and required preloads, not a broader
 
 For Sequelize response preloads, apply [Contextual Association Loading](../../../references/express-light-rail-backend-concepts-reference.md#sequelize-contextual-association-loading): a primary-key detail lookup normally uses a joined include with any deterministic child ordering at the query top level, without ordering the sole parent. A paginated has-many list may instead use `separate: true`, with child order inside the include and independent parent sorting/pagination. Use the [copyable single-record and list query shapes](../express-sequelize-crud/resource-rail-template.md#optional-has-many-response-loading) only when the response needs that association; retain the loader's policy/parent constraints, transaction context, and existing association/response contracts. Do not invent ordering fields for the access preloads shown here.
 
+### Destroy Service Handoff
+
+When a resource already has a destroy service, load and authorize the target in the controller, then pass that same record to the service. Keep the loader's scope and required preloads, any existing parent checks, and the established HTTP responses. Do not unpack the child into an ID and parent just to call a parent-level operation from the controller. The destroy service owns traversal of loaded associations, the deletion and any resulting parent changes, and the concurrency checks needed to make those writes safe.
+
+This excerpt assumes an existing scoped attachment loader, an attachment policy, and a route adapter that forwards service errors:
+
+```typescript
+async destroy() {
+  const attachment = await this.loadAttachment()
+  if (attachment === null) {
+    return this.response.status(404).json({ message: "Attachment not found" })
+  }
+
+  const attachmentPolicy = this.buildAttachmentPolicy(attachment)
+  if (!attachmentPolicy.destroy()) {
+    return this.response.status(403).json({ message: "You are not authorized to delete this attachment" })
+  }
+
+  await DestroyService.perform(attachment, this.currentUser)
+
+  return this.response.status(204).end()
+}
+```
+
+Pass the acting user when the deletion depends on the actor or records attribution. If the service needs neither, keep the same controller authorization and call `await DestroyService.perform(attachment)` instead. This handoff does not require adding a service to a delete action that does not already use one.
+
 ### Nested Record Loading
 
 When a parent is required context for a child write, keep create and update under the same parent route: `POST /parents/:parentId/children` and `PATCH /parents/:parentId/children/:childId`. Take parent identity from the route, not the writable body. For a member write, match both the child ID and route parent ID; shared access scope does not prove that the child belongs to that parent. This does not require nesting independent reads or unrelated actions.
