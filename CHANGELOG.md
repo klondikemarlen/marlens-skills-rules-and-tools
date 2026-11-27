@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1743) - 2026-11-27
+
+### Changed
+
+- Test import guidance shows how to expose a shared helper from an existing support module for both grouped and single-helper consumers.
+
 ## [5.23.25](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1741) - 2026-11-27
 
 ### Changed
