@@ -6,6 +6,10 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+### Changed
+
+- State naming guidance distinguishes failure text from caught errors and shows how to name two warnings at the same display site.
+
 ## [5.23.21](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1733) - 2026-11-27
 
 ### Changed

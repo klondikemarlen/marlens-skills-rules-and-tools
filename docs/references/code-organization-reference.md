@@ -2348,6 +2348,20 @@ For application-owned boolean state, including props, locals, and computed value
 
 Align declarations, defaults, bindings, and in-scope callers together. Preserve framework and third-party names such as `disabled`, stronger local contracts, and established public APIs outside the requested scope; this is not a repository-wide rename.
 
+Use `failureMessage` rather than `error` for application state that holds only failure text. For example, a status check can expose `failureMessage: Ref<string | null>` while keeping `error` for the exception its handler receives:
+
+```ts
+const failureMessage = ref<string | null>(null)
+
+try {
+  await checkStatus()
+} catch (error) {
+  failureMessage.value = statusCheckWarningFor(error)
+}
+```
+
+At a display site that also handles copy failures, bind the status-check message as `const { failureMessage: statusCheckFailureMessage } = useStatusCheck()` alongside `copyFailureMessage`. Rename the in-scope writers and bindings, not the warning formatter, displayed text, or conditions for showing and clearing it. Keep `error` or `cause` for actual errors where appropriate; leave framework fields and external payload names unchanged.
+
 Use the established domain collection name for an ordinary resource result. Avoid a qualifier such as `loaded` when it merely restates the result's normal availability. For an existing `useWorkflowSteps` result, prefer the direct binding:
 
 Before:
