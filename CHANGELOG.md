@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.5](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1701) - 2026-11-27
+
+### Changed
+
+- Keep the source visible when forwarding unchanged framework values, and translate provider paging inside the integration rather than in application callers.
+
 ## [5.23.4](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1705) - 2026-11-27
 
 ### Changed

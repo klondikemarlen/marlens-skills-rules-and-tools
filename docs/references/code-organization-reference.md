@@ -986,7 +986,30 @@ When a feature is deferred or removed, remove its supporting abstractions if acc
 
 When a computed or similar reactive wrapper no longer reads reactive dependencies, remove it and now-unused imports if the existing consumer supports a plain value. Pass a fixed literal directly rather than keeping a one-use wrapper or alias. Retain reactivity when inputs still change or the consumer requires a ref; preserve type checking and the consumer's value/identity contract.
 
+### Intermediate Values
+
 Avoid assigning an existing value to a new name solely to attach a type assertion when the alias adds no domain meaning or transformation. Prefer the original value and accurate narrowing from the existing validation boundary where available. Keep intermediates that clarify meaning, are reused, or represent real transformations; this is not a ban on necessary assertions or intermediate variables.
+
+Keep the source visible when forwarding a short, familiar property unchanged. For example, compare these two versions of a controller call from [WRAP #595](https://github.com/icefoganalytics/wrap/pull/595):
+
+```typescript
+// Before: the aliases hide where the paging inputs come from.
+const { limit, offset } = this.pagination
+const page = await IndexService.perform(sharePointFolder, limit, offset)
+```
+
+```typescript
+// After: the call shows that it uses the controller's standard paging inputs.
+const page = await IndexService.perform(
+  sharePointFolder,
+  this.pagination.limit,
+  this.pagination.offset
+)
+```
+
+The same judgment applies to a property that holds an object: prefer `new WorkflowsPolicy(this.currentUser, workflow)` to `const user = this.currentUser` followed by `new WorkflowsPolicy(user, workflow)` when the local adds nothing. It also applies to named options, such as `limit: this.pagination.limit`. This is not a reason to pass the whole request or to avoid useful destructuring.
+
+Keep a local when it exposes a real change (normalization, narrowing, or a different domain role), gives a dense call a readable name for an input, or captures a value once when repeated reads are costly or may differ. In the same paging flow, a provider request size that includes an extra row is worth naming; see [Application Paging](#application-paging).
 
 For module ownership, public surfaces, and semantic verification, use the [Module Boundary Reference](module-boundary-reference.md).
 
@@ -1175,6 +1198,46 @@ passengerNameRecordCreatedAt: Date | null
 ```
 
 Inspect the actual source mapping before writing the reference; do not guess provenance. Apply this to comparable normalized attributes in scope, not every unchanged field or mechanical casing conversion. Keep descriptive local names rather than restoring source acronyms or copying the external schema.
+
+#### Application Paging
+
+Start with the project's established paging contract when it can express the required traversal. The caller forwards application inputs, as in [Intermediate Values](#intermediate-values). The integration translates those inputs into the provider's request and any continuation mechanics and returns the application-facing page, not the vendor's raw page or next link. Keep the translation in the existing integration; do not add a forwarding layer just for pagination.
+
+In the WRAP recycle-bin example, the service forwards `limit` and `offset` to `listFilesInFolder`. The integration requests an extra row in the same folder and uses it to determine `hasMore`. This excerpt shows the mapping:
+
+```typescript
+const limitWithLookahead = limit + 1
+const { data } = await this.recycleBinApi.get<SharePointRecycleBinResponse>("/RecycleBin", {
+  params: {
+    $filter: folderFilter,
+    $select: "Id,LeafName,DeletedDate,Size",
+    $orderby: "DeletedDate desc,Id asc",
+    $skip: offset,
+    $top: limitWithLookahead,
+  },
+  maxRedirects: 0,
+  signal: AbortSignal.timeout(RECYCLE_BIN_REQUEST_TIMEOUT_MS),
+})
+
+const hasMore = data.value.length > limit
+const sharePointRecycleBinFiles = data.value
+  .slice(0, limit)
+  .map(({ Id, LeafName, DeletedDate, Size }) => ({
+    externalIdentifier: Id,
+    name: LeafName,
+    deletedAt: DeletedDate,
+    size: Size,
+  }))
+
+return {
+  sharePointRecycleBinFiles,
+  hasMore,
+}
+```
+
+The integration normalizes wire fields such as `DeletedDate` to `deletedAt`; the caller receives the rows and `hasMore` and can request the next application page. This mapping is specific to the example. Before adopting it, verify that the actual endpoint honors the filter, offset, requested size (including the extra row), and full order (newest deletion first, then ID to break ties). Verify what happens at page boundaries, including ties and the final page. If the provider caps page size or supplies its own continuation, handle that inside the integration; a short wire page alone need not mean the result is exhausted.
+
+Do not require offsets when the application needs a different traversal. For example, an application-owned cursor can mark the last `(deletedAt, externalIdentifier)` in a stable order when the provider can resume after both keys. The integration still owns the provider-specific filters or tokens. Check the required behavior under inserts and deletes; a tie-breaker or cursor alone does not promise a snapshot.
 
 ### Provider Addressing for Files and Folders
 
