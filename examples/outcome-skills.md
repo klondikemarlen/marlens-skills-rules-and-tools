@@ -24,6 +24,16 @@ The user names an outcome; a thin skill selects maintained workflows. Readabilit
 | “Use wrap-up.” Delivery is verified; unrelated uncommitted files and an upstream insight remain.                                              | Preserve unrelated files. Deduplicate and route the insight, filing externally only where authorized. Bare wrap-up does not authorize exit.                                                                     |
 | “Use wrap-up; then exit.” Delivery is verified, an owned clean disposable worktree remains, and one upstream filing is explicitly authorized. | Safely remove only verified owned resources, file the deduplicated finding with its evidenced owner, schedule supported exit after the final response, then give that response. Do not implement upstream work. |
 
+## Explicit Evolve Backlog
+
+**Request:** “Use Evolve to deliver #52, #64, and #61 in that order in this repository.”
+
+Triage finds #52 still highest priority, but its required integration check cannot finish until the upstream provider restores its sandbox. #64 fixes an incorrect empty-state message, and #61 fixes CSV column order. Both are ready and authorized, and neither depends on #52 or on the other.
+
+Keep #52 blocked at its original priority. Deliver #64 through its own Feature gates, then use the existing triage evidence to select #61 without another prompt. Deliver #61 through its own Feature gates. If the sandbox is still unavailable, stop: #64 and #61 shipped in the requested order; #52 remains blocked until sandbox restoration lets the integration check run; no selected work is still eligible.
+
+Replay the decisions read-only against the local workflow and the packaged fallback. Remove the explicit request to continue: ordinary bare Evolve selects one outcome, while bare Evolve in the MSSRT checkout uses the set open at the start. Neither path bypasses approvals or delivery gates.
+
 ## Implicit Simplify Selection
 
 Use this pair when changing a relevant skill trigger or investigating a missed or wrong route. It is not a new model call on every PR. The explicit examples above test what happens after selection; they do not test whether ordinary intent selects the skill.
