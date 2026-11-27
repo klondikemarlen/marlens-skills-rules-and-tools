@@ -26,6 +26,18 @@ Before declaring browser automation unavailable or substituting an engine:
 
 3. Prefer a maintained installed Firefox binding/helper. If Geckodriver is installed but language bindings are absent, a bounded disposable probe using standard WebDriver HTTP commands is valid; do not install Selenium bindings, create a persistent runner, or add a second automation runtime solely for QA.
 
+### Snap Chromium Cannot Create Its Profile Lock
+
+`Shared browser daemon unavailable` does not identify the cause. In the [reported Ubuntu failure](https://github.com/can1357/oh-my-pi/issues/14493), the daemon launch record identified `/snap/bin/chromium` **and** its browser log showed `Permission denied` creating `SingletonLock` in OMP's managed profile. Check both for the failing run: finding Chromium on `PATH` is not proof the daemon selected it. Without both, report the observed startup error; do not blame Snap or the application.
+
+If the task permits headless Chromium and the project's installed binding accepts a profile path:
+
+1. Read `SNAP_USER_COMMON` in `snap run --shell chromium`; use the verified writable, revision-independent directory, not `SNAP_USER_DATA` or a guessed home path. Create a fresh owner-only child there with `mktemp -d "$SNAP_USER_COMMON/qa-XXXXXXXX"` in that shell and retain the exact path.
+2. Launch an owned headless session with that profile. For example, with the installed Chromium Snap's ChromeDriver, pass `--headless` and `--user-data-dir=<exact child path>` in `goog:chromeOptions.args`. On a disposable page, type a value, click a control and check the visible result. A running process or reachable driver alone does not prove interaction; a fixture does not prove the app works.
+3. Quit the owned session and confirm its browser has exited before removing only the child created for this run. If exit or ownership is uncertain, retain the directory and report it.
+
+This bypasses the managed daemon **for this check only**; it does not repair it. If the binding cannot select that profile or the check requires the managed daemon itself, name that blocker. Do not switch an explicitly requested engine, enable relay, use a personal profile, weaken confinement, or install another browser.
+
 ### Installed Puppeteer Firefox Probe
 
 From the project's existing Node package, inspect `npm ls puppeteer puppeteer-core --depth=0`, the installed Node version, and that binding's Firefox support and launch options. Use an already-installed compatible binding; do not install another runtime or change the project's browser defaults. The example below uses `puppeteer`; an existing `puppeteer-core` installation may supply the same supported API. Check its actual installed version rather than assuming either package exists.

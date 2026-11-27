@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.8](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1707) - 2026-11-27
+
+### Changed
+
+- Distinguish a Snap Chromium profile-lock denial from other browser startup failures and use an isolated writable profile when the installed binding supports one.
+
 ## [5.23.7](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1702) - 2026-11-27
 
 ### Changed
