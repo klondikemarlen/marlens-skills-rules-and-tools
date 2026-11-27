@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.25](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1741) - 2026-11-27
+
+### Changed
+
+- Wrap-up distinguishes routine lint setup from missing coverage and routes interrupted reviews back to the named verifier.
+
 ## [5.23.24](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1740) - 2026-11-27
 
 ### Changed
