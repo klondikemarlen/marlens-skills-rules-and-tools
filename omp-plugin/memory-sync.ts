@@ -39,6 +39,11 @@ type SyncState = {
   failure?: { at: string; message: string }
 }
 
+type RecallReadiness =
+  | { state: "ready" }
+  | { state: "not-ready"; error?: string }
+  | { state: "unavailable"; error: string }
+
 function setting(id: string) {
   const handle = lookup(id)
   if (!handle)
@@ -260,13 +265,13 @@ async function enableSettings(
 async function recallReadiness(
   ctx: ExtensionContext,
   settings: Settings,
-  target?: Target
-): Promise<string> {
+  target: Target
+): Promise<RecallReadiness> {
   try {
     const status = await ctx.memory.status()
-    const bankVisible = target && status.recallBanks?.includes(target.bank)
+    const bankVisible = status.recallBanks?.includes(target.bank)
     const expectedLiveDatabase =
-      target && status.retainBank
+      status.retainBank
         ? status.retainBank === target.bank
           ? target.database
           : join(dirname(target.database), "banks", status.retainBank, "mnemopi.db")
@@ -286,12 +291,49 @@ async function recallReadiness(
       databaseMatches &&
       setting("mnemopi.autoRecall").get(settings) !== false &&
       !status.error
-    return ready
-      ? "Live recall: ready — shared conventions, project-local conversations."
-      : `Live recall: not ready${status.error ? ` (${status.error})` : ""}. Restart OMP; if this persists, run /memory diagnose.`
+    if (ready) {
+      return { state: "ready" }
+    }
+
+    return { state: "not-ready", error: status.error }
   } catch (error) {
-    return `Live recall: unavailable (${errorMessage(error)}). Restart OMP and check native memory status.`
+    return { state: "unavailable", error: errorMessage(error) }
   }
+}
+
+function renderRecallStatus(readiness: RecallReadiness): string {
+  switch (readiness.state) {
+    case "ready":
+      return "Live recall: ready — shared conventions, project-local conversations."
+    case "not-ready": {
+      const diagnostic = readiness.error ? ` (${readiness.error})` : ""
+      return `Live recall: not ready${diagnostic}. Restart OMP; if this persists, run /memory diagnose.`
+    }
+    case "unavailable":
+      return `Live recall: unavailable (${readiness.error}). Restart OMP and check native memory status.`
+  }
+}
+
+function renderRecallNotice(readiness: RecallReadiness): string {
+  switch (readiness.state) {
+    case "ready":
+      return "OMP can now recall these rules."
+    case "not-ready":
+      return "OMP can't recall these rules yet.\nRestart OMP. If needed, run /memory diagnose."
+    case "unavailable":
+      return "Could not check OMP recall.\nRestart OMP. If needed, run /memory diagnose."
+  }
+}
+
+async function notifySync(
+  ctx: ExtensionContext,
+  settings: Settings,
+  target: Target,
+  heading: string
+): Promise<void> {
+  const readiness = await recallReadiness(ctx, settings, target)
+  const recallNotice = renderRecallNotice(readiness)
+  ctx.ui.notify(`${heading}\n${recallNotice}\nDetails: /mssrt memory sync status`, "info")
 }
 
 function renderCompletion(completion: Completion | undefined): string {
@@ -362,7 +404,7 @@ export function registerMemorySync(pi: ExtensionAPI): void {
                 state.failure
                   ? `Last failure (${state.failure.at}): ${state.failure.message}`
                   : "Last failure: none.",
-                readiness,
+                renderRecallStatus(readiness),
               ]
                 .filter(Boolean)
                 .join("\n"),
@@ -408,9 +450,11 @@ export function registerMemorySync(pi: ExtensionAPI): void {
               await saveState(statePath, state)
             }
             if (action === "on") {
-              ctx.ui.notify(
-                `MSSRT memory sync is on; this installed source and target are already synchronized.\n${renderCompletion(prior)}\n${await recallReadiness(ctx, settings, target)}`,
-                "info"
+              await notifySync(
+                ctx,
+                settings,
+                target,
+                `MSSRT ${captured.version} guidance is up to date`
               )
             }
             return
@@ -426,10 +470,7 @@ export function registerMemorySync(pi: ExtensionAPI): void {
           state.completion = completion
           delete state.failure
           await saveState(statePath, state)
-          ctx.ui.notify(
-            `MSSRT guidance synchronized.\n${renderCompletion(completion)}\n${await recallReadiness(ctx, settings, target)}`,
-            "info"
-          )
+          await notifySync(ctx, settings, target, `MSSRT ${captured.version} guidance updated`)
         } catch (error) {
           if (action !== "status") {
             state.failure = { at: new Date().toISOString(), message: errorMessage(error) }

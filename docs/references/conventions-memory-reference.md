@@ -12,12 +12,14 @@ Approve the in-OMP explanation once. The command imports immediately and remembe
 
 After installing a newer MSSRT version, start a new OMP process. Enabled sync refreshes automatically at session start. Repeated starts or `on` calls reconcile the destination without rewriting unchanged records; missing or stale records are repaired even if a previous successful result exists. A running process does not pretend to have loaded upgraded code: it asks for a restart if installed files changed underneath it.
 
+The update notice starts with the installed MSSRT version and says whether OMP can recall the rules. An unchanged startup is silent; running `on` again confirms when guidance is already up to date. If recall is not ready or could not be checked, restart OMP and run `/memory diagnose` if needed.
+
 ```text
 /mssrt memory sync status
 /mssrt memory sync off
 ```
 
-`status` separates opt-in state, loaded source, last successful synchronization, last failure, and live recall readiness. A completed import is not proof that recall is ready. If recall is not ready, restart OMP and use `/memory diagnose` if the problem persists. `off` stops automatic MSSRT refresh; it does not delete imported or conversational memories, disable native recall, or undo settings.
+`status` shows the opt-in state, loaded version and fingerprint, the last successful import with its receipt, database, bank, and section counts, and any failure. Live recall is reported separately: a completed import is not proof OMP can use it. `off` stops automatic MSSRT refresh; it does not delete imported or conversational memories, disable native recall, or undo settings.
 
 The command respects configured shared bank/database destinations. It does not bypass project, environment, overlay, or runtime overrides, edit linked managed configuration, or silently enable an explicitly disabled auto-recall preference. A conflict names the owning setting and required correction. Cancel leaves activation unchanged. Failed imports retain the previous successful result and report the prerequisite; correct it and retry `on`.
 
