@@ -1,6 +1,6 @@
 # GitHub Tooling Reference
 
-Use when you need source-of-truth issue or pull request data from GitHub.
+Use this reference when cloning a GitHub repository locally or working with GitHub issues and pull requests.
 
 ## Rules
 
@@ -14,6 +14,21 @@ Use when you need source-of-truth issue or pull request data from GitHub.
 - Keep ordinary project issue/PR comments brief, natural, and human, not just upstream comments. Include the useful response, question, new evidence, link, or limitation; omit repetitive audit narration and boilerplate. Preserve requested detail and required facts without turning the comment into a large process report.
 
 For an already-fixed issue, write to the maintainer: what changed, the useful link, and the closing decision—not the execution log. Omit ordinary local “I checked the app” assurances; keep that evidence in its existing record. If deployed behavior is material, identify the actual environment and observed result, or retain the missing verification as a blocker. Merge/local smoke do not prove deployment. Do not add a note when the conversation already covers the outcome and nobody needs a response. See [Issue Closing Notes](../../examples/reader-focused-publication.md#issue-closing-notes) for illustrations, not canned wording; preserve detail when explicitly requested.
+
+## New Local Clones
+
+When asked to clone a GitHub repository locally, default to SSH. Use an explicit SSH clone URL so the choice does not depend on GitHub CLI defaults. After a successful clone, check the new checkout's `origin`:
+
+```bash
+git clone git@github.com:OWNER/REPOSITORY.git &&
+  git -C REPOSITORY remote get-url origin
+```
+
+The last command should print `git@github.com:OWNER/REPOSITORY.git`. With [`gh repo clone`](https://cli.github.com/manual/gh_repo_clone), pass an explicit SSH URL or use `OWNER/REPOSITORY` only if `gh config get git_protocol --host github.com` returns `ssh`.
+
+Honor an explicitly requested alternative, such as HTTPS. If SSH is unavailable or the clone fails, report the SSH problem and stop rather than retrying over HTTPS. Do not change Git or GitHub CLI configuration or rewrite an existing remote to enforce this default.
+
+A repository web URL supplied as a reference identifies the repository; it does not by itself request HTTPS for a clone. For a PR link or browser task, use the web URL. For GitHub API work, keep using authenticated `gh` or the API. Neither task requires a clone unless the user asks for a checkout.
 
 ## Common Reads
 

@@ -154,6 +154,7 @@ The [full documentation map](docs/index.md) is the starting point for procedures
 | Task                                 | Read                                                                                             |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | Deliver an issue or feature          | [Feature workflow](docs/workflows/feature-workflow.md)                                           |
+| Clone a GitHub repository locally    | [GitHub clone transport](docs/references/github-tooling-reference.md#new-local-clones)           |
 | Create or update a pull request      | [PR management](docs/workflows/pull-request-management-workflow.md)                              |
 | Resolve review feedback              | [Review-comment resolution](docs/workflows/pull-request-comment-resolution-workflow.md)          |
 | Commit changes or edit older commits | [Commit conventions](COMMITTING.md) and [rebase workflow](docs/workflows/git-rebase-workflow.md) |
