@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.20](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1728) - 2026-11-27
+
+### Changed
+
+- Human-facing response-time guidance prefers milliseconds for subsecond values while preserving measurement precision and readable whole-second values. Machine-readable units are unchanged.
+
 ## [5.23.19](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1730) - 2026-11-27
 
 ### Changed
