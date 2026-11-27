@@ -815,9 +815,9 @@ const failedCopyMessage = computed(() => {
 </script>
 ```
 
-This excerpt assumes the screen already has status and action bindings. Use only [deliberately public text](code-organization-reference.md#internal-errors-public-messages-and-logs), never raw exceptions or legacy text of unknown provenance. Scope the retry error to the current copy and attempt so a stale error cannot override a new saved explanation. Consolidate presentation without combining the sources in storage, erasing their operation-specific handling, or changing the existing announcement behavior.
+Use only [deliberately public text](code-organization-reference.md#internal-errors-public-messages-and-logs), never raw exceptions or legacy text of unknown provenance. Scope the retry error to the current copy and attempt so a stale error cannot override a new saved explanation. Consolidate presentation without combining the sources in storage, erasing their operation-specific handling, or changing the existing announcement behavior.
 
-Name the control, visibly and accessibly, for the action it performs in the current state. **Check copy status** reads the existing result; **Retry copy** submits another copy request and may then reconcile it with a read. A change in loading or appearance alone does not change the action name. Verify the accessible name and handler against the resulting request: the check must send the status read and no retry submission; retry must send the restart request, not just refresh. The two branches illustrate distinct actions, not a requirement for two components or two buttons.
+Name the control, visibly and accessibly, for the action it performs in the current state. **Check copy status** reads the existing result (`GET`); **Retry copy** submits another copy request (`POST`) and may then reconcile it with a read. A change in loading or appearance alone does not change the action name. Verify the accessible name and handler against the resulting request: the check must send the status read and no retry submission; retry must send the restart request, not just refresh. The two branches illustrate distinct actions, not a requirement for two components or two buttons.
 
 ## Task-Focused Help and Supplemental Table Information
 
@@ -1613,7 +1613,14 @@ Keep watched inputs, entry conditions, and synchronous cleanup registration visi
 In this example adapted from [WRAP's attachment copy recovery](https://github.com/icefoganalytics/wrap/pull/918), the screen decides whether the attachment panel and browser tab are visible. It passes a live condition for whether to suppress automatic recovery polling, not the panel or document state:
 
 ```typescript
-const copyRecovery = useCopyRecovery(copyFolderId, {
+const {
+  isCopyOutcomeUnknown,
+  hasCopyFailed,
+  publicRetryError,
+  savedPublicFailureExplanation,
+  checkCopyStatus,
+  retryCopy,
+} = useCopyRecovery(copyFolderId, {
   skipRecoveryPollingIf: () => !props.isPanelVisible || documentVisibility.value !== "visible",
 })
 ```
@@ -1673,7 +1680,7 @@ watch(copyFolderId, refreshSelectedCopyStatus)
 
 Use the existing visibility inputs, watch timing, and recovery state. Do not snapshot a reactive condition or merely read it inside a `watch` callback and expect it to retrigger the watcher. When the screen already owns the watcher and its gate, pass no second visibility option to the operation. This boundary does not prevent UI-specific composables from reading the UI state they own.
 
-Review the flow with the same copy: start with the normal delay; hide the panel or tab and verify cleanup, then resume before and after the deadline and check for one immediate read with no new window. Replace the target or unmount and ensure old work cannot update the current state. Check a retryable read failure and an unexpected error separately, and verify that the post-retry read cannot use a pre-retry result. Exercise the message precedence and read-versus-restart request separately from the timer behavior.
+Review the same copy through normal delay, a hidden panel or tab, and resume before and after the deadline. Expect cleanup on hide and one immediate reconciliation read on each resume, without a fresh window. Replace the target or unmount and verify that late work cannot update current state. Contrast a retryable read failure with an unexpected error, and verify that a read started before retry settled cannot reconcile the new attempt. Separately check the current retry error, saved explanation, and fallback in order, then make the latest outcome unknown despite a saved failure and verify the separate message and read-only action.
 
 ## Mutable Component Workflow Snapshots
 

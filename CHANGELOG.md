@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.6](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1704) - 2026-11-27
+
+### Changed
+
+- Use the Vue copy-recovery example to keep screen visibility separate from polling, show one public explanation for a confirmed failure, and label status checks separately from actions that restart a copy.
+
 ## [5.23.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1692) - 2026-11-26
 
 ### Changed
