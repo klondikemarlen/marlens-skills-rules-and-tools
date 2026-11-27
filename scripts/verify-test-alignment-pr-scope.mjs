@@ -118,6 +118,125 @@ function registerPrScopeTests({
     )
   })
 
+  test("when a stacked PR replaces a parent's only assertion, reports that edit but not an existing assertion-free callback", (t) => {
+    // Arrange
+    const project = createProject()
+    t.after(() => rmSync(project, { recursive: true, force: true }))
+
+    const testPath = "tests/parcel.test.ts"
+    const mainSource = `test('when a parcel ships, returns the shipment', () => {
+  // Arrange
+  const parcel = createParcel()
+  // Act
+  const shipment = shipParcel(parcel)
+  // Assert
+  inspectShipment(shipment)
+})
+
+test('when a parcel is tracked, returns its tracking record', () => {
+  // Arrange
+  const parcel = createParcel()
+  // Act
+  const tracking = trackParcel(parcel)
+  // Assert
+  inspectTracking(tracking)
+})
+`
+    write(project, testPath, mainSource)
+    commit(project, "main contains assertion-free callbacks")
+    git(project, ["switch", "--quiet", "-c", "stack-parent"])
+    const parentSource = mainSource.replace(
+      "inspectShipment(shipment)",
+      "expect(shipment.parcel).toEqual(parcel)"
+    )
+    write(project, testPath, parentSource)
+    commit(project, "stack parent adds the shipment assertion")
+    const parentCommit = commitId(project)
+    git(project, ["switch", "--quiet", "-c", "stack-child"])
+    const childSource = parentSource
+      .replace("expect(shipment.parcel).toEqual(parcel)", "recordShipment(shipment)")
+      .replace("inspectTracking(tracking)", "recordTracking(tracking)")
+    write(project, testPath, childSource)
+    commit(project, "child replaces the shipment assertion and edits the tracking callback")
+
+    const scope = prScopeEnvironment(project, parentCommit, [testPath], {
+      lineRanges: {
+        [testPath]: [
+          [7, 7],
+          [16, 16],
+        ],
+      },
+    })
+
+    // Act
+    const processResult = runStandalone(project, { MARLENS_TEST_ALIGNMENT_BASE: "main", ...scope })
+    const result = standaloneResult(processResult)
+
+    // Assert
+    assert.equal(result.status, "FAIL", result.evidence)
+    assert.equal(processResult.status, 1)
+    assert.deepEqual(findingLocations(result), [`${testPath}:7`])
+    assert.match(
+      result.evidence,
+      /`recordShipment\(shipment\)` — test "when a parcel ships, returns the shipment" contains 0 direct .*marlens-test-alignment: one-direct-expect/u
+    )
+  })
+
+  test("when an existing assertion-free callback shares a test name, does not attribute its neighbor's assertion to it", (t) => {
+    // Arrange
+    const project = createProject()
+    t.after(() => rmSync(project, { recursive: true, force: true }))
+
+    const testPath = "tests/parcel.test.ts"
+    const baseSource = `test('when a parcel ships, returns the shipment', () => {
+  // Arrange
+  const parcel = createParcel()
+  // Act
+  const shipment = shipParcel(parcel)
+  // Assert
+  expect(shipment.parcel).toEqual(parcel)
+})
+
+test('when a parcel ships, returns the shipment', () => {
+  // Arrange
+  const parcel = createParcel()
+  // Act
+  const shipment = shipParcel(parcel)
+  // Assert
+  inspectShipment(shipment)
+})
+`
+    write(project, testPath, baseSource)
+    commit(project, "base contains same-name callbacks with different assertion counts")
+    const baseCommit = commitId(project)
+    git(project, ["switch", "--quiet", "-c", "feature"])
+    const featureSource = baseSource
+      .replace(
+        "  expect(shipment.parcel).toEqual(parcel)",
+        "\n  expect(shipment.status).toBe('shipped')"
+      )
+      .replace("inspectShipment(shipment)", "recordShipment(shipment)")
+    write(project, testPath, featureSource)
+    commit(project, "keep one assertion in the shifted neighbor and edit the assertion-free body")
+
+    const scope = prScopeEnvironment(project, baseCommit, [testPath], {
+      lineRanges: {
+        [testPath]: [
+          [7, 8],
+          [17, 17],
+        ],
+      },
+    })
+
+    // Act
+    const processResult = runStandalone(project, scope)
+    const result = standaloneResult(processResult)
+
+    // Assert
+    assert.equal(result.status, "PASS", result.evidence)
+    assert.equal(processResult.status, 0)
+  })
+
   test("when a PR scope refreshes after a rename and deletion, only the new destination line can fail", (t) => {
     // Arrange
     const project = createProject()
