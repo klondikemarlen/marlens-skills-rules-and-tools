@@ -6,6 +6,10 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+### Changed
+
+- Stage drafts and alternate exports in a task-specific temporary directory by default, so the delivery folder receives only the requested finished files.
+
 ## [5.23.10](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1713) - 2026-11-27
 
 ### Changed
