@@ -6,6 +6,7 @@ import path from "node:path"
 import test from "node:test"
 import { fileURLToPath } from "node:url"
 import { runVerification } from "../verifications/test-alignment.mjs"
+import registerPrScopeTests from "./verify-test-alignment-pr-scope.mjs"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const verifierPath =
@@ -441,6 +442,8 @@ test("when automatic selection changes, only the selected test contributes evide
   assert.match(scopedFailing.evidence, /tests\/legacy\.test\.ts/u)
   assert.doesNotMatch(scopedFailing.evidence, /tests\/current\.test\.ts/u)
 })
+
+registerPrScopeTests({ createProject, write, git, commit, runStandalone, standaloneResult })
 
 test("when local guidance is absent, changed tests still use the shared baseline", (t) => {
   const noGuidanceProject = createProject()
