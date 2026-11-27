@@ -6,6 +6,18 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.17](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1729) - 2026-11-27
+
+### Changed
+
+- The Express controller template shows how to pass the exact authorized resource to its existing destroy service, with the acting user only when the deletion depends on the actor or needs attribution.
+
+## [5.23.16](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1731) - 2026-11-27
+
+### Fixed
+
+- Review and merge no longer requests or waits for GitHub Codex review by default. Apply it only when the project opts in or the maintainer explicitly requests it for the PR, and verify the exact current head without replacing the other merge gates.
+
 ## [5.23.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1725) - 2026-11-27
 
 ### Fixed

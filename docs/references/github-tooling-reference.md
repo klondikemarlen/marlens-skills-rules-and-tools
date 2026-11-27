@@ -30,7 +30,15 @@ An absent path in a large comparison's `files` array does not prove unchanged so
 
 ## Requested Codex Reviews
 
-Use this only when a maintainer specifically requests a Codex review; it is not a universal merge gate. Follow OpenAI's [Codex GitHub review setup and troubleshooting guidance](https://learn.chatgpt.com/docs/third-party/github#troubleshoot-code-review). Before requesting, read the current PR head and draft/ready state. Check the configured review trigger: if it requires a ready PR, preserve draft status unless the maintainer authorizes making it ready. A manual `@codex review` request is distinct from automatic-review preferences.
+### Decide Whether Codex Applies
+
+GitHub Codex review is opt-in by project. Look for an explicit maintainer-approved policy requiring it for the target project and PR scope, such as applicable contribution instructions on the target base. Maintainers designate which production projects opt in. A repository name, an installed connector, a bot comment, or a generic review-and-merge invocation (including override mode) is not policy evidence.
+
+An explicit maintainer request for Codex review on the identified PR is a one-off request, not project-wide opt-in. Honor it within its stated scope unless binding policy prohibits it; a review-only or wait-only request does not authorize a merge or a new dispatch, respectively. If neither project opt-in nor an explicit request applies, do not request Codex, inspect or ask about its connector setup, or wait for its verdict. Still honor independent project and host requirements, including normal code review, OMP Verifier or other named reviews, CI, and required human approvals.
+
+### Request an Applicable Review
+
+Follow OpenAI's [Codex GitHub review setup and troubleshooting guidance](https://learn.chatgpt.com/docs/third-party/github#troubleshoot-code-review). Before requesting, read the current PR head and draft/ready state. Check the configured review trigger: if it requires a ready PR, preserve draft status unless the maintainer authorizes making it ready. A manual `@codex review` request is distinct from automatic-review preferences.
 
 Treat these as separate prerequisites:
 
