@@ -44,6 +44,10 @@ Controller tests are the exception: direct meaningful status and body assertions
 
 Controller classification uses an explicit path convention: a `controller/` or `controllers/` directory segment (case-insensitive), or a filename ending `.controller.test.<extension>`, `.controller.spec.<extension>`, `-controller.test.<extension>`, `-controller.spec.<extension>`, `_controller.test.<extension>`, `_controller.spec.<extension>`, `Controller.test.<extension>`, or `Controller.spec.<extension>` with the PascalCase `Controller` suffix. Extensions are the check's supported JavaScript/TypeScript extensions. HTTP usage or a variable named `response` does not classify a test as a controller.
 
+**Attribute findings to the rule that governs the test.** Cite the test and the applicable shared rule separately from any local corroboration or conflict. Read the local passage in context and check that it covers the actual category. For example, a local one-expect rule for service and query tests does not govern a feature test, even when the shared non-controller rule still applies. Do not report the narrower scope as a conflict or cite it as authority for the feature test.
+
+**Separate the count from the scenario.** The number of direct `expect` calls establishes a test-style violation under an applicable count rule; it does not establish how many independent outcomes the test covers or show that application behavior is broken. Recommend a split only when the observable contracts are separable, and name both those contracts and the actions that establish each one. If a stale edit must be rejected and the user must still be able to recover, keep the prior state, intervening change, and rejection in any recovery test that depends on them. Do not replace that test with an ordinary success path or remove meaningful observations to meet the count.
+
 An inline `allow-multiple-expects` directive is not a supported bypass. Do not add equivalent rationale prose or broaden a suppression to evade this policy. Preserve supported, explicitly scoped legacy suppressions and report any genuine conflicting project-local standard truthfully.
 
 **Avoid synthetic bundles:**
@@ -248,6 +252,8 @@ For placement of persistence-observation queries beside Assert expectations, fol
 ## Semantic Assertion-Focus Check
 
 `marlens-rules:test-assertion-focus` reviews the complete changed test files against this shared assertion-quality guidance and applicable ordinary-language local test standards. Its automatic path triggers match `test-alignment`, but the checks answer different questions: test-alignment evaluates deterministic naming, phase, shared exactly-one-expect, and explicit local structural additions; assertion-focus assesses whether assertions prove the intended contract without evasion or lost scenario coverage.
+
+Use the [feature-test counterexample](../../examples/test-assertion-focus.md#scope-matched-findings-for-a-feature-test) to distinguish rule attribution, a measured count, and the judgment about which stale-edit and recovery outcomes can be tested separately.
 
 The review must cite the changed test and any governing local guidance. Enforce the shared exactly-one rule for non-controller tests and preserve the explicit controller exception; do not invent a general coupled-invariant exemption. Preserve native promise-error and web-first matchers, real-result object/array comparisons, and native `node:assert` tests. Inspect needed invoked helpers and relevant scenario context for hidden assertions, weakened payloads, bundled calls, and lost transition/race/rollback evidence. A structural `PASS` does not establish semantic quality. When the changed scope, applicable required guidance, or subject/helper context needed to judge a finding is unavailable, report `BLOCKED` with the missing evidence rather than guessing. Unnecessary caller or sibling context is not a prerequisite.
 

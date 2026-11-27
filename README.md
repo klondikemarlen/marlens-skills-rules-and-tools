@@ -47,6 +47,8 @@ For a complete improvement cycle, ask **“Use evolve on this repo”** or invok
 
 In the MSSRT checkout itself, the [local Evolve workflow](docs/workflows/evolve-workflow.md#scope-and-shared-evidence) covers all tickets open at the start by default, grouping related work for delivery. This does not change Evolve in consuming projects.
 
+To deliver more than one outcome, [ask Evolve to continue through a bounded ticket selection](docs/workflows/evolve-workflow.md#continue-through-a-selected-backlog). Supply an order if it matters; each eligible outcome keeps its own delivery gates.
+
 For a narrower task:
 
 | Skill                                  | Example Request                                     | Outcome                                                                  |

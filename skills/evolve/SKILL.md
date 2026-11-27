@@ -1,6 +1,6 @@
 ---
 name: evolve
-description: Compose one bounded outcome through design, working implementation, feedback-driven improvement and simplification, final delivery, and wrap-up. Reuse evidence, prototype only when useful, and exit only when explicitly requested after completion.
+description: Deliver one bounded improvement by default, or continue through an explicitly selected backlog in separate delivery cycles. Compose design, working implementation, refinement, verification, and wrap-up without expanding authority.
 ---
 
 # Evolve a Project

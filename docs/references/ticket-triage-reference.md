@@ -2,6 +2,23 @@
 
 This reference defines the optional GitHub-only `triage` command-line interface, the shared snapshot and assessment data contract, and its safety limits. Use the [Ticket Triage Workflow](../workflows/ticket-triage-workflow.md) for supported ticket updates by default and explicit read-only assessment or dry-run. Jira and other trackers use authenticated native tools; the helper does not discover, create, or assume a mirror in GitHub.
 
+## Ranking by User Impact
+
+Honor project severity definitions, safety and security obligations, and the maintainer’s explicit priorities. Otherwise, use the highest impact the evidence supports. These are priorities for the assessment, not labels to create or tracker fields to set.
+
+| Priority | What happens to the user? |
+| --- | --- |
+| P0 | Required work cannot finish safely, or false success lets invalid work proceed. |
+| P1 | Work can finish, but users face material delay, repeated work, or operator intervention. |
+| P2 | A defect affects an otherwise usable workflow without either consequence above. |
+| P3 | An enhancement has no demonstrated blocker or material delay. |
+
+Rank impact separately from readiness. A required check that never finishes on supported input can remain P0 while its upstream owner fixes it. Name the prerequisite and advance the highest-ranked independently actionable ticket. A check that correctly stops because a required dependency is missing is not the same defect. When the user impact is unknown, say so rather than inferring a priority from the ticket type.
+
+For a speed claim, compare equivalent work from the user’s start to a usable outcome. Report abandoned runs and runs requiring intervention separately from unaided completions. Fewer tool calls or fewer bytes can explain a result; neither measures how long the user waited.
+
+Investigate related symptoms together when a trace or reproduction helps explain both. Keep distinct fixes and acceptance checks separate. If a symptom returns after a fix, compare the last known good case with the first failing one and locate where their behavior diverges before recommending a redesign.
+
 ## GitHub Label Vocabulary
 
 For new GitHub label usage, prefer these names. Work type, triage condition, and recurrence answer different questions; combine them when useful rather than requiring one label from every row.
