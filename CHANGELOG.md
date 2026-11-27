@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.2](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1700) - 2026-11-27
+
+### Changed
+
+- Rank tickets by the harm or delay users experience, separately from which fix can start next.
+
 ## [5.23.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1692) - 2026-11-26
 
 ### Changed
