@@ -27,7 +27,7 @@
     },
     {
       "id": "local-policy-and-shared-default",
-      "question": "Apply exactly one direct expect per non-controller expect-based test as the shared default, not a local opt-in or at-most-one rule: zero and multiple calls violate it. Asymmetric matcher factories are not additional direct expect calls. Preserve native node:assert/assert/strict assertions rather than requiring a framework migration; native assertions elsewhere in a file do not exempt an expect-based test or an assertion-free test. Identify governing ordinary-language local standards and cite their source; report genuine conflicts truthfully. If required guidance is unavailable, return BLOCKED rather than guessing."
+      "question": "Apply exactly one direct expect per non-controller expect-based test as the shared default, not a local opt-in or at-most-one rule: zero and multiple calls violate it. Asymmetric matcher factories are not additional direct expect calls. Preserve native node:assert/assert/strict assertions rather than requiring a framework migration; native assertions elsewhere in a file do not exempt an expect-based test or an assertion-free test. Cite the shared rule separately from local corroboration or a genuine conflict. Check the scope of each quoted local passage against the actual test category; a service/query rule does not establish a feature-test requirement or conflict with the shared default. If required guidance is unavailable, return BLOCKED rather than guessing."
     },
     {
       "id": "observable-contract-and-direct-assertions",
@@ -35,7 +35,7 @@
     },
     {
       "id": "independent-outcomes-and-hidden-assertions",
-      "question": "Identify independent outcomes or saves bundled in one test, and assertions hidden in Arrange, Act, helpers, or hooks. Independent saves need separate focused tests using API spies and concrete expected payloads, not expect.anything() payloads or bundled call arrays. Preserve transition/race/rollback setup, causal sequences, and scenario identities in each focused test that needs them; do not remove earlier operations or weaken observations to satisfy count. Inspect invoked helpers and relevant scenario context when needed; if required context is unavailable, return BLOCKED. Irrelevant absent callers or optional siblings are not required context."
+      "question": "Identify independent outcomes or saves bundled in one test, and assertions hidden in Arrange, Act, helpers, or hooks. A measured count establishes only a test-style violation under the applicable rule, not independent outcomes or a product defect. Recommend a split only with evidence of separable observable contracts; name those contracts and the causal actions each focused test still needs. Independent saves need separate focused tests using API spies and concrete expected payloads, not expect.anything() payloads or bundled call arrays. Preserve transition/race/rollback setup and scenario identities; retain the prior state, intervening action, and rejected stale edit in recovery coverage that depends on them. Do not remove earlier operations or weaken observations to satisfy count. Inspect invoked helpers and relevant scenario context when needed; if required context is unavailable, return BLOCKED. Irrelevant absent callers or optional siblings are not required context."
     },
     {
       "id": "policy-valid-exceptions-and-findings",
