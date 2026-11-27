@@ -36,7 +36,7 @@ Use [Meaningful Scenarios and Subject Ownership](#meaningful-scenarios-and-subje
 
 For tests that use doubles, apply [Test Doubles](code-organization-reference.md#test-doubles) to readable binding names, ownership of shared baseline state, and using the dependency's public API to drive behavior. Judge those choices from the test and its support; they are not structural verifier rules.
 
-Apply [Human Readability](code-organization-reference.md#human-readability) to all non-empty expected object literals, including single-property assertion objects and partial-matcher arguments: one property per line even within formatter width, preserving values, order, and matcher semantics. Ordinary small single-field call arguments may remain compact; assertion data is not that exception.
+Apply [Expected Object Layout](code-organization-reference.md#expected-object-layout): multiline is the authoring default, not a reason to flag an equally clear compact expectation. Keep explicit binding project rules, exact values and matcher strength.
 
 Keep readable expected matcher trees inline, including partial matchers inside complete arrays, instead of extracting one-use matcher aliases solely for the construction default. A simple awaited model query may remain directly in `expect(...)` when it observes the actual result once with the required scope/options. Keep meaningful reused values and required sequencing explicit. This is the [Scenario-Oriented Verification](code-organization-reference.md#scenario-oriented-verification) exception, not permission to hide transformations, effects, or independent assertions.
 

@@ -60,6 +60,48 @@ Readability, test focus, and architectural cohesion need context even when a pre
 
 Do not add another English rule when the existing owner already covers the decision. Do not add a runtime gate merely because a prose rule exists. Use [`self-improvement-workflow.md`](../workflows/self-improvement-workflow.md) for evidence-backed classification and the existing release workflow for implementation.
 
+## Measure Rule-Induced Rework
+
+Use existing review receipts and Git patches to answer a narrow question: **Which findings from this rule led someone to edit the PR again, and what did those edits change?** Start with this read-only method before adding instrumentation.
+
+1. **Pick the cohort before reading findings.** Name the repository, target branch, UTC merge window, and eligible changed paths. Keep every eligible PR, including those without a finding or a retained receipt. Record the policy actually loaded in each review (release or immutable source), the check ID, and Verifier/model versions when known. Check the project guidance captured for that revision. Separate the shared rule, explicit binding project policy, and unknown origin; an authoring default alone is not a local requirement.
+2. **Pair the finding with the edit.** Use the GitHub thread, retained named Verifier result, or local session record to identify the check/rule, cited finding, and assessed base and head. Match it to the before/after patch and evidence that the edit answered the finding. A commit subject, whitespace diff, or later `PASS` cannot establish the cause on its own. Keep findings that did not lead to an edit and cases with unresolved attribution separate; missing evidence is not zero rework.
+3. **Count rounds, not operations.** A round is one batch of actual edits responding to review before resubmission or reassessment. Several locations, commits, or reviewers in that batch still make one round. Count another only after new feedback causes another batch. Retries, resumed pages, rebases without a new correction, and initial implementation are not rounds. If two rules caused edits in one round, credit both rule rows, but count the round only once in the overall total.
+4. **Classify the attributed changes.** Use **layout-only** when only presentation changes and the same behavior and matcher remain; **semantic** when asserted behavior, coverage, or matcher strength changes; **mixed** when the attributed response contains both; **unknown** when the patch cannot settle the distinction. Do not classify a whole round from unrelated edits in the same commit. Keep an unverifiable finding-to-edit link out of confirmed categories even if the patch visibly changes the layout.
+5. **Report coverage with the result.** For each policy and rule, report eligible PRs, unique PRs with a completed relevant review, distinct completed review scopes, unique PRs with confirmed edits, round counts by kind, and unresolved cases. Count one review scope per PR, check, assessed base/head, and policy revision; retain the request IDs for provenance but deduplicate reruns of equivalent scope. Keep blocked, pending, and unavailable evidence separate from completed scopes. Compare rounds per reviewed PR only for similarly selected cohorts and disclose review coverage (`reviewed/eligible`); run counts expose differences in review frequency, not independent samples. This is not a quality score or a measure of time saved.
+
+For the assertion-layout pilot, this query lists candidate PRs and their eligible test paths. Keep merges at or after `start` and strictly before `end`. Check that the search was not capped; split the window if needed, and use the paginated PR files endpoint if a file list is incomplete.
+
+```bash
+repo=klondikemarlen/marlens-skills-rules-and-tools
+start=2026-11-26T21:00:00Z
+end=2026-11-27T00:00:00Z
+gh pr list -R "$repo" --state merged --search "base:main merged:$start..$end" \
+  --limit 100 --json number,mergedAt,headRefOid,files \
+  --jq 'sort_by(.mergedAt)[] | [.number,.mergedAt,.headRefOid,([.files[].path | select(test("^tests/.*\\.[cm]?[jt]sx?$"))] | join(","))] | @tsv'
+
+pr=1689
+for resource in commits reviews comments; do
+  gh api --paginate "repos/$repo/pulls/$pr/$resource?per_page=100"
+done
+git show 4544c02594220437067e9806aab9d560c0829cbb -- tests/github-pr-screenshots/publishing.test.mjs
+```
+
+Use the base/head printed in the historical receipt, not today's branch tip. Examine relevant patches and use retained named results or archived diagnostic output when no GitHub review was posted. For a retained Verifier request, the installed CLI's `diagnostics <request> --reporter json` can locate its current state; a superseded receipt still describes its own historical scope. Do not rerun review to reconstruct an old verdict. Keep working notes on the maintainer's machine or in the existing private evidence record; share counts and necessary public PR/commit links, not prompts, private paths, or raw receipts.
+
+### Assertion Layout Pilot Baseline
+
+The fixed window above contained **7 MSSRT merges, 2 eligible test PRs, and 2 PRs with retained completed `marlens-rules:test-assertion-focus` reviews**. The reviews below used the shared MSSRT **5.21.0** standard; no binding local layout rule was identified in the captured guidance.
+
+- [#1685](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1685): `PASS` at `d3f28ad2..7a977766` (receipt `8c5787e3`). **0 observed rounds.** The PR's only test-changing commit introduced the feature tests; later commits did not revise those tests.
+- [#1689](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1689): earlier archived `PASS` at `2d16ec8c..7f8be5fc`, then `FAIL` at `dc5ec616..4a64b2bf` (`ff12898d`) and `PASS` at `dc5ec616..4544c025` (`8e2c850a`). **1 layout-only round.** The failure named two compact ENOENT matchers. The [corrective commit](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/commit/4544c02594220437067e9806aab9d560c0829cbb) expanded both without changing the expected error code or matcher.
+
+That is **1 affected PR / 2 reviewed PRs**, **4 distinct completed scopes observed**, and **1 confirmed layout-only round; 0 semantic or mixed rounds attributed to this check in the retained evidence**. For example, the [earlier concurrent-append test](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/commit/6bf493215cd3ffcb688117224e4c98e9e7e8ff4a) added real coverage, but did not answer this layout finding or a failure of this check. The sources cannot account for unrecorded edits, incomplete reviews, or missing earlier receipts. The short window contains the motivating incident and is not a representative estimate.
+
+For the first comparison, sample seven full UTC days ending at the start of the UTC release day, and seven full UTC days starting at the first UTC midnight after a named review of an eligible production PR confirms it has loaded the pilot contract. A targeted QA replay is not that adoption signal and is not part of either cohort. Use the same repository, paths, and reporting rules. Compare confirmed pre-pilot reviews with confirmed pilot reviews; verify the contract source and revision in each receipt because a package install cannot tell what an existing review process evaluated. Report mixed-version PRs, unknown versions, and coverage gaps separately rather than attributing them to either policy. Compare shared-rule layout-only, semantic, and mixed rounds separately; keep explicit-local and unknown cases visible. No post-release editing rounds have been measured in this baseline.
+
+Use the weakened any-error matcher as a quality control: the revision under evaluation must still flag the lost ENOENT requirement. Keep that result, the compact/expanded verdicts, and the explicit-local-policy verdict in the targeted replay report. Replay verdicts help check that the changed decision is about layout without giving up assertion strength; they do not count as observed editing rounds or prove that work was avoided.
+
 ## Authority and Proof
 
 Documentation records intended meaning; source establishes current behavior; runnable scenarios establish observed evidence. Keep conflicts as cited findings instead of silently choosing one source.
