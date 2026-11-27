@@ -100,6 +100,8 @@ For example, instead of repeating token categories, coverage fractions, latency,
 
 Show elapsed time with explicit units: write “Restart took 9m 53s” rather than “Restart took 00:09:53,” which can read as a time of day. Prefer a standard-library duration formatter when it produces suitable units and precision. Keep absolute timestamps, machine-readable duration fields, and intentionally clock-based displays (such as a media timecode) in their established formats.
 
+In human-facing reports, tables, and command output, prefer milliseconds over decimal seconds for subsecond response times. Keep whole-second values in seconds when they read naturally, and preserve the measurement’s precision: show “about 300 ms” rather than “about 0.3 s” alongside “1 s.”
+
 For the presentation and retention of small OMP plugin status results, see [Persistent Plugin Status Reports](omp-plugin-install-reference.md#persistent-plugin-status-reports).
 
 ### Actionable Operational Handoffs
