@@ -5,6 +5,7 @@ import path from "node:path"
 import ts from "typescript"
 
 import { isMainModule } from "../lib/is-main-module.mjs"
+import createPrComparison from "../lib/test-alignment-pr-comparison.mjs"
 
 const DIRECTIVES = {
   "test-name-when": {
@@ -162,7 +163,13 @@ function readPrScope(environment) {
     }
   }
 
-  return { matchingPaths, rangesByPath, wholeFiles: new Set(wholeFilePaths) }
+  return {
+    matchingPaths,
+    rangesByPath,
+    wholeFiles: new Set(wholeFilePaths),
+    mergeBaseCommit: scope.mergeBaseCommit,
+    headCommit: scope.headCommit,
+  }
 }
 
 function scopedTestFiles(root, { matchingPaths, rangesByPath, wholeFiles }) {
@@ -526,7 +533,7 @@ function nativeAssertionBindings(sourceFile) {
 
 function assertionFacts(callback, nativeBindings, sourceFile) {
   const expectationOffsets = []
-  let nativeAssertions = 0
+  const nativeAssertionOffsets = []
 
   function visit(node) {
     if (ts.isCallExpression(node)) {
@@ -539,13 +546,15 @@ function assertionFacts(callback, nativeBindings, sourceFile) {
       while (ts.isPropertyAccessExpression(root) || ts.isElementAccessExpression(root)) {
         root = root.expression
       }
-      if (ts.isIdentifier(root) && nativeBindings.has(root.text)) nativeAssertions += 1
+      if (ts.isIdentifier(root) && nativeBindings.has(root.text)) {
+        nativeAssertionOffsets.push(root.getStart(sourceFile))
+      }
     }
     ts.forEachChild(node, visit)
   }
 
   if (callback) visit(callback)
-  return { expectationOffsets, nativeAssertions }
+  return { expectationOffsets, nativeAssertionOffsets }
 }
 
 function testBlocks(source, testPath) {
@@ -563,15 +572,16 @@ function testBlocks(source, testPath) {
           : thirdArgument
       if (title && (ts.isStringLiteral(title) || ts.isNoSubstitutionTemplateLiteral(title))) {
         const offset = node.getStart(sourceFile)
-        const bodyOffset =
-          callback &&
-          (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) &&
-          ts.isBlock(callback.body)
-            ? callback.body.getStart(sourceFile) + 1
+        const callbackBody =
+          callback && (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback))
+            ? callback.body
             : undefined
-        const body = bodyOffset === undefined ? "" : source.slice(bodyOffset, callback.body.end - 1)
+        const bodyStart = callbackBody?.getStart(sourceFile)
+        const isBlockBody = callbackBody && ts.isBlock(callbackBody)
+        const bodyOffset = isBlockBody ? bodyStart + 1 : undefined
+        const body = isBlockBody ? source.slice(bodyOffset, callbackBody.end - 1) : ""
         const titleSpan = [title.getStart(sourceFile), title.end - 1]
-        const { expectationOffsets, nativeAssertions } = assertionFacts(
+        const { expectationOffsets, nativeAssertionOffsets } = assertionFacts(
           callback,
           nativeBindings,
           sourceFile
@@ -582,9 +592,10 @@ function testBlocks(source, testPath) {
           titleSpan,
           body,
           bodyOffset,
+          callbackBodySpan: callbackBody && [bodyStart, callbackBody.end - 1],
           offset,
           expectationOffsets,
-          nativeAssertions,
+          nativeAssertionOffsets,
         })
       }
     }
@@ -634,7 +645,7 @@ function checkExpectationCount(block, source, testPath) {
   if (
     isControllerTestPath(testPath) ||
     expectationCount === 1 ||
-    (expectationCount === 0 && block.nativeAssertions > 0)
+    (expectationCount === 0 && block.nativeAssertionOffsets.length > 0)
   ) {
     return null
   }
@@ -712,6 +723,62 @@ function eligibleFindingLine(block, spans, lineStarts, lineRanges) {
   return earliestLine
 }
 
+function prepareAssertionPreimage({ basePath, baseSource, hunks }) {
+  const baseLineStarts = sourceLineStarts(baseSource)
+  const blocksByOffset = new Map(testBlocks(baseSource, basePath).map((block) => [block.offset, block]))
+  return { baseLineStarts, blocksByOffset, hunks }
+}
+
+function removedAssertionLine(
+  block,
+  lineStarts,
+  bodyLines,
+  { baseLineStarts, blocksByOffset, hunks }
+) {
+  // The unchanged call start maps to one exact preimage offset, even when
+  // multiple calls have the same title or share a physical line.
+  const declaration = lineAtOffset(lineStarts, block.offset)
+  let lineShift = 0
+
+  for (const { baseEnd, headBefore, headEnd } of hunks) {
+    if (declaration <= headBefore) break
+    if (declaration <= headEnd) return
+
+    lineShift = baseEnd - headEnd
+  }
+
+  const declarationColumn = block.offset - lineStarts[declaration - 1]
+  const previous = blocksByOffset.get(baseLineStarts[declaration + lineShift - 1] + declarationColumn)
+  if (!previous?.callbackBodySpan || previous.name !== block.name) return
+
+  const { expectationOffsets, nativeAssertionOffsets } = previous
+  let assertionOffsets
+  if (expectationOffsets.length === 1) {
+    assertionOffsets = expectationOffsets
+  } else if (expectationOffsets.length === 0 && nativeAssertionOffsets.length > 0) {
+    assertionOffsets = nativeAssertionOffsets
+  } else {
+    return
+  }
+
+  const [baseBodyStart, baseBodyEnd] = previous.callbackBodySpan
+  const [headBodyFirst, headBodyLast] = bodyLines
+
+  for (const { baseBefore, baseEnd, headBefore, headEnd } of hunks) {
+    const line = Math.max(headBefore + 1, headBodyFirst)
+    if (line > Math.min(headEnd, headBodyLast)) continue
+
+    // An unrelated changed line in the callback is not evidence. The old
+    // side of this same replacement hunk must contain the assertion.
+    for (const offset of assertionOffsets) {
+      if (offset < baseBodyStart || offset > baseBodyEnd) continue
+
+      const baseLine = lineAtOffset(baseLineStarts, offset)
+      if (baseBefore < baseLine && baseLine <= baseEnd) return line
+    }
+  }
+}
+
 function formatViolation(testPath, line, code, ruleSource, reason) {
   return `${testPath}:${line}: \`${code}\` — ${reason}; source ${ruleSource.path}:${ruleSource.line} (\`marlens-test-alignment: ${ruleSource.directive}\`).`
 }
@@ -765,10 +832,12 @@ function collectVerification(projectDirectory, environment) {
   }
 
   const scoped = environment.OMP_VERIFIER_PR_SCOPE !== undefined
+  let scope
   let testFiles
+  let compareTestSource
   try {
     if (scoped) {
-      const scope = readPrScope(environment)
+      scope = readPrScope(environment)
       testFiles = scopedTestFiles(root, scope)
     } else {
       testFiles = changedTestFiles(root, environment).map((testPath) => ({ testPath }))
@@ -838,6 +907,7 @@ function collectVerification(projectDirectory, environment) {
 
     const eligibleRanges = wholeFile ? undefined : lineRanges
     const blocks = testBlocks(source, testPath)
+    let assertionPreimage
     configured.push(`${testPath} (${guidance.size} rule${guidance.size === 1 ? "" : "s"})`)
 
     for (const block of blocks) {
@@ -845,7 +915,26 @@ function collectVerification(projectDirectory, environment) {
         const finding = DIRECTIVES[directive].check(block, source, testPath)
         if (!finding) continue
 
-        const line = eligibleFindingLine(block, finding.spans, lineStarts, eligibleRanges)
+        let line = eligibleFindingLine(block, finding.spans, lineStarts, eligibleRanges)
+        if (
+          line === undefined &&
+          eligibleRanges &&
+          directive === "one-direct-expect" &&
+          finding.spans.length === 0 &&
+          block.callbackBodySpan
+        ) {
+          const bodyLines = block.callbackBodySpan.map((offset) => lineAtOffset(lineStarts, offset))
+          if (firstChangedLine(eligibleRanges, ...bodyLines) !== undefined) {
+            try {
+              compareTestSource ??= createPrComparison(root, scope)
+              assertionPreimage ??= prepareAssertionPreimage(compareTestSource(testPath, lineRanges))
+              line = removedAssertionLine(block, lineStarts, bodyLines, assertionPreimage)
+            } catch (error) {
+              return invalidPrScope(error.message)
+            }
+          }
+        }
+
         if (line === undefined) continue
 
         const code = source.slice(lineStarts[line - 1], lineStarts[line]).trim()

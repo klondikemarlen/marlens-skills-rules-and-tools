@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.23.15](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1725) - 2026-11-27
+
+### Fixed
+
+- Detect when a PR replaces a test’s only assertion without flagging incidental edits in tests that already lacked assertions.
+
 ## [5.23.14](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1721) - 2026-11-27
 
 ### Fixed
