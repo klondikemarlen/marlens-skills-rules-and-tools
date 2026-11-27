@@ -81,7 +81,7 @@ return response
 
 - **Same status, body, and evaluation:** `PASS` either readable layout. Neither field count nor formatter width justifies a mandatory rewrite.
 - **Changed wire contract:** `FAIL` a wrap that also changes the status or payload outside the accepted task. Restore the original response contract.
-- **Required project layout or assertion data:** keep the applicable multiline rule. The same `message` literal in a compact `expect(...).toEqual({ message: "..." })` still fails under the shared assertion convention; see [Single-Property Assertion Objects](#single-property-assertion-objects).
+- **Required project layout:** keep the applicable rule. For compact and expanded expected objects rather than response construction, see [Expected Object Layout in Review](#expected-object-layout-in-review).
 
 ## Shared Loader Versus Selective Preloading
 
@@ -519,9 +519,9 @@ Review the before/after cleanup in [Self-Contained Migrations](../docs/reference
 - **Visible writes:** accept either a query builder or inline SQL that deletes results linked to retired sessions before deleting only retired sessions. Reject a parent-first reorder or an unfiltered parent delete in this example. Retain a cohesive helper when it owns genuinely complex work; do not demand a redesign of a released migration.
 - **Focused proof:** run both forms on separate copies of an isolated fixture with one retired session and one active session, each with a result, and an enforced non-cascading foreign key. Only the active session and its result should survive. Reversing the order should fail on the retired result's foreign key; dropping the parent predicate should also fail, this time because the delete targets the active session with a surviving result.
 
-## Single-Property Assertion Objects
+## Expected Object Layout in Review
 
-Accepted task: author the not-found controller assertion under the shared multiline convention, with no stronger project override. Baseline/new assertion comparison:
+Accepted task: check the exact not-found response. Neither the project nor the task requires a particular assertion layout.
 
 ```diff
 -expect(response.body).toEqual({ message: "Travel desk travel request not found." })
@@ -530,7 +530,7 @@ Accepted task: author the not-found controller assertion under the shared multil
 +})
 ```
 
-Expected `FAIL` for the compact input and `PASS` for the expanded input under `existing-object-layout-application`. Cite the assertion location; preserve the exact message and matcher. Partial matchers, including a single `id` property, follow the same expected-data rule. `logger.error(message, { error })` remains a valid small ordinary call argument: that exception does not cover assertion objects. Stronger project overrides remain authoritative, and an untouched assertion outside the task is excluded rather than a reason for a formatting sweep.
+Both the compact and expanded assertions are `PASS` under `existing-object-layout-application`; the expansion is the authoring default, not a required review correction. If binding project guidance explicitly requires multiline expected objects in these tests, the compact version is a layout finding; cite the local rule and preserve the exact message and equality matcher. Switching either version to `expect.any(Object)` instead of the literal loses the not-found contract, regardless of layout. Leave untouched assertions outside the accepted scope unchanged.
 
 ## Linear Actual Queries and Expected Matchers
 
@@ -538,7 +538,7 @@ Accepted task: preserve the persisted-segment assertion while applying the maint
 
 - **Rejected:** assign the query to one-use `savedTravelSegments`, assign each `expect.objectContaining` to one-use expected aliases, then assemble the assertion. Expected `FAIL` when these names add no domain/timing meaning.
 - **Corrected:** the canonical expanded `expect(await TravelSegment.findAll(...)).toEqual([expect.objectContaining(...), ...])` form is `PASS`; this is an explicit construction exception, not hidden effect permission.
-- **Meaningful actual snapshot or reused value:** `PASS` retaining its local. Do not weaken equality, remove properties, hide assertions in helpers, change row ordering, or compact expected objects.
+- **Meaningful actual snapshot or reused value:** `PASS` retaining its local. Do not weaken equality, remove properties, hide assertions in helpers, or change row ordering.
 - **Behavioral proof:** run the consumer's focused assertion scenario against the existing persisted fixture; it must query once with the same options and assert the same literal fields/matchers. Semantic review must separately reject the alias-only input and accept the inline correction.
 
 ## Machine Values, Collections, Mirrors and Snapshots

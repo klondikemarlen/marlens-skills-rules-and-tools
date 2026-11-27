@@ -227,7 +227,7 @@ Expected semantic decisions: FAIL the flag-selected workflow matrix, PASS the tw
 
 - A file asserting `SummaryHeaderPanel`'s rendered result is named `SummaryHeaderPanel.test.ts`, with `describe("SummaryHeaderPanel", ...)`, not `TripDetailsDestination.test.ts` after a rendered child.
 - Estimated and actual travel summaries have different reasons to change. Preserve their independently arranged scenarios instead of a component-parameterized helper that hides those workflows. Shared API interception, factories, or an actual shared contract can still be reused.
-- Reject `expect.objectContaining({ id: cachedBookingEvent.id, deletedAt: null })` as compact multi-property expectation layout. Correct it without changing matching semantics:
+- When the scenario asserts both the recovered event's identity and its restored state, the expanded authoring default makes both expectations visible:
 
 ```typescript
 expect(result).toEqual(
@@ -238,7 +238,7 @@ expect(result).toEqual(
 )
 ```
 
-The two fields stay independently readable even within formatter width. Expand single-property expected objects such as `expect.objectContaining({ id: record.id })` too; assertion data is not covered by the small ordinary-call-argument exception.
+The compact `expect.objectContaining({ id: cachedBookingEvent.id, deletedAt: null })` is equally clear in a short assertion and needs no rewrite by default. Omitting `deletedAt: null` would miss a regression where the right event remains deleted. See [Expected Object Layout in Review](scoped-readability-review.md#expected-object-layout-in-review) for a binding local layout contrast.
 
 ### CLI Scenario Ownership and Shared Mechanics
 

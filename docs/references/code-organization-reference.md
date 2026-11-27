@@ -210,7 +210,7 @@ expect(
 ])
 ```
 
-Do not require `savedTravelSegments` or one-use `expectedTravelSegment` matcher aliases solely for construction guidance. Preserve expanded expected objects, exact values, ordering, matcher strength, query options, and execution count. Keep meaningful setup, reused actual results, complex computations, timing/snapshot locals, and behavior-specific assertions. Do not hide assertions in helpers or synthetic bundles, weaken coverage, or inline arbitrary factories/effects under this exception.
+Do not require `savedTravelSegments` or one-use `expectedTravelSegment` matcher aliases solely for construction guidance. Preserve exact values, ordering, matcher strength, query options, and execution count. Follow [Expected Object Layout](#expected-object-layout). Keep meaningful setup, reused actual results, complex computations, timing/snapshot locals, and behavior-specific assertions. Do not hide assertions in helpers or synthetic bundles, weaken coverage, or inline arbitrary factories/effects under this exception.
 
 #### Existing Policy Allowlists
 
@@ -288,20 +288,7 @@ return response.status(422).json({
 })
 ```
 
-This is a layout choice, not a template. Preserve the status, payload, and evaluation; retain stronger project conventions and the [existing multiline treatment](#diff-friendly-configuration-layouts) for nested responses, assertion data, and other applicable shapes.
-
-Expand non-empty expected object literals one property per line, including single-property assertion objects and objects passed to partial matchers, even when they fit within formatter print width:
-
-```typescript
-expect(result).toEqual(
-  expect.objectContaining({
-    id: cachedBookingEvent.id,
-    deletedAt: null,
-  })
-)
-```
-
-Keep the literal values, matcher semantics, and property order unchanged. This includes `expect(response.body).toEqual({ message: "Not found." })` and `expect.objectContaining({ id: record.id })`: expand both objects under this convention. Assertion data is not covered by the small call-argument exception above. Preserve stronger project overrides and changed-code scope; do not sweep unrelated files. A formatter accepting a compact expected literal does not establish readability compliance.
+This is a layout choice, not a template. Preserve the status, payload, and evaluation; retain stronger project conventions and the [existing multiline treatment](#diff-friendly-configuration-layouts) for nested responses and other applicable shapes.
 
 In named input declarations, group required members before optional members, preserving their relative order within each group where possible. This is declaration organization: preserve names, types, nullability, optionality, defaults, positional APIs, evaluation order, and runtime behavior. Do not reorder value expressions or sweep unrelated files. For Vue prop examples, see [Multiline Prop Object Types](vue-component-authoring-reference.md#multiline-prop-object-types).
 
@@ -344,6 +331,21 @@ During feature or PR work, incidental cleanup is eligible only in an existing fi
 When this scope correction is accepted, inspect the complete in-scope PR for equivalent incidental-only files, not just the selected review line. Preserve other owners' work and remove only the unrelated cleanup from the proposed change.
 
 A legitimately touched file is not permission to relocate its unchanged setup declarations or initialization calls. Preserve their established relative placement unless requested behavior, an actual dependency/initialization order, project tooling, or explicitly requested cleanup requires a move. For example, leave an unchanged `const snack = useSnack()` beside its original form setup rather than moving it solely because the file gains store logic. Necessary new declarations and justified ordering changes remain valid; preserve initialization effects and do not impose a universal declaration order. When this correction is accepted, inspect analogous incidental moves across the complete in-scope PR, preserving other owners' changes rather than restoring only the highlighted line or sweeping unrelated files.
+
+### Expected Object Layout
+
+When writing a non-empty expected object, including a partial-matcher argument, default to one property per line:
+
+```typescript
+expect(result).toEqual(
+  expect.objectContaining({
+    id: cachedBookingEvent.id,
+    deletedAt: null,
+  })
+)
+```
+
+In review, accept an equally clear compact expected object, including a compact multi-property object, unless an explicit binding project rule or accepted task requires a layout. Do not ask for a rewrite or an explanation solely because a clear assertion is compact. When layout obscures what the test checks, name the specific readability problem; when a binding rule applies, cite it. Preserve exact expected values, property order, and matcher strength regardless of layout. Do not weaken a behavior-specific assertion or reformat unrelated tests.
 
 ### Scoped Readability Review
 
@@ -401,7 +403,7 @@ This groups the decision without changing bigint arithmetic or the no-op Void be
 
 ### Diff-Friendly Configuration Layouts
 
-For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. Apply the same layout to nested non-empty response objects, non-empty assertion objects (including single-property objects), and multi-property decorator option objects such as `@Attribute` options. Assertion objects are expected data, not the small call-argument exception in [Simple Construction and Values](#simple-construction-and-values). This is application of the existing one-entry-per-line convention, not a separate nesting, assertion, or decorator policy. An addition should not rewrite an existing entry or its delimiters:
+For extensible configuration/defaults objects, prefer one entry per line with trailing commas where supported, even when there is currently one entry. Apply the same layout to nested non-empty response objects and multi-property decorator option objects such as `@Attribute` options. An addition should not rewrite an existing entry or its delimiters:
 
 ```typescript
 const defaults = {
@@ -2057,7 +2059,7 @@ Name raw fixture/input attribute collections with an `Attributes` suffix, such a
 
 Call fixture-backed test functions by their descriptive exported names rather than aliasing them to generic `test` or `it`; the name exposes the setup/teardown context. Do not hide a fixture such as `testWithConfigOverride` behind `const test = testWithConfigOverride`.
 
-Assert fetched or returned collections directly against expanded literal expected arrays/objects and supported matchers such as `expect.objectContaining`. Do not put `map`, `filter`, `reduce`, or another projection inside `expect` merely to reshape the actual result; use the project's native model representation and compliant sibling patterns. Preserve legitimate async API assertions, native promise-rejection assertions, and matcher API calls.
+Assert fetched or returned collections directly against literal expected arrays/objects and supported matchers such as `expect.objectContaining`. See [Expected Object Layout](#expected-object-layout). Do not put `map`, `filter`, `reduce`, or another projection inside `expect` merely to reshape the actual result; use the project's native model representation and compliant sibling patterns. Preserve legitimate async API assertions, native promise-rejection assertions, and matcher API calls.
 
 Place queries whose sole purpose is observing persisted results in Assert, immediately above the expectation. Prefer a simple awaited ORM query over a parenthesized await followed by in-memory filtering only when isolated fixtures make that filtering unnecessary. Preserve query constraints and options that the scenario actually needs, and keep the operation under test in Act.
 
