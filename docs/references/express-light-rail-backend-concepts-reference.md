@@ -406,6 +406,13 @@ return {
 
 This represents an existing response with those four fields and a required `Date` timestamp. Use the typed private helper under [Serializer Timestamp Conversion](code-organization-reference.md#serializer-timestamp-conversion) when Luxon is available, retaining the actual date contract. Retain the actual field list, nullability, timestamp conversion, and relation serializers; never spread the whole model or replace the allowlist with an exclusion list. Use this preference only where the installed utility preserves the existing response shape, including optional/missing-property behavior. Do not add a dependency solely for this syntax, rewrite unrelated serializers, or infer an identifier-naming convention from the example.
 
+### Shared and Independent Projections
+
+Apply [Human Readability](code-organization-reference.md#human-readability)'s propagation question to both the response type and the field mapping: should a change made for one consumer necessarily propagate to the other?
+
+- **Same fields, independent contracts:** A project detail endpoint and a project reference both expose `id` and `name` today. Give `ProjectAsShow` and `ProjectAsReference` their own local-model `Pick` types and their serializers their own explicit field lists. Do not derive the detail type from the reference type or delegate detail field selection to the reference serializer just to remove matching lists. An approved change that drops `name` from references must not also drop it from project detail.
+- **Same contract, deliberate reuse:** A task detail endpoint promises its nested `project` is the project's reference representation. Type it as `ProjectAsReference` and serialize it with the project's reference serializer. An approved change to that reference applies to the nested `project` too; copying its field list into the task serializer would let the two drift.
+
 ## Consumer-Driven Field Selection
 
 Before adding or retaining a second representation, trace what in-scope consumers do with each field. Check the query projection, supported sort keys and cursors, and any serialized response, UI, or export that uses it. When the existing value serves the same contract, use it directly and drop the redundant calculation or projection. Keep separately meaningful values and representations required by an accepted consumer contract. A field can be necessary for ordering without belonging in the response.
@@ -494,6 +501,8 @@ perform() {
 Accept this complete conversion inside that serializer: source-only `id` and timestamps are deliberately excluded under this illustrative target contract, and the service persists its output directly. Reject leaving the identifier rename or source-field exclusion as a second service mapping after the dedicated serializer. Conversely, an ordinary local-event response retaining `externalTravelPortIdentifier` is correct; renaming it merely to mimic the remote model is not the same conversion requirement. Intentional presentation aliases remain valid. Review the actual complete accepted fields and constructor/context contract, not these illustrative field names.
 
 Prefer dedicated associated-model serializers for their field mappings instead of embedding those mappings in private parent methods. Compose using the project's existing single/collection interface; do not introduce another base. The parent owns its response's preload requirements and any parent-specific ordering or composition, while each associated serializer owns its model's representation.
+
+Delegate to the associated model's reference serializer when the parent intentionally embeds that reference contract, not just because a parent-specific shape happens to match it. See [Shared and Independent Projections](#shared-and-independent-projections).
 
 ### Explicit Scalar Response Types
 

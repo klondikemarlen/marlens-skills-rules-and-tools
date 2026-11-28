@@ -2,6 +2,8 @@
 
 Use this when a TypeScript API exposes typed index/show/reference payloads that should line up with frontend `AsIndex`, `AsShow`, and `AsReference` aliases.
 
+Keep independently owned payloads explicit under [Shared and Independent Projections](../../references/express-light-rail-backend-concepts-reference.md#shared-and-independent-projections), even where their fields overlap.
+
 ## Placeholders
 
 - `{ResourceName}`: model type.
@@ -19,8 +21,12 @@ export type {ResourceNameAsIndex} = Pick<
   | "updatedAt"
 >
 
-export type {ResourceNameAsShow} = {ResourceNameAsIndex} & Pick<
+export type {ResourceNameAsShow} = Pick<
   {ResourceName},
+  | "id"
+  | "name"
+  | "createdAt"
+  | "updatedAt"
   | "description"
 >
 
