@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.24.1](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1747) - 2026-11-28
+
+### Changed
+
+- Serializer guidance distinguishes independent response fields from a deliberately embedded reference contract.
+
 ## [5.24.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1744) - 2026-11-28
 
 ### Added
