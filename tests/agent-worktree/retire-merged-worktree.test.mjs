@@ -117,3 +117,35 @@ test("refuses to retire the primary checkout itself", { skip }, (t) => {
   assert.equal(git("rev-parse", "HEAD"), originalHead)
   assert.equal(readFileSync(path.join(primary, "README.md"), "utf8"), "Primary checkout\n")
 })
+
+test("a permission failure without a display retains the leftover and reports its disposition", { skip }, (t) => {
+  const { primary, worktreeRoot, git, retire } = createRepository(t)
+  const target = path.join(worktreeRoot, "merged-topic")
+  const cache = path.join(target, "cache")
+  const payload = path.join(cache, "build-output")
+  const sibling = path.join(worktreeRoot, "keep.txt")
+  writeFileSync(path.join(primary, ".gitignore"), "cache/\n")
+  git("add", ".gitignore")
+  git("-c", "commit.gpgSign=false", "commit", "-m", "Ignore the build cache")
+  git("worktree", "add", "-b", "merged-topic", target)
+  mkdirSync(cache)
+  writeFileSync(payload, "build output")
+  writeFileSync(sibling, "unrelated work")
+  chmodSync(cache, 0o555)
+
+  try {
+    const result = retire(target)
+
+    assert.ifError(result.error)
+    assert.equal(result.status, 1, result.stderr)
+    const outcome = JSON.parse(result.stdout)
+    assert.equal(outcome.result, "error")
+    assert.equal(outcome.targetPresent, true)
+    const registrations = git("worktree", "list", "--porcelain", "-z").split("\0")
+    assert.equal(outcome.registrationPresent, registrations.includes(`worktree ${target}`))
+    assert.equal(readFileSync(payload, "utf8"), "build output")
+    assert.equal(readFileSync(sibling, "utf8"), "unrelated work")
+  } finally {
+    if (existsSync(cache)) chmodSync(cache, 0o700)
+  }
+})
