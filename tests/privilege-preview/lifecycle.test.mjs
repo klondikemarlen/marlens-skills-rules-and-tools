@@ -93,6 +93,20 @@ test("when a preview has a PR link, the dialog receives it and cancellation stil
   assert.equal(boundary.calls.length, 1)
 })
 
+test("approval does not launch an administrator command if its target check fails", async () => {
+  const boundary = harness(["ready", "approved"])
+  const outcome = await runPreview(request(), {
+    ...boundary,
+    beforeExecution() {
+      throw new Error("Target is no longer the selected worktree.")
+    },
+  })
+
+  assert.equal(outcome.result, "error")
+  assert.match(outcome.message, /Target is no longer the selected worktree/)
+  assert.deepEqual(boundary.calls.map(({ executable }) => executable), ["/usr/bin/python3"])
+})
+
 test("when approved repeatedly, the exact frozen argv executes only once without a shell", async () => {
   // Arrange
   const boundary = harness(["ready", "approved", "approved"])

@@ -1,0 +1,331 @@
+#!/usr/bin/env node
+
+import { spawnSync } from "node:child_process"
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync } from "node:fs"
+import { basename, dirname, isAbsolute, join, normalize } from "node:path"
+import process from "node:process"
+
+import { runPreview } from "../lib/privilege-preview/run-preview.js"
+
+const usage = `Usage: retire-merged-worktree <absolute-worktree-path>
+
+Run from the surviving primary checkout. Use only for a merged, disposable
+worktree after verifying its contents (including ignored files) and stopping
+all users, services, and writers. Keep the tree and its ancestors trusted and
+quiescent through approval, administrator authentication, and deletion. The
+path checks cannot protect against hostile concurrent changes or mounts hidden
+in another mount namespace.`
+
+const STAT_OPTIONS = { bigint: true }
+
+const gitEnv = { ...process.env, LC_ALL: "C" }
+for (const key of Object.keys(gitEnv)) {
+  if (key.startsWith("GIT_")) delete gitEnv[key]
+}
+
+function runGit(cwd, args) {
+  return spawnSync("/usr/bin/git", ["--no-optional-locks", ...args], {
+    cwd,
+    env: gitEnv,
+    encoding: "utf8",
+    maxBuffer: 16 * 1024 * 1024,
+  })
+}
+
+function readGit(cwd, args) {
+  const result = runGit(cwd, args)
+  if (result.error) throw result.error
+  if (result.status !== 0 || result.stderr) {
+    throw new Error(result.stderr.trim() || `git ${args[0]} failed (${result.signal ?? result.status}).`)
+  }
+
+  return result.stdout
+}
+
+function isExactPath(path) {
+  // Reject ambiguous spellings and characters that can spoof command diagnostics.
+  // eslint-disable-next-line no-control-regex
+  const unsafeCharacters = /[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069\ufffd]/u
+  return isAbsolute(path) && !path.endsWith("/") && normalize(path) === path && !unsafeCharacters.test(path)
+}
+
+function readWorktrees(primary) {
+  const output = readGit(primary, ["worktree", "list", "--porcelain", "-z"])
+  const records = output.split("\0\0")
+  if (records.pop() !== "" || records.length === 0) {
+    throw new Error("Git did not report a complete worktree registry.")
+  }
+
+  return records.map((raw) => {
+    const [worktree, ...fields] = raw.split("\0")
+    if (!worktree.startsWith("worktree /") || fields.length === 0) {
+      throw new Error("Git reported an unexpected worktree registry entry.")
+    }
+
+    return { path: worktree.slice(9), fields, raw }
+  })
+}
+
+function matchingRegistration(primary, target) {
+  const [main, ...linked] = readWorktrees(primary)
+  if (main.path !== primary || main.fields.includes("bare")) {
+    throw new Error("Run this command from the surviving primary Git checkout.")
+  }
+
+  const matches = linked.filter(({ path }) => path === target || path.startsWith(`${target}/`))
+  if (matches.length > 1 || (matches.length === 1 && matches[0].path !== target)) {
+    throw new Error("There are duplicate or nested registrations at the target.")
+  }
+
+  return matches[0]
+}
+
+function assertUnlocked(registration) {
+  if (registration.fields.some((field) => /^(bare|locked|prunable)( |$)/u.test(field))) {
+    throw new Error("The target is bare, locked, or prunable; it cannot be retired.")
+  }
+}
+
+function statIfPresent(path) {
+  return lstatSync(path, { ...STAT_OPTIONS, throwIfNoEntry: false })
+}
+
+function directoryChain(path, requireTrustedAncestors = false) {
+  const uid = BigInt(process.geteuid())
+  const gid = BigInt(process.getegid())
+  const chain = []
+  let current = "/"
+  for (const component of ["", ...path.slice(1).split("/")]) {
+    current = join(current, component)
+    const stat = lstatSync(current, STAT_OPTIONS)
+    if (!stat.isDirectory()) {
+      throw new Error(`Not a non-symlink directory: ${current}`)
+    }
+
+    if (requireTrustedAncestors && (
+      (stat.uid !== uid && stat.uid !== 0n) ||
+      (stat.mode & 0o002n) ||
+      ((stat.mode & 0o020n) && (stat.uid !== uid || stat.gid !== gid))
+    )) {
+      throw new Error(`Not a trusted directory for administrator deletion: ${current}`)
+    }
+
+    chain.push(`${stat.dev}:${stat.ino}`)
+  }
+
+  return chain.join("/")
+}
+
+function assertNoMounts(target) {
+  // mountinfo sees same-device bind mounts that a device-number check misses.
+  const escapes = { "040": " ", "011": "\t", "012": "\n", "134": "\\" }
+  const mountInfo = readFileSync("/proc/self/mountinfo", "utf8").trimEnd()
+  for (const line of mountInfo.split("\n")) {
+    const fields = line.split(" ")
+    if (!fields[4]?.startsWith("/") || !fields.includes("-")) {
+      throw new Error("Cannot determine mount boundaries from /proc/self/mountinfo.")
+    }
+
+    const mountPoint = fields[4].replace(/\\(040|011|012|134)/gu, (_, code) => escapes[code])
+    if (mountPoint === target || mountPoint.startsWith(`${target}/`)) {
+      throw new Error(`Mounted filesystem at or below target: ${JSON.stringify(mountPoint)}`)
+    }
+  }
+}
+
+function sameDirectory(first, second) {
+  return second?.isDirectory() && first.dev === second.dev && first.ino === second.ino
+}
+
+async function retireMergedWorktree(target, signal) {
+  const primary = readGit(process.cwd(), ["rev-parse", "--show-toplevel"]).slice(0, -1)
+  const worktreeRoot = join(dirname(primary), `${basename(primary)}-worktrees`)
+  if (!isExactPath(primary) || dirname(target) !== worktreeRoot) {
+    throw new Error("Target must be a direct child of the primary checkout's sibling worktree root.")
+  }
+
+  const registration = matchingRegistration(primary, target)
+  if (!registration) {
+    throw new Error("Target is not an exactly registered linked worktree.")
+  }
+
+  assertUnlocked(registration)
+  const targetChain = directoryChain(target)
+  const commonDirArgs = ["rev-parse", "--path-format=absolute", "--git-common-dir"]
+  const commonDir = readGit(primary, commonDirArgs).slice(0, -1)
+  const gitDir = readGit(target, ["rev-parse", "--absolute-git-dir"]).slice(0, -1)
+  if (!isExactPath(gitDir) || dirname(gitDir) !== join(commonDir, "worktrees")) {
+    throw new Error("Target's Git metadata does not belong to the surviving checkout.")
+  }
+
+  const originalGitDir = lstatSync(gitDir, STAT_OPTIONS)
+  // Holding the directory open prevents its inode from being recycled before approval.
+  const targetFd = openSync(target, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW)
+  try {
+    const originalTarget = fstatSync(targetFd, STAT_OPTIONS)
+    if (!sameDirectory(originalTarget, statIfPresent(target)) || directoryChain(target) !== targetChain) {
+      throw new Error("Target directory identity changed before removal.")
+    }
+
+    assertNoMounts(target)
+    const removal = runGit(primary, [
+      "-c",
+      "status.showUntrackedFiles=all",
+      "-c",
+      "core.fsmonitor=false",
+      "worktree",
+      "remove",
+      "--",
+      target,
+    ])
+    if (removal.stdout) process.stderr.write(removal.stdout)
+    if (removal.stderr) process.stderr.write(removal.stderr)
+    if (removal.error) throw removal.error
+
+    function disposition() {
+      const targetPresent = Boolean(statIfPresent(target))
+      const registrationPresent = Boolean(matchingRegistration(primary, target))
+      return { target, targetPresent, registrationPresent }
+    }
+
+    if (removal.status === 0) {
+      return removedResult("git", disposition())
+    }
+
+    const permissionErrors = ["Permission denied", "Operation not permitted"].map(
+      (reason) => `error: failed to delete '${target}': ${reason}\n`
+    )
+    if (removal.signal || removal.stdout || !permissionErrors.includes(removal.stderr)) {
+      return {
+        result: "git-remove-failed",
+        ...disposition(),
+        exitCode: removal.status,
+        signal: removal.signal,
+      }
+    }
+
+    function recheckFallback() {
+      if (readGit(primary, commonDirArgs).slice(0, -1) !== commonDir) {
+        throw new Error("The surviving checkout's Git directory changed after ordinary removal.")
+      }
+
+      const current = matchingRegistration(primary, target)
+      const currentGitDir = statIfPresent(gitDir)
+      // Ordinary Git may remove the registration even after partial directory deletion.
+      if (current) {
+        assertUnlocked(current)
+        if (current.raw !== registration.raw || !sameDirectory(originalGitDir, currentGitDir)) {
+          throw new Error("The target registration changed after ordinary removal.")
+        }
+      } else if (currentGitDir) {
+        throw new Error("The old registration's metadata remains in an uncertain state.")
+      }
+
+      assertNoMounts(target)
+      if (directoryChain(target, true) !== targetChain) {
+        throw new Error("Target directory or ancestor identity changed after ordinary removal.")
+      }
+
+      return Boolean(current)
+    }
+
+    const hadRegistrationAfterGit = recheckFallback()
+    const preview = await runPreview(
+      {
+        execution: "administrator",
+        target: [
+          {
+            label: "Worktree",
+            value: target,
+          },
+        ],
+        reason:
+          "Continue requests administrator access to remove only this disposable directory. Ordinary Git removal reported a filesystem permission failure.",
+        context: {
+          agent: "Wrap-up worktree retirement",
+          task: "Remove the exact worktree already verified as merged and disposable by the caller.",
+          whatHappened:
+            "Ordinary Git removal was attempted without force and reported a permission failure. Git may already have removed some files or its registration.",
+          completionEffect:
+            "Delete the named directory and its remaining contents, not Git refs or registration metadata.",
+        },
+        command: {
+          executable: "/usr/bin/rm",
+          arguments: ["--recursive", "--one-file-system", "--preserve-root=all", "--", target],
+          cwd: "/",
+        },
+      },
+      {
+        signal,
+        beforeExecution() {
+          if (recheckFallback() !== hadRegistrationAfterGit) {
+            throw new Error("The target registration changed during the administrator preview.")
+          }
+        },
+      }
+    )
+
+    if (preview.result === "command-completed") {
+      return removedResult("administrator", disposition())
+    }
+
+    return { ...preview, ...disposition() }
+  } finally {
+    closeSync(targetFd)
+  }
+}
+
+function removedResult(method, disposition) {
+  let result = "removed"
+  if (disposition.targetPresent) {
+    result = "target-retained"
+  } else if (disposition.registrationPresent) {
+    result = "registration-retained"
+  }
+
+  return { result, method, ...disposition }
+}
+
+async function main(args) {
+  if (args.length === 1 && ["-h", "--help"].includes(args[0])) {
+    console.log(usage)
+    return
+  }
+
+  if (args.length !== 1 || !isExactPath(args[0])) {
+    throw new Error(usage)
+  }
+
+  if (process.platform !== "linux" || process.getuid() === 0) {
+    throw new Error("Run as an ordinary user on Linux; Git must never run as administrator.")
+  }
+
+  const controller = new AbortController()
+  const interrupt = () => controller.abort()
+  process.once("SIGINT", interrupt)
+  process.once("SIGTERM", interrupt)
+  try {
+    const outcome = await retireMergedWorktree(args[0], controller.signal)
+    console.log(JSON.stringify(outcome))
+    if (outcome.result === "removed") return
+
+    if (!outcome.targetPresent && outcome.registrationPresent) {
+      console.error(
+        "The directory is absent but Git retained its registration. Reconcile only this exact worktree as the ordinary user."
+      )
+    }
+
+    const exitCodes = { cancelled: 3, expired: 4, interrupted: 130 }
+    process.exitCode = exitCodes[outcome.result] ?? 1
+  } finally {
+    process.removeListener("SIGINT", interrupt)
+    process.removeListener("SIGTERM", interrupt)
+  }
+}
+
+try {
+  await main(process.argv.slice(2))
+} catch (error) {
+  console.error(error.message)
+  process.exitCode = 1
+}

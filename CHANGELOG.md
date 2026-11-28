@@ -6,6 +6,12 @@ An open release PR’s version heading and UTC date identify a candidate, not a 
 
 ## Unreleased
 
+## [5.24.0](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1744) - 2026-11-28
+
+### Added
+
+- Wrap-Up can retire one disposable linked worktree with `retire-merged-worktree`. If ordinary Git removal fails on permissions, the existing GNOME preview offers to delete that directory as administrator.
+
 ## [5.23.26](https://github.com/klondikemarlen/marlens-skills-rules-and-tools/pull/1743) - 2026-11-27
 
 ### Changed
