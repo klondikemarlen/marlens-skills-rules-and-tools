@@ -242,9 +242,14 @@ Use the domain's real reuse identity, including compound predicates where requir
 
 ## Serializer Slice
 
+Keep each independently owned response type local to its representation. See [Shared and Independent Projections](../../../references/express-light-rail-backend-concepts-reference.md#shared-and-independent-projections).
+
 ```ts
 export type {ResourceName}AsIndex = Pick<{ResourceName}, "id" | "{searchField}">
-export type {ResourceName}AsShow = {ResourceName}AsIndex & Pick<{ResourceName}, "createdAt" | "updatedAt">
+export type {ResourceName}AsShow = Pick<
+  {ResourceName},
+  "id" | "{searchField}" | "createdAt" | "updatedAt"
+>
 export type {ResourceName}AsReference = Pick<{ResourceName}, "id" | "{searchField}">
 ```
 

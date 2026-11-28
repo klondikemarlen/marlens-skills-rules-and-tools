@@ -31,6 +31,7 @@ The [Zen of Python](https://peps.python.org/pep-0020/) informs explicit, simple,
 - Prefer straightforward sequences, guard clauses, and shallow nesting when they clarify control flow. Use explicit intermediate steps instead of dense expressions when they reduce mental reconstruction. For optional inputs whose absence selects a return or fallback, follow [input-object guards](#guard-clauses-and-exceptional-responses) before deriving property locals.
 - Use consistent formatting and blank lines to separate meaningful logical steps; follow [Whitespace Matters](../../rules/whitespace-matters.md).
 - Extract helpers when a meaningful name and boundary clarify an operation or remove real duplication. Do not lower cyclomatic complexity merely by scattering decisions across trivial helpers or adding layers.
+- Before sharing code or types, ask: **Should a change made for one consumer necessarily propagate to the other?** If both use the same contract for the same reason, reuse its owner. If they can legitimately change independently, keep each projection explicit at its own boundary even when the fields match today. Judge by consumer intent, not by a duplication threshold or lint rule.
 - Explain non-obvious constraints and decisions in comments, not behavior already expressed clearly by the code.
 - Avoid repeating generic extraction history or assurances that licensing and attribution were preserved in source headers; use the repository's standard license and central attribution material for general provenance. Retain concise per-file notices required by the applicable license and useful technical rationale. Apply an accepted correction to analogous headers within the authored or requested review scope, not a repository-wide sweep. Uncertainty about license choice does not authorize changing licenses or removing required notices; leave unclear obligations intact pending clarification.
 
@@ -256,6 +257,8 @@ perform() {
 The projection selects unchanged fields; `departureTime` names a meaningful transformation. Keep meaningful transformation/serialization stages, reused results, effectful operations, asynchronous work, and required sequencing explicit. This is not permission to inline every synchronous call, nested serializer, factory, or query. The inline projections in [Repeated Serializer Normalization](#repeated-serializer-normalization), [Serializer Timestamp Conversion](#serializer-timestamp-conversion), and [Private Helper Inputs](#private-helper-inputs) use this same exception.
 
 Preserve evaluation count and order, selected fields, and spread precedence. The example assumes the time transformation already precedes the projection; do not move it across the projection merely to match the example. A projection can read getters or proxies: when those reads are effectful or order-sensitive, retain their original evaluation points and any meaningful sequencing locals.
+
+For the ownership decision behind those field lists, compare [Shared and Independent Projections](express-light-rail-backend-concepts-reference.md#shared-and-independent-projections).
 
 ### Simple Construction and Values
 
