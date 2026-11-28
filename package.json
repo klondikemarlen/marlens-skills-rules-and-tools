@@ -1,6 +1,6 @@
 {
   "name": "marlens-skills-rules-and-tools",
-  "version": "5.23.26",
+  "version": "5.24.0",
   "description": "Generic agent skills, rules, tool helpers, and OMP/Claude plugin adapters.",
   "type": "module",
   "scripts": {
@@ -26,6 +26,7 @@
     "agent-rebase-edit": "./bin/agent-rebase-edit.js",
     "agent-guidance-audit": "./bin/agent-guidance-audit.js",
     "agent-worktree": "./bin/agent-worktree.js",
+    "retire-merged-worktree": "./bin/retire-merged-worktree",
     "check-commit-scope": "./bin/check-commit-scope",
     "temporary-mcp-task": "./bin/temporary-mcp-task.js",
     "github-headless-session": "./bin/github-headless-session",
