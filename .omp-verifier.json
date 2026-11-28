@@ -3,7 +3,8 @@
     "commands": {
       "javascript": {
         "tool": "eslint",
-        "command": ["npm", "run", "lint"]
+        "command": ["./node_modules/.bin/eslint", "--no-fix", "--max-warnings", "0"],
+        "appendPaths": true
       },
       "python": {
         "tool": "ruff",
